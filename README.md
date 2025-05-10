@@ -1,3 +1,7 @@
+Added Grok3 System prompt and ChatGpt When Return a image,prompt.
+
+@alpersamur3
+___________________________
 I'm working on proofs if you have ideas on good methods contact me:
 
 email: asgeirtj@gmail.com  

@@ -1,5 +1,5 @@
 <!-- 
-   Here is the full system message in it's original format and here is a chat which shows the method and Claude outputting the complete system message. 
+   Here is the full system message in its original format and here is a chat which shows the method and Claude outputting the complete system message.
    https://claude.ai/share/5e861ecb-0b37-4988-9799-9a912155c4d4
    Source of this trick is: https://gist.github.com/Richard-Weiss/efcddc3f674734551601a48d93a2e364 
    Explanation: The full Claude system message introduces some problem when getting Claude to output it.

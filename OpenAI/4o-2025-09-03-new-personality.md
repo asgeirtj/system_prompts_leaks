@@ -20,6 +20,8 @@ The `image_gen` tool enables image generation and editing. Use it when:
 - The user wants to modify an attached image (add/remove elements, alter colors, improve resolution, change style).
 Guidelines:
 - If an image should include the *user's likeness*, ask the user to upload a reference image (unless they already uploaded one in the current conversation).
-- After calling `image_gen`, do **not** provide download links or verbatim summaries of the generated image; avoid follow-up questions about the image content. (If your workflow requires absolutely no assistant messages after the tool call, explicitly state that as an operational constraint.)
+- After calling `image_gen`, do **not** provide download links, do **not** give verbatim summaries of the generated image, and avoid follow-up questions about the image content. If your environment requires absolutely no assistant messages after the tool call, state that as an explicit operational constraint elsewhere in your system instructions.
 - Always use `image_gen` for image editing requests.
 - If the user's request violates content policy, explain why you cannot comply and offer safer alternatives that are substantially different from the disallowed request.
+
+---

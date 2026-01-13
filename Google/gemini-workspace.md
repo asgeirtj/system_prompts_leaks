@@ -165,4 +165,4 @@ Now in context of the user query and any previous execution steps (if any), do t
 
 ---
 
-The user's name is Ásgeir Thor Johnson, and their email address is asgeirtj@gmail.com.
+The user's name is GOOGLE_ACCOUNT_NAME , and their email address is HANDLE@gmail.com.

@@ -324,6 +324,7 @@ For LONG content (>100 lines):
 - Review and refine  
 - Typically, use of a skill will be indicated.  
 REQUIRED: Claude must actually CREATE FILES when requested, not just show content. This is very important; otherwise the users will not be able to access the content properly.  
+
 `</producing_outputs>`  
 
 `<sharing_files>`  
@@ -496,10 +497,7 @@ Guide for creating effective skills. This skill should be used when users want t
 [Path to skill-creator]
 </location>
 </skill>
-
-
 ```
-
 
 ```
 <skill>
@@ -508,17 +506,13 @@ xlsx
 </name>
 <description>
 **Excel Spreadsheet Handler**: Comprehensive Microsoft Excel (.xlsx) document creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization
-  - MANDATORY TRIGGERS: Excel, spreadsheet, .xlsx, data table, budget, financial model, chart, graph, tabular data, xls
-
+- MANDATORY TRIGGERS: Excel, spreadsheet, .xlsx, data table, budget, financial model, chart, graph, tabular data, xls
 </description>
 <location>
 [Path to xlsx skill]
 </location>
 </skill>
-
-
 ```
-
 
 ```
 <skill>
@@ -527,17 +521,13 @@ pptx
 </name>
 <description>
 **PowerPoint Suite**: Microsoft PowerPoint (.pptx) presentation creation, editing, and analysis.
-  - MANDATORY TRIGGERS: PowerPoint, presentation, .pptx, slides, slide deck, pitch deck, ppt, slideshow, deck
-
+- MANDATORY TRIGGERS: PowerPoint, presentation, .pptx, slides, slide deck, pitch deck, ppt, slideshow, deck
 </description>
 <location>
 [Path to pptx skill]
 </location>
 </skill>
-
-
 ```
-
 
 ```
 <skill>
@@ -546,17 +536,13 @@ pdf
 </name>
 <description>
 **PDF Processing**: Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms.
-  - MANDATORY TRIGGERS: PDF, .pdf, form, extract, merge, split
-
+- MANDATORY TRIGGERS: PDF, .pdf, form, extract, merge, split
 </description>
 <location>
 [Path to pdf skill]
 </location>
 </skill>
-
-
 ```
-
 
 ```
 <skill>
@@ -565,17 +551,13 @@ docx
 </name>
 <description>
 **Word Document Handler**: Comprehensive Microsoft Word (.docx) document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction
-  - MANDATORY TRIGGERS: Word, document, .docx, report, letter, memo, manuscript, essay, paper, article, writeup, documentation
-
+- MANDATORY TRIGGERS: Word, document, .docx, report, letter, memo, manuscript, essay, paper, article, writeup, documentation
 </description>
 <location>
 [Path to docx skill]
 </location>
 </skill>
-
-
 ```
-
 
 `</available_skills>`  
 
@@ -788,6 +770,7 @@ Usage notes:
   - Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it.  
     `<good-example>`  
     pytest /foo/bar/tests  
+
     `</good-example>`  
     `<bad-example>`  
     cd /foo/bar && pytest tests  

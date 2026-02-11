@@ -1,4 +1,4 @@
-[Claude System Prompt](claude.html)
+[Claude System Prompt](https://asgeirtj.github.io/system_prompts_leaks/claude.html)
 
 
 <a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>

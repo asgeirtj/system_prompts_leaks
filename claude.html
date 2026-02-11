@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Opus 4.6 — System Prompt Explorer</title>
+<title>Claude System Prompt Explorer</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -1189,8 +1189,8 @@ function buildPage() {
 
   // Doc header
   html += '<div class="doc-header">';
-  html += '<h1 class="doc-title">Claude System Prompt</h1>';
-  html += '<p class="doc-subtitle">Complete system prompt for Claude Opus 4.6 running on claude.ai — including all tools, integrations, memory system, and behavioral guidelines.</p>';
+  html += '<h1 class="doc-title">Claude System Prompt Explorer</h1>';
+  html += '<p class="doc-subtitle">A human-readable, easily accessible version of the claude.ai system prompt. The ordering has been changed and the formatting adjusted to make it easier to read and digest. The mostly unedited raw version can be accessed in the <a href="https://github.com/asgeirtj/system_prompts_leaks" target="_blank">source repo</a>.</p>';
   html += `<div class="doc-stats"><span>${lineCount.toLocaleString()} lines</span><span>${wordCount.toLocaleString()} words</span><span>${tools.length} tools</span><span>47.7k tokens</span></div>`;
   html += '<button class="copy-prompt-btn" onclick="copySystemPrompt(this)">Copy System Prompt</button>';
   html += '</div>';

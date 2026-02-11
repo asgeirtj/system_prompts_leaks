@@ -53,12 +53,6 @@ body{font-family:var(--font-body);color:var(--text);background:var(--bg);height:
 .breadcrumb{font-size:var(--fs-small);color:var(--text-muted);display:flex;align-items:center;gap:6px}
 .breadcrumb .sep{color:var(--text-muted);font-size:.7rem;opacity:.5}
 .breadcrumb .current{color:var(--text);font-weight:600}
-.top-search{position:relative;width:260px}
-.search-input{width:100%;height:34px;background:var(--bg);border:1px solid var(--border-shade);border-radius:6px;padding:0 10px 0 32px;font-family:var(--font-body);font-size:var(--fs-small);color:var(--text);outline:none;transition:all .2s}
-.search-input::placeholder{color:var(--text-muted)}
-.search-input:focus{background:var(--bg);border-color:var(--accent);box-shadow:0 0 0 3px hsl(15 54.2% 51.2%/0.08)}
-.top-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-muted);pointer-events:none}
-.search-kbd{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:var(--fs-xs);color:var(--text-muted);background:var(--bg);border:1px solid var(--border-shade);border-radius:3px;padding:1px 5px;pointer-events:none}
 
 /* ═══ SCROLL AREA ═══ */
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden}
@@ -189,22 +183,12 @@ body{font-family:var(--font-body);color:var(--text);background:var(--bg);height:
 .json-schema-wrap{display:none;margin-top:8px}
 .json-schema-wrap.open{display:block}
 
-/* ═══ SEARCH RESULTS ═══ */
-.search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--bg);border:1px solid var(--border-shade);border-radius:8px;max-height:400px;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.12);z-index:100;display:none}
-.search-results.open{display:block}
-.sr-count{padding:8px 14px;font-size:var(--fs-xs);color:var(--text-muted);border-bottom:1px solid var(--border);font-weight:500}
-.sr-item{padding:8px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s}
-.sr-item:hover{background:var(--bg-100)}
-.sr-section{font-size:var(--fs-xs);font-weight:600;color:var(--accent);margin-bottom:2px}
-.sr-text{font-size:var(--fs-small);color:var(--text-secondary);line-height:1.4}
-.sr-text mark{background:hsl(15 63.1% 59.6%/0.15);color:var(--text);border-radius:2px;padding:0 2px}
-
 /* ═══ XML ANNOTATIONS ═══ */
 .xml-tag{font-family:var(--font-mono);font-size:var(--fs-code);padding:2px 8px;border-radius:3px;font-weight:500;white-space:nowrap;color:hsl(125 100% 18%);background:hsl(86 45.1% 90%/0.5)}
 
 /* ═══ RESPONSIVE ═══ */
 @media(max-width:1000px){.toc{display:none}.page-layout{padding:0 28px}.content-wrap{max-width:100%}}
-@media(max-width:600px){.page-layout{padding:0 16px}.top-bar-inner{padding:0 16px}.top-search{width:180px}.search-kbd{display:none}}
+@media(max-width:600px){.page-layout{padding:0 16px}.top-bar-inner{padding:0 16px}}
 </style>
 </head>
 <body>
@@ -213,14 +197,6 @@ body{font-family:var(--font-body);color:var(--text);background:var(--bg);height:
 
 <header class="top-bar">
   <div class="top-bar-inner">
-    <div class="top-left">
-    </div>
-    <div class="top-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input class="search-input" type="text" placeholder="Search prompt..." id="searchInput">
-      <span class="search-kbd">/</span>
-      <div class="search-results" id="searchResults"></div>
-    </div>
   </div>
 </header>
 
@@ -1265,7 +1241,7 @@ function buildPage() {
   document.getElementById('contentWrap').innerHTML = html;
 
   // Build TOC
-  let tocHtml = '<div class="toc-label">On This Page</div>';
+  let tocHtml = '';
   let groupOpen = false;
   let subsOpen = false;
   for (const item of tocData) {
@@ -1288,7 +1264,6 @@ function buildPage() {
 
   // Setup features
   setupScrollSpy();
-  setupSearch(sections, tools);
   setupProgressBar();
 }
 
@@ -1325,6 +1300,27 @@ function setupScrollSpy() {
 
   sectionEls.forEach(el => observer.observe(el));
 
+  // Handle last section: activate when scrolled to bottom
+  const scrollArea = document.getElementById('scrollArea');
+  scrollArea.addEventListener('scroll', () => {
+    const atBottom = scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight < 60;
+    if (atBottom) {
+      const lastSection = sectionEls[sectionEls.length - 1];
+      if (lastSection) {
+        tocItems.forEach(t => t.classList.remove('active'));
+        const match = document.querySelector(`.toc-item[data-section="${lastSection.id}"]`);
+        if (match) {
+          match.classList.add('active');
+          document.querySelectorAll('.toc-subs').forEach(s => s.classList.remove('open'));
+          const parentSubs = match.closest('.toc-subs');
+          if (parentSubs) parentSubs.classList.add('open');
+          const nextSubs = match.nextElementSibling;
+          if (nextSubs && nextSubs.classList.contains('toc-subs')) nextSubs.classList.add('open');
+        }
+      }
+    }
+  });
+
   // Click handling
   tocItems.forEach(item => {
     item.addEventListener('click', (e) => {
@@ -1339,79 +1335,6 @@ function setupScrollSpy() {
         }
       }
     });
-  });
-}
-
-// ═══════════════════════════════════════════════════
-// SEARCH
-// ═══════════════════════════════════════════════════
-function setupSearch(sections, tools) {
-  const input = document.getElementById('searchInput');
-  const results = document.getElementById('searchResults');
-  let searchIndex = [];
-
-  // Build index
-  for (const [id, data] of Object.entries(sections)) {
-    const title = SECTION_TITLES[id] || id;
-    let text = data.content || '';
-    if (data.subsections) {
-      for (const sub of data.subsections) text += ' ' + (sub.content || '');
-    }
-    searchIndex.push({ type: 'section', id: `section-${id}`, title, text: text.toLowerCase() });
-  }
-  for (const tool of tools) {
-    searchIndex.push({ type: 'tool', id: `section-tools`, title: tool.name, text: (tool.fullDescription + ' ' + tool.rawJson).toLowerCase() });
-  }
-
-  input.addEventListener('input', () => {
-    const query = input.value.trim().toLowerCase();
-    if (query.length < 2) { results.classList.remove('open'); return; }
-
-    const matches = [];
-    for (const item of searchIndex) {
-      const idx = item.text.indexOf(query);
-      if (idx !== -1 || item.title.toLowerCase().includes(query)) {
-        let snippet = '';
-        if (idx !== -1) {
-          const start = Math.max(0, idx - 40);
-          const end = Math.min(item.text.length, idx + query.length + 60);
-          snippet = (start > 0 ? '…' : '') + item.text.slice(start, end) + (end < item.text.length ? '…' : '');
-          snippet = snippet.replace(new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'), m => `<mark>${m}</mark>`);
-        }
-        matches.push({ ...item, snippet });
-      }
-    }
-
-    if (matches.length === 0) {
-      results.innerHTML = '<div class="sr-count">No results</div>';
-    } else {
-      let html = `<div class="sr-count">${matches.length} result${matches.length!==1?'s':''}</div>`;
-      for (const m of matches.slice(0, 15)) {
-        html += `<div class="sr-item" onclick="document.getElementById('${m.id}').scrollIntoView({behavior:'smooth'});document.getElementById('searchResults').classList.remove('open')">`;
-        html += `<div class="sr-section">${escapeHtml(m.title)}</div>`;
-        if (m.snippet) html += `<div class="sr-text">${m.snippet}</div>`;
-        html += '</div>';
-      }
-      results.innerHTML = html;
-    }
-    results.classList.add('open');
-  });
-
-  // Close on click outside
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.top-search')) results.classList.remove('open');
-  });
-
-  // Keyboard shortcut
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement !== input) {
-      e.preventDefault();
-      input.focus();
-    }
-    if (e.key === 'Escape') {
-      input.blur();
-      results.classList.remove('open');
-    }
   });
 }
 

@@ -402,7 +402,7 @@ function renderMarkdown(text) {
     }
 
     // User/Action example fields
-    var uaMatch = trimmed.match(/^(User|Action):\s*(.+)/);
+    var uaMatch = trimmed.match(/^(User|Action|Claude):\s*(.+)/);
     if (uaMatch) {
       if (!inUaCard) { html += '<div class="ua-card">'; inUaCard = true; }
       var uaCls = uaMatch[1] === 'User' ? 'ua-user' : 'ua-action';
@@ -412,7 +412,7 @@ function renderMarkdown(text) {
 
     // Bold-only lines as example group titles (when near example/ex/ua cards)
     var boldOnly = trimmed.match(/^\*\*([^*]+)\*\*$/);
-    if (boldOnly && (inExCard || inUaCard || (i + 3 < lines.length && lines.slice(i+1, i+4).some(function(l) { return l.trim().match(/^`<(example_user_memories|user)|^(User|Action):/); })))) {
+    if (boldOnly && (inExCard || inUaCard || (i + 3 < lines.length && lines.slice(i+1, i+4).some(function(l) { return l.trim().match(/^`<(example_user_memories|user)|^(User|Action|Claude):/); })))) {
       if (inExCard) { html += '</div>'; inExCard = false; }
       if (inUaCard) { html += '</div>'; inUaCard = false; }
       html += '<div class="example-group-title">' + escapeHtml(boldOnly[1]) + '</div>';

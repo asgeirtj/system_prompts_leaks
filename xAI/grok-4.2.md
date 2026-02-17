@@ -123,21 +123,72 @@ You can use multiple tools in parallel by calling them together.
 **web_search**  
 
 ```
-{"name": "web_search", "description": "This action allows you to search the web. You can use search operators like site:
-
-[reddit.com](https://reddit.com/)
-
- when needed.", "parameters": {"properties": {"query": {"description": "The search query to look up on the web.", "type": "string"}, "num_results": {"default": 10, "description": "The number of results to return. It is optional, default 10, max is 30.", "maximum": 30, "minimum": 1, "type": "integer"}}, "required": ["query"], "type": "object"}}
+{
+  "name": "web_search",
+  "description": "This action allows you to search the web. You can use search operators like site: reddit.com when needed.",
+  "parameters": {
+    "properties": {
+      "query": {
+        "description": "The search query to look up on the web.",
+        "type": "string"
+      },
+      "num_results": {
+        "default": 10,
+        "description": "The number of results to return. It is optional, default 10, max is 30.",
+        "maximum": 30,
+        "minimum": 1,
+        "type": "integer"
+      }
+    },
+    "required": [
+      "query"
+    ],
+    "type": "object"
+  }
+}
 ```
 
 **x_keyword_search**  
 
 ```
-{"name": "x_keyword_search", "description": "Advanced search tool for X Posts.", "parameters": {"properties": {"query": {"description": "The search query string for X advanced search. Supports all advanced operators, including:\nPost content: keywords (implicit AND), OR, \"exact phrase\", \"phrase with wildcard\", +exact term, -exclude, url:domain.\nFrom/to:mentions: from:user, to:user, 
+{
+  "name": "x_keyword_search",
+  "description": "Advanced search tool for X Posts.",
+  "parameters": {
+    "properties": {
+      "query": {
+        "description": "The search query string for X advanced search. Supports all advanced operators, including:
+Post content: keywords (implicit AND), OR, "exact phrase", "phrase with wildcard", +exact term, -exclude, url:domain.
+From/to:mentions: from:user, to:user,  @user , list:id or list:slug.
+Location: geocode:lat,long,radius (use rarely as most posts are not geo-tagged).
+Time/ID: since:YYYY-MM-DD, until:YYYY-MM-DD_HH:MM:SS_TZ, since:YYYY-MM-DD_HH:MM:SS, since_time:unix, since_id:id, max_id:id, within_time:Xd/Xh/Xm/Xs.
+Post type: filter:replies, filter:self_threads, conversation_id:id, filter:quote, quoted_tweet_id:ID, quoted_user_id:ID, in_reply_to_tweet_id:ID, in_reply_to_user_id:ID.
+Engagement: filter:has_engagement, min_retweets:N, min_faves:N, min_replies:N, retweeted_by_user_id:ID, replied_to_by_user_id:ID.
+Media/filters: filter:media, filter:twimg, filter:images, filter:videos, filter:spaces, filter:links, filter:mentions, filter:news.
+Most filters can be negated with -. Use parentheses for grouping. Spaces mean AND; OR must be uppercase.
 
-[@user](https://x.com/@user)
-
-, list:id or list:slug.\nLocation: geocode:lat,long,radius (use rarely as most posts are not geo-tagged).\nTime/ID: since:YYYY-MM-DD, until:YYYY-MM-DD_HH:MM:SS_TZ, since:YYYY-MM-DD_HH:MM:SS, since_time:unix, since_id:id, max_id:id, within_time:Xd/Xh/Xm/Xs.\nPost type: filter:replies, filter:self_threads, conversation_id:id, filter:quote, quoted_tweet_id:ID, quoted_user_id:ID, in_reply_to_tweet_id:ID, in_reply_to_user_id:ID.\nEngagement: filter:has_engagement, min_retweets:N, min_faves:N, min_replies:N, retweeted_by_user_id:ID, replied_to_by_user_id:ID.\nMedia/filters: filter:media, filter:twimg, filter:images, filter:videos, filter:spaces, filter:links, filter:mentions, filter:news.\nMost filters can be negated with -. Use parentheses for grouping. Spaces mean AND; OR must be uppercase.\n\nExample query:\n(puppy OR kitten) (sweet OR cute) filter:images min_faves:10", "type": "string"}, "limit": {"default": 3, "description": "The number of posts to return. Default to 3, max is 10.", "minimum": 1, "type": "integer"}, "mode": {"default": "Top", "description": "Sort by Top or Latest. The default is Top. You must output the mode with a capital first letter.", "type": "string"}}, "required": ["query"], "type": "object"}}
+Example query:
+(puppy OR kitten) (sweet OR cute) filter:images min_faves:10",
+        "type": "string"
+      },
+      "limit": {
+        "default": 3,
+        "description": "The number of posts to return. Default to 3, max is 10.",
+        "minimum": 1,
+        "type": "integer"
+      },
+      "mode": {
+        "default": "Top",
+        "description": "Sort by Top or Latest. The default is Top. You must output the mode with a capital first letter.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "query"
+    ],
+    "type": "object"
+  }
+}
 ```
 
 **x_semantic_search**  

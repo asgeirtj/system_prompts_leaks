@@ -3,8 +3,9 @@
 
 <a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 
-![CleanShot 2025-09-03 at 02 37 49](https://github.com/user-attachments/assets/22d32e2d-e0c9-4afc-9e72-44b779dac659)
+<img width="1280" height="640" alt="image" src="https://github.com/user-attachments/assets/0037a6c5-2ae4-4d34-8be0-0d679773172b" />
 
+<img width="976" height="248" alt="image" src="https://github.com/user-attachments/assets/444e3fcc-9374-4964-afd3-069222713dc0" />
 
 # System Prompts Leaks
 

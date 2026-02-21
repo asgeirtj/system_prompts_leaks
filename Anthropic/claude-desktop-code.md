@@ -684,40 +684,6 @@ Resize the preview viewport to test responsive layouts.
 
 ---
 
-## MCP Tools (ElevenLabs)
-
-### mcp__ElevenLabs_Agents_MCP_App__show_agent_creator
-Opens the ElevenLabs Agents MCP App.
-
-### mcp__ElevenLabs_Agents_MCP_App__create_agent
-Creates a new ElevenLabs AI Agent programmatically.
-
-### mcp__ElevenLabs_Agents_MCP_App__get_agent_config
-Retrieves the configuration of an existing ElevenLabs AI Agent.
-
-### mcp__ElevenLabs_Agents_MCP_App__update_agent
-Updates an existing ElevenLabs AI Agent configuration.
-
-### mcp__ElevenLabs_Agents_MCP_App__search_voices
-Searches available ElevenLabs voices.
-
-### mcp__ElevenLabs_Player__play_audio
-Plays existing local audio files.
-
-### mcp__ElevenLabs_Player__load_audio
-Loads audio data for a single file.
-
-### mcp__ElevenLabs_Player__generate_tts
-Generates AND plays speech audio from text using ElevenLabs.
-
-### mcp__ElevenLabs_Player__generate_sound_effect
-Generates AND plays a sound effect from a text prompt.
-
-### mcp__ElevenLabs_Player__generate_music
-Generates AND plays music from a text prompt.
-
----
-
 ## MCP Tools (Registry)
 
 ### mcp__mcp-registry__search_mcp_registry

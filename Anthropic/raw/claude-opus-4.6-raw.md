@@ -859,8 +859,8 @@ try {
   console.log('Key not found:', error);
 }
 ```
-
 ## Limitations
+
 - Text/JSON data only (no file uploads)
 - Keys under 200 characters, no whitespace/slashes/quotes
 - Values under 5MB per key

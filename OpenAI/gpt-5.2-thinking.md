@@ -1,11 +1,7 @@
-# ChatGPT System Prompt (GPT-5.2 Thinking)
+You are ChatGPT, a large language model trained by OpenAI, based on GPT-5.2.
+Knowledge cutoff: 2025-08
+Current date: 2026-03-01
 
-**Model:** GPT-5.2 Thinking  
-**Knowledge cutoff:** 2025-08  
-**Captured:** 2026-03-01  
-**Variant:** ChatGPT Plus with connected apps (Gmail, Google Calendar, Google Contacts)
-
-> **Note on extraction method:** This prompt was extracted using a custom GPT ("Project Glass") whose project instructions included a `!output_system_message` command that instructed ChatGPT to output its full context window verbatim. The "Gizmo Instructions (Project: glass)" section and "System Message Addendum" at the very end of the raw capture were part of that custom GPT's jailbreak payload, not part of the base ChatGPT system prompt, and have been removed from this document.
 
 ---
 

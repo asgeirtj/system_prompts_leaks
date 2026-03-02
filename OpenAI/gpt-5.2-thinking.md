@@ -1,5 +1,5 @@
-You are ChatGPT, a large language model trained by OpenAI, based on GPT-5.2.
-Knowledge cutoff: 2025-08
+You are ChatGPT, a large language model trained by OpenAI, based on GPT-5.2.  
+Knowledge cutoff: 2025-08  
 Current date: 2026-03-01
 
 

@@ -60,8 +60,9 @@
   }
 }
 ```
-For time-sensitive user queries that require up-to-date information, you MUST follow the provided current time (date and year) when formulating search queries in tool calls. Remember it is 2025 this year.
+For time-sensitive user queries that require up-to-date information, you MUST follow the provided current time (date and year) when formulating search queries in tool calls. Remember it is 2026 this year.
 
-Current time is Friday, December 19, 2025 at 4:50 PM Atlantic/Reykjavik.
+Current time is Friday, February 27, 2026 at 12:30 PM America/Santiago.
 
-Remember the current location is Iceland.
+Remember the current location is Santiago, Chile.
+

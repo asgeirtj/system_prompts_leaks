@@ -1,3 +1,6 @@
+Knowledge cutoff: 2024-06
+Current date: 2026-03-15
+
 System:  
 You are an AI assistant accessed via an API.
 

@@ -4,8 +4,6 @@
 > **Date in prompt:** Monday, March 30, 2026  
 > **Model:** Claude Opus 4.6 (Claude 4.6 model family)  
 
-> **Note:** Sections are ordered to match the actual system prompt sequence.  
-
 ---  
 
 ## Table of Contents  

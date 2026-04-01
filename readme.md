@@ -1,6 +1,6 @@
 # System Prompts Leaks
 
-Extracted system prompts, system messages, and developer instructions from popular AI chatbots and coding assistants — ChatGPT (GPT-5, GPT-4o, o3, o4-mini), Claude (Opus 4.6, Sonnet 4.6, Claude Code), Gemini (3.1 Pro, 3 Flash, Gemini CLI), Grok (4.2, 4, 3), Perplexity, and more.
+Extracted system prompts, system messages, and developer instructions from popular AI chatbots and coding assistants — ChatGPT (GPT-5.4, GPT-5.3, Codex), Claude (Opus 4.6, Sonnet 4.6, Claude Code), Gemini (3.1 Pro, 3 Flash, Gemini CLI), Grok (4.2, 4), Perplexity, and more.
 
 Updated regularly with new models and versions. PRs welcome.
 
@@ -16,8 +16,8 @@ Updated regularly with new models and versions. PRs welcome.
 
 | Model | Prompt |
 |-------|--------|
-| Claude Opus 4.6 | [Full system prompt](Anthropic/claude-opus-4.6.md) · [Without tools](Anthropic/claude-opus-4.6-no-tools.md) |
-| Claude Sonnet 4.6 | [Full system prompt](Anthropic/claude-sonnet-4.6.md) · [Without tools](Anthropic/claude-sonnet-4.6-no-tools.md) |
+| **Claude Opus 4.6** | [**System prompt**](Anthropic/claude-opus-4.6.md) |
+| **Claude Sonnet 4.6** | [**System prompt**](Anthropic/claude-sonnet-4.6.md) |
 | Claude.ai | [Human-readable](Anthropic/claude.ai-human-readable.md) · [Injections](Anthropic/claude.ai-injections.md) |
 | Claude Code | [System prompt](Anthropic/claude-code.md) · [v2](Anthropic/claude-code2.md) |
 | Claude Cowork | [System prompt](Anthropic/claude-cowork.md) |
@@ -25,47 +25,73 @@ Updated regularly with new models and versions. PRs welcome.
 | Claude in Chrome | [System prompt](Anthropic/claude-in-chrome.md) |
 | Claude for Excel | [System prompt](Anthropic/claude-for-excel.md) |
 | Default Styles | [Styles](Anthropic/default-styles.md) |
-| **Older versions** | [Opus 4.5](Anthropic/old/claude-opus-4.5.md) · [Sonnet 4](Anthropic/old/claude-sonnet-4.md) · [Sonnet 4.5](Anthropic/old/claude-4.5-sonnet.md) · [Opus 4.1 thinking](Anthropic/old/claude-4.1-opus-thinking.md) · [Sonnet 3.7](Anthropic/old/claude-3.7-sonnet.md) |
+
+<details><summary>Older & variant versions</summary>
+
+| | |
+|--|--|
+| Without tools | [Opus 4.6](Anthropic/claude-opus-4.6-no-tools.md) · [Sonnet 4.6](Anthropic/claude-sonnet-4.6-no-tools.md) |
+| Opus 4.5 | [System prompt](Anthropic/old/claude-opus-4.5.md) |
+| Sonnet 4.5 | [System prompt](Anthropic/old/claude-4.5-sonnet.md) |
+| Sonnet 4 | [System prompt](Anthropic/old/claude-sonnet-4.md) |
+| Opus 4.1 Thinking | [System prompt](Anthropic/old/claude-4.1-opus-thinking.md) |
+| Sonnet 3.7 | [System prompt](Anthropic/old/claude-3.7-sonnet.md) |
+
+</details>
 
 ## OpenAI — ChatGPT
 
 | Model | Prompt |
 |-------|--------|
-| GPT-5.4 | [API](OpenAI/gpt-5.4-api.md) · [Thinking](OpenAI/gpt-5.4-thinking.md) |
-| GPT-5.3 | [Codex](OpenAI/gpt-5.3-codex.md) · [Codex API](OpenAI/gpt-5.3-codex-api.md) · [Chat API](OpenAI/gpt-5.3-chat-api.md) · [Instant](OpenAI/gpt-5.3-instant.md) |
+| **GPT-5.4** | [**API**](OpenAI/gpt-5.4-api.md) · [**Thinking**](OpenAI/gpt-5.4-thinking.md) |
+| **GPT-5.3** | [**Codex**](OpenAI/gpt-5.3-codex.md) · [Codex API](OpenAI/gpt-5.3-codex-api.md) · [Chat API](OpenAI/gpt-5.3-chat-api.md) · [Instant](OpenAI/gpt-5.3-instant.md) |
 | GPT-5.2 | [Mini (free)](OpenAI/gpt-5.2-mini-free-account.md) · [Thinking](OpenAI/gpt-5.2-thinking.md) |
-| GPT-5.1 | [Default](OpenAI/gpt-5.1-default.md) · [Friendly](OpenAI/gpt-5.1-friendly.md) · [Professional](OpenAI/gpt-5.1-professional.md) · [Candid](OpenAI/gpt-5.1-candid.md) · [Cynical](OpenAI/gpt-5.1-cynical.md) · [Efficient](OpenAI/gpt-5.1-efficient.md) · [Nerdy](OpenAI/gpt-5.1-nerdy.md) · [Quirky](OpenAI/gpt-5.1-quirky.md) |
+| Codex CLI | [System prompt](OpenAI/codex-cli.md) |
+| o4-mini | [System prompt](OpenAI/o4-mini.md) · [High](OpenAI/o4-mini-high.md) |
+| o3 | [System prompt](OpenAI/o3.md) |
+| ChatGPT Atlas | [System prompt](OpenAI/chatgpt-atlas.md) |
+| **Tools** | [Web search](OpenAI/tool-web-search.md) · [Deep research](OpenAI/tool-deep-research.md) · [Python](OpenAI/tool-python.md) · [Canvas](OpenAI/tool-canvas-canmore.md) · [Image gen](OpenAI/tool-create-image-image_gen.md) · [Memory](OpenAI/tool-memory-bio.md) · [File search](OpenAI/tool-file_search.md) |
+| **Policies** | [Image safety](OpenAI/prompt-image-safety-policies.md) · [Automation context](OpenAI/prompt-automation-context.md) |
+
+<details><summary>Older models & variants</summary>
+
+| | |
+|--|--|
+| GPT-5.1 personalities | [Default](OpenAI/gpt-5.1-default.md) · [Friendly](OpenAI/gpt-5.1-friendly.md) · [Professional](OpenAI/gpt-5.1-professional.md) · [Candid](OpenAI/gpt-5.1-candid.md) · [Cynical](OpenAI/gpt-5.1-cynical.md) · [Efficient](OpenAI/gpt-5.1-efficient.md) · [Nerdy](OpenAI/gpt-5.1-nerdy.md) · [Quirky](OpenAI/gpt-5.1-quirky.md) |
 | GPT-5 | [Agent mode](OpenAI/ChatGPT-GPT-5-Agent-mode-System-Prompt.md) · [Thinking](OpenAI/gpt-5-thinking.md) · [Personalities](OpenAI/gpt-5-cynic-personality.md) |
 | GPT-4.5 | [System prompt](OpenAI/GPT-4.5.md) |
 | GPT-4.1 | [Full](OpenAI/GPT-4.1.md) · [Mini](OpenAI/GPT-4.1-mini.md) |
 | GPT-4o | [System prompt](OpenAI/GPT-4o.md) · [WhatsApp](OpenAI/GPT-4o-WhatsApp.md) · [Advanced voice](OpenAI/GPT-4o-advanced-voice-mode.md) · [Legacy voice](OpenAI/GPT-4o-legacy-voice-mode.md) |
-| o4-mini | [System prompt](OpenAI/o4-mini.md) · [High](OpenAI/o4-mini-high.md) |
-| o3 | [System prompt](OpenAI/o3.md) |
-| ChatGPT Atlas | [System prompt](OpenAI/chatgpt-atlas.md) |
-| Codex CLI | [System prompt](OpenAI/codex-cli.md) |
 | Monday GPT | [System prompt](OpenAI/Monday-GPT-.md) |
-| **Tools** | [Web search](OpenAI/tool-web-search.md) · [Deep research](OpenAI/tool-deep-research.md) · [Python](OpenAI/tool-python.md) · [Canvas](OpenAI/tool-canvas-canmore.md) · [Image gen](OpenAI/tool-create-image-image_gen.md) · [Memory](OpenAI/tool-memory-bio.md) · [File search](OpenAI/tool-file_search.md) |
-| **API variants** | [GPT-5 reasoning (high)](OpenAI/API/gpt-5-reasoning-effort-high-API-NOT-CHATGPT.com.md) · [o3 high/med/low](OpenAI/API/o3-high-api.md) · [o4-mini high/med/low](OpenAI/API/o4-mini-high.md) |
-| **Policies** | [Image safety](OpenAI/prompt-image-safety-policies.md) · [Automation context](OpenAI/prompt-automation-context.md) |
+| API variants | [GPT-5 reasoning (high)](OpenAI/API/gpt-5-reasoning-effort-high-API-NOT-CHATGPT.com.md) · [o3 high/med/low](OpenAI/API/o3-high-api.md) · [o4-mini high/med/low](OpenAI/API/o4-mini-high.md) |
+
+</details>
 
 ## Google — Gemini
 
 | Model | Prompt |
 |-------|--------|
-| Gemini 3.1 Pro | [System prompt](Google/gemini-3.1-pro.md) · [API](Google/gemini-3.1-pro-api.md) |
+| **Gemini 3.1 Pro** | [**System prompt**](Google/gemini-3.1-pro.md) · [API](Google/gemini-3.1-pro-api.md) |
+| **Gemini 3 Flash** | [**System prompt**](Google/gemini-3-flash.md) |
 | Gemini 3 Pro | [System prompt](Google/gemini-3-pro.md) |
-| Gemini 3 Flash | [System prompt](Google/gemini-3-flash.md) |
+| Gemini Diffusion | [System prompt](Google/gemini-diffusion.md) |
+| Gemini CLI | [System prompt](Google/Gemini%20CLI%20System.md) |
+| Jules | [System prompt](Google/jules.md) |
+| Gemini in Chrome | [System prompt](Google/gemini_in_chrome.md) |
+| Gemini Workspace | [System prompt](Google/gemini-workspace.md) |
+
+<details><summary>Older models</summary>
+
+| | |
+|--|--|
 | Gemini 2.5 Pro | [API](Google/gemini-2.5-pro-api.md) · [Webapp](Google/gemini-2.5-pro-webapp.md) · [Guided learning](Google/gemini-2.5-pro-guided-learning.md) |
 | Gemini 2.5 Flash | [Image preview](Google/gemini-2.5-flash-image-preview.md) |
 | Gemini 2.0 Flash | [Webapp](Google/gemini-2.0-flash-webapp.md) |
-| Gemini Diffusion | [System prompt](Google/gemini-diffusion.md) |
-| Gemini CLI | [System prompt](Google/Gemini%20CLI%20System.md) |
-| Gemini in Chrome | [System prompt](Google/gemini_in_chrome.md) |
-| Gemini Workspace | [System prompt](Google/gemini-workspace.md) |
 | AI Studio Build | [System prompt](Google/ai-studio-build.md) |
-| Jules | [System prompt](Google/jules.md) |
 | Nano / Bana 2 | [System prompt](Google/nano-bana-2.md) |
 | NotebookLM | [Chat](Google/NotebookLM-chat.md) |
+
+</details>
 
 ## xAI — Grok
 
@@ -108,7 +134,9 @@ Updated regularly with new models and versions. PRs welcome.
 
 ## Contributing
 
-Have a system prompt that's not listed here? PRs welcome. Drop the raw text as a `.md` file in the appropriate folder.
+Have a system prompt that's not listed here? PRs welcome — drop the raw text as a `.md` file in the appropriate folder.
+
+Want a specific model or product added? [Open an issue](https://github.com/asgeirtj/system_prompts_leaks/issues) to request it.
 
 ## Star History
 

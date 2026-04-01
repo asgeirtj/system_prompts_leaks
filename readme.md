@@ -19,7 +19,7 @@ Updated regularly with new models and versions. PRs welcome.
 | **Claude Opus 4.6** | [**System prompt**](Anthropic/claude-opus-4.6.md) |
 | **Claude Sonnet 4.6** | [**System prompt**](Anthropic/claude-sonnet-4.6.md) |
 | Claude.ai | [Human-readable](Anthropic/claude.ai-human-readable.md) · [Injections](Anthropic/claude.ai-injections.md) |
-| Claude Code | [System prompt](Anthropic/claude-code.md) · [v2](Anthropic/claude-code2.md) |
+| Claude Code | [System prompt](Anthropic/claude-code.md) |
 | Claude Cowork | [System prompt](Anthropic/claude-cowork.md) |
 | Claude Desktop Code | [System prompt](Anthropic/claude-desktop-code.md) |
 | Claude in Chrome | [System prompt](Anthropic/claude-in-chrome.md) |

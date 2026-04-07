@@ -28,3 +28,10 @@ This is a fork of asgeirtj/system_prompts_leaks maintained under iAiFy enterpris
 | Composite actions | Ai-road-4-You/github-actions@v1 |
 | Governance | Ai-road-4-You/governance |
 | Templates | Ai-road-4-You/repo-templates |
+
+## AgentHub
+- Central hub: `~/AgentHub/`
+- Skills: `.agents/skills/` (symlinked to AgentHub shared skills)
+- MCP: 12 servers synced across all agents
+- Agents: 14 shared agents available
+- Hooks: Safety, notification, and logging hooks

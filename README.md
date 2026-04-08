@@ -1,18 +1,50 @@
 # System Prompts Leaks
 
-Extracted system prompts, system messages, and developer instructions from popular AI chatbots and coding assistants — ChatGPT (GPT-5.4, GPT-5.3, Codex), Claude (Opus 4.6, Sonnet 4.6, Claude Code), Gemini (3.1 Pro, 3 Flash, Gemini CLI), Grok (4.2, 4), Perplexity, and more.
+Extracted system prompts and developer instructions from production AI chatbots and coding assistants.
 
-Updated regularly with new models and versions. PRs welcome.
+## Why This Exists
 
-<a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+Understanding how AI models are instructed helps developers build better integrations, debug unexpected behavior, and learn prompt engineering patterns from production systems. This collection preserves raw system prompts from ChatGPT, Claude, Gemini, Grok, Perplexity, and other AI products as a reference archive.
 
-<img width="1280" height="640" alt="System prompts collection from ChatGPT, Claude, Gemini, Grok and other AI chatbots" src="https://github.com/user-attachments/assets/0037a6c5-2ae4-4d34-8be0-0d679773172b" />
+> **Fork note:** iAiFy enterprise fork of [asgeirtj/system_prompts_leaks](https://github.com/asgeirtj/system_prompts_leaks). Local changes live on `main`; upstream sync managed via [Ai-road-4-You/fork-sync](https://github.com/Ai-road-4-You/fork-sync).
 
-<img width="976" height="248" alt="GitHub stars growth chart for system prompts leaks repository" src="https://github.com/user-attachments/assets/444e3fcc-9374-4964-afd3-069222713dc0" />
+## Status
+
+| Field | Value |
+|-------|-------|
+| Type | Content archive (markdown only — no application code) |
+| Stability | Actively updated with new models and versions |
+| License | TBD — see [backlog](https://github.com/AiFeatures/system_prompts_leaks/issues) |
+
+## Quick Start
+
+```sh
+# Clone and browse
+git clone https://github.com/AiFeatures/system_prompts_leaks.git
+cd system_prompts_leaks
+
+# Search across all prompts
+grep -ri "function_call" Anthropic/ OpenAI/ Google/
+```
+
+Each `.md` file contains the raw, unedited system prompt for one model or tool.
+
+## Directory Structure
+
+```
+Anthropic/       # Claude (Opus, Sonnet, Code, Desktop, etc.)
+Google/          # Gemini (Pro, Flash, CLI, Workspace, etc.)
+OpenAI/          # ChatGPT, GPT, o-series, Codex
+Perplexity/      # Perplexity assistants
+xAI/             # Grok models
+Misc/            # Other products (Copilot, Notion AI, Kagi, etc.)
+```
 
 ---
 
-## Anthropic — Claude
+## Prompt Catalog
+
+### Anthropic — Claude
 
 | Model | Prompt |
 |-------|--------|
@@ -132,12 +164,34 @@ Updated regularly with new models and versions. PRs welcome.
 
 ---
 
+## Development
+
+This is a content-only repository — no application code, build system, or test suite.
+
+- **Linting:** Markdown lint CI is planned but not yet configured
+- **Link validation:** Internal link checks are planned for PR CI
+
+To check for broken links locally:
+
+```sh
+# Requires: npm install -g markdown-link-check
+markdown-link-check README.md
+```
+
+## Deployment
+
+Content is served directly from GitHub. No build or deployment step is required.
+
+When CI is added it will use enterprise reusable workflows:
+
+- Lint: `Ai-road-4-You/enterprise-ci-cd/.github/workflows/ci-markdown.yml@v1`
+- Release: `Ai-road-4-You/enterprise-ci-cd/.github/workflows/release.yml@v1`
+
 ## Contributing
 
-Have a system prompt that's not listed here? PRs welcome — drop the raw text as a `.md` file in the appropriate folder.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add or update prompts.
+For governance and review policies, see [Ai-road-4-You/governance](https://github.com/Ai-road-4-You/governance).
 
-Want a specific model or product added? [Open an issue](https://github.com/asgeirtj/system_prompts_leaks/issues) to request it.
+## License
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=asgeirtj/system_prompts_leaks&type=Date)](https://www.star-history.com/#asgeirtj/system_prompts_leaks&Date)
+TBD — a license file has not yet been added to this repository.

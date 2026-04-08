@@ -1,4 +1,74 @@
+# === OS artifacts ===
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Editor / IDE temp files ===
+*.swp
+*.swo
+*~
+*.bak
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# === Node.js ===
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+.yarn/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# === Environment / secrets ===
+.env
+.env.*
+!.env.example
+
+# === Build / coverage ===
+coverage/
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+.turbo/
+
+# === Terraform ===
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# === Next.js / Nuxt ===
+.next/
+.nuxt/
+.output/
+.vercel/
+
+# === Tool-specific caches ===
 .firecrawl/
 .playwright-mcp/
 .claude/worktrees/
+.agents/

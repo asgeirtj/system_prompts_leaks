@@ -1,12 +1,12 @@
 # OpenAI Codex — gpt-5.2-codex
 
-**Slug:** `gpt-5.2-codex`
-**Description:** Frontier agentic coding model.
-**Client version:** 0.119.0
-**Fetched at:** 2026-04-11T18:08:13.251889Z
-**Default reasoning level:** medium
-**Context window:** 272000
-**Body source:** instructions_template (with `{{ personality }}` placeholder — pluggable)
+**Slug:** `gpt-5.2-codex`  
+**Description:** Frontier agentic coding model.  
+**Client version:** 0.119.0  
+**Fetched at:** 2026-04-11T18:08:13.251889Z  
+**Default reasoning level:** medium  
+**Context window:** 272000  
+**Body source:** instructions_template (with `{{ personality }}` placeholder — pluggable)  
 **Pluggable personality variants:** `personality_friendly`, `personality_pragmatic` → [personality_friendly_gpt-5.2-codex.md](personality_friendly_gpt-5.2-codex.md), [personality_pragmatic_gpt-5.2-codex.md](personality_pragmatic_gpt-5.2-codex.md)
 
 ---

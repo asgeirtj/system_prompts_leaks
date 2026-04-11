@@ -1,8 +1,8 @@
 # Codex Personality — Friendly
 
-**Source key:** `model_messages.instructions_variables.personality_friendly`
-**Used by:** `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`
-**Fetched at:** 2026-04-11T18:08:13.251889Z
+**Source key:** `model_messages.instructions_variables.personality_friendly`  
+**Used by:** `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`  
+**Fetched at:** 2026-04-11T18:08:13.251889Z  
 **Client version:** 0.119.0
 
 ---

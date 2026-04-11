@@ -45,10 +45,10 @@ Updated regularly with new models and versions. PRs welcome.
 
 | Model | Prompt |
 |-------|--------|
-| **GPT-5.4** | [**API**](OpenAI/gpt-5.4-api.md) · [**Thinking**](OpenAI/gpt-5.4-thinking.md) |
-| **GPT-5.3** | [**Codex**](OpenAI/gpt-5.3-codex.md) · [Codex API](OpenAI/gpt-5.3-codex-api.md) · [Chat API](OpenAI/gpt-5.3-chat-api.md) · [Instant](OpenAI/gpt-5.3-instant.md) |
-| GPT-5.2 | [Mini (free)](OpenAI/gpt-5.2-mini-free-account.md) · [Thinking](OpenAI/gpt-5.2-thinking.md) |
-| Codex CLI | [System prompt](OpenAI/codex-cli.md) |
+| **GPT-5.4** | [**API**](OpenAI/gpt-5.4-api.md) · [**Thinking**](OpenAI/gpt-5.4-thinking.md) · [**Codex**](OpenAI/codex/gpt-5.4.md) · [Codex Mini](OpenAI/codex/gpt-5.4-mini.md) |
+| **GPT-5.3** | [**Codex**](OpenAI/codex/gpt-5.3-codex.md) · [Codex API](OpenAI/gpt-5.3-codex-api.md) · [Chat API](OpenAI/gpt-5.3-chat-api.md) · [Instant](OpenAI/gpt-5.3-instant.md) |
+| GPT-5.2 | [Mini (free)](OpenAI/gpt-5.2-mini-free-account.md) · [Thinking](OpenAI/gpt-5.2-thinking.md) · [Codex](OpenAI/codex/gpt-5.2-codex.md) |
+| **Codex CLI** | [Per-model prompts](OpenAI/codex/) · [Friendly persona](OpenAI/codex/personality_friendly.md) · [Pragmatic persona](OpenAI/codex/personality_pragmatic.md) |
 | o4-mini | [System prompt](OpenAI/o4-mini.md) · [High](OpenAI/o4-mini-high.md) |
 | o3 | [System prompt](OpenAI/o3.md) |
 | ChatGPT Atlas | [System prompt](OpenAI/chatgpt-atlas.md) |
@@ -119,7 +119,7 @@ Updated regularly with new models and versions. PRs welcome.
 | Product | Prompt |
 |---------|--------|
 | GitHub Copilot (Word) | [System prompt](Misc/copilot-in-microsoft-word.md) |
-| Notion AI | [System prompt](Misc/Notion%20AI.md) |
+| Notion AI | [System prompt](Misc/Notion-AI.md) |
 | Kagi Assistant | [System prompt](Misc/Kagi%20Assistant.md) |
 | Le Chat (Mistral) | [System prompt](Misc/Le-Chat.md) |
 | Raycast AI | [System prompt](Misc/Raycast-AI.md) |

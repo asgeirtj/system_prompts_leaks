@@ -111,6 +111,8 @@
   - [19. Mandatory Copyright Requirements](#19-mandatory-copyright-requirements)  
   - [20. System Reminder (Runtime)](#20-system-reminder-runtime)  
     - [20.1 Runtime Skills List](#201-runtime-skills-list)  
+  - [21. User Preferences Container (account-state-dependent)](#21-user-preferences-container-account-state-dependent)  
+  - [22. Project Instructions Container (account-state-dependent)](#22-project-instructions-container-account-state-dependent)   
 
 ---  
 
@@ -2738,7 +2740,7 @@ Claude requires explicit user permission for:
 
 ## 20. System Reminder (Runtime)  
 
-The system reminder is injected at runtime in the `<system-reminder>` tag within the user turn. It contains:  
+The system reminder is injected at runtime in the `<system-reminder>` tag within the user turn. It contains the following components (verified via direct introspection on Opus 4.7 Cowork desktop, 2026-04-26):  
 
 1. **claudeMd** — User's private global instructions (from `/sessions/[session-id]/mnt/.claude/CLAUDE.md`). Presented under a `# claudeMd` heading with an important override note:  
 
@@ -2754,7 +2756,23 @@ Contents of /sessions/[session-id]/mnt/.claude/CLAUDE.md
 [contents of CLAUDE.md file]
 ```
 
-2. **currentDate** — Today's date confirmation, presented as:  
+2. **MEMORY.md** — Auto-memory contents that persist across conversations. Injected immediately after claudeMd within the same `<system-reminder>` block:  
+
+```
+Contents of /sessions/[session-id]/mnt/memory/MEMORY.md
+(user's auto-memory, persists across conversations):
+
+[contents of MEMORY.md file]
+```
+
+3. **userEmail** — User's account email, presented under a `# userEmail` heading:  
+
+```
+# userEmail
+The user's email address is [email].
+```
+
+4. **currentDate** — Today's date confirmation, presented as:  
 
 ```
 # currentDate
@@ -2763,6 +2781,50 @@ Today's date is 2026-03-11.
 
 This is the second occurrence of the date (the first is in the `<env>` tag — see [Section 10](#10-environment)).  
 
-3. **Runtime Skills List** — The full list of available skills, presented at the very top of the system-reminder before the claudeMd section. See [Section 11.1](#111-slash-command-skills-system-reminder) for the complete list.  
+5. **Runtime Skills List** — The full list of available skills, presented at the very top of the system-reminder before the claudeMd section. See [Section 11.1](#111-slash-command-skills-system-reminder) for the complete list.  
 
-The system-reminder also includes a note: `IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.`  
+The closing of the `<system-reminder>` block carries the note: `IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.` This wraps the entire block (Skills List + claudeMd + MEMORY.md + userEmail + currentDate) — not just any single component.  
+
+---  
+
+## 21. User Preferences Container (account-state-dependent)  
+
+This container appears in the system prompt body when the user has Profile preferences configured (`Settings > Profile` on claude.ai). When Profile preferences are empty, the container is either absent or empty in the rendered prompt — likely why earlier extractions of this file (and `EliFuzz/awesome-system-prompts/leaks/anthropic/2026-01-16_prompt_cowork.md`) did not capture it.  
+
+Positionally, the container sits between `<env>` ([Section 10](#10-environment)) and `<skills_instructions>` ([Section 11](#11-skills-instructions--available-skills)) in the rendered prompt.  
+
+Wrapper format (verified via direct introspection on Opus 4.7 Cowork desktop, 2026-04-26):  
+
+```
+<user_preferences>
+The user has specified the following personal preferences for how Claude should respond:
+
+[numbered list of user-set preferences]
+
+Please keep these preferences in mind when responding.
+</user_preferences>
+```
+
+Naming note: this snake_case container is the Cowork-side counterpart of the camelCase `<userPreferences>` in chat. The two carry the same Profile preferences string but are bracketed differently — chat has an accompanying `<preferences_info>` meta-rule with always-trigger conditional logic and Q&A examples; Cowork has no such meta-rule. The structural and behavioural consequences of this difference are documented in <https://github.com/SsuHan-Liu/claude-instruction-containers> (A/B trials on Opus 4.7).  
+
+---  
+
+## 22. Project Instructions Container (account-state-dependent)  
+
+This container appears in the system prompt body when the user has Project Instructions configured for the mounted folder (Cowork's per-project workspace feature). Absent from sessions where no Project Instructions are configured.  
+
+Positionally, the container sits immediately after `<user_preferences>` ([Section 21](#21-user-preferences-container-account-state-dependent)) and before `<skills_instructions>` ([Section 11](#11-skills-instructions--available-skills)).  
+
+Wrapper format (verified via direct introspection on Opus 4.7 Cowork desktop, 2026-04-26):  
+
+```
+<project_instructions>
+The user has configured the following instructions for this project ("[project name]"):
+
+[numbered list of project-set instructions]
+
+Follow these instructions when working in this project.
+</project_instructions>
+```
+
+Scope qualifier note: the closing sentence ("Follow these instructions when working in this project") is narrower in scope than `# claudeMd` ("user's private global instructions for all projects" — see [Section 20](#20-system-reminder-runtime)) and broader than the consultative `<user_preferences>` wrapper. The implied strength ordering is not tested in this file's source extraction; see <https://github.com/SsuHan-Liu/claude-instruction-containers> for one empirical follow-up.  

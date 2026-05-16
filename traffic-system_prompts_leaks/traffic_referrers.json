@@ -1,52 +1,52 @@
 [
   {
     "referrer": "Google",
-    "count": 16065,
-    "uniques": 4795
+    "count": 15443,
+    "uniques": 4747
   },
   {
     "referrer": "github.com",
-    "count": 7162,
-    "uniques": 2119
-  },
-  {
-    "referrer": "reddit.com",
-    "count": 1302,
-    "uniques": 489
+    "count": 6977,
+    "uniques": 2079
   },
   {
     "referrer": "Bing",
-    "count": 1278,
-    "uniques": 354
+    "count": 1276,
+    "uniques": 363
   },
   {
-    "referrer": "lm.facebook.com",
-    "count": 1183,
-    "uniques": 489
+    "referrer": "reddit.com",
+    "count": 1186,
+    "uniques": 444
   },
   {
     "referrer": "DuckDuckGo",
-    "count": 868,
-    "uniques": 229
+    "count": 951,
+    "uniques": 247
   },
   {
-    "referrer": "instagram.com",
-    "count": 664,
-    "uniques": 374
+    "referrer": "lm.facebook.com",
+    "count": 656,
+    "uniques": 256
   },
   {
     "referrer": "washingtonpost.com",
-    "count": 563,
-    "uniques": 271
+    "count": 617,
+    "uniques": 292
   },
   {
-    "referrer": "l.facebook.com",
-    "count": 528,
-    "uniques": 239
+    "referrer": "instagram.com",
+    "count": 607,
+    "uniques": 353
   },
   {
     "referrer": "search.brave.com",
-    "count": 498,
-    "uniques": 125
+    "count": 469,
+    "uniques": 123
+  },
+  {
+    "referrer": "l.instagram.com",
+    "count": 448,
+    "uniques": 222
   }
 ]

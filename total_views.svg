@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131" height="20"
-  role="img" aria-label="total views: 68389">
-  <title>total views: 68389</title>
+  role="img" aria-label="total views: 72473">
+  <title>total views: 72473</title>
   <linearGradient id="s" x2="0" y2="100%">
     <stop offset="0" stop-color="#bbb" stop-opacity=".1" />
     <stop offset="1" stop-opacity=".1" />
@@ -21,7 +21,7 @@
       textLength="590">total views</text>
     <text x="525" y="140" transform="scale(.1)" fill="#fff" textLength="590">total views</text>
     <text aria-hidden="true" x="1075" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
-      textLength="350">68389</text>
-    <text x="1075" y="140" transform="scale(.1)" fill="#fff" textLength="350">68389</text>
+      textLength="350">72473</text>
+    <text x="1075" y="140" transform="scale(.1)" fill="#fff" textLength="350">72473</text>
   </g>
 </svg>

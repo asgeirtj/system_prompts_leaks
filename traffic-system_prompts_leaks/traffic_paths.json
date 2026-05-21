@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 11096,
-    "uniques": 7323
+    "count": 11042,
+    "uniques": 7216
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 4754,
-    "uniques": 3288
+    "count": 4668,
+    "uniques": 3292
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.7.md",
     "title": "/blob/main/Anthropic/claude-opus-4.7.md",
-    "count": 3760,
-    "uniques": 2663
+    "count": 3711,
+    "uniques": 2609
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md",
     "title": "/blob/main/Anthropic/claude-code.md",
-    "count": 2318,
-    "uniques": 1623
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/tree/main",
-    "title": "/tree/main",
-    "count": 1942,
-    "uniques": 1303
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
-    "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1895,
-    "uniques": 1358
+    "count": 2255,
+    "uniques": 1588
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 1856,
-    "uniques": 1286
+    "count": 1943,
+    "uniques": 1328
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/tree/main",
+    "title": "/tree/main",
+    "count": 1943,
+    "uniques": 1305
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
+    "title": "/blob/main/Anthropic/claude-opus-4.6.md",
+    "count": 1831,
+    "uniques": 1312
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
     "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
-    "count": 1776,
-    "uniques": 1254
+    "count": 1786,
+    "uniques": 1247
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
     "title": "/tree/main/OpenAI",
-    "count": 1592,
-    "uniques": 1212
+    "count": 1574,
+    "uniques": 1214
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Google",
     "title": "/tree/main/Google",
-    "count": 1028,
-    "uniques": 741
+    "count": 1048,
+    "uniques": 767
   }
 ]

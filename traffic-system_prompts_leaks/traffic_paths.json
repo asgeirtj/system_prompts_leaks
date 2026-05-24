@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 10573,
-    "uniques": 7159
+    "count": 10270,
+    "uniques": 6894
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 4453,
-    "uniques": 3207
+    "count": 4288,
+    "uniques": 3084
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.7.md",
     "title": "/blob/main/Anthropic/claude-opus-4.7.md",
-    "count": 3427,
-    "uniques": 2460
+    "count": 3363,
+    "uniques": 2437
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md",
     "title": "/blob/main/Anthropic/claude-code.md",
-    "count": 2211,
-    "uniques": 1550
+    "count": 2147,
+    "uniques": 1520
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 2075,
-    "uniques": 1436
+    "count": 2144,
+    "uniques": 1505
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 1867,
-    "uniques": 1251
+    "count": 1832,
+    "uniques": 1207
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1717,
+    "count": 1710,
     "uniques": 1240
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
     "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
-    "count": 1687,
-    "uniques": 1159
+    "count": 1613,
+    "uniques": 1100
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
     "title": "/tree/main/OpenAI",
-    "count": 1468,
-    "uniques": 1133
+    "count": 1450,
+    "uniques": 1091
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Google",
     "title": "/tree/main/Google",
-    "count": 1064,
-    "uniques": 757
+    "count": 1063,
+    "uniques": 756
   }
 ]

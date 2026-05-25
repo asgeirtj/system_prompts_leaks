@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 10270,
-    "uniques": 6894
+    "count": 10134,
+    "uniques": 6768
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 4288,
-    "uniques": 3084
+    "count": 4189,
+    "uniques": 3044
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.7.md",
     "title": "/blob/main/Anthropic/claude-opus-4.7.md",
-    "count": 3363,
-    "uniques": 2437
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md",
-    "title": "/blob/main/Anthropic/claude-code.md",
-    "count": 2147,
-    "uniques": 1520
+    "count": 3310,
+    "uniques": 2386
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 2144,
-    "uniques": 1505
+    "count": 2285,
+    "uniques": 1623
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code.md",
+    "title": "/blob/main/Anthropic/claude-code.md",
+    "count": 2084,
+    "uniques": 1499
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 1832,
-    "uniques": 1207
+    "count": 1819,
+    "uniques": 1203
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1710,
-    "uniques": 1240
+    "count": 1682,
+    "uniques": 1193
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
     "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
-    "count": 1613,
-    "uniques": 1100
+    "count": 1561,
+    "uniques": 1090
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
     "title": "/tree/main/OpenAI",
-    "count": 1450,
-    "uniques": 1091
+    "count": 1408,
+    "uniques": 1044
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Google",
     "title": "/tree/main/Google",
-    "count": 1063,
-    "uniques": 756
+    "count": 1043,
+    "uniques": 757
   }
 ]

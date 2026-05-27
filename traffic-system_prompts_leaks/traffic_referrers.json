@@ -1,48 +1,48 @@
 [
   {
     "referrer": "Google",
-    "count": 14739,
-    "uniques": 4965
+    "count": 15008,
+    "uniques": 5128
   },
   {
     "referrer": "github.com",
-    "count": 5784,
+    "count": 5876,
     "uniques": 1870
   },
   {
     "referrer": "reddit.com",
-    "count": 1292,
-    "uniques": 483
-  },
-  {
-    "referrer": "Bing",
-    "count": 921,
-    "uniques": 290
+    "count": 1284,
+    "uniques": 497
   },
   {
     "referrer": "DuckDuckGo",
-    "count": 894,
-    "uniques": 230
+    "count": 967,
+    "uniques": 242
   },
   {
-    "referrer": "washingtonpost.com",
-    "count": 741,
-    "uniques": 333
+    "referrer": "Bing",
+    "count": 891,
+    "uniques": 285
   },
   {
     "referrer": "com.reddit.frontpage",
-    "count": 445,
-    "uniques": 208
+    "count": 457,
+    "uniques": 212
+  },
+  {
+    "referrer": "washingtonpost.com",
+    "count": 434,
+    "uniques": 149
   },
   {
     "referrer": "instagram.com",
-    "count": 281,
-    "uniques": 181
+    "count": 276,
+    "uniques": 179
   },
   {
     "referrer": "l.instagram.com",
-    "count": 256,
-    "uniques": 133
+    "count": 258,
+    "uniques": 140
   },
   {
     "referrer": "aitimes.com",

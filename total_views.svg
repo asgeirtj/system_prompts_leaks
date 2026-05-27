@@ -1,17 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131" height="20"
-  role="img" aria-label="total views: 96167">
-  <title>total views: 96167</title>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="137" height="20"
+  role="img" aria-label="total views: 100276">
+  <title>total views: 100276</title>
   <linearGradient id="s" x2="0" y2="100%">
     <stop offset="0" stop-color="#bbb" stop-opacity=".1" />
     <stop offset="1" stop-opacity=".1" />
   </linearGradient>
   <clipPath id="r">
-    <rect width="131" height="20" rx="3" fill="#fff" />
+    <rect width="137" height="20" rx="3" fill="#fff" />
   </clipPath>
   <g clip-path="url(#r)">
     <rect width="86" height="20" fill="#555" />
-    <rect x="86" width="45" height="20" fill="#4c1" />
-    <rect width="131" height="20" fill="url(#s)" />
+    <rect x="86" width="51" height="20" fill="#4c1" />
+    <rect width="137" height="20" fill="url(#s)" />
   </g>
   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif"
     text-rendering="geometricPrecision" font-size="110">
@@ -20,8 +20,8 @@
     <text aria-hidden="true" x="525" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
       textLength="590">total views</text>
     <text x="525" y="140" transform="scale(.1)" fill="#fff" textLength="590">total views</text>
-    <text aria-hidden="true" x="1075" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
-      textLength="350">96167</text>
-    <text x="1075" y="140" transform="scale(.1)" fill="#fff" textLength="350">96167</text>
+    <text aria-hidden="true" x="1105" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
+      textLength="410">100276</text>
+    <text x="1105" y="140" transform="scale(.1)" fill="#fff" textLength="410">100276</text>
   </g>
 </svg>

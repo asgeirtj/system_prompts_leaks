@@ -1,52 +1,52 @@
 [
   {
     "referrer": "Google",
-    "count": 15017,
-    "uniques": 5217
+    "count": 15059,
+    "uniques": 5314
   },
   {
     "referrer": "github.com",
-    "count": 5952,
-    "uniques": 1818
+    "count": 5953,
+    "uniques": 1806
   },
   {
     "referrer": "reddit.com",
-    "count": 1283,
-    "uniques": 492
+    "count": 1331,
+    "uniques": 499
   },
   {
     "referrer": "DuckDuckGo",
-    "count": 967,
-    "uniques": 250
+    "count": 1016,
+    "uniques": 254
   },
   {
     "referrer": "Bing",
-    "count": 903,
+    "count": 902,
     "uniques": 276
   },
   {
     "referrer": "com.reddit.frontpage",
-    "count": 479,
-    "uniques": 222
+    "count": 480,
+    "uniques": 223
   },
   {
     "referrer": "instagram.com",
-    "count": 300,
-    "uniques": 180
-  },
-  {
-    "referrer": "statics.teams.cdn.office.net",
-    "count": 248,
-    "uniques": 91
+    "count": 305,
+    "uniques": 186
   },
   {
     "referrer": "search.brave.com",
-    "count": 248,
-    "uniques": 88
+    "count": 254,
+    "uniques": 92
   },
   {
-    "referrer": "l.instagram.com",
-    "count": 232,
-    "uniques": 128
+    "referrer": "statics.teams.cdn.office.net",
+    "count": 241,
+    "uniques": 92
+  },
+  {
+    "referrer": "kaynak.otomasyonkur.com",
+    "count": 218,
+    "uniques": 139
   }
 ]

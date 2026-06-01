@@ -214,3 +214,4 @@ Released under [CC0 1.0 Universal](LICENSE) — public domain.
 
 
 <img alt="Claude confirming an extracted system prompt is authentic" src="https://github.com/user-attachments/assets/444e3fcc-9374-4964-afd3-069222713dc0" />
+- [AI Tools Hub](https://cloud1-d4g787x2022795b0b-1435432994.tcloudbaseapp.com/hub.html) - 21 free AI tools with crypto payment, no subscriptions.

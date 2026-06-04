@@ -1,52 +1,52 @@
 [
   {
     "referrer": "Google",
-    "count": 16637,
-    "uniques": 6077
+    "count": 16900,
+    "uniques": 5992
   },
   {
     "referrer": "github.com",
-    "count": 6319,
-    "uniques": 1897
+    "count": 6436,
+    "uniques": 1914
   },
   {
     "referrer": "instagram.com",
-    "count": 1553,
-    "uniques": 1056
+    "count": 1733,
+    "uniques": 1168
   },
   {
     "referrer": "l.instagram.com",
-    "count": 1060,
-    "uniques": 709
-  },
-  {
-    "referrer": "Bing",
-    "count": 946,
-    "uniques": 279
+    "count": 1167,
+    "uniques": 782
   },
   {
     "referrer": "DuckDuckGo",
-    "count": 921,
-    "uniques": 242
+    "count": 933,
+    "uniques": 249
+  },
+  {
+    "referrer": "Bing",
+    "count": 912,
+    "uniques": 287
   },
   {
     "referrer": "reddit.com",
-    "count": 847,
-    "uniques": 357
+    "count": 810,
+    "uniques": 348
   },
   {
     "referrer": "l.threads.com",
-    "count": 658,
-    "uniques": 404
+    "count": 661,
+    "uniques": 407
   },
   {
     "referrer": "search.brave.com",
-    "count": 299,
-    "uniques": 108
+    "count": 281,
+    "uniques": 111
   },
   {
     "referrer": "statics.teams.cdn.office.net",
-    "count": 233,
-    "uniques": 88
+    "count": 223,
+    "uniques": 96
   }
 ]

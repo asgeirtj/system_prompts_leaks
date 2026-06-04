@@ -1,52 +1,52 @@
 [
   {
     "referrer": "Google",
-    "count": 16395,
-    "uniques": 5865
+    "count": 16637,
+    "uniques": 6077
   },
   {
     "referrer": "github.com",
-    "count": 6280,
-    "uniques": 1850
+    "count": 6319,
+    "uniques": 1897
   },
   {
     "referrer": "instagram.com",
-    "count": 1282,
-    "uniques": 876
-  },
-  {
-    "referrer": "Bing",
-    "count": 997,
-    "uniques": 292
-  },
-  {
-    "referrer": "DuckDuckGo",
-    "count": 940,
-    "uniques": 247
-  },
-  {
-    "referrer": "reddit.com",
-    "count": 891,
-    "uniques": 378
+    "count": 1553,
+    "uniques": 1056
   },
   {
     "referrer": "l.instagram.com",
-    "count": 890,
-    "uniques": 591
+    "count": 1060,
+    "uniques": 709
+  },
+  {
+    "referrer": "Bing",
+    "count": 946,
+    "uniques": 279
+  },
+  {
+    "referrer": "DuckDuckGo",
+    "count": 921,
+    "uniques": 242
+  },
+  {
+    "referrer": "reddit.com",
+    "count": 847,
+    "uniques": 357
   },
   {
     "referrer": "l.threads.com",
-    "count": 653,
-    "uniques": 402
+    "count": 658,
+    "uniques": 404
   },
   {
     "referrer": "search.brave.com",
-    "count": 279,
-    "uniques": 97
+    "count": 299,
+    "uniques": 108
   },
   {
     "referrer": "statics.teams.cdn.office.net",
-    "count": 259,
-    "uniques": 93
+    "count": 233,
+    "uniques": 88
   }
 ]

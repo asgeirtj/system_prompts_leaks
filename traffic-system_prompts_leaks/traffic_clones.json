@@ -118,11 +118,6 @@
       "uniques": 84
     },
     {
-      "timestamp": "2026-05-24T00:00:00Z",
-      "count": 237,
-      "uniques": 115
-    },
-    {
       "timestamp": "2026-05-23T00:00:00Z",
       "count": 127,
       "uniques": 67
@@ -131,6 +126,11 @@
       "timestamp": "2026-05-25T00:00:00Z",
       "count": 236,
       "uniques": 90
+    },
+    {
+      "timestamp": "2026-05-24T00:00:00Z",
+      "count": 237,
+      "uniques": 115
     },
     {
       "timestamp": "2026-05-26T00:00:00Z",

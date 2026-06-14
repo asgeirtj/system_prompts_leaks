@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 9823,
-    "uniques": 6570
+    "count": 11457,
+    "uniques": 7599
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 9180,
-    "uniques": 5233
+    "count": 10044,
+    "uniques": 5672
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 4803,
-    "uniques": 3131
+    "count": 5324,
+    "uniques": 3476
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 3879,
-    "uniques": 2683
+    "count": 4134,
+    "uniques": 2961
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
+    "title": "/blob/main/Anthropic/claude-fable-5.md",
+    "count": 3126,
+    "uniques": 2295
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 2585,
-    "uniques": 1707
+    "count": 3096,
+    "uniques": 2043
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 1998,
-    "uniques": 1349
+    "count": 2295,
+    "uniques": 1539
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-code-opus-4.8.md",
-    "count": 1706,
-    "uniques": 1282
+    "count": 1473,
+    "uniques": 1107
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1459,
-    "uniques": 1071
+    "count": 1465,
+    "uniques": 1059
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
     "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
-    "count": 1300,
-    "uniques": 864
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
-    "title": "/tree/main/OpenAI",
-    "count": 1289,
-    "uniques": 923
+    "count": 1377,
+    "uniques": 937
   }
 ]

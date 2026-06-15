@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 11457,
-    "uniques": 7599
+    "count": 12394,
+    "uniques": 8318
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 10044,
-    "uniques": 5672
+    "count": 10371,
+    "uniques": 5800
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 5324,
-    "uniques": 3476
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
-    "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 4134,
-    "uniques": 2961
+    "count": 5570,
+    "uniques": 3692
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 3126,
-    "uniques": 2295
+    "count": 4807,
+    "uniques": 3498
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
+    "title": "/blob/main/Anthropic/claude-opus-4.8.md",
+    "count": 3878,
+    "uniques": 2815
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 3096,
-    "uniques": 2043
+    "count": 3444,
+    "uniques": 2251
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 2295,
-    "uniques": 1539
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-code-opus-4.8.md",
-    "title": "/blob/main/Anthropic/claude-code-opus-4.8.md",
-    "count": 1473,
-    "uniques": 1107
+    "count": 2451,
+    "uniques": 1646
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1465,
-    "uniques": 1059
+    "count": 1504,
+    "uniques": 1098
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
     "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
-    "count": 1377,
-    "uniques": 937
+    "count": 1400,
+    "uniques": 956
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
+    "title": "/blob/main/Google/gemini-3.5-flash.md",
+    "count": 1399,
+    "uniques": 947
   }
 ]

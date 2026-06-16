@@ -1,8 +1,3 @@
----
-name: update-config
-description: Use this skill to configure the Claude Code harness via settings.json.
----
-
 # Update Config Skill
 
 Modify Claude Code configuration by updating settings.json files.
@@ -278,7 +273,7 @@ Hooks can return JSON to control behavior:
       "matcher": "Write|Edit",
       "hooks": [{
         "type": "command",
-        "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; prettier --write \"$f\"; } 2>/dev/null || true"
+        "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; prettier --write \\"$f\\"; } 2>/dev/null || true"
       }]
     }]
   }
@@ -316,7 +311,7 @@ echo '{"systemMessage": "Session complete!"}'
       "matcher": "Write|Edit",
       "hooks": [{
         "type": "command",
-        "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | grep -E '\\.(ts|js)$' && npm test || true"
+        "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | grep -E '\\\\.(ts|js)$' && npm test || true"
       }]
     }]
   }
@@ -379,7 +374,7 @@ User: "Format my code after Claude writes it"
       "matcher": "Write|Edit",
       "hooks": [{
         "type": "command",
-        "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; prettier --write \"$f\"; } 2>/dev/null || true"
+        "command": "jq -r '.tool_response.filePath // .tool_input.file_path' | { read -r f; prettier --write \\"$f\\"; } 2>/dev/null || true"
       }]
     }]
   }
@@ -422,127 +417,8 @@ If a hook isn't running:
 5. **Test the command** - Run the hook command manually to see if it works
 6. **Use --debug** - Run `claude --debug` to see hook execution logs
 
+---
 
-## Full Settings JSON Schema
-
-```json
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "type": "object",
-  "properties": {
-    "$schema": {
-      "description": "JSON Schema reference for Claude Code settings",
-      "type": "string"
-    },
-    "apiKeyHelper": {
-      "description": "Path to a script that outputs authentication values",
-      "type": "string"
-    },
-    "env": {
-      "description": "Environment variables to set for Claude Code sessions",
-      "type": "object",
-      "additionalProperties": { "type": "string" }
-    },
-    "attribution": {
-      "description": "Customize attribution text for commits and PRs",
-      "type": "object",
-      "properties": {
-        "commit": { "type": "string" },
-        "pr": { "type": "string" }
-      }
-    },
-    "permissions": {
-      "type": "object",
-      "properties": {
-        "allow": { "type": "array", "items": { "type": "string" } },
-        "deny": { "type": "array", "items": { "type": "string" } },
-        "ask": { "type": "array", "items": { "type": "string" } },
-        "defaultMode": { "type": "string", "enum": ["acceptEdits", "auto", "bypassPermissions", "default", "dontAsk", "plan"] },
-        "additionalDirectories": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "model": { "type": "string" },
-    "fallbackModel": { "type": "array", "items": { "type": "string" } },
-    "hooks": {
-      "description": "Custom commands to run before/after tool executions",
-      "type": "object",
-      "propertyNames": {
-        "enum": ["PreToolUse", "PostToolUse", "PostToolUseFailure", "Notification", "UserPromptSubmit", "SessionStart", "SessionEnd", "Stop", "StopFailure", "SubagentStart", "SubagentStop", "PreCompact", "PostCompact", "PermissionRequest", "PermissionDenied", "Setup", "TeammateIdle", "TaskCreated", "TaskCompleted", "Elicitation", "ElicitationResult", "ConfigChange", "WorktreeCreate", "WorktreeRemove", "InstructionsLoaded", "CwdChanged", "FileChanged", "MessageDisplay"]
-      }
-    },
-    "worktree": {
-      "type": "object",
-      "properties": {
-        "symlinkDirectories": { "type": "array", "items": { "type": "string" } },
-        "sparsePaths": { "type": "array", "items": { "type": "string" } },
-        "baseRef": { "type": "string", "enum": ["fresh", "head"] },
-        "bgIsolation": { "type": "string", "enum": ["worktree", "none"] }
-      }
-    },
-    "statusLine": {
-      "type": "object",
-      "properties": {
-        "type": { "const": "command" },
-        "command": { "type": "string" },
-        "padding": { "type": "number" },
-        "refreshInterval": { "type": "number", "minimum": 1 }
-      },
-      "required": ["type", "command"]
-    },
-    "enabledPlugins": { "type": "object" },
-    "extraKnownMarketplaces": { "type": "object" },
-    "outputStyle": { "type": "string" },
-    "language": { "type": "string" },
-    "cleanupPeriodDays": { "type": "integer", "exclusiveMinimum": 0 },
-    "respectGitignore": { "type": "boolean" },
-    "spinnerTipsEnabled": { "type": "boolean" },
-    "spinnerVerbs": {
-      "type": "object",
-      "properties": {
-        "mode": { "enum": ["append", "replace"] },
-        "verbs": { "type": "array", "items": { "type": "string" } }
-      },
-      "required": ["mode", "verbs"]
-    },
-    "spinnerTipsOverride": {
-      "type": "object",
-      "properties": {
-        "excludeDefault": { "type": "boolean" },
-        "tips": { "type": "array", "items": { "type": "string" } }
-      },
-      "required": ["tips"]
-    },
-    "syntaxHighlightingDisabled": { "type": "boolean" },
-    "alwaysThinkingEnabled": { "type": "boolean" },
-    "effortLevel": { "type": "string", "enum": ["low", "medium", "high", "xhigh"] },
-    "autoCompactWindow": { "type": "integer", "minimum": 100000, "maximum": 1000000 },
-    "fastMode": { "type": "boolean" },
-    "tui": { "type": "string", "enum": ["default", "fullscreen"] },
-    "voice": {
-      "type": "object",
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "mode": { "enum": ["hold", "tap"] },
-        "autoSubmit": { "type": "boolean" }
-      }
-    },
-    "theme": { "type": "string", "enum": ["auto", "dark", "light", "light-daltonized", "dark-daltonized", "light-ansi", "dark-ansi"] },
-    "editorMode": { "type": "string", "enum": ["normal", "vim"] },
-    "verbose": { "type": "boolean" },
-    "preferredNotifChannel": { "type": "string", "enum": ["auto", "iterm2", "iterm2_with_bell", "terminal_bell", "kitty", "ghostty", "notifications_disabled"] },
-    "autoCompactEnabled": { "type": "boolean" },
-    "switchModelsOnFlag": { "type": "boolean" },
-    "fileCheckpointingEnabled": { "type": "boolean" },
-    "showTurnDuration": { "type": "boolean" },
-    "showMessageTimestamps": { "type": "boolean" },
-    "teammateMode": { "type": "string", "enum": ["auto", "tmux", "in-process"] },
-    "sandbox": { "type": "object" },
-    "autoMemoryEnabled": { "type": "boolean" },
-    "autoDreamEnabled": { "type": "boolean" },
-    "showThinkingSummaries": { "type": "boolean" },
-    "voiceEnabled": { "type": "boolean" }
-  }
-}
-```
-
-Note: Schema above is abbreviated — see Claude Code source for the full schema with all nested properties and descriptions.
+> **Runtime injection note:** At load time, Claude Code appends two additional sections:
+> 1. `## Full Settings JSON Schema` — the complete JSON Schema for settings.json, generated from the codebase (not stored in the skill text). This is the massive schema block visible in conversation context.
+> 2. `## User Request` — the user's original message that triggered the skill (if any).

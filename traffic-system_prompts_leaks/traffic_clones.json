@@ -1,6 +1,6 @@
 {
-  "count": 17761,
-  "uniques": 3888,
+  "count": 18108,
+  "uniques": 4043,
   "clones": [
     {
       "timestamp": "2026-04-30T00:00:00Z",
@@ -158,11 +158,6 @@
       "uniques": 59
     },
     {
-      "timestamp": "2026-06-01T00:00:00Z",
-      "count": 219,
-      "uniques": 127
-    },
-    {
       "timestamp": "2026-05-31T00:00:00Z",
       "count": 154,
       "uniques": 83
@@ -171,6 +166,11 @@
       "timestamp": "2026-06-02T00:00:00Z",
       "count": 150,
       "uniques": 86
+    },
+    {
+      "timestamp": "2026-06-01T00:00:00Z",
+      "count": 219,
+      "uniques": 127
     },
     {
       "timestamp": "2026-06-03T00:00:00Z",
@@ -226,6 +226,11 @@
       "timestamp": "2026-06-13T00:00:00Z",
       "count": 179,
       "uniques": 126
+    },
+    {
+      "timestamp": "2026-06-14T00:00:00Z",
+      "count": 347,
+      "uniques": 155
     }
   ]
 }

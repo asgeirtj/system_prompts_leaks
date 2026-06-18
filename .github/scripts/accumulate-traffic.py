@@ -10,12 +10,15 @@ import json
 import os
 import subprocess
 import sys
+import urllib.request
 from datetime import datetime, timezone
 
 REPO_SLUG = "system_prompts_leaks"
+REPO_FULL = "asgeirtj/system_prompts_leaks"
 TRAFFIC_DIR = f"traffic-{REPO_SLUG}"
 HISTORY_REFERRERS = "traffic_referrers_history.json"
 HISTORY_PATHS = "traffic_paths_history.json"
+HISTORY_STARS = "traffic_stars_history.json"
 
 def load_json(path):
     try:
@@ -73,7 +76,48 @@ def accumulate(publish_dir):
     print(f"Accumulated: {len(ref_history)} referrer snapshots, {len(path_history)} path snapshots")
     return ref_history, path_history
 
-def build_dashboard(publish_dir, ref_history, path_history):
+def fetch_star_count():
+    """Current stargazers_count via the public REST API (one cheap call)."""
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{REPO_FULL}",
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "traffic-dashboard"},
+    )
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.load(r).get("stargazers_count")
+    except Exception as e:
+        print(f"Star fetch failed: {e}")
+        return None
+
+def accumulate_stars(publish_dir):
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
+
+    star_history = (
+        load_json(os.path.join(data_dir, HISTORY_STARS))
+        or fetch_from_branch(publish_dir, HISTORY_STARS)
+        or []
+    )
+
+    count = fetch_star_count()
+    if count is not None:
+        # one cumulative point per day; refresh today's if it already exists
+        if star_history and star_history[-1]["date"] == today:
+            star_history[-1]["stars"] = count
+        else:
+            star_history.append({"date": today, "stars": count})
+        star_history.sort(key=lambda x: x["date"])
+
+    with open(os.path.join(data_dir, HISTORY_STARS), "w") as f:
+        json.dump(star_history, f, separators=(",", ":"))
+
+    print(f"Accumulated: {len(star_history)} star snapshots (latest={star_history[-1]['stars'] if star_history else 'n/a'})")
+    return star_history
+
+def build_dashboard(publish_dir, ref_history, path_history, star_history):
     data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
     views = load_json(os.path.join(data_dir, "traffic_views.json"))
     clones = load_json(os.path.join(data_dir, "traffic_clones.json"))
@@ -87,6 +131,7 @@ def build_dashboard(publish_dir, ref_history, path_history):
         "clones": clones,
         "referrer_series": ref_history,
         "paths_series": path_history,
+        "stars_series": star_history,
     }, separators=(",", ":"))
 
     html = DASHBOARD_TEMPLATE.replace("__DATA_PLACEHOLDER__", embedded)
@@ -162,6 +207,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <p class="subtitle">Traffic dashboard — auto-updated daily from the <code>traffic</code> branch</p>
 <div class="stats" id="stats"></div>
 <div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
+<div class="card"><div class="card-title">GitHub Stars (cumulative)</div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
 <div class="grid-2">
   <div class="card"><div class="card-title">Top Pages (top 20 — peak 14-day count across all snapshots)</div><table id="pathsTable"></table></div>
   <div class="card"><div class="card-title">Top Referrers (top 20 — peak 14-day count across all snapshots)</div><table id="refsTable"></table></div>
@@ -207,13 +253,27 @@ const sinceStart = new Date(vDays[0].timestamp);
 const sinceFmt = sinceStart.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 const dayCount = Math.round((Date.now() - sinceStart.getTime()) / 86400000);
 
-document.getElementById('stats').innerHTML = [
+const starSeries = (DATA.stars_series||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+const curStars = starSeries.length ? starSeries[starSeries.length-1].stars : null;
+// stars gained over the trailing 7 days (find the snapshot ~7 days back)
+let starGain7 = null;
+if (starSeries.length > 1) {
+  const cutoff = new Date(starSeries[starSeries.length-1].date); cutoff.setDate(cutoff.getDate()-7);
+  let base = starSeries[0];
+  for (const p of starSeries) { if (new Date(p.date) <= cutoff) base = p; }
+  starGain7 = curStars - base.stars;
+}
+
+const statCards = [
   { l:'Total Views', v:fmt(views.count), s:fmt(views.uniques)+' unique', t:`since ${sinceFmt} · ${dayCount}d` },
   { l:'Total Clones', v:fmt(clones.count), s:fmt(clones.uniques)+' unique' },
   { l:'Daily Avg', v:fmt(avgViews), s:fmt(Math.round(clones.count/cDays.length))+' clones' },
   { l:'Peak Day', v:fmt(peakView.count), s:peakView.timestamp.slice(0,10) },
   { l:'7-Day Trend', v:`<span class="${trendCls}">${trend>=0?'+':''}${trend}%</span>`, s:fmt(last7)+' vs '+fmt(prev7) },
-].map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
+];
+if (curStars != null) statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: starGain7!=null ? `<span class="${starGain7>=0?'trend-up':'trend-down'}">${starGain7>=0?'+':''}${fmt(starGain7)}</span> last 7d` : '&nbsp;' });
+
+document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 
 const baseOpts = { chart:{fontFamily:'Inter,-apple-system,system-ui,sans-serif',background:'transparent',foreColor:isDark?'#94a3b8':'#6b7280',toolbar:{show:true,tools:{download:true,selection:true,zoom:true,zoomin:false,zoomout:false,pan:false,reset:true}}}, theme:{mode:apexTheme()}, grid:{borderColor:isDark?'#1e293b':'#e5e7eb',strokeDashArray:3}, tooltip:{theme:apexTheme()}, };
 
@@ -236,6 +296,32 @@ new ApexCharts(document.getElementById('viewsChart'), {
   markers:{size:0,hover:{size:5}},
   legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
 }).render();
+
+if (starSeries.length) {
+  const cumData = starSeries.map(p=>[new Date(p.date).getTime(), p.stars]);
+  const deltaData = starSeries.map((p,i)=>[new Date(p.date).getTime(), i===0?p.stars:Math.max(0,p.stars-starSeries[i-1].stars)]);
+  new ApexCharts(document.getElementById('starsChart'), {
+    ...baseOpts,
+    chart:{...baseOpts.chart, type:'line', height:320, id:'stars', zoom:{enabled:true,type:'x',autoScaleYaxis:true}},
+    series:[
+      {name:'Total stars', type:'area', data:cumData},
+      {name:'Gained / day', type:'column', data:deltaData},
+    ],
+    colors:['#f59e0b','#6366f1'],
+    fill:{type:['gradient','solid'],gradient:{shadeIntensity:1,opacityFrom:0.35,opacityTo:0.05,stops:[0,95]}},
+    stroke:{curve:'smooth',width:[2.5,0]},
+    plotOptions:{bar:{borderRadius:2,columnWidth:'55%'}},
+    xaxis:{type:'datetime',labels:{datetimeUTC:false}},
+    yaxis:[
+      {seriesName:'Total stars',labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':Math.round(v)}},
+      {seriesName:'Gained / day',opposite:true,labels:{formatter:v=>Math.round(v)}},
+    ],
+    dataLabels:{enabled:false},
+    markers:{size:0,hover:{size:5}},
+    legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
+    tooltip:{shared:true,x:{format:'MMM d, yyyy'}},
+  }).render();
+}
 
 new ApexCharts(document.getElementById('clonesChart'), {
   ...baseOpts,
@@ -366,4 +452,5 @@ if __name__ == "__main__":
     publish_dir = sys.argv[1]
     print(f"Processing traffic data in {publish_dir}")
     ref_history, path_history = accumulate(publish_dir)
-    build_dashboard(publish_dir, ref_history, path_history)
+    star_history = accumulate_stars(publish_dir)
+    build_dashboard(publish_dir, ref_history, path_history, star_history)

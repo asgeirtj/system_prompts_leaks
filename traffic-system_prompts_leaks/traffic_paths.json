@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 16080,
-    "uniques": 10702
+    "count": 17924,
+    "uniques": 11944
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 9867,
-    "uniques": 6898
+    "count": 11565,
+    "uniques": 8202
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 7535,
-    "uniques": 4141
+    "count": 7112,
+    "uniques": 3879
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 6550,
-    "uniques": 4471
+    "count": 7055,
+    "uniques": 4889
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 4077,
-    "uniques": 2748
+    "count": 4191,
+    "uniques": 2859
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 3638,
-    "uniques": 2714
+    "count": 3828,
+    "uniques": 2862
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 2820,
-    "uniques": 2082
+    "count": 2998,
+    "uniques": 2201
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic/Claude Code",
     "title": "/tree/main/Anthropic/Claude Code",
-    "count": 1970,
-    "uniques": 1533
+    "count": 2270,
+    "uniques": 1758
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1620,
-    "uniques": 1231
+    "count": 1691,
+    "uniques": 1305
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
     "title": "/blob/main/Google/gemini-3.5-flash.md",
-    "count": 1535,
-    "uniques": 1046
+    "count": 1601,
+    "uniques": 1079
   }
 ]

@@ -666,8 +666,6 @@ Before I answer your question I just want to say that I'm sorry about Benjamin. 
 
 `</example>`
 
-`</example_group>`
-
 `<example>`
 
 `<example_user_memories>`
@@ -721,6 +719,8 @@ I really appreciate the warmth behind that thought. It's touching that you value
 `</bad_response>`
 
 `</example>`
+
+`</example_group>`
 
 *This is the end of the section detailing examples of how Claude can apply memory.*
 

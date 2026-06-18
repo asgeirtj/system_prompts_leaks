@@ -208,6 +208,8 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <div class="stats" id="stats"></div>
 <div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
 <div class="card"><div class="card-title">GitHub Stars (cumulative)</div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
+<p class="section">Page Trends — daily 14-day view count for the top pages</p>
+<div class="card"><div id="pathTrendChart"></div></div>
 <div class="grid-2">
   <div class="card"><div class="card-title">Top Pages (top 20 — peak 14-day count across all snapshots)</div><table id="pathsTable"></table></div>
   <div class="card"><div class="card-title">Top Referrers (top 20 — peak 14-day count across all snapshots)</div><table id="refsTable"></table></div>
@@ -216,8 +218,6 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <div class="card"><div id="allRefsChart"></div></div>
 <p class="section">Referrer Trends</p>
 <div class="card"><div id="refTrendChart"></div></div>
-<p class="section">Page Trends</p>
-<div class="card"><div id="pathTrendChart"></div></div>
 <p class="section">Day Detail</p>
 <div class="card"><div class="card-title" id="dayDetailTitle">Click a day on the views chart to see that day's breakdown</div><div id="dayDetail" style="min-height:60px"></div></div>
 <p class="section">Daily Clones</p>
@@ -420,15 +420,15 @@ new ApexCharts(document.getElementById('refTrendChart'), {
 
 const allPathNames = new Set();
 DATA.paths_series.forEach(s=>s.paths.forEach(p=>allPathNames.add(p.path)));
-const topPathNames = [...allPathNames].map(n=>({n,c:(allPathsMap[n]||{count:0}).count})).sort((a,b)=>b.c-a.c).slice(0,6).map(x=>x.n);
+const topPathNames = [...allPathNames].map(n=>({n,c:(allPathsMap[n]||{count:0}).count})).sort((a,b)=>b.c-a.c).slice(0,8).map(x=>x.n);
 
 new ApexCharts(document.getElementById('pathTrendChart'), {
   ...baseOpts,
-  chart:{...baseOpts.chart, type:'line', height:320, zoom:{enabled:true,type:'x'}},
+  chart:{...baseOpts.chart, type:'line', height:380, zoom:{enabled:true,type:'x'}},
   series:topPathNames.map((name,i)=>({
     name:shortenPath(name), data:DATA.paths_series.map(s=>{const p=s.paths.find(x=>x.path===name); return [new Date(s.date).getTime(), p?p.count:null];})
   })),
-  colors:colors.slice(0,6),
+  colors:colors.slice(0,8),
   stroke:{curve:'smooth',width:2},
   xaxis:{type:'datetime'},
   yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
@@ -449,15 +449,15 @@ function showDayDetail(date) {
   let html = '<div class="grid-2" style="gap:12px">';
   html += '<div><strong style="font-size:.75rem">Views:</strong> '+(day?fmt(day.count)+' ('+fmt(day.uniques)+' unique)':'no data')+'<br><strong style="font-size:.75rem">Clones:</strong> '+(clone?fmt(clone.count)+' ('+fmt(clone.uniques)+' unique)':'no data')+'</div>';
   if (snap) {
-    html += '<div><strong style="font-size:.75rem">Referrers (14-day window):</strong><br>';
-    snap.referrers.slice(0,5).forEach(r=>{ html += `<span class="mono" style="font-size:.7rem">${r.referrer}: ${fmt(r.count)}</span><br>`; });
+    html += `<div><strong style="font-size:.75rem">Referrers (14-day window, ${snap.referrers.length}):</strong><br>`;
+    snap.referrers.forEach(r=>{ html += `<span class="mono" style="font-size:.7rem">${r.referrer}: ${fmt(r.count)} (${fmt(r.uniques)} uniq)</span><br>`; });
     html += '</div>';
   }
   html += '</div>';
   if (pathSnap) {
-    html += '<div style="margin-top:8px"><strong style="font-size:.75rem">Top pages (14-day window):</strong>';
-    html += '<table style="margin-top:4px"><thead><tr><th>Page</th><th>Views</th></tr></thead><tbody>';
-    pathSnap.paths.slice(0,5).forEach(p=>{ html += `<tr><td class="mono">${shortenPath(p.path)}</td><td>${fmt(p.count)}</td></tr>`; });
+    html += `<div style="margin-top:8px"><strong style="font-size:.75rem">Top pages (14-day window, ${pathSnap.paths.length}):</strong>`;
+    html += '<table style="margin-top:4px"><thead><tr><th>Page</th><th>Views</th><th>Unique</th></tr></thead><tbody>';
+    pathSnap.paths.forEach(p=>{ html += `<tr><td class="mono">${shortenPath(p.path)}</td><td>${fmt(p.count)}</td><td>${fmt(p.uniques)}</td></tr>`; });
     html += '</tbody></table></div>';
   }
   el.innerHTML = html;

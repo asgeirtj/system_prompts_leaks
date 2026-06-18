@@ -303,8 +303,22 @@ new ApexCharts(document.getElementById('viewsChart'), {
 }).render();
 
 if (starSeries.length) {
-  const cumData = starSeries.map(p=>[new Date(p.date).getTime(), p.stars]);
-  const deltaData = starSeries.map((p,i)=>[new Date(p.date).getTime(), i===0?p.stars:Math.max(0,p.stars-starSeries[i-1].stars)]);
+  // Build daily points. If two snapshots are >1 day apart (e.g. the tracker
+  // missed a few days), spread the gain evenly across the missing days so a
+  // multi-day delta never renders as one false single-day spike.
+  const cumData = [], deltaData = [];
+  starSeries.forEach((p,i)=>{
+    const t = new Date(p.date).getTime();
+    if (i===0) { cumData.push([t,p.stars]); deltaData.push([t,p.stars]); return; }
+    const prev = starSeries[i-1], pt = new Date(prev.date).getTime();
+    const days = Math.max(1, Math.round((t-pt)/86400000));
+    const per = (p.stars - prev.stars) / days;
+    for (let k=1;k<=days;k++) {
+      const tk = pt + k*86400000;
+      cumData.push([tk, k===days ? p.stars : Math.round(prev.stars + per*k)]);
+      deltaData.push([tk, Math.round(per)]);
+    }
+  });
   new ApexCharts(document.getElementById('starsChart'), {
     ...baseOpts,
     chart:{...baseOpts.chart, type:'line', height:320, id:'stars', zoom:{enabled:true,type:'x',autoScaleYaxis:true}},

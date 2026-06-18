@@ -255,13 +255,18 @@ const dayCount = Math.round((Date.now() - sinceStart.getTime()) / 86400000);
 
 const starSeries = (DATA.stars_series||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
 const curStars = starSeries.length ? starSeries[starSeries.length-1].stars : null;
-// stars gained over the trailing 7 days (find the snapshot ~7 days back)
-let starGain7 = null;
+// stars gained over the trailing ~7 days. The backfill ends at the API's
+// 40k-stargazer cap, so early on there's a multi-week gap before today's
+// point — label the gain by its TRUE span so it never claims "7d" for a
+// 36-day delta. Self-heals to "7d" once daily points fill in.
+let starGain = null, starGainDays = 0;
 if (starSeries.length > 1) {
-  const cutoff = new Date(starSeries[starSeries.length-1].date); cutoff.setDate(cutoff.getDate()-7);
+  const lastDate = new Date(starSeries[starSeries.length-1].date);
+  const cutoff = new Date(lastDate); cutoff.setDate(cutoff.getDate()-7);
   let base = starSeries[0];
   for (const p of starSeries) { if (new Date(p.date) <= cutoff) base = p; }
-  starGain7 = curStars - base.stars;
+  starGain = curStars - base.stars;
+  starGainDays = Math.round((lastDate - new Date(base.date)) / 86400000) || 1;
 }
 
 const statCards = [
@@ -271,7 +276,7 @@ const statCards = [
   { l:'Peak Day', v:fmt(peakView.count), s:peakView.timestamp.slice(0,10) },
   { l:'7-Day Trend', v:`<span class="${trendCls}">${trend>=0?'+':''}${trend}%</span>`, s:fmt(last7)+' vs '+fmt(prev7) },
 ];
-if (curStars != null) statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: starGain7!=null ? `<span class="${starGain7>=0?'trend-up':'trend-down'}">${starGain7>=0?'+':''}${fmt(starGain7)}</span> last 7d` : '&nbsp;' });
+if (curStars != null) statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: starGain!=null ? `<span class="${starGain>=0?'trend-up':'trend-down'}">${starGain>=0?'+':''}${fmt(starGain)}</span> last ${starGainDays}d` : '&nbsp;' });
 
 document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 

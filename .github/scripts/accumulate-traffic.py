@@ -92,6 +92,44 @@ def fetch_star_count():
         print(f"Star fetch failed: {e}")
         return None
 
+def fetch_star_windows():
+    """Real stars gained in rolling 1d / 7d / 30d windows, counted from live
+    starredAt timestamps (GraphQL, newest-first). Matches GitHub's own numbers
+    and is independent of snapshot timing. Returns None on failure."""
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if not token:
+        return None
+    now = datetime.now(timezone.utc)
+    bounds = {"d1": now.timestamp() - 86400, "d7": now.timestamp() - 7*86400, "d30": now.timestamp() - 30*86400}
+    counts = {"d1": 0, "d7": 0, "d30": 0}
+    cursor, pages = None, 0
+    try:
+        while pages < 60:
+            after = f', after: "{cursor}"' if cursor else ''
+            query = ('{ repository(owner:"asgeirtj", name:"system_prompts_leaks"){ stargazers(first:100%s, '
+                     'orderBy:{field:STARRED_AT, direction:DESC}){ pageInfo{endCursor hasNextPage} edges{starredAt} } } }') % after
+            body = json.dumps({"query": query}).encode()
+            req = urllib.request.Request("https://api.github.com/graphql", data=body,
+                headers={"Authorization": f"Bearer {token}", "User-Agent": "traffic-dashboard", "Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                s = json.load(r)["data"]["repository"]["stargazers"]
+            oldest = now.timestamp()
+            for e in s["edges"]:
+                t = datetime.fromisoformat(e["starredAt"].replace("Z", "+00:00")).timestamp()
+                oldest = t
+                for k, b in bounds.items():
+                    if t >= b:
+                        counts[k] += 1
+            pages += 1
+            if oldest < bounds["d30"] or not s["pageInfo"]["hasNextPage"]:
+                break
+            cursor = s["pageInfo"]["endCursor"]
+        print(f"Star windows: today={counts['d1']} 7d={counts['d7']} 30d={counts['d30']} ({pages} pages)")
+        return counts
+    except Exception as e:
+        print(f"Star windows fetch failed: {e}")
+        return None
+
 def accumulate_stars(publish_dir):
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
@@ -115,9 +153,9 @@ def accumulate_stars(publish_dir):
         json.dump(star_history, f, separators=(",", ":"))
 
     print(f"Accumulated: {len(star_history)} star snapshots (latest={star_history[-1]['stars'] if star_history else 'n/a'})")
-    return star_history
+    return star_history, fetch_star_windows()
 
-def build_dashboard(publish_dir, ref_history, path_history, star_history):
+def build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows):
     data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
     views = load_json(os.path.join(data_dir, "traffic_views.json"))
     clones = load_json(os.path.join(data_dir, "traffic_clones.json"))
@@ -132,6 +170,7 @@ def build_dashboard(publish_dir, ref_history, path_history, star_history):
         "referrer_series": ref_history,
         "paths_series": path_history,
         "stars_series": star_history,
+        "stars_windows": star_windows,
     }, separators=(",", ":"))
 
     html = DASHBOARD_TEMPLATE.replace("__DATA_PLACEHOLDER__", embedded)
@@ -207,7 +246,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <p class="subtitle">Traffic dashboard — auto-updated daily from the <code>traffic</code> branch</p>
 <div class="stats" id="stats"></div>
 <div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
-<div class="card"><div class="card-title">GitHub Stars (cumulative)</div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
+<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Stars (cumulative)<span id="starReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
 <p class="section">Page Trends — daily 14-day view count for the top pages</p>
 <div class="card"><label style="display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text2);margin-bottom:8px;cursor:pointer"><input type="checkbox" id="showAgg" style="cursor:pointer"> Show folders, root &amp; overview</label><div id="pathTrendChart"></div></div>
 <div class="grid-2">
@@ -259,14 +298,35 @@ const curStars = starSeries.length ? starSeries[starSeries.length-1].stars : nul
 // 40k-stargazer cap, so early on there's a multi-week gap before today's
 // point — label the gain by its TRUE span so it never claims "7d" for a
 // 36-day delta. Self-heals to "7d" once daily points fill in.
-let starGain = null, starGainDays = 0;
-if (starSeries.length > 1) {
+// gain over the trailing N days: find the snapshot ~N days back and subtract.
+// Returns {gain, days} where days is the TRUE span covered (so it never claims
+// "7d" for a wider gap left by the one-time 40k-cap backfill seam).
+function starGainOver(n) {
+  if (starSeries.length < 2) return null;
   const lastDate = new Date(starSeries[starSeries.length-1].date);
-  const cutoff = new Date(lastDate); cutoff.setDate(cutoff.getDate()-7);
+  const cutoff = new Date(lastDate); cutoff.setDate(cutoff.getDate()-n);
   let base = starSeries[0];
   for (const p of starSeries) { if (new Date(p.date) <= cutoff) base = p; }
-  starGain = curStars - base.stars;
-  starGainDays = Math.round((lastDate - new Date(base.date)) / 86400000) || 1;
+  return { gain: curStars - base.stars, days: Math.round((lastDate - new Date(base.date)) / 86400000) || 1 };
+}
+// Prefer live rolling-window counts (real starredAt timestamps, matches
+// GitHub's own numbers); fall back to the daily series if that fetch failed.
+const sw = DATA.stars_windows;
+const g7s = starGainOver(7);
+const starGain = sw ? sw.d7 : (g7s ? g7s.gain : null);
+const starGainDays = 7;
+
+if (curStars != null) {
+  let parts;
+  if (sw) {
+    parts = [['today',sw.d1],['7d',sw.d7],['30d',sw.d30]];
+  } else {
+    parts = [['today',starGainOver(1)?.gain],['7d',starGainOver(7)?.gain],['30d',starGainOver(30)?.gain]];
+  }
+  document.getElementById('starReadout').innerHTML = parts
+    .filter(([,v])=>v!=null)
+    .map(([l,v])=>`<span class="${v>=0?'trend-up':'trend-down'}">${v>=0?'+':''}${fmt(v)}</span> ${l}`)
+    .join(' &nbsp;·&nbsp; ');
 }
 
 const statCards = [
@@ -492,5 +552,5 @@ if __name__ == "__main__":
     publish_dir = sys.argv[1]
     print(f"Processing traffic data in {publish_dir}")
     ref_history, path_history = accumulate(publish_dir)
-    star_history = accumulate_stars(publish_dir)
-    build_dashboard(publish_dir, ref_history, path_history, star_history)
+    star_history, star_windows = accumulate_stars(publish_dir)
+    build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows)

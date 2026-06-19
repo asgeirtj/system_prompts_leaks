@@ -336,7 +336,13 @@ const statCards = [
   { l:'Peak Day', v:fmt(peakView.count), s:peakView.timestamp.slice(0,10) },
   { l:'7-Day Trend', v:`<span class="${trendCls}">${trend>=0?'+':''}${trend}%</span>`, s:fmt(last7)+' vs '+fmt(prev7) },
 ];
-if (curStars != null) statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: starGain!=null ? `<span class="${starGain>=0?'trend-up':'trend-down'}">${starGain>=0?'+':''}${fmt(starGain)}</span> last ${starGainDays}d` : '&nbsp;' });
+if (curStars != null) {
+  const tdy = sw ? sw.d1 : null;
+  const sub = sw
+    ? `<span class="trend-up">+${fmt(sw.d1)}</span> today · <span class="trend-up">+${fmt(sw.d7)}</span> 7d`
+    : (starGain!=null ? `<span class="${starGain>=0?'trend-up':'trend-down'}">${starGain>=0?'+':''}${fmt(starGain)}</span> last ${starGainDays}d` : '&nbsp;');
+  statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: sub });
+}
 
 document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 

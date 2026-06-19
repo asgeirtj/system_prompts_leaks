@@ -209,7 +209,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
 <div class="card"><div class="card-title">GitHub Stars (cumulative)</div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
 <p class="section">Page Trends — daily 14-day view count for the top pages</p>
-<div class="card"><div id="pathTrendChart"></div></div>
+<div class="card"><label style="display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text2);margin-bottom:8px;cursor:pointer"><input type="checkbox" id="showAgg" style="cursor:pointer"> Show folders, root &amp; overview</label><div id="pathTrendChart"></div></div>
 <div class="grid-2">
   <div class="card"><div class="card-title">Top Pages (top 20 — peak 14-day count across all snapshots)</div><table id="pathsTable"></table></div>
   <div class="card"><div class="card-title">Top Referrers (top 20 — peak 14-day count across all snapshots)</div><table id="refsTable"></table></div>
@@ -364,18 +364,23 @@ const prevRefs = DATA.referrer_series.length > 7 ? DATA.referrer_series[DATA.ref
 // peak 14-day count per source across all snapshots to surface up to 20.
 const allPathsMap = {};
 DATA.paths_series.forEach(s=>s.paths.forEach(p=>{ if(!allPathsMap[p.path]||p.count>allPathsMap[p.path].count) allPathsMap[p.path]={count:p.count,uniques:p.uniques,peak:s.date}; }));
-const allPaths = Object.entries(allPathsMap).sort((a,b)=>b[1].count-a[1].count);
+// A path is a real file page if it's a /blob/main/ URL; everything else
+// (the repo Overview, /tree/main root, and /tree/main/<dir> folder listings)
+// is an aggregate view that the toggle can hide.
+const isFilePath = p => p.replace('/asgeirtj/system_prompts_leaks','').startsWith('/blob/main/');
 
 const allRefsMap = {};
 DATA.referrer_series.forEach(s=>s.referrers.forEach(r=>{ if(!allRefsMap[r.referrer]||r.count>allRefsMap[r.referrer].count) allRefsMap[r.referrer]={count:r.count,uniques:r.uniques,peak:s.date}; }));
 const allRefs = Object.entries(allRefsMap).sort((a,b)=>b[1].count-a[1].count);
 
-const topPaths = allPaths.slice(0,20);
-document.getElementById('pathsTable').innerHTML = '<thead><tr><th>#</th><th>Page</th><th>Peak Views</th><th>Unique</th></tr></thead><tbody>'+
-  topPaths.map(([path,d],i)=>{
-    const w = Math.round(d.count/(topPaths[0]?.[1].count||1)*100);
-    return `<tr><td style="color:var(--text2)">${i+1}</td><td class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${colors[i%colors.length]}"></div><span class="mono">${shortenPath(path)}</span></td><td>${fmt(d.count)}</td><td>${fmt(d.uniques)}</td></tr>`;
-  }).join('')+'</tbody>';
+function renderTopPagesTable(showAgg) {
+  const topPaths = Object.entries(allPathsMap).filter(([p])=>showAgg||isFilePath(p)).sort((a,b)=>b[1].count-a[1].count).slice(0,20);
+  document.getElementById('pathsTable').innerHTML = '<thead><tr><th>#</th><th>Page</th><th>Peak Views</th><th>Unique</th></tr></thead><tbody>'+
+    topPaths.map(([path,d],i)=>{
+      const w = Math.round(d.count/(topPaths[0]?.[1].count||1)*100);
+      return `<tr><td style="color:var(--text2)">${i+1}</td><td class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${colors[i%colors.length]}"></div><span class="mono">${shortenPath(path)}</span></td><td>${fmt(d.count)}</td><td>${fmt(d.uniques)}</td></tr>`;
+    }).join('')+'</tbody>';
+}
 
 const topRefs = allRefs.slice(0,20);
 document.getElementById('refsTable').innerHTML = '<thead><tr><th>#</th><th>Referrer</th><th>Peak Views</th><th>Unique</th></tr></thead><tbody>'+
@@ -420,22 +425,38 @@ new ApexCharts(document.getElementById('refTrendChart'), {
 
 const allPathNames = new Set();
 DATA.paths_series.forEach(s=>s.paths.forEach(p=>allPathNames.add(p.path)));
-const topPathNames = [...allPathNames].map(n=>({n,c:(allPathsMap[n]||{count:0}).count})).sort((a,b)=>b.c-a.c).slice(0,8).map(x=>x.n);
 
-new ApexCharts(document.getElementById('pathTrendChart'), {
-  ...baseOpts,
-  chart:{...baseOpts.chart, type:'line', height:380, zoom:{enabled:true,type:'x'}},
-  series:topPathNames.map((name,i)=>({
-    name:shortenPath(name), data:DATA.paths_series.map(s=>{const p=s.paths.find(x=>x.path===name); return [new Date(s.date).getTime(), p?p.count:null];})
-  })),
-  colors:colors.slice(0,8),
-  stroke:{curve:'smooth',width:2},
-  xaxis:{type:'datetime'},
-  yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
-  dataLabels:{enabled:false},
-  markers:{size:0,hover:{size:4}},
-  legend:{position:'top',fontSize:'11px'},
-}).render();
+// Page Trends + Top Pages share one toggle. Default hides aggregate paths
+// (Overview / root / folder listings) so only real file pages show; the
+// checkbox brings them back. Chart is destroyed/recreated on toggle.
+let pathTrendChart = null;
+function renderPageTrend(showAgg) {
+  const names = [...allPathNames].filter(n=>showAgg||isFilePath(n))
+    .map(n=>({n,c:(allPathsMap[n]||{count:0}).count})).sort((a,b)=>b.c-a.c).slice(0,8).map(x=>x.n);
+  if (pathTrendChart) pathTrendChart.destroy();
+  pathTrendChart = new ApexCharts(document.getElementById('pathTrendChart'), {
+    ...baseOpts,
+    chart:{...baseOpts.chart, type:'line', height:380, zoom:{enabled:true,type:'x'}},
+    series:names.map(name=>({
+      name:shortenPath(name), data:DATA.paths_series.map(s=>{const p=s.paths.find(x=>x.path===name); return [new Date(s.date).getTime(), p?p.count:null];})
+    })),
+    colors:colors.slice(0,8),
+    stroke:{curve:'smooth',width:2},
+    xaxis:{type:'datetime'},
+    yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
+    dataLabels:{enabled:false},
+    markers:{size:0,hover:{size:4}},
+    legend:{position:'top',fontSize:'11px'},
+  });
+  pathTrendChart.render();
+}
+function renderPages() {
+  const showAgg = document.getElementById('showAgg').checked;
+  renderTopPagesTable(showAgg);
+  renderPageTrend(showAgg);
+}
+document.getElementById('showAgg').addEventListener('change', renderPages);
+renderPages();
 
 function showDayDetail(date) {
   if (!date) return;

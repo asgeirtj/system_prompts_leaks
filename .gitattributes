@@ -1,4 +1,2 @@
 # Markdown prompt files preserve whitespace for fidelity and raw readability.
 *.md -whitespace
-*.md linguist-detectable=true
-*.md linguist-documentation=false

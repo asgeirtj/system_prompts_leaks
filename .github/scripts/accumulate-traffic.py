@@ -227,6 +227,9 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
   th{text-align:left;padding:6px 10px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em}
   td{padding:6px 10px;border-bottom:1px solid var(--border)}
   tr:last-child td{border-bottom:none}
+  tr.clickable{cursor:pointer;transition:background .15s}
+  tr.clickable:hover{background:rgba(99,102,241,.06)}
+  tr.clickable.active{background:rgba(99,102,241,.10)}
   .mono{font-family:'SF Mono','Fira Code','Cascadia Code',monospace;font-size:.75rem}
   .bar-wrap{position:relative}
   .bar-fill{position:absolute;left:0;top:2px;bottom:2px;border-radius:3px;opacity:.12}
@@ -253,6 +256,8 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
   <div class="card"><div class="card-title">Top Pages (top 20 — peak 14-day count across all snapshots)</div><table id="pathsTable"></table></div>
   <div class="card"><div class="card-title">Top Referrers (top 20 — peak 14-day count across all snapshots)</div><table id="refsTable"></table></div>
 </div>
+<p class="section" id="pageHistorySection" style="display:none">Page History</p>
+<div class="card" id="pageHistoryCard" style="display:none"><div class="card-title" id="pageHistoryTitle"></div><div id="pageHistoryChart"></div><table id="pageHistoryTable" style="margin-top:12px"></table></div>
 <p class="section">All Referrers — peak 14-day count per source across all snapshots</p>
 <div class="card"><div id="allRefsChart"></div></div>
 <p class="section">Referrer Trends</p>
@@ -444,8 +449,57 @@ function renderTopPagesTable(showAgg) {
   document.getElementById('pathsTable').innerHTML = '<thead><tr><th>#</th><th>Page</th><th>Peak Views</th><th>Unique</th></tr></thead><tbody>'+
     topPaths.map(([path,d],i)=>{
       const w = Math.round(d.count/(topPaths[0]?.[1].count||1)*100);
-      return `<tr><td style="color:var(--text2)">${i+1}</td><td class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${colors[i%colors.length]}"></div><span class="mono">${shortenPath(path)}</span></td><td>${fmt(d.count)}</td><td>${fmt(d.uniques)}</td></tr>`;
+      const esc = path.replace(/'/g,"\\'");
+      return `<tr class="clickable" onclick="showPageHistory('${esc}')"><td style="color:var(--text2)">${i+1}</td><td class="bar-wrap"><div class="bar-fill" style="width:${w}%;background:${colors[i%colors.length]}"></div><span class="mono">${shortenPath(path)}</span></td><td>${fmt(d.count)}</td><td>${fmt(d.uniques)}</td></tr>`;
     }).join('')+'</tbody>';
+}
+
+let pageHistChart = null;
+function showPageHistory(path) {
+  document.querySelectorAll('#pathsTable tr.clickable').forEach(r=>r.classList.remove('active'));
+  const rows = document.querySelectorAll('#pathsTable tr.clickable');
+  rows.forEach(r=>{ if(r.querySelector('.mono')?.textContent===shortenPath(path)) r.classList.add('active'); });
+
+  const series = DATA.paths_series.map(s=>{
+    const p = s.paths.find(x=>x.path===path);
+    return { date:s.date, count:p?p.count:null, uniques:p?p.uniques:null };
+  }).filter(d=>d.count!==null);
+
+  const section = document.getElementById('pageHistorySection');
+  const card = document.getElementById('pageHistoryCard');
+  section.style.display = '';
+  card.style.display = '';
+  document.getElementById('pageHistoryTitle').textContent = shortenPath(path) + ' — view count over time';
+
+  if (pageHistChart) pageHistChart.destroy();
+  pageHistChart = new ApexCharts(document.getElementById('pageHistoryChart'), {
+    ...baseOpts,
+    chart:{...baseOpts.chart, type:'area', height:260, zoom:{enabled:true,type:'x',autoScaleYaxis:true}},
+    series:[
+      {name:'Views (14d window)', data:series.map(d=>[new Date(d.date).getTime(), d.count])},
+      {name:'Unique', data:series.map(d=>[new Date(d.date).getTime(), d.uniques])},
+    ],
+    colors:['#6366f1','#f59e0b'],
+    fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:0.4,opacityTo:0.05,stops:[0,95]}},
+    stroke:{curve:'smooth',width:2.5},
+    xaxis:{type:'datetime',labels:{datetimeUTC:false}},
+    yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
+    dataLabels:{enabled:false},
+    markers:{size:3,hover:{size:5}},
+    legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
+    tooltip:{shared:true,x:{format:'MMM d, yyyy'}},
+  });
+  pageHistChart.render();
+
+  const tbl = document.getElementById('pageHistoryTable');
+  tbl.innerHTML = '<thead><tr><th>Date</th><th>Views (14d)</th><th>Unique</th><th>Change</th></tr></thead><tbody>'+
+    series.map((d,i)=>{
+      let badge='';
+      if(i>0&&series[i-1].count!=null){const delta=d.count-series[i-1].count;const pct=series[i-1].count?Math.round(delta/series[i-1].count*100):0;if(delta!==0) badge=`<span class="badge ${delta>0?'badge-up':'badge-down'}">${delta>0?'+':''}${pct}%</span>`;}
+      return `<tr><td class="mono">${d.date}</td><td>${fmt(d.count)}</td><td>${fmt(d.uniques)}</td><td>${badge}</td></tr>`;
+    }).reverse().join('')+'</tbody>';
+
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 const topRefs = allRefs.slice(0,20);

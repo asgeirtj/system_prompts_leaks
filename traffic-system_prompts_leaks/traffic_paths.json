@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 21460,
-    "uniques": 14285
+    "count": 22698,
+    "uniques": 15215
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 14857,
-    "uniques": 10203
+    "count": 16544,
+    "uniques": 11175
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 7638,
-    "uniques": 4562
+    "count": 10901,
+    "uniques": 7377
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 7627,
-    "uniques": 5410
+    "count": 7950,
+    "uniques": 5648
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 4545,
-    "uniques": 3140
+    "count": 4592,
+    "uniques": 3145
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 4082,
-    "uniques": 3130
+    "count": 4138,
+    "uniques": 3166
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 3420,
-    "uniques": 2510
+    "count": 3661,
+    "uniques": 2655
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic/Claude Code",
     "title": "/tree/main/Anthropic/Claude Code",
-    "count": 2520,
-    "uniques": 1975
+    "count": 2625,
+    "uniques": 2091
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
     "title": "/blob/main/Google/gemini-3.5-flash.md",
-    "count": 1880,
-    "uniques": 1249
+    "count": 1993,
+    "uniques": 1312
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
     "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 1835,
-    "uniques": 1428
+    "count": 1914,
+    "uniques": 1466
   }
 ]

@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 28747,
-    "uniques": 19668
+    "count": 30461,
+    "uniques": 20925
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 21123,
-    "uniques": 13876
+    "count": 25715,
+    "uniques": 16936
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 12833,
-    "uniques": 9593
+    "count": 13719,
+    "uniques": 10390
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 8842,
-    "uniques": 6435
+    "count": 9388,
+    "uniques": 6921
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 4990,
-    "uniques": 3350
-  },
-  {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
-    "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 4583,
-    "uniques": 3514
+    "count": 5200,
+    "uniques": 3527
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 4401,
-    "uniques": 3244
+    "count": 4901,
+    "uniques": 3580
+  },
+  {
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
+    "title": "/blob/main/Anthropic/claude-opus-4.8.md",
+    "count": 4710,
+    "uniques": 3648
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic/Claude Code",
     "title": "/tree/main/Anthropic/Claude Code",
-    "count": 2939,
-    "uniques": 2347
+    "count": 3056,
+    "uniques": 2479
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
     "title": "/blob/main/Google/gemini-3.5-flash.md",
-    "count": 2403,
-    "uniques": 1619
+    "count": 2566,
+    "uniques": 1698
   },
   {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.6.md",
-    "title": "/blob/main/Anthropic/claude-opus-4.6.md",
-    "count": 2017,
-    "uniques": 1562
+    "path": "/asgeirtj/system_prompts_leaks/blob/main/OpenAI/gpt-5.5-thinking.md",
+    "title": "/blob/main/OpenAI/gpt-5.5-thinking.md",
+    "count": 2036,
+    "uniques": 1524
   }
 ]

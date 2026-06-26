@@ -1,52 +1,52 @@
 [
   {
     "referrer": "Google",
-    "count": 45293,
-    "uniques": 17027
+    "count": 47841,
+    "uniques": 17937
   },
   {
     "referrer": "github.com",
-    "count": 31051,
-    "uniques": 9863
+    "count": 32689,
+    "uniques": 10365
   },
   {
     "referrer": "reddit.com",
-    "count": 8537,
-    "uniques": 6141
+    "count": 8925,
+    "uniques": 6370
   },
   {
     "referrer": "Bing",
-    "count": 2768,
-    "uniques": 826
+    "count": 2950,
+    "uniques": 855
   },
   {
     "referrer": "instagram.com",
-    "count": 2081,
-    "uniques": 1420
+    "count": 2237,
+    "uniques": 1487
   },
   {
     "referrer": "l.instagram.com",
-    "count": 1760,
-    "uniques": 1102
+    "count": 1892,
+    "uniques": 1140
   },
   {
     "referrer": "DuckDuckGo",
-    "count": 1587,
-    "uniques": 540
+    "count": 1652,
+    "uniques": 556
   },
   {
     "referrer": "asgeirtj.github.io",
-    "count": 1369,
-    "uniques": 627
+    "count": 1486,
+    "uniques": 683
   },
   {
     "referrer": "search.brave.com",
-    "count": 1342,
-    "uniques": 512
+    "count": 1411,
+    "uniques": 537
   },
   {
     "referrer": "out.reddit.com",
-    "count": 1153,
-    "uniques": 632
+    "count": 1226,
+    "uniques": 682
   }
 ]

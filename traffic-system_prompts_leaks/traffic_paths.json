@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 34900,
-    "uniques": 23807
+    "count": 35375,
+    "uniques": 24130
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 29431,
-    "uniques": 19210
+    "count": 29389,
+    "uniques": 19108
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 14569,
-    "uniques": 10818
+    "count": 14600,
+    "uniques": 10849
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 9971,
-    "uniques": 7487
+    "count": 9891,
+    "uniques": 7323
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 5664,
-    "uniques": 4007
+    "count": 5689,
+    "uniques": 4034
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 5556,
-    "uniques": 3875
+    "count": 5426,
+    "uniques": 3794
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 5296,
-    "uniques": 4065
+    "count": 5215,
+    "uniques": 3962
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic/Claude Code",
     "title": "/tree/main/Anthropic/Claude Code",
-    "count": 3323,
-    "uniques": 2639
+    "count": 3319,
+    "uniques": 2607
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
     "title": "/blob/main/Google/gemini-3.5-flash.md",
-    "count": 3018,
-    "uniques": 2082
+    "count": 3063,
+    "uniques": 2120
   },
   {
-    "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/Claude Code/claude-code-2.1.172-fable-5.md",
-    "title": "/blob/main/Anthropic/Claude Code/claude-code-2.1.172-fable-5.md",
-    "count": 2208,
-    "uniques": 1569
+    "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
+    "title": "/tree/main/OpenAI",
+    "count": 2245,
+    "uniques": 1721
   }
 ]

@@ -18,6 +18,7 @@ The purpose of this repo is to document the System Prompt instructions for all t
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Sonnet 5** | July 1, 2026 | [System prompt](Anthropic/claude-sonnet-5.md) |
 | **Claude Design (Opus 4.8 — full prompt + 48 tools + 16 skills + 9 starter sources)** | June 26, 2026 | [System prompt](Anthropic/claude-design.md) |
 | **GitHub Copilot for macOS (app)** | June 18, 2026 | [System prompt](Microsoft/copilot-macos-app.md) |
 | **GPT-5.5 Codex (full prompt)** | June 18, 2026 | [System prompt](OpenAI/Codex/gpt-5.5.md) |
@@ -44,6 +45,7 @@ The purpose of this repo is to document the System Prompt instructions for all t
 |-------|--------|
 | **Claude Fable 5** | [**System prompt**](Anthropic/claude-fable-5.md) |
 | **Claude Opus 4.8** | [**System prompt**](Anthropic/claude-opus-4.8.md) |
+| **Claude Sonnet 5** | [**System prompt**](Anthropic/claude-sonnet-5.md) |
 | **Claude Code (Opus 4.8)** | [**System prompt**](Anthropic/Claude%20Code/claude-code-opus-4.8.md) |
 | **Claude Opus 4.7** | [**System prompt**](Anthropic/claude-opus-4.7.md) |
 | **Claude Code (Opus 4.6)** | [**System prompt**](Anthropic/Claude%20Code/claude-code-opus-4.6.md) |

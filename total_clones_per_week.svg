@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="161" height="20"
-  role="img" aria-label="total clones: 2530/week">
-  <title>total clones: 2530/week</title>
+  role="img" aria-label="total clones: 2445/week">
+  <title>total clones: 2445/week</title>
   <linearGradient id="s" x2="0" y2="100%">
     <stop offset="0" stop-color="#bbb" stop-opacity=".1" />
     <stop offset="1" stop-opacity=".1" />
@@ -21,7 +21,7 @@
       textLength="630">total clones</text>
     <text x="545" y="140" transform="scale(.1)" fill="#fff" textLength="630">total clones</text>
     <text aria-hidden="true" x="1245" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)"
-      textLength="610">2530/week</text>
-    <text x="1245" y="140" transform="scale(.1)" fill="#fff" textLength="610">2530/week</text>
+      textLength="610">2445/week</text>
+    <text x="1245" y="140" transform="scale(.1)" fill="#fff" textLength="610">2445/week</text>
   </g>
 </svg>

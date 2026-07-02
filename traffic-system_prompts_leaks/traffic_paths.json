@@ -2,61 +2,61 @@
   {
     "path": "/asgeirtj/system_prompts_leaks",
     "title": "Overview",
-    "count": 34877,
-    "uniques": 23437
+    "count": 35112,
+    "uniques": 23920
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-fable-5.md",
     "title": "/blob/main/Anthropic/claude-fable-5.md",
-    "count": 28607,
-    "uniques": 18414
+    "count": 28823,
+    "uniques": 18437
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-design.md",
     "title": "/blob/main/Anthropic/claude-design.md",
-    "count": 14716,
-    "uniques": 10874
+    "count": 14889,
+    "uniques": 11032
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic",
     "title": "/tree/main/Anthropic",
-    "count": 9400,
-    "uniques": 6961
+    "count": 9362,
+    "uniques": 6902
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main",
     "title": "/tree/main",
-    "count": 5650,
-    "uniques": 3990
+    "count": 5760,
+    "uniques": 3964
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.1-pro.md",
     "title": "/blob/main/Google/gemini-3.1-pro.md",
-    "count": 5251,
-    "uniques": 3686
+    "count": 5254,
+    "uniques": 3683
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Anthropic/claude-opus-4.8.md",
     "title": "/blob/main/Anthropic/claude-opus-4.8.md",
-    "count": 4979,
-    "uniques": 3762
+    "count": 4991,
+    "uniques": 3726
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/blob/main/Google/gemini-3.5-flash.md",
     "title": "/blob/main/Google/gemini-3.5-flash.md",
-    "count": 3187,
-    "uniques": 2247
+    "count": 3284,
+    "uniques": 2302
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/Anthropic/Claude Code",
     "title": "/tree/main/Anthropic/Claude Code",
-    "count": 3134,
-    "uniques": 2480
+    "count": 3094,
+    "uniques": 2441
   },
   {
     "path": "/asgeirtj/system_prompts_leaks/tree/main/OpenAI",
     "title": "/tree/main/OpenAI",
-    "count": 2279,
-    "uniques": 1756
+    "count": 2367,
+    "uniques": 1835
   }
 ]

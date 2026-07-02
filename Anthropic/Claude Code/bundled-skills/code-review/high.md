@@ -1,8 +1,3 @@
----
-name: code-review
-description: Review the current diff for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud). Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.
----
-
 `high effort → 3+5 angles × 6 candidates → 1-vote verify (recall-biased) → ≤10 findings`
 
 You are reviewing for **recall** at high effort: catch every real bug a careful

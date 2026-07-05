@@ -1,0 +1,37 @@
+name: Update Archive Index
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/*.xml'
+      - '**/*.json'
+      - 'scripts/build-site-index.mjs'
+      - '!docs/**'
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate site index
+        run: node scripts/build-site-index.mjs
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/index.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update archive index [skip ci]" && git push)

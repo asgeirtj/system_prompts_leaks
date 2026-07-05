@@ -13,7 +13,7 @@ After merging or pushing to the main repository, follow these exact steps to ena
 5. Select the **`/docs`** folder.
 6. Click **Save**.
 
-The website will now be available at your GitHub Pages URL (e.g., `https://<your-username>.github.io/system_prompts_leaks/`).
+The website will now be available at your GitHub Pages URL (e.g., `https://<your-username>.github.io/<repository-name>/`).
 
 ## 2. Automatic Future Updates
 

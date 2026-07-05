@@ -132,9 +132,8 @@ function buildRecord(absPath) {
   const stat = statSync(absPath);
   const encoded = encodePath(relPath);
 
-  // We no longer include rawUrl directly in the record, because the frontend
-  // derives it dynamically to ensure fork-compatibility. We include it here
-  // for legacy or API access if needed, but the frontend will compute its own.
+  // The frontend can derive rawUrl dynamically for fork-compatibility, but we include 
+  // these fallback properties here to ensure backward compatibility and basic API access.
   return {
     id: slugify(relPath) || slugify(filename),
     path: relPath,

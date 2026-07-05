@@ -11,14 +11,19 @@ function encodeSegments(path) {
 }
 
 export function parseHash() {
-  const hash = location.hash.replace(/^#\/?/, "");
-  if (!hash) return { view: "home" };
-  const [kind, ...rest] = hash.split("/");
-  const remainder = rest.join("/");
-  if (kind === "b") return { view: "browse", path: decodeSegments(remainder) };
-  if (kind === "f") return { view: "file", path: decodeSegments(remainder) };
-  if (kind === "s") return { view: "search", query: decodeURIComponent(remainder) };
-  return { view: "home" };
+  try {
+    const hash = location.hash.replace(/^#\/?/, "");
+    if (!hash) return { view: "home" };
+    const [kind, ...rest] = hash.split("/");
+    const remainder = rest.join("/");
+    if (kind === "b") return { view: "browse", path: decodeSegments(remainder) };
+    if (kind === "f") return { view: "file", path: decodeSegments(remainder) };
+    if (kind === "s") return { view: "search", query: decodeURIComponent(remainder) };
+    return { view: "home" };
+  } catch (err) {
+    console.error("Malformed URL hash, falling back to home:", err);
+    return { view: "home" };
+  }
 }
 
 export function hrefHome() {

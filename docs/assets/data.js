@@ -3,7 +3,8 @@ const contentCache = new Map();
 
 export async function loadIndex() {
   if (cachedIndex) return cachedIndex;
-  const res = await fetch("data/index.json", { cache: "force-cache" });
+  // Use no-cache so we always get the latest generated index.json after a workflow run
+  const res = await fetch("data/index.json", { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to load index.json (${res.status})`);
   cachedIndex = await res.json();
   return cachedIndex;
@@ -13,20 +14,17 @@ export async function fetchFileContent(record) {
   const cached = contentCache.get(record.path);
   if (cached !== undefined) return cached;
   
-  const encodedPath = record.path.split("/").map(encodeURIComponent).join("/");
-  let rawUrl;
+  if (!cachedIndex) throw new Error("Archive index must be loaded before fetching file content");
   
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    rawUrl = `https://raw.githubusercontent.com/${cachedIndex.repo.owner}/${cachedIndex.repo.name}/${cachedIndex.repo.branch}/${encodedPath}`;
-  } else {
-    let owner = cachedIndex.repo.owner;
-    let repo = cachedIndex.repo.name;
-    if (window.location.hostname.endsWith(".github.io")) {
-      owner = window.location.hostname.split(".")[0];
-      repo = window.location.pathname.split("/")[1] || repo;
-    }
-    rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${cachedIndex.repo.branch}/${encodedPath}`;
+  const encodedPath = record.path.split("/").map(encodeURIComponent).join("/");
+  
+  let owner = cachedIndex.repo.owner;
+  let repo = cachedIndex.repo.name;
+  if (window.location.hostname.endsWith(".github.io")) {
+    owner = window.location.hostname.split(".")[0];
+    repo = window.location.pathname.split("/")[1] || repo;
   }
+  const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${cachedIndex.repo.branch}/${encodedPath}`;
 
   const res = await fetch(rawUrl);
   if (!res.ok) throw new Error(`Failed to fetch content (${res.status})`);

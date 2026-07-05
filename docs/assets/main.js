@@ -1,7 +1,7 @@
-import { loadIndex, buildTree, findNode, defaultFilterState, applyFilters, formatBytes, fetchFileContent } from "./data.js";
+import { loadIndex, buildTree, findNode, findFile, defaultFilterState, applyFilters, formatBytes, fetchFileContent } from "./data.js";
 import { search } from "./search.js";
 import { renderMarkdown, escapeHtml } from "./markdown.js";
-import { hrefHome, hrefBrowse, hrefFile, hrefSearch, parseHash, onRouteChange } from "./router.js";
+import { hrefHome, hrefBrowse, hrefFile, hrefSearch, parseHash, onRouteChange, navigate } from "./router.js";
 import { rootAccent, classificationLabel } from "./palette.js";
 
 const LARGE_FILE_THRESHOLD = 150_000; // bytes — above this we default to a raw view first
@@ -11,26 +11,31 @@ const appEl = document.getElementById("app");
 
 async function init() {
   appEl.innerHTML = `<div class="loading-line">Loading archive index…</div>`;
-  const index = await loadIndex();
-  const tree = buildTree(index.files);
-  state = {
-    index,
-    tree,
-    filters: defaultFilterState(index),
-    expanded: new Set(),
-    mobileNavOpen: false,
-    searchQuery: "",
-    searchActiveIndex: -1,
-    readerContent: new Map(),
-  };
-  expandAncestorsOfCurrentRoute();
-  render();
-  onRouteChange(() => {
+  try {
+    const index = await loadIndex();
+    const tree = buildTree(index.files);
+    state = {
+      index,
+      tree,
+      filters: defaultFilterState(index),
+      expanded: new Set(),
+      mobileNavOpen: false,
+      searchQuery: "",
+      searchActiveIndex: -1,
+      readerContent: new Map(),
+    };
     expandAncestorsOfCurrentRoute();
-    state.mobileNavOpen = false;
     render();
-  });
-  wireGlobalEvents();
+    onRouteChange(() => {
+      expandAncestorsOfCurrentRoute();
+      state.mobileNavOpen = false;
+      render();
+    });
+    wireGlobalEvents();
+  } catch (err) {
+    console.error("Initialization failed:", err);
+    appEl.innerHTML = `<div class="empty-state">Failed to load archive index. Please try again later.</div>`;
+  }
 }
 
 function expandAncestorsOfCurrentRoute() {
@@ -315,7 +320,7 @@ function renderBreadcrumbs(path) {
 }
 
 function renderFileView(path) {
-  const record = state.index.files.find((f) => f.path === path);
+  const record = findFile(state.index.files, path);
   if (!record) {
     return `<div class="empty-state">This file isn't in the current index — <a href="${hrefHome()}">go back home</a>.</div>`;
   }
@@ -400,7 +405,7 @@ function renderSearchPage(query) {
 // ---------------------------------------------------------------------------
 
 async function hydrateFileReader(path) {
-  const record = state.index.files.find((f) => f.path === path);
+  const record = findFile(state.index.files, path);
   if (!record) return;
   if (state.readerContent.has(path) && state.readerContent.get(path).status !== "error") return;
 
@@ -495,9 +500,9 @@ function wireGlobalEvents() {
       if (e.key === "Enter") {
         e.preventDefault();
         if (state.searchActiveIndex >= 0 && results[state.searchActiveIndex]) {
-          navigateTo(hrefFile(results[state.searchActiveIndex].record.path));
+          navigate(hrefFile(results[state.searchActiveIndex].record.path));
         } else if (state.searchQuery.trim()) {
-          navigateTo(hrefSearch(state.searchQuery));
+          navigate(hrefSearch(state.searchQuery));
         }
       }
     }
@@ -534,7 +539,12 @@ function wireGlobalEvents() {
       const path = copyBtn.getAttribute("data-path");
       const entry = state.readerContent.get(path);
       if (entry?.text) {
-        navigator.clipboard.writeText(entry.text).then(() => showToast("Copied to clipboard"));
+        navigator.clipboard.writeText(entry.text)
+          .then(() => showToast("Copied to clipboard"))
+          .catch((err) => {
+            console.error("Clipboard write failed:", err);
+            showToast("Failed to copy to clipboard");
+          });
       }
       return;
     }
@@ -543,7 +553,7 @@ function wireGlobalEvents() {
     if (renderBtn) {
       const path = renderBtn.getAttribute("data-path");
       const entry = state.readerContent.get(path);
-      const record = state.index.files.find((f) => f.path === path);
+      const record = findFile(state.index.files, path);
       if (entry && record) {
         entry.forceRaw = true;
         setTimeout(() => {
@@ -580,8 +590,4 @@ function refreshDropdownHighlight() {
   });
 }
 
-function navigateTo(href) {
-  location.hash = href.replace(/^#/, "");
-}
-
-init();
+init().catch(err => console.error("Unhandled top-level error:", err));

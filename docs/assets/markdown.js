@@ -25,6 +25,13 @@ const marked = new Marked({
       const raw = typeof token === "string" ? token : token.text ?? token.raw ?? "";
       return escapeHtml(raw);
     },
+    link(token) {
+      const href = token.href || "";
+      if (href.trim().toLowerCase().startsWith("javascript:")) {
+        return escapeHtml(token.text);
+      }
+      return false; // Let marked handle valid links
+    }
   },
 });
 

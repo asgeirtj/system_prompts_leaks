@@ -227,9 +227,9 @@ function renderHome() {
 
   return `
     <section class="hero">
-      <div class="hero-eyebrow">// recursively generated from the repository itself</div>
+      <div class="hero-eyebrow">// a comprehensive collection of AI instructions</div>
       <h1 class="hero-title">SYSTEM<br/>PROMPTS<br/>ARCHIVE</h1>
-      <p class="hero-sub">Every leaked and published system prompt in this repository, indexed straight from the folder tree — no manual catalog, no hardcoded list. Add a file, rebuild, and it shows up here.</p>
+      <p class="hero-sub">Explore a growing, automatically updated archive of leaked and published AI system prompts. Browse by provider, search for specific models, or dive straight into the raw instructions.</p>
       <div class="stat-row">
         <div class="stat-stamp"><span class="stat-value">${stats.totalFiles}</span><span class="stat-label">Indexed Files</span></div>
         <div class="stat-stamp"><span class="stat-value">${stats.totalRoots}</span><span class="stat-label">Root Collections</span></div>

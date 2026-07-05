@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-05T13:00:31.537Z",
+  "generatedAt": "2026-07-05T13:38:14.477Z",
   "repo": {
     "owner": "asgeirtj",
     "name": "system_prompts_leaks",
     "branch": "main"
   },
   "stats": {
-    "totalFiles": 279,
+    "totalFiles": 277,
     "totalRoots": 13,
-    "totalSizeBytes": 8963207,
+    "totalSizeBytes": 8876066,
     "maxDepth": 5,
     "roots": [
       "Anthropic",
@@ -6778,29 +6778,6 @@
       "rawUrl": "https://raw.githubusercontent.com/asgeirtj/system_prompts_leaks/main/OpenAI/tool-web-search.md"
     },
     {
-      "id": "overview-for-hanshal",
-      "path": "overview_for_hanshal.md",
-      "filename": "overview_for_hanshal.md",
-      "extension": "md",
-      "title": "Overview For Hanshal",
-      "root": "General",
-      "breadcrumbs": [],
-      "depth": 0,
-      "sizeBytes": 12403,
-      "classification": "primary",
-      "flags": {
-        "doc": false,
-        "skill": false,
-        "archived": false,
-        "official": false,
-        "reference": false,
-        "example": false,
-        "raw": false
-      },
-      "sourceUrl": "https://github.com/asgeirtj/system_prompts_leaks/blob/main/overview_for_hanshal.md",
-      "rawUrl": "https://raw.githubusercontent.com/asgeirtj/system_prompts_leaks/main/overview_for_hanshal.md"
-    },
-    {
       "id": "perplexity-comet-browser-assistant",
       "path": "Perplexity/comet-browser-assistant.md",
       "filename": "comet-browser-assistant.md",
@@ -6922,29 +6899,6 @@
       },
       "sourceUrl": "https://github.com/asgeirtj/system_prompts_leaks/blob/main/README.md",
       "rawUrl": "https://raw.githubusercontent.com/asgeirtj/system_prompts_leaks/main/README.md"
-    },
-    {
-      "id": "repo-files",
-      "path": "repo_files.json",
-      "filename": "repo_files.json",
-      "extension": "json",
-      "title": "Repo Files",
-      "root": "General",
-      "breadcrumbs": [],
-      "depth": 0,
-      "sizeBytes": 74738,
-      "classification": "primary",
-      "flags": {
-        "doc": false,
-        "skill": false,
-        "archived": false,
-        "official": false,
-        "reference": false,
-        "example": false,
-        "raw": false
-      },
-      "sourceUrl": "https://github.com/asgeirtj/system_prompts_leaks/blob/main/repo_files.json",
-      "rawUrl": "https://raw.githubusercontent.com/asgeirtj/system_prompts_leaks/main/repo_files.json"
     },
     {
       "id": "xai-grok-3",

@@ -40,7 +40,7 @@ const IGNORED_DIR_NAMES = new Set([".git", ".github", "docs", "scripts", "node_m
 const RENDERABLE_EXTENSIONS = new Set([".md", ".txt", ".xml", ".json"]);
 
 // Filenames that are implementation detail even if they share a renderable extension.
-const IGNORED_FILENAMES = new Set(["package.json", "package-lock.json", "tsconfig.json"]);
+const IGNORED_FILENAMES = new Set(["package.json", "package-lock.json", "tsconfig.json", "overview_for_hanshal.md", "repo_files.json"]);
 
 /** Walk a directory recursively, returning a flat list of { absPath, relPath } for files. */
 function walk(dir) {

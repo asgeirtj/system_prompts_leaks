@@ -256,7 +256,16 @@ The purpose of this repo is to document the System Prompt instructions for all t
 
 ## Growth
 
-[![Star History Chart](https://api.star-history.com/svg?repos=asgeirtj/system_prompts_leaks&type=Date)](https://www.star-history.com/#asgeirtj/system_prompts_leaks&Date)
+## Star History
+
+<a href="https://www.star-history.com/?repos=asgeirtj%2Fsystem_prompts_leaks&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&theme=dark&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
+ </picture>
+</a>
+
 
 <p align="center">
 <a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>

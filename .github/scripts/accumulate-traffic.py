@@ -19,6 +19,13 @@ TRAFFIC_DIR = f"traffic-{REPO_SLUG}"
 HISTORY_REFERRERS = "traffic_referrers_history.json"
 HISTORY_PATHS = "traffic_paths_history.json"
 HISTORY_STARS = "traffic_stars_history.json"
+HISTORY_TRENDING = "traffic_trending_history.json"
+
+# One-time backfill of github.com/trending history, scraped from Trendshift
+# (trendshift.io/repositories/14577) which retained it before this tracker
+# existed. Used only to seed the very first run; after that the accumulated
+# branch history is authoritative and this is never consulted again.
+TRENDING_SEED = [{"date":"2025-08-13","javascript":5},{"date":"2025-08-14","javascript":2},{"date":"2025-08-15","javascript":14},{"date":"2025-08-16","javascript":8},{"date":"2025-08-17","javascript":2},{"date":"2025-08-24","javascript":6},{"date":"2025-08-25","javascript":2,"all":10},{"date":"2025-08-26","all":1,"javascript":1},{"date":"2025-08-27","all":1,"javascript":1},{"date":"2025-08-28","all":1,"javascript":1},{"date":"2025-08-29","all":11,"javascript":1},{"date":"2025-09-16","javascript":2},{"date":"2025-09-24","javascript":6},{"date":"2025-10-04","javascript":5},{"date":"2025-10-13","javascript":1,"all":4},{"date":"2025-10-14","javascript":1,"all":6},{"date":"2025-10-15","javascript":1},{"date":"2025-10-16","javascript":15},{"date":"2025-10-26","javascript":12},{"date":"2026-01-27","javascript":1},{"date":"2026-01-28","javascript":1,"all":3},{"date":"2026-01-29","javascript":1,"all":2},{"date":"2026-01-30","javascript":1,"all":2},{"date":"2026-01-31","javascript":2},{"date":"2026-04-02","all":3},{"date":"2026-06-11","javascript":9},{"date":"2026-06-12","javascript":2},{"date":"2026-06-13","javascript":1},{"date":"2026-06-14","javascript":1},{"date":"2026-06-15","javascript":3},{"date":"2026-06-16","javascript":6},{"date":"2026-06-17","javascript":4},{"date":"2026-06-18","javascript":2},{"date":"2026-06-19","javascript":9},{"date":"2026-06-20","javascript":5},{"date":"2026-06-21","javascript":1,"all":16},{"date":"2026-06-22","javascript":3},{"date":"2026-06-23","javascript":2},{"date":"2026-07-04","all":7,"javascript":3},{"date":"2026-07-05","all":3,"javascript":2},{"date":"2026-07-06","all":1,"javascript":1}]
 
 def load_json(path):
     try:
@@ -155,7 +162,64 @@ def accumulate_stars(publish_dir):
     print(f"Accumulated: {len(star_history)} star snapshots (latest={star_history[-1]['stars'] if star_history else 'n/a'})")
     return star_history, fetch_star_windows()
 
-def build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows):
+def fetch_trending_rank(url):
+    """Rank of this repo on a github.com/trending page (1-based article
+    position), or None if not listed / fetch failed. Trending has no API,
+    but the page is server-rendered HTML: one <h2><a href="/owner/repo">
+    per entry, in rank order."""
+    import re
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (traffic-dashboard)"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            html = r.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        print(f"Trending fetch failed ({url}): {e}")
+        return None
+    repos = re.findall(r'<h2 class="h3 lh-condensed">.*?href="/([^"]+)"', html, re.S)
+    try:
+        return repos.index(REPO_FULL) + 1
+    except ValueError:
+        return None
+
+def accumulate_trending(publish_dir):
+    """One entry per day: {"date", "all": rank?, "javascript": rank?}.
+    Ranks move all day, so when a day already has an entry keep the BEST
+    (lowest) rank seen — the workflow runs several times a day."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
+
+    history = (
+        load_json(os.path.join(data_dir, HISTORY_TRENDING))
+        or fetch_from_branch(publish_dir, HISTORY_TRENDING)
+        or [dict(e) for e in TRENDING_SEED]  # first run only; deep-copied so the constant is never mutated
+    )
+
+    ranks = {}
+    for lang, url in [
+        ("all", "https://github.com/trending?since=daily"),
+        ("javascript", "https://github.com/trending/javascript?since=daily"),
+    ]:
+        rank = fetch_trending_rank(url)
+        if rank is not None:
+            ranks[lang] = rank
+
+    if ranks:
+        entry = next((e for e in history if e["date"] == today), None)
+        if entry is None:
+            history.append({"date": today, **ranks})
+            history.sort(key=lambda x: x["date"])
+        else:
+            for lang, rank in ranks.items():
+                if lang not in entry or rank < entry[lang]:
+                    entry[lang] = rank
+
+    with open(os.path.join(data_dir, HISTORY_TRENDING), "w") as f:
+        json.dump(history, f, separators=(",", ":"))
+
+    print(f"Accumulated: {len(history)} trending snapshots (today={ranks or 'not trending'})")
+    return history
+
+def build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows, trending_history):
     data_dir = os.path.join(publish_dir, TRAFFIC_DIR)
     views = load_json(os.path.join(data_dir, "traffic_views.json"))
     clones = load_json(os.path.join(data_dir, "traffic_clones.json"))
@@ -171,6 +235,7 @@ def build_dashboard(publish_dir, ref_history, path_history, star_history, star_w
         "paths_series": path_history,
         "stars_series": star_history,
         "stars_windows": star_windows,
+        "trending_series": trending_history,
     }, separators=(",", ":"))
 
     html = DASHBOARD_TEMPLATE.replace("__DATA_PLACEHOLDER__", embedded)
@@ -250,6 +315,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <div class="stats" id="stats"></div>
 <div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
 <div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Stars (cumulative)<span id="starReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
+<div class="card" id="trendingCard" style="display:none"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Trending Rank<span id="trendingReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="trendingChart"></div><p class="drill-info">Daily rank on github.com/trending · lower is better · #1 is the top of the page · gaps = not listed that day</p></div>
 <p class="section">Page Trends — daily 14-day view count for the top pages</p>
 <div class="card"><label style="display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text2);margin-bottom:8px;cursor:pointer"><input type="checkbox" id="showAgg" style="cursor:pointer"> Show folders, root &amp; overview</label><div id="pathTrendChart"></div></div>
 <div class="grid-2">
@@ -411,6 +477,51 @@ if (starSeries.length) {
     legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
     tooltip:{shared:true,x:{format:'MMM d, yyyy'}},
   }).render();
+}
+
+// GitHub Trending rank. No official API — scraped daily from the trending
+// page's article order. Y axis is reversed so #1 sits at the top; gaps mean
+// the repo wasn't on that day's list. Two series: "All languages" and
+// "JavaScript" (the language bucket GitHub files this repo under).
+const trendSeries = (DATA.trending_series||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
+if (trendSeries.length) {
+  document.getElementById('trendingCard').style.display = '';
+  const mkSeries = key => trendSeries.map(d=>[new Date(d.date).getTime(), d[key]!=null?d[key]:null]);
+  const latest = trendSeries[trendSeries.length-1];
+  const best = key => { const v = trendSeries.map(d=>d[key]).filter(x=>x!=null); return v.length?Math.min(...v):null; };
+  const bestAll = best('all'), bestJs = best('javascript');
+  const bits = [];
+  if (latest.all != null) bits.push(`<span class="trend-up">#${latest.all}</span> all today`);
+  if (latest.javascript != null) bits.push(`<span class="trend-up">#${latest.javascript}</span> JS today`);
+  if (bestAll != null) bits.push(`best #${bestAll} all`);
+  if (bestJs != null) bits.push(`best #${bestJs} JS`);
+  document.getElementById('trendingReadout').innerHTML = bits.join(' &nbsp;·&nbsp; ');
+
+  new ApexCharts(document.getElementById('trendingChart'), {
+    ...baseOpts,
+    chart:{...baseOpts.chart, type:'line', height:280, id:'trending', zoom:{enabled:true,type:'x'}},
+    series:[
+      {name:'All languages', data:mkSeries('all')},
+      {name:'JavaScript', data:mkSeries('javascript')},
+    ],
+    colors:['#6366f1','#f59e0b'],
+    stroke:{curve:'straight',width:2.5},
+    xaxis:{type:'datetime',labels:{datetimeUTC:false}},
+    yaxis:{reversed:true,min:1,forceNiceScale:true,labels:{formatter:v=>'#'+Math.round(v)}},
+    dataLabels:{enabled:false},
+    markers:{size:4,hover:{size:6}},
+    legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
+    tooltip:{shared:true,x:{format:'MMM d, yyyy'},y:{formatter:v=>v!=null?'#'+v:'not listed'}},
+  }).render();
+}
+
+if (curStars != null && trendSeries.length) {
+  const latest = trendSeries[trendSeries.length-1];
+  const bestRank = Math.min(...trendSeries.flatMap(d=>[d.all,d.javascript].filter(x=>x!=null)));
+  const cur = latest.all != null ? latest.all : latest.javascript;
+  const lbl = latest.all != null ? 'all langs' : 'JavaScript';
+  if (cur != null) statCards.splice(statCards.length, 0, { l:'Trending Rank', v:'#'+cur, s:`${lbl} today · best #${bestRank}` });
+  document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 }
 
 new ApexCharts(document.getElementById('clonesChart'), {
@@ -613,4 +724,5 @@ if __name__ == "__main__":
     print(f"Processing traffic data in {publish_dir}")
     ref_history, path_history = accumulate(publish_dir)
     star_history, star_windows = accumulate_stars(publish_dir)
-    build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows)
+    trending_history = accumulate_trending(publish_dir)
+    build_dashboard(publish_dir, ref_history, path_history, star_history, star_windows, trending_history)

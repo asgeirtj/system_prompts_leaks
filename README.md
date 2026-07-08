@@ -254,8 +254,6 @@ The purpose of this repo is to document the System Prompt instructions for all t
 [![X](https://img.shields.io/badge/@asgeirtj-black?logo=x&logoColor=white)](https://x.com/asgeirtj)
 
 
-## Growth
-
 ## Star History
 
 <a href="https://www.star-history.com/?repos=asgeirtj%2Fsystem_prompts_leaks&type=date&legend=top-left">

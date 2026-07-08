@@ -315,7 +315,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 <div class="stats" id="stats"></div>
 <div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">Daily Views<span id="viewsReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
 <div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Stars (cumulative)<span id="starReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
-<div class="card" id="trendingCard" style="display:none"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Trending Rank<span id="trendingReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="trendingChart"></div><p class="drill-info">Daily rank on github.com/trending · lower is better · #1 is the top of the page · gaps = not listed that day</p></div>
+<div class="card" id="trendingCard" style="display:none"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Trending Rank<span id="trendingReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><table id="trendingTable"></table><p class="drill-info">Each row is a streak of consecutive days on github.com/trending (all languages) · best rank reached that streak · #1 is the top of the page</p></div>
 <p class="section">Page Trends — daily 14-day view count for the top pages</p>
 <div class="card"><label style="display:inline-flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text2);margin-bottom:8px;cursor:pointer"><input type="checkbox" id="showAgg" style="cursor:pointer"> Show folders, root &amp; overview</label><div id="pathTrendChart"></div></div>
 <div class="grid-2">
@@ -488,50 +488,57 @@ if (starSeries.length) {
 }
 
 // GitHub Trending rank. No official API — scraped daily from the trending
-// page's article order. Y axis is reversed so #1 sits at the top; gaps mean
-// the repo wasn't on that day's list. Two series: "All languages" and
-// "JavaScript" (the language bucket GitHub files this repo under).
+// page's article order. The JavaScript-bucket rank is still collected (kept in
+// the history JSON) but not shown here; the dashboard tracks the main
+// all-languages front page only. Sparse, event-like data — a run of days on
+// the front page then a long gap — reads far better as a table of streaks than
+// as a scatter with misleading connector lines across the gaps.
 const trendSeries = (DATA.trending_series||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));
-if (trendSeries.length) {
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDay(iso, withYear) { const [y,m,d]=iso.split('-').map(Number); return `${MONTHS[m-1]} ${d}${withYear?', '+y:''}`; }
+function fmtRange(s, e) {
+  if (s===e) return fmtDay(s,true);
+  const [sy,sm]=s.split('-'), [ey,em]=e.split('-');
+  if (sy===ey && sm===em) return `${fmtDay(s,false)}–${Number(e.split('-')[2])}, ${sy}`;
+  if (sy===ey) return `${fmtDay(s,false)} – ${fmtDay(e,false)}, ${sy}`;
+  return `${fmtDay(s,true)} – ${fmtDay(e,true)}`;
+}
+// Only days the repo actually made the all-languages front page, grouped into
+// streaks: a gap of >2 days starts a new streak.
+const allDays = trendSeries.filter(d => d.all != null);
+if (allDays.length) {
   document.getElementById('trendingCard').style.display = '';
-  const mkSeries = key => trendSeries.map(d=>[new Date(d.date).getTime(), d[key]!=null?d[key]:null]);
+  const streaks = [];
+  allDays.forEach(d => {
+    const t = new Date(d.date).getTime(), last = streaks[streaks.length-1];
+    if (last && (t - last.lastT)/86400000 <= 2) { last.days.push(d); last.lastT = t; }
+    else streaks.push({ days:[d], firstDate:d.date, lastT:t });
+  });
+  streaks.forEach(s => { s.lastDate = s.days[s.days.length-1].date; s.best = Math.min(...s.days.map(d=>d.all)); });
+
   const latest = trendSeries[trendSeries.length-1];
-  const best = key => { const v = trendSeries.map(d=>d[key]).filter(x=>x!=null); return v.length?Math.min(...v):null; };
-  const bestAll = best('all'), bestJs = best('javascript');
+  const bestAll = Math.min(...allDays.map(d=>d.all));
   const bits = [];
-  if (latest.all != null) bits.push(`<span class="trend-up">#${latest.all}</span> all today`);
-  if (latest.javascript != null) bits.push(`<span class="trend-up">#${latest.javascript}</span> JS today`);
-  if (bestAll != null) bits.push(`best #${bestAll} all`);
-  if (bestJs != null) bits.push(`best #${bestJs} JS`);
+  if (latest.all != null) bits.push(`<span class="trend-up">#${latest.all}</span> today`);
+  bits.push(`best <span class="trend-up">#${bestAll}</span>`);
+  bits.push(`${allDays.length} days on the front page`);
   document.getElementById('trendingReadout').innerHTML = bits.join(' &nbsp;·&nbsp; ');
 
-  // JavaScript series stays tracked but starts hidden — it doubles the point
-  // density and makes the chart hard to read; the legend toggles it back on.
-  const trendChart = new ApexCharts(document.getElementById('trendingChart'), {
-    ...baseOpts,
-    chart:{...baseOpts.chart, type:'line', height:280, id:'trending', zoom:{enabled:true,type:'x'}},
-    series:[
-      {name:'All languages', data:mkSeries('all')},
-      {name:'JavaScript', data:mkSeries('javascript')},
-    ],
-    colors:['#6366f1','#f59e0b'],
-    stroke:{curve:'straight',width:2.5},
-    xaxis:{type:'datetime',labels:{datetimeUTC:false}},
-    yaxis:{reversed:true,min:1,forceNiceScale:true,labels:{formatter:v=>'#'+Math.round(v)}},
-    dataLabels:{enabled:false},
-    markers:{size:4,hover:{size:6}},
-    legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
-    tooltip:{shared:true,x:{format:'MMM d, yyyy'},y:{formatter:v=>v!=null?'#'+v:'not listed'}},
-  });
-  trendChart.render().then(()=>trendChart.hideSeries('JavaScript'));
+  const rankCell = r => r===1 ? '<span class="trend-up" style="font-weight:800">#1</span>' : `#${r}`;
+  document.getElementById('trendingTable').innerHTML =
+    '<thead><tr><th>Period</th><th>Days listed</th><th>Best rank</th></tr></thead><tbody>' +
+    streaks.slice().reverse().map(s =>
+      `<tr><td>${fmtRange(s.firstDate, s.lastDate)}</td><td>${s.days.length}</td><td>${rankCell(s.best)}</td></tr>`
+    ).join('') + '</tbody>';
 }
 
-if (curStars != null && trendSeries.length) {
+// All-languages trending only (JS bucket is collected but not surfaced).
+const allTrendDays = trendSeries.filter(d => d.all != null);
+if (curStars != null && allTrendDays.length) {
   const latest = trendSeries[trendSeries.length-1];
-  const bestRank = Math.min(...trendSeries.flatMap(d=>[d.all,d.javascript].filter(x=>x!=null)));
-  const cur = latest.all != null ? latest.all : latest.javascript;
-  const lbl = latest.all != null ? 'all langs' : 'JavaScript';
-  if (cur != null) statCards.splice(statCards.length, 0, { l:'Trending Rank', v:'#'+cur, s:`${lbl} today · best #${bestRank}` });
+  const bestRank = Math.min(...allTrendDays.map(d=>d.all));
+  if (latest.all != null) statCards.splice(statCards.length, 0, { l:'Trending Rank', v:'#'+latest.all, s:`all langs today · best #${bestRank}` });
+  else statCards.splice(statCards.length, 0, { l:'Trending Rank', v:'—', s:`not listed today · best #${bestRank}` });
   document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 }
 

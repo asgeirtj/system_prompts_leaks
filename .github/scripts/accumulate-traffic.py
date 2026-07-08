@@ -277,7 +277,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
   .header{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
   h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em}
   .subtitle{color:var(--text2);font-size:.8rem;margin-bottom:20px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px;margin-bottom:20px}
   .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
   .stat-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);font-weight:600}
   .stat-val{font-size:1.6rem;font-weight:800;margin:2px 0;letter-spacing:-0.02em}
@@ -313,7 +313,7 @@ DASHBOARD_TEMPLATE = r"""<!DOCTYPE html>
 </div>
 <p class="subtitle">Traffic dashboard — auto-updated daily from the <code>traffic</code> branch</p>
 <div class="stats" id="stats"></div>
-<div class="card"><div class="card-title">Daily Views</div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
+<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">Daily Views<span id="viewsReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="viewsChart"></div><p class="drill-info">Drag to zoom — click Reset to restore</p></div>
 <div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Stars (cumulative)<span id="starReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="starsChart"></div><p class="drill-info">Bars show stars gained per day · drag to zoom</p></div>
 <div class="card" id="trendingCard" style="display:none"><div class="card-title" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">GitHub Trending Rank<span id="trendingReadout" style="font-weight:600;font-size:.78rem;color:var(--text2)"></span></div><div id="trendingChart"></div><p class="drill-info">Daily rank on github.com/trending · lower is better · #1 is the top of the page · gaps = not listed that day</p></div>
 <p class="section">Page Trends — daily 14-day view count for the top pages</p>
@@ -355,10 +355,13 @@ const vDays = views.views.sort((a,b) => a.timestamp.localeCompare(b.timestamp));
 const cDays = clones.clones.sort((a,b) => a.timestamp.localeCompare(b.timestamp));
 const peakView = vDays.reduce((a,b) => b.count > a.count ? b : a);
 const avgViews = Math.round(views.count / vDays.length);
-const last7 = vDays.slice(-7).reduce((s,d) => s + d.count, 0);
-const prev7 = vDays.slice(-14,-7).reduce((s,d) => s + d.count, 0);
+const sumViews = (a,b) => vDays.slice(a,b).reduce((s,d) => s + d.count, 0);
+const last7 = sumViews(-7), prev7 = sumViews(-14,-7);
 const trend = prev7 ? Math.round((last7 - prev7) / prev7 * 100) : 0;
 const trendCls = trend >= 0 ? 'trend-up' : 'trend-down';
+const last30 = sumViews(-30);
+const prev30 = vDays.length >= 60 ? sumViews(-60,-30) : null;
+const trend30 = prev30 ? Math.round((last30 - prev30) / prev30 * 100) : null;
 const sinceStart = new Date(vDays[0].timestamp);
 const sinceFmt = sinceStart.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 const dayCount = Math.round((Date.now() - sinceStart.getTime()) / 86400000);
@@ -402,18 +405,22 @@ if (curStars != null) {
 
 const statCards = [
   { l:'Total Views', v:fmt(views.count), s:fmt(views.uniques)+' unique', t:`since ${sinceFmt} · ${dayCount}d` },
+  { l:'Views · Last 7 Days', v:fmt(last7), s:`<span class="${trendCls}">${trend>=0?'+':''}${trend}%</span> vs prev 7d` },
+  { l:'Views · Last 30 Days', v:fmt(last30), s: trend30!=null ? `<span class="${trend30>=0?'trend-up':'trend-down'}">${trend30>=0?'+':''}${trend30}%</span> vs prev 30d` : fmt(Math.round(last30/Math.min(30,vDays.length)))+' / day avg' },
   { l:'Total Clones', v:fmt(clones.count), s:fmt(clones.uniques)+' unique' },
   { l:'Daily Avg', v:fmt(avgViews), s:fmt(Math.round(clones.count/cDays.length))+' clones' },
   { l:'Peak Day', v:fmt(peakView.count), s:peakView.timestamp.slice(0,10) },
-  { l:'7-Day Trend', v:`<span class="${trendCls}">${trend>=0?'+':''}${trend}%</span>`, s:fmt(last7)+' vs '+fmt(prev7) },
 ];
 if (curStars != null) {
-  const tdy = sw ? sw.d1 : null;
   const sub = sw
     ? `<span class="trend-up">+${fmt(sw.d1)}</span> today · <span class="trend-up">+${fmt(sw.d7)}</span> 7d`
     : (starGain!=null ? `<span class="${starGain>=0?'trend-up':'trend-down'}">${starGain>=0?'+':''}${fmt(starGain)}</span> last ${starGainDays}d` : '&nbsp;');
-  statCards.splice(2, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: sub });
+  statCards.splice(3, 0, { l:'GitHub Stars', v:'★ '+fmt(curStars), s: sub });
 }
+
+document.getElementById('viewsReadout').innerHTML =
+  [[last7,'7d'],[last30,'30d']].map(([v,l])=>`<strong style="color:var(--text)">${fmt(v)}</strong> ${l}`).join(' &nbsp;·&nbsp; ')
+  + ` &nbsp;·&nbsp; ${fmt(views.count)} total`;
 
 document.getElementById('stats').innerHTML = statCards.map(s=>`<div class="stat"><div class="stat-label">${s.l}</div><div class="stat-val">${s.v}</div><div class="stat-sub">${s.s}</div>${s.t?`<div class="stat-since">${s.t}</div>`:''}</div>`).join('');
 
@@ -458,6 +465,7 @@ if (starSeries.length) {
   });
   new ApexCharts(document.getElementById('starsChart'), {
     ...baseOpts,
+    grid:{...baseOpts.grid, padding:{right:20}},
     chart:{...baseOpts.chart, type:'line', height:320, id:'stars', zoom:{enabled:true,type:'x',autoScaleYaxis:true}},
     series:[
       {name:'Total stars', type:'area', data:cumData},
@@ -497,7 +505,9 @@ if (trendSeries.length) {
   if (bestJs != null) bits.push(`best #${bestJs} JS`);
   document.getElementById('trendingReadout').innerHTML = bits.join(' &nbsp;·&nbsp; ');
 
-  new ApexCharts(document.getElementById('trendingChart'), {
+  // JavaScript series stays tracked but starts hidden — it doubles the point
+  // density and makes the chart hard to read; the legend toggles it back on.
+  const trendChart = new ApexCharts(document.getElementById('trendingChart'), {
     ...baseOpts,
     chart:{...baseOpts.chart, type:'line', height:280, id:'trending', zoom:{enabled:true,type:'x'}},
     series:[
@@ -512,7 +522,8 @@ if (trendSeries.length) {
     markers:{size:4,hover:{size:6}},
     legend:{position:'top',horizontalAlign:'left',fontSize:'12px'},
     tooltip:{shared:true,x:{format:'MMM d, yyyy'},y:{formatter:v=>v!=null?'#'+v:'not listed'}},
-  }).render();
+  });
+  trendChart.render().then(()=>trendChart.hideSeries('JavaScript'));
 }
 
 if (curStars != null && trendSeries.length) {
@@ -651,7 +662,7 @@ new ApexCharts(document.getElementById('refTrendChart'), {
   yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
   dataLabels:{enabled:false},
   markers:{size:0,hover:{size:4}},
-  legend:{position:'top',fontSize:'11px'},
+  legend:{position:'bottom',fontSize:'11px'},
 }).render();
 
 const allPathNames = new Set();
@@ -677,7 +688,7 @@ function renderPageTrend(showAgg) {
     yaxis:{labels:{formatter:v=>v>=1000?(v/1000).toFixed(1)+'k':v}},
     dataLabels:{enabled:false},
     markers:{size:0,hover:{size:4}},
-    legend:{position:'top',fontSize:'11px'},
+    legend:{position:'bottom',fontSize:'11px'},
   });
   pathTrendChart.render();
 }

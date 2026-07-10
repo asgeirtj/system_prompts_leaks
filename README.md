@@ -1,3 +1,22 @@
+<p align="center">
+  <sub>Thanks to</sub>  
+</p>
+
+<p align="center">
+  <a href="https://go.asgeirtj.workers.dev/latitude">
+    <img src="assets/latitude-dark.png" alt="Latitude Logo" width="700"/>
+  </a>
+</p>
+
+<div align="center" markdown="1">
+
+### [Make your AI agents self-healing](https://go.asgeirtj.workers.dev/latitude)  
+[Open Source AI Monitoring](https://go.asgeirtj.workers.dev/latitude)
+
+</div>
+
+---
+
 > **As seen in The Washington Post:** [See the hidden rules behind AI. Then use them to rewrite this article.](https://wapo.st/49t4gSb) (May 11, 2026)
 # System Prompts Leaks
 The purpose of this repo is to document the System Prompt instructions for all the AI chatbots out there - Claude, ChatGPT, Gemini etc.

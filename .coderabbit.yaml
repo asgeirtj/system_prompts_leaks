@@ -1,0 +1,12 @@
+# CodeRabbit kill switch — no automated reviews, summaries, or PR-description edits.
+# The GitHub App may still be installed account-side; this config silences it for this repo.
+reviews:
+  auto_review:
+    enabled: false
+  high_level_summary: false
+  poem: false
+  review_status: false
+  sequence_diagrams: false
+  changed_files_summary: false
+chat:
+  auto_reply: false

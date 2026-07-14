@@ -18,6 +18,8 @@ The purpose of this repo is to document the System Prompt instructions for all t
 
 | What | Date | Link |
 |------|------|------|
+| **Kimi K2.6** | July 14, 2026 | [System prompt](Kimi/kimi-2.6.md) |
+| **Perplexity Deep Research** | July 14, 2026 | [System prompt](Perplexity/deep-research.md) |
 | **GPT-5.6** | July 10, 2026 | [ChatGPT (Sol, extra high)](OpenAI/gpt-5.6-sol-extra-high.md) · [Codex](OpenAI/Codex/gpt-5.6.md) |
 | **Claude Sonnet 5** | July 1, 2026 | [System prompt](Anthropic/claude-sonnet-5.md) |
 | **Claude Design (Opus 4.8 — full prompt + 48 tools + 16 skills + 9 starter sources)** | June 26, 2026 | [System prompt](Anthropic/claude-design.md) |
@@ -167,6 +169,7 @@ The purpose of this repo is to document the System Prompt instructions for all t
 | Model | Prompt |
 |-------|--------|
 | **Perplexity Computer** | [**System prompt**](Perplexity/perplexity-computer.md) |
+| **Deep Research** | [**System prompt**](Perplexity/deep-research.md) |
 | Comet Browser | [System prompt](Perplexity/comet-browser-assistant.md) |
 | Voice Assistant | [System prompt](Perplexity/voice-assistant.md) |
 
@@ -198,6 +201,12 @@ The purpose of this repo is to document the System Prompt instructions for all t
 |---------|--------|
 | Mistral Medium 3.5 (Vibe) | [System prompt](Mistral/mistral-medium-3.5.md) |
 | Mistral Code | [System prompt](Mistral/mistral-code.md) |
+
+## Moonshot — Kimi
+
+| Model | Prompt |
+|-------|--------|
+| **Kimi K2.6** | [**System prompt**](Kimi/kimi-2.6.md) |
 
 ## Notion
 

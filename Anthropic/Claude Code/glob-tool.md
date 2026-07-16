@@ -1,3 +1,5 @@
+<!-- Glob is NOT in the main-agent tool set as of Claude Code 2.1.211 (removed ~April 2026). It is available only to search subagents (Explore etc.). Verified against a 2.1.211 main-agent capture: 28 tools, no Glob. This is the tool definition subagents receive. -->
+
 # The `Glob` Tool
 
 A fast **filename / path matching** tool. It answers the question: *"Which files exist whose

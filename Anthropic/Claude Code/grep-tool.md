@@ -1,3 +1,5 @@
+<!-- Grep is NOT in the main-agent tool set as of Claude Code 2.1.211 (removed ~April 2026). It is available only to search subagents (Explore etc.). Verified against a 2.1.211 main-agent capture: 28 tools, no Grep. This is the tool definition subagents receive. -->
+
 # The `Grep` Tool
 
 A powerful **content search** tool built on top of [ripgrep](https://github.com/BurntSushi/ripgrep)

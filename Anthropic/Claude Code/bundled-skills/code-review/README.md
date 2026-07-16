@@ -1,6 +1,10 @@
 # Claude Code `/code-review` slash command
 
-The prompt templates behind Claude Code's built-in `/code-review` skill (v2.1.198). There is no skill.md on disk for this command — the text is compiled into the Claude Code binary and injected into the conversation as a user-message block when the command runs. Content here was extracted from the binary and byte-verified against live API captures (MITM proxy, 2026-07-02).
+The prompt templates behind Claude Code's built-in `/code-review` skill. The text is
+compiled into the Claude Code binary and injected into the conversation as a user-message
+block when the command runs. Content here was extracted from the binary and byte-verified
+against live API captures (MITM proxy); all five effort tiers re-verified byte-identical
+against the 2.1.211 binary on 2026-07-16.
 
 ## Usage
 
@@ -23,4 +27,5 @@ The finder angles: A line-by-line diff scan, B removed-behavior auditor, C cross
 
 The binary also contains sibling variants not reproduced here: an output mode that reports via a `ReportFindings` tool call instead of a JSON array, an artifact-publishing step (findings rendered to a shareable HTML page), and a workflow-backed orchestration used at high/xhigh/max when workflows are enabled (one finder per correctness angle, one merged cleanup finder, a verifier per distinct file:line, then synthesis).
 
-Current canonical copy: `Anthropic/Claude Code/bundled-skills/code-review.md` (high variant with frontmatter).
+`SKILL.md` is the skill's registration frontmatter plus the default (high) variant body;
+`high.md` is that same body without the frontmatter.

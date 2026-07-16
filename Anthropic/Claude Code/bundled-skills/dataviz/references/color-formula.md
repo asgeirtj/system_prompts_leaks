@@ -33,11 +33,27 @@ Every categorical color — current or proposed — must pass all six.
 2. **Lightness band per mode.** OKLCH L ≈ 0.43–0.77 light; ≈ 0.48–0.67 dark. *(validator)*
 3. **Chroma floor.** OKLCH C ≥ ~0.10 — below it a hue reads as gray and stops doing
    identity work. *(validator)*
-4. **CVD separation.** Machado-2009 ΔE ≥ 12 target / ≥ 8 floor (floor legal only with
-   secondary encoding), under protanopia & deuteranopia. *Adjacent* pairs for
+4. **CVD separation.** ΔE here and everywhere in this method is Euclidean distance
+   in OKLab ×100. Target ≥ 8 / floor ≥ 6 (floor legal only with secondary encoding),
+   under protanopia & deuteranopia simulated with Machado–Oliveira–Fernandes 2009 at
+   severity 1.0 — the thresholds are calibrated to that simulation model, so the
+   model is part of the standard, not an implementation detail. A companion
+   **normal-vision floor** gates the same pairs under unsimulated vision: worst
+   pair ΔE ≥ 15, so neighbors stay easy to tell apart for full-color readers too.
+   This floor is a hard gate — secondary encoding does not excuse it.
+   (This floor is what forced the July 2026 re-order of the documented
+   default palette — same hues and steps, re-ordered; it now clears the
+   floor at 19.6 light / 19.3 dark; see `palette.md`.)
+   *Adjacent* pairs for
    stacks/bars/lines (only neighbors touch — assignment never skips); **all pairs for
    scatter, bubble, choropleth, and small-multiples**, where any two marks can sit side
-   by side — pass `--pairs all` there or a real collapse stays hidden. *(validator)*
+   by side — pass `--pairs all` there or a real collapse stays hidden. All-pairs is
+   a strictly harder test, and it caps how many series those chart forms can carry:
+   the documented default validates all-pairs with its **first four slots** in both
+   modes (the dark run lands in the 6–8 CVD floor band, so ship secondary encoding),
+   and no ordering of the full eight can pass (the all-pairs pairlist doesn't
+   depend on order). More than four series in an all-pairs form means fewer series
+   (fold to "Other"), facets, or direct labels — not a palette change. *(validator)*
 5. **Contrast vs surface.** ≥ 3:1 for marks; conditionally relaxed where values are
    readable another way (visible labels or the table view). *(validator)*
 6. **Documented palette only.** Every slot is a hex from the instance file
@@ -48,7 +64,7 @@ Every categorical color — current or proposed — must pass all six.
 
 ```
 node scripts/validate_palette.js \
-  "#2a78d6,#1baf7a,#eda100,#008300,#4a3aa7,#e34948,#e87ba4,#eb6834" --mode light
+  "#2a78d6,#008300,#e87ba4,#eda100,#1baf7a,#eb6834,#4a3aa7,#e34948" --mode light
 ```
 
 (`scripts/` is relative to this skill's base directory, shown at the top of the prompt.)
@@ -57,16 +73,23 @@ node scripts/validate_palette.js \
 `data-palette` off `<body>` and logs a `console.table` report)
 
 Reports each computable check (2–5) with PASS / WARN / FAIL plus the worst CVD pair.
-Exit 0 = no hard FAIL (WARN bands — floor-band CVD 8–12 and sub-3:1 contrast relief —
-still exit 0 and require secondary encoding); exit 1 on any FAIL. Run once per mode
+Exit 0 = no hard FAIL (WARN bands — floor-band CVD 6–8 and sub-3:1 contrast
+relief — still exit 0 and require secondary encoding); exit 1 on any FAIL,
+including a normal-vision floor below 15, which is a hard gate. Run once per mode
 (`--mode dark --surface "#1a1a19"`), and add
 `--pairs all` for scatter / bubble / map / small-multiples charts (where any two marks
 can be neighbors — the default adjacent check would hide a collapse). For an
 **ordinal** ramp pass `--ordinal` — it switches to the ramp checks (monotone L,
 adjacent ΔL ≥ 0.06, light-end contrast ≥ 2.0:1, single hue) instead of the
 categorical six.
-A WARN on CVD (8–12 floor) is legal **only** if you also ship secondary encoding
-(direct labels, gaps, or texture). A WARN on contrast is **not dismissable** — it
+A WARN on CVD (6–8 floor) is legal **only** if you also ship secondary encoding
+(direct labels, gaps, or texture). A FAIL on the normal-vision floor says
+full-color readers will struggle to tell the flagged neighbors apart.
+On the *adjacent* pairlist, re-step one of the pair; secondary encoding does
+not excuse this one. On `--pairs all`, a floor FAIL over many series is the
+series cap binding (check 4): cut the series count, facet, or switch chart
+form — re-ordering or re-stepping cannot make eight colors pairwise-distinct
+at this floor. A WARN on contrast is **not dismissable** — it
 obligates a relief channel (visible direct labels or the table view); shipping the
 sub-3:1 fill with neither is a fail.
 
@@ -83,8 +106,8 @@ is expected, not a real failure; don't "fix" a good ramp to satisfy it.
 
 Given a customer's ramps and a desired order:
 1. For each slot, pick the step whose OKLCH L sits in the mode's band and C ≥ floor.
-2. Run the validator. For any adjacent pair below ΔE 12, nudge one slot ± a step
-   (hold its hue, move its lightness) and re-run.
+2. Run the validator. For any adjacent pair below the ΔE 8 target, nudge one slot
+   ± a step (hold its hue, move its lightness) and re-run.
 3. Repeat until the worst adjacent pair clears the floor. Function preserved, the
    customer's hues kept.
 

@@ -78,7 +78,7 @@ curl -X POST https://api.anthropic.com/v1/sessions \
     "environment_id": "env_abc123"
   }'
 # → { "id": "sesn_abc123", ... }
-# Trace: https://platform.claude.com/workspaces/default/sessions/sesn_abc123
+# Trace: https://platform.claude.com/workspaces/default/sessions/sesn_abc123  (swap 'default' for your workspace ID if the API key is not in the Default workspace)
 ```
 
 ### With system prompt, custom tools, and GitHub repo
@@ -252,7 +252,8 @@ curl -X POST https://api.anthropic.com/v1/files \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
   -H "anthropic-beta: files-api-2025-04-14" \
-  -F "file=@path/to/file.txt"
+  -F "file=@path/to/file.txt" \
+  -F "purpose=agent"
 ```
 
 ---

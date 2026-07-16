@@ -2,38 +2,47 @@
  * Validate a categorical chart palette against the computable data-viz checks.
  *
  * Design-system-agnostic: feed it ANY palette's hex values plus the mode and
- * surface, and it computes — never eyeballs — the four checks that can be
+ * surface, and it computes — never eyeballs — the five checks that can be
  * measured from color alone:
  *
  *   2. Lightness band   — OKLCH L within the mode's band
  *   3. Chroma floor     — OKLCH C >= floor (below it a hue reads as gray)
- *   4. CVD separation   — Machado-2009 ΔE between slots (protan/deutan/tritan);
- *                         adjacent pairs by default, pairs:"all" for scatter/bubble/maps
+ *   4. CVD separation   — OKLab ΔE (×100) between slots under simulated protan/deutan
+ *                         (tritan reported); adjacent pairs by default, pairs:"all"
+ *                         for scatter/bubble/maps
+ *   4b. Normal-vision floor — worst adjacent OKLab ΔE (×100) under unsimulated vision;
+ *                         full-color readers must be able to tell neighbors apart too
  *   5. Contrast vs surface — WCAG ratio of each mark against the chart surface
  *
  * Checks 1 (fixed hue order) and 6 (values are from the documented palette) are
  * structural rules the skill enforces, not measurable from hexes alone.
  *
  * Usage (node):
- *   node validate_palette.js "#2a78d6,#1baf7a,#eda100,#008300,#4a3aa7,#e34948,#e87ba4,#eb6834" --mode light
+ *   node validate_palette.js "#2a78d6,#008300,#e87ba4,#eda100,#1baf7a,#eb6834,#4a3aa7,#e34948" --mode light
  *   node validate_palette.js "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
  *   node validate_palette.js "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf" --ordinal
  *
  * Usage (browser — as a module script):
- *   <body data-palette="#2a78d6,#1baf7a,..." data-mode="light">
+ *   <body data-palette="#2a78d6,#008300,..." data-mode="light">
  *   <script type="module" src="validate_palette.js"></script>
  *   → logs a console.table of the report and console.warn on any FAIL.
  *
  * Exit code 0 unless a check hard-FAILs; 1 on any FAIL. WARN bands do not fail:
- * adjacent CVD in the 8–12 floor band, and contrast in the sub-3:1 relief band,
+ * adjacent CVD in the 6–8 floor band, and contrast in the sub-3:1 relief band,
  * are reported as WARNs and still exit 0 (each is legal only with mandatory
- * secondary encoding: direct labels, gaps, or texture).
+ * secondary encoding: direct labels, gaps, or texture). The normal-vision floor
+ * is a hard gate: a worst unsimulated pair below 15 FAILs the run.
  */
 
 // ── thresholds ────────────────────────────────────────────────────────────────
 const BAND = { light: [0.43, 0.77], dark: [0.48, 0.67] }; // OKLCH L
 const CHROMA_FLOOR = 0.10; // OKLCH C
-const CVD_TARGET = 12.0, CVD_FLOOR = 8.0; // CIE76 ΔE on adjacent pairs
+// ΔE is Euclidean distance in OKLab ×100. The CVD thresholds are calibrated to
+// the Machado-Oliveira-Fernandes (2009) severity-1.0 simulation below — the sim
+// model is part of the standard, not an implementation detail (swapping in e.g.
+// Viénot-1999 moves borderline pairs and would require recalibrating these).
+const CVD_TARGET = 8.0, CVD_FLOOR = 6.0; // OKLab ΔE×100, min(protan, deutan), adjacent pairs
+const NORMAL_FLOOR = 15.0; // OKLab ΔE×100, worst adjacent pair, unsimulated vision
 const CONTRAST_MIN = 3.0; // WCAG vs surface
 const DEFAULT_SURFACE = { light: "#fcfcfb", dark: "#1a1a19" };
 const ORDINAL_MIN_DL = 0.06; // min OKLCH ΔL between adjacent steps
@@ -60,8 +69,7 @@ const lin = (h) => hex2srgb(h).map(s2lin);
 const relLum = (h) => { const [r, g, b] = lin(h); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
 export const contrast = (a, b) => { const [hi, lo] = [relLum(a), relLum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
 
-function oklab(h) {
-  const [r, g, b] = lin(h);
+function oklabFromLin([r, g, b]) {
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
   const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
   const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
@@ -71,18 +79,10 @@ function oklab(h) {
     0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s, // b
   ];
 }
+const oklab = (h) => oklabFromLin(lin(h));
 const oklch = (h) => { const [L, a, b] = oklab(h); return [L, Math.hypot(a, b)]; };
 const okhue = (h) => { const [, a, b] = oklab(h); return ((Math.atan2(b, a) * 180 / Math.PI) % 360 + 360) % 360; };
 
-// CIELAB (D65) for ΔE
-function lin2lab(r, g, b) {
-  const X = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b;
-  const Y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b;
-  const Z = 0.0193339 * r + 0.1191920 * g + 0.9503041 * b;
-  const f = (t) => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
-  const [fx, fy, fz] = [f(X / 0.95047), f(Y / 1.0), f(Z / 1.08883)];
-  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
-}
 function simulate(h, kind) {
   const [r, g, b] = lin(h), M = MACHADO[kind];
   const clamp = (c) => Math.max(0, Math.min(1, c));
@@ -93,9 +93,10 @@ function simulate(h, kind) {
   ];
 }
 function deltaE(h1, h2, kind) {
-  const a = lin2lab(...(kind ? simulate(h1, kind) : lin(h1)));
-  const b = lin2lab(...(kind ? simulate(h2, kind) : lin(h2)));
-  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  // Euclidean distance in OKLab, ×100. No kind → unsimulated (normal) vision.
+  const a = oklabFromLin(kind ? simulate(h1, kind) : lin(h1));
+  const b = oklabFromLin(kind ? simulate(h2, kind) : lin(h2));
+  return 100 * Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
 }
 
 // ── checks ─────────────────────────────────────────────────────────────────────
@@ -132,12 +133,29 @@ export function validate(palette, { mode = "light", surface, pairs = "adjacent" 
     }
   }
   const tri = pairlist.length ? Math.min(...pairlist.map(([i, j]) => deltaE(palette[i], palette[j], "tritan"))) : 99;
-  const nor = pairlist.length ? Math.min(...pairlist.map(([i, j]) => deltaE(palette[i], palette[j]))) : 99;
   const wd = worst ? worst[0] : 99;
   const cvdState = wd >= CVD_TARGET ? "pass" : wd >= CVD_FLOOR ? "floor" : "fail";
   if (cvdState === "fail") ok = false;
   report.push(["CVD separation", cvdState,
-    worst ? `worst ${label} ${worst[3]}↔${worst[2]} ΔE ${wd.toFixed(1)} (${worst[1]}) · tritan ${tri.toFixed(1)} · normal ${nor.toFixed(1)}` : "n/a"]);
+    worst ? `worst ${label} ${worst[3]}↔${worst[2]} ΔE ${wd.toFixed(1)} (${worst[1]}) · tritan ${tri.toFixed(1)}` : "n/a"]);
+
+  // 4b. Normal-vision floor. The CVD gate protects dichromat readers; this one
+  //     protects everyone else — neighbors must stay easy to tell apart under
+  //     unsimulated vision too. A hard gate: secondary encoding does not
+  //     excuse it, and weak pairs are not masked to keep an existing palette
+  //     validating (this floor is what forced the July 2026 re-order
+  //     of the shipped set: same steps, re-ordered, clears 19.6/19.3).
+  let nworst = null;
+  for (const [i, j] of pairlist) {
+    const d = deltaE(palette[i], palette[j]);
+    if (nworst === null || d < nworst[0]) nworst = [d, palette[i], palette[j]];
+  }
+  const nd = nworst ? nworst[0] : 99;
+  const norState = nd >= NORMAL_FLOOR ? "pass" : "fail";
+  if (norState === "fail") ok = false;
+  report.push(["Normal-vision floor", norState,
+    nworst ? `worst ${label} ${nworst[2]}↔${nworst[1]} ΔE ${nd.toFixed(1)} (normal)`
+      + (nd >= NORMAL_FLOOR ? "" : ` — below ${NORMAL_FLOOR.toFixed(0)}, hard to tell apart even with full color vision`) : "n/a"]);
 
   // 5. contrast vs surface — sub-3:1 is a documented conditional relax (visible labels / table view), not a hard fail
   const low = palette.filter(c => contrast(c, surface) < CONTRAST_MIN).map(c => [c, +contrast(c, surface).toFixed(2)]);
@@ -210,7 +228,7 @@ function printReport({ report, ok }, { mode, surface, ordinal, n }) {
       + "  (ordinal: one hue, monotone L, visible step gaps, light end clears surface)");
   } else {
     console.log(`\n  → ${ok ? "ALL CHECKS PASS" : "FAILED — fix the marked checks"}`
-      + "  (CVD in the 8–12 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)");
+      + "  (CVD in the 6–8 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)");
     console.log("  scope: categorical palettes only. For a lone status/text color check WCAG"
       + " text contrast; for a sequential ramp, lightness monotonicity.\n");
   }

@@ -47,7 +47,7 @@ rescheduling → running ↔ idle → terminated
 - The agent transitions `idle → running` when it receives a new event, then back to `idle` when done.
 - Errors surface as `session.error` events in the stream, not as a status value.
 
-Every session has a live trace view in the Anthropic Console at `https://platform.claude.com/workspaces/default/sessions/{session_id}`. Print this URL immediately after creating a session so the user can watch tool calls and messages stream in real time. The `default` workspace segment auto-resolves to the session's actual workspace on load, so you don't need the workspace id.
+Every session has a live trace view in the Anthropic Console at `https://platform.claude.com/workspaces/{workspace}/sessions/{session_id}`. Print this URL immediately after creating a session so the user can watch tool calls and messages stream in real time. **`{workspace}` is the workspace the API key belongs to** — use `default` only when that's the org's Default workspace. The session response does **not** include a workspace field and the Console has no workspace-agnostic session route, so for non-default workspaces substitute the workspace's ID (visible in the Console URL bar, or expose it as a config value alongside the API key). A `default` link to a session that lives in another workspace lands on a **"Session not found"** page — the **Search workspaces** button there will locate it, but it is not an automatic redirect.
 
 ### Built-in session features
 
@@ -124,7 +124,7 @@ const session = await client.beta.sessions.create(
 );
 ```
 
-> 💡 **Watch it live in Console.** While developing, print a link so you can click through to the session UI instead of parsing the event stream: `https://platform.claude.com/workspaces/default/sessions/{session.id}`. The `default` workspace segment auto-resolves to the session's actual workspace on load, so you don't need to know the workspace id. Include this `print`/`console.log` in code you generate for users who are iterating locally.
+> 💡 **Watch it live in Console.** While developing, print a link so you can click through to the session UI instead of parsing the event stream: `https://platform.claude.com/workspaces/{workspace}/sessions/{session.id}`. Use `default` for `{workspace}` only when the API key belongs to the org's Default workspace; otherwise substitute the workspace's ID (the session response does not carry it — read it from the Console URL bar or make it a config value). Include this `print`/`console.log` in code you generate for users who are iterating locally.
 
 **Session creation parameters:**
 

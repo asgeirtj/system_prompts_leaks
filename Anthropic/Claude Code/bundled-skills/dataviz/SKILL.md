@@ -49,7 +49,7 @@ Color comes LAST. Most bad charts pick colors first.
    chart's own page, where it reads
    `data-palette` off `<body>` and logs a `console.table` report). It returns
    pass/fail on the lightness band, chroma floor, adjacent-pair CVD separation,
-   and contrast. Fix anything that FAILs before continuing. Re-run for
+   the normal-vision floor, and contrast. Fix anything that FAILs before continuing. Re-run for
    `--mode dark` with that mode's surface.
 4. **Apply mark specs & spacers.** Thin marks, 4px rounded data-ends anchored to
    the baseline, 2px lines, ≥8px markers, a 2px surface gap between fills (stacked
@@ -82,8 +82,11 @@ of what goes wrong. If your chart matches an entry, it's wrong.
   count must not repaint the survivors.
 - **Sequential = one hue, light→dark. Diverging = two hues + a neutral gray
   midpoint.** Never a rainbow; never a hue at the diverging midpoint.
-- **Run the validator before shipping any categorical palette.** CVD ≥ 12 is the
-  target; 8–12 is a floor that is legal ONLY with secondary encoding. A contrast WARN
+- **Run the validator before shipping any categorical palette.** CVD ΔE ≥ 8 is the
+  target (OKLab ×100); 6–8 is a floor that is legal ONLY with secondary encoding. A
+  normal-vision floor below 15 is a hard FAIL — full-color readers can't tell the
+  pair apart; re-step it on the adjacent pairlist (secondary encoding does not excuse
+  this one); under `--pairs all` cut series or facet instead — see check 4. A contrast WARN
   obligates visible labels or a table view — it is not dismissable.
 - **Thin marks; a legend always present for ≥ 2 series (none for one), with
   selective direct labels (never a number on every point); recessive grid/axes.**

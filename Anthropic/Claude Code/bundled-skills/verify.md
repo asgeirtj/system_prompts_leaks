@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Verify that a code change actually does what it's supposed to by running the app and observing behavior.
+description: Verify that a code change actually does what it's supposed to by exercising it end-to-end and observing behavior — drive the affected flow, not just tests or typecheck. Run before committing nontrivial changes; bootstraps this repo's project verify skill if none exists yet. Don't invoke it on a diff that only touches tests, docs, or other code with no runtime surface to drive (a change to product source always has one) — there's nothing to observe.
 ---
 
 **Verification is runtime observation.** You build the app, run it,
@@ -78,8 +78,13 @@ evidence-capture protocol: it wraps the session so a reviewer can
 replay what you saw (recording, screenshots). Drive the surface
 without it and you get a verdict with no replay.
 
+Skills live at the repo root **and** in the package/app dirs the
+diff touches — in a monorepo the unlock for `apps/desktop/` is
+usually `apps/desktop/.claude/skills/`, not the root. Probe both:
+
 ```bash
-ls .claude/skills/
+ls .claude/skills/                    # repo root
+ls <touched-dir>/.claude/skills/      # each dir level the diff names
 ```
 
 - **`verifier-*` matching your surface** (CLI verifier for a CLI
@@ -91,8 +96,18 @@ ls .claude/skills/
   primitives as your handle.
 - **Neither** → cold start from README/package.json/Makefile. Timebox
   ~15min. Stuck → BLOCKED with exactly where, plus a filled-in
-  `/run-skill-generator` prompt. Got through → note the working
-  build/launch recipe so it can become a `verifier-*` skill.
+  `/run-skill-generator` prompt. Got through → **persist what you
+  learned**: create `.claude/skills/verify/SKILL.md` at the level you
+  probed above — repo root for a single-package repo; the touched
+  package/app dir (`apps/desktop/.claude/skills/verify/SKILL.md`) in
+  a monorepo where verification is per-package — capturing the
+  build/launch/drive recipe that worked, so the next session skips
+  this cold start. Keep it short: the commands that worked, the
+  flows worth driving, any gotchas. A project verify skill already
+  exists → edit it only when it steered you wrong: a documented
+  command failed or turned out wrong, or a needed step it doesn't
+  cover. Routine learnings don't warrant an edit, and never rewrite
+  or reorganize existing content for style.
 
 ## Drive it
 
@@ -189,14 +204,14 @@ typecheck don't belong here — they're CI's output.
 
 1. ✅/❌/⚠️/🔍 <what you did to the running app> → <what you observed>
    <evidence: the app's own output — pane capture, response body,
-   screenshot path>
+   screenshot>
 
 🔍 marks a probe — a step off the claim's happy path, trying to
 break it. At least one. A Steps list that's all ✅ and no 🔍 is a
 happy-path replay: still PASS, but you stopped at the first half.
 
 **Screenshot / sample:** <the one frame a reviewer looks at to see
-the feature — image path for GUI/TUI, code block for library/API;
+the feature — an image for GUI/TUI, code block for library/API;
 omit for build/types-only>
 
 ### Findings
@@ -219,6 +234,15 @@ bullets are context. Empty is fine if nothing stuck out — but nothing
 sticking out is itself rare.>
 ```
 
+**Evidence has to reach the reader.** A file path is only evidence
+if the person reading the report can open it. If the `SendUserFile`
+tool is in your toolset, you're on a remote surface where they
+can't — send the screenshots and recordings with it and let the
+report name what you sent. Without it, reference the path and keep
+the evidence that matters inline — pane captures and response
+bodies travel in the report; a bare path only works when the reader
+shares your filesystem.
+
 **Verdicts:**
 - **PASS** — you ran the app, the change did what it should at its
   surface. Not: tests pass, builds clean, code looks right.
@@ -226,8 +250,11 @@ sticking out is itself rare.>
   Or claim and diff disagree materially.
 - **BLOCKED** — couldn't reach a state where the change is observable.
   Build broke, env missing a dep, handle wouldn't come up. Not a
-  verdict on the change. Say exactly where it stopped +
-  `/run-skill-generator` prompt.
+  verdict on the change. Never report an approach blocked or
+  impossible until you've enumerated the skills along the touched
+  subtree — environment-specific unlocks (headless runners, login
+  helpers, VM harnesses) usually live there. Say exactly where it
+  stopped + `/run-skill-generator` prompt.
 - **SKIP** — no runtime surface exists. Docs-only, types-only,
   tests-only. Nothing went wrong; there's just nothing here to run.
   One line why.

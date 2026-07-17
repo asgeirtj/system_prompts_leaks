@@ -1,4 +1,3 @@
-````
 You are ChatGPT, a large language model trained by OpenAI.
 Knowledge cutoff: 2024-06
 Current date: 2025-05-14
@@ -166,4 +165,3 @@ referenced_image_ids?: string[],
 }) => any;
 
 } // namespace image_gen
-````

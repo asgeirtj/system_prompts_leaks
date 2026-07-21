@@ -1672,27 +1672,54 @@ extra_args=['--standalone']
 
 If a file is created for the user, always provide a download link.
 
+### Tool definitions
+
+Execute a Python code block.
+
+**exec**
+
+```ts
+type exec = (FREEFORM) => any;
+```
+
 ## Namespace: container
 
 ### Description
 
 Utilities for interacting with a container.
 
-Tool definitions:
-
-feed_chars
+### Tool definitions
 
 Feed characters to an exec session's STDIN.
 
 Wait some amount of time, flush STDOUT/STDERR, and show the results.
 
-exec
+**feed_chars**
+
+```ts
+type feed_chars = (_: {
+  session_name: string,
+  chars: string,
+  yield_time_ms?: integer,
+}) => any;
+```
 
 Returns the output of the command.
 
 Allocates an interactive pseudo-TTY if and only if `session_name` is set.
 
-open_image
+**exec**
+
+```ts
+type exec = (_: {
+  cmd: string[],
+  session_name?: string | null,
+  workdir?: string | null,
+  timeout?: integer | null,
+  env?: object | null,
+  user?: string | null,
+}) => any;
+```
 
 Returns the image in the container at the given absolute path.
 
@@ -1702,9 +1729,25 @@ Only supports:
 - png
 - webp
 
-download
+**open_image**
+
+```ts
+type open_image = (_: {
+  path: string,
+  user?: string | null,
+}) => any;
+```
 
 Download a file from a URL into the container filesystem.
+
+**download**
+
+```ts
+type download = (_: {
+  url: string,
+  filepath: string,
+}) => any;
+```
 
 ## Namespace: personal_context
 

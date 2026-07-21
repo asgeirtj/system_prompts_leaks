@@ -623,8 +623,7 @@ NEVER make up memory or any false details about the user.
 // Format
 // Newline-separated records; each record is one action.
 // Record syntax: <op>|<field1>|<field2>|...  (fields separated by literal '|')
-// Records separated by literal '
-'. No {}, [], or quotes.
+// Records separated by literal '\n'. No {}, [], or quotes.
 //
 // Null / optional handling
 // To omit an optional field, either omit trailing fields or leave an empty middle field.
@@ -632,12 +631,11 @@ NEVER make up memory or any false details about the user.
 // Trailing empty fields may be omitted.
 //
 // Escaping (inside any field; backslash)
-// | literal '|', ; literal ';', \ literal '',
-embedded newline, 	 tab (optional)
+// \| literal '|', \; literal ';', \\ literal '\', \n embedded newline, \t tab (optional)
 //
 // Lists inside a field
 // List-of-strings fields are encoded as a single field with items separated by ';'.
-// If an item contains ';', escape it as ;.
+// If an item contains ';', escape it as \;.
 // Empty list items are invalid.
 //
 // Opcodes

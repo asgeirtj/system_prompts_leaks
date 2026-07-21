@@ -10,7 +10,8 @@
  *   4. CVD separation   — OKLab ΔE (×100) between slots under simulated protan/deutan
  *                         (tritan reported); adjacent pairs by default, pairs:"all"
  *                         for scatter/bubble/maps
- *   4b. Normal-vision floor — worst adjacent OKLab ΔE (×100) under unsimulated vision;
+ *   4b. Normal-vision floor — worst OKLab ΔE (×100) on the active pairlist
+ *       (adjacent by default; all pairs with --pairs all) under unsimulated vision;
  *                         full-color readers must be able to tell neighbors apart too
  *   5. Contrast vs surface — WCAG ratio of each mark against the chart surface
  *
@@ -18,12 +19,12 @@
  * structural rules the skill enforces, not measurable from hexes alone.
  *
  * Usage (node):
- *   node validate_palette.js "#2a78d6,#008300,#e87ba4,#eda100,#1baf7a,#eb6834,#4a3aa7,#e34948" --mode light
+ *   node validate_palette.js "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
  *   node validate_palette.js "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
- *   node validate_palette.js "#cde2fb,#9ec5f4,#6da7ec,#3987e5,#256abf" --ordinal
+ *   node validate_palette.js "#86b6ef,#5598e7,#256abf,#104281" --ordinal
  *
  * Usage (browser — as a module script):
- *   <body data-palette="#2a78d6,#008300,..." data-mode="light">
+ *   <body data-palette="#2a78d6,#eb6834,..." data-mode="light">
  *   <script type="module" src="validate_palette.js"></script>
  *   → logs a console.table of the report and console.warn on any FAIL.
  *
@@ -42,7 +43,7 @@ const CHROMA_FLOOR = 0.10; // OKLCH C
 // model is part of the standard, not an implementation detail (swapping in e.g.
 // Viénot-1999 moves borderline pairs and would require recalibrating these).
 const CVD_TARGET = 8.0, CVD_FLOOR = 6.0; // OKLab ΔE×100, min(protan, deutan), adjacent pairs
-const NORMAL_FLOOR = 15.0; // OKLab ΔE×100, worst adjacent pair, unsimulated vision
+const NORMAL_FLOOR = 15.0; // OKLab ΔE×100, worst pair on the active pairlist, unsimulated vision
 const CONTRAST_MIN = 3.0; // WCAG vs surface
 const DEFAULT_SURFACE = { light: "#fcfcfb", dark: "#1a1a19" };
 const ORDINAL_MIN_DL = 0.06; // min OKLCH ΔL between adjacent steps
@@ -63,6 +64,21 @@ const MACHADO = {
 
 // ── color conversions ──────────────────────────────────────────────────────────
 const hex2srgb = (h) => { h = h.trim().replace(/^#/, ""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255); };
+
+// ── input boundary ── EVERY user-supplied color string (palette entries AND
+// the surface, CLI and browser alike) passes these before any math:
+// unguarded, parseInt propagates NaN through every check and the run fails
+// OPEN. Normalization is spelled out rather than engine-native: JS trim()
+// and Python str.strip() differ at the edges (trim() strips U+FEFF;
+// str.strip() strips U+001C–U+001F and U+0085), so the shared set is their
+// intersection — ASCII whitespace plus the Unicode space/separator
+// characters both engines strip, which also covers the NBSP/em-space
+// padding picked up when copy-pasting hex lists from rendered pages. Keep
+// these three definitions in lockstep with the Python twin.
+const WS_RUN = "[ \\t\\n\\v\\f\\r\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]+";
+const stripWs = (v) => v.replace(new RegExp(`^${WS_RUN}|${WS_RUN}$`, "g"), "");
+const splitColors = (raw) => (raw || "").split(",").map(stripWs).filter(Boolean);
+const isHexColor = (v) => /^#?[0-9a-fA-F]{6}$/.test(v);
 const s2lin = (c) => c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 const lin2s = (c) => { c = Math.max(0, Math.min(1, c)); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
 const lin = (h) => hex2srgb(h).map(s2lin);
@@ -143,7 +159,7 @@ export function validate(palette, { mode = "light", surface, pairs = "adjacent" 
   //     protects everyone else — neighbors must stay easy to tell apart under
   //     unsimulated vision too. A hard gate: secondary encoding does not
   //     excuse it, and weak pairs are not masked to keep an existing palette
-  //     validating (this floor is what forced the July 2026 re-order
+  //     validating (this floor forced the first of the July 2026 re-orders
   //     of the shipped set: same steps, re-ordered, clears 19.6/19.3).
   let nworst = null;
   for (const [i, j] of pairlist) {
@@ -189,7 +205,9 @@ export function validateOrdinal(palette, { mode = "light", surface } = {}) {
 
   // Adjacent ΔL — each step must be visibly distinct from its neighbour.
   const gaps = Ls.slice(1).map((l, i) => Math.abs(l - Ls[i]));
-  const thin = gaps.map((g, i) => [palette[i], palette[i + 1], +g.toFixed(3)]).filter(([, , g]) => g < ORDINAL_MIN_DL);
+  // Filter on the RAW gap, then round for display — filtering the rounded
+  // value passes raw gaps in [0.0595, 0.06) that the Python twin fails.
+  const thin = gaps.map((g, i) => [palette[i], palette[i + 1], g]).filter(([, , g]) => g < ORDINAL_MIN_DL).map(([a, b, g]) => [a, b, +g.toFixed(3)]);
   if (thin.length) ok = false;
   report.push(["Adjacent ΔL", !thin.length,
     thin.length ? `steps too close: ${JSON.stringify(thin)}` : `all gaps >= ${ORDINAL_MIN_DL}`]);
@@ -254,10 +272,15 @@ if (typeof process !== "undefined" && process.argv && process.argv[1] && process
       console.error(`--${k} must be one of: ${allowed.join(", ")} (got ${JSON.stringify(opts[k])})`); process.exit(2);
     }
   }
-  const palette = (positional || "").split(",").map(s => s.trim()).filter(Boolean);
+  const palette = splitColors(positional);
   if (!palette.length) { console.error("usage: node validate_palette.js \"#hex,#hex,...\" [--mode light|dark] [--surface #hex] [--pairs adjacent|all] [--ordinal]"); process.exit(2); }
   const mode = opts.mode || "light";
-  const surface = opts.surface || DEFAULT_SURFACE[mode];
+  // An empty/whitespace-only surface counts as absent (falls back to the
+  // default), preserving the pre-boundary falsy behavior.
+  const rawSurface = opts.surface != null ? stripWs(opts.surface) : "";
+  const surface = rawSurface || DEFAULT_SURFACE[mode];
+  const badHex = [...palette, surface].filter((c) => !isHexColor(c));
+  if (badHex.length) { console.error(`invalid hex value(s): ${badHex.join(", ")} — expected #rrggbb`); process.exit(2); }
   const pairs = opts.pairs || "adjacent";
   const result = opts.ordinal ? validateOrdinal(palette, { mode, surface }) : validate(palette, { mode, surface, pairs });
   printReport(result, { mode, surface, ordinal: !!opts.ordinal, n: palette.length });
@@ -269,12 +292,25 @@ if (typeof process !== "undefined" && process.argv && process.argv[1] && process
 if (typeof document !== "undefined") {
   const b = document.body;
   if (b?.dataset.palette) {
-    const palette = b.dataset.palette.split(",").map(s => s.trim()).filter(Boolean);
+    const palette = splitColors(b.dataset.palette);
     const mode = b.dataset.mode || "light";
-    const surface = b.dataset.surface || DEFAULT_SURFACE[mode];
+    const pairs = b.dataset.pairs || "adjacent";
+    const rawSurface = b.dataset.surface != null ? stripWs(b.dataset.surface) : "";
+    const surface = rawSurface || DEFAULT_SURFACE[mode];
     const ordinal = "ordinal" in b.dataset;
-    const result = ordinal ? validateOrdinal(palette, { mode, surface }) : validate(palette, { mode, surface, pairs: b.dataset.pairs || "adjacent" });
-    console.table(result.report.map(([name, state, detail]) => ({ check: name, result: GLYPH[state] ?? state, detail })));
-    if (!result.ok) console.warn("validate_palette: FAILED — fix the marked checks");
+    // Same input boundary as the CLI (stripWs/splitColors/isHexColor), plus
+    // the CLI's enum choices: a bad data-mode otherwise throws at BAND[mode],
+    // and a bad data-pairs silently downgrades to the weaker adjacent check.
+    const badEnum = !["light", "dark"].includes(mode) ? `data-mode ${JSON.stringify(mode)}`
+      : !["adjacent", "all"].includes(pairs) ? `data-pairs ${JSON.stringify(pairs)}` : null;
+    const badHex = [...palette, surface].filter((c) => !isHexColor(c));
+    if (!palette.length || badEnum || badHex.length) {
+      // Module top level — no `return` here; skip validating instead.
+      console.warn(`validate_palette: ${!palette.length ? "empty palette" : badEnum ? `unrecognized ${badEnum}` : `invalid hex value(s): ${badHex.join(", ")} — expected #rrggbb`} — not validating`);
+    } else {
+      const result = ordinal ? validateOrdinal(palette, { mode, surface }) : validate(palette, { mode, surface, pairs });
+      console.table(result.report.map(([name, state, detail]) => ({ check: name, result: GLYPH[state] ?? state, detail })));
+      if (!result.ok) console.warn("validate_palette: FAILED — fix the marked checks");
+    }
   }
 }

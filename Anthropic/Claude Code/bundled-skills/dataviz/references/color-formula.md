@@ -41,19 +41,18 @@ Every categorical color — current or proposed — must pass all six.
    **normal-vision floor** gates the same pairs under unsimulated vision: worst
    pair ΔE ≥ 15, so neighbors stay easy to tell apart for full-color readers too.
    This floor is a hard gate — secondary encoding does not excuse it.
-   (This floor is what forced the July 2026 re-order of the documented
-   default palette — same hues and steps, re-ordered; it now clears the
-   floor at 19.6 light / 19.3 dark; see `palette.md`.)
+   (This floor is what forced the first of the July 2026 re-orders of the
+   documented default palette — same hues and steps, re-ordered; the current
+   default clears it at 19.6 light / 19.3 dark; see `palette.md`.)
    *Adjacent* pairs for
    stacks/bars/lines (only neighbors touch — assignment never skips); **all pairs for
    scatter, bubble, choropleth, and small-multiples**, where any two marks can sit side
    by side — pass `--pairs all` there or a real collapse stays hidden. All-pairs is
    a strictly harder test, and it caps how many series those chart forms can carry:
-   the documented default validates all-pairs with its **first four slots** in both
-   modes (the dark run lands in the 6–8 CVD floor band, so ship secondary encoding),
-   and no ordering of the full eight can pass (the all-pairs pairlist doesn't
-   depend on order). More than four series in an all-pairs form means fewer series
-   (fold to "Other"), facets, or direct labels — not a palette change. *(validator)*
+   the documented default validates all-pairs with its **first three slots** in both
+   modes, and no ordering of the full eight can pass (the all-pairs pairlist doesn't
+   depend on order). More than three series in an all-pairs form means fewer series
+   (fold to "Other") or facets — not a palette change. *(validator)*
 5. **Contrast vs surface.** ≥ 3:1 for marks; conditionally relaxed where values are
    readable another way (visible labels or the table view). *(validator)*
 6. **Documented palette only.** Every slot is a hex from the instance file
@@ -64,7 +63,7 @@ Every categorical color — current or proposed — must pass all six.
 
 ```
 node scripts/validate_palette.js \
-  "#2a78d6,#008300,#e87ba4,#eda100,#1baf7a,#eb6834,#4a3aa7,#e34948" --mode light
+  "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
 ```
 
 (`scripts/` is relative to this skill's base directory, shown at the top of the prompt.)
@@ -121,8 +120,9 @@ theme and freezes it; never mix themes within a dashboard. (See `palette.md`.)
 **Deriving an order when a system has no theme yet:** don't guess. Enumerate candidate
 orderings of the system's hues, run the validator on each, and pick the one that
 maximizes the *minimum adjacent* CVD ΔE. (Seeding from a known-good order by hue-family
-analogy, then optimizing, is fine — this is exactly how the default in
-`palette.md` was derived.)
+analogy, then optimizing, is fine — the default in `palette.md` came out of
+exactly that enumeration, as one of the tied top orders under the gates,
+picked among them for its opening.)
 
 ## Status is fixed
 

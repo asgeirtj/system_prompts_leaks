@@ -47,7 +47,7 @@ If a chart *is* right, pick the type by the job:
 | Series | Treatment |
 |---|---|
 | 1–3 | color alone is comfortable for everyone; direct-label |
-| 4 | the CVD floor enters — direct labels become mandatory, not a courtesy |
+| 4 | adjacent forms (stacks, bars, lines) stay gate-safe, but direct labels become mandatory — yellow and orange now share the screen; all-pairs forms (scatter, bubble, choropleth, small multiples) cap at **three** — fold to "Other" or facet rather than seat a 4th |
 | 5–6 | soft cap; legend or small multiples |
 | 7–8 | token ceiling; past it, fold the tail into "Other," facet into small multiples, or use composite encoding (hue × shape) |
 

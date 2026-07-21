@@ -11,7 +11,8 @@ the five checks that can be measured from color alone:
   4. CVD separation   — OKLab ΔE (×100) between slots under simulated protan/deutan
                         (tritan reported); adjacent pairs by default, --pairs all
                         for scatter/bubble/maps
-  4b. Normal-vision floor — worst adjacent OKLab ΔE (×100) under unsimulated vision;
+  4b. Normal-vision floor — worst OKLab ΔE (×100) on the active pairlist
+      (adjacent by default; all pairs with --pairs all) under unsimulated vision;
                         full-color readers must be able to tell neighbors apart too
   5. Contrast vs surface — WCAG ratio of each mark against the chart surface
 
@@ -19,7 +20,7 @@ Checks 1 (fixed hue order) and 6 (values resolve to real ramp steps) are
 structural rules the skill enforces, not measurable from hexes alone.
 
 Usage:
-  python validate_palette.py "#2a78d6,#008300,#e87ba4,#eda100,#1baf7a,#eb6834,#4a3aa7,#e34948" --mode light
+  python validate_palette.py "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
   python validate_palette.py "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
 
 Exit code 0 unless a check hard-FAILs; 1 on any FAIL. WARN bands do not fail:
@@ -28,7 +29,7 @@ reported as WARNs and still exit 0 (each is legal only with mandatory secondary
 encoding: direct labels, gaps, or texture). The normal-vision floor is a hard
 gate: a worst unsimulated pair below 15 FAILs the run.
 """
-import sys, math, json, argparse
+import sys, math, json, argparse, re
 
 # ── thresholds ────────────────────────────────────────────────────────────────
 BAND = {"light": (0.43, 0.77), "dark": (0.48, 0.67)}   # OKLCH L
@@ -38,7 +39,7 @@ CHROMA_FLOOR = 0.10                                     # OKLCH C
 # model is part of the standard, not an implementation detail (swapping in e.g.
 # Viénot-1999 moves borderline pairs and would require recalibrating these).
 CVD_TARGET, CVD_FLOOR = 8.0, 6.0                        # OKLab ΔE×100, min(protan, deutan), adjacent pairs
-NORMAL_FLOOR = 15.0                                     # OKLab ΔE×100, worst adjacent pair, unsimulated vision
+NORMAL_FLOOR = 15.0                                     # OKLab ΔE×100, worst pair on the active pairlist, unsimulated vision
 CONTRAST_MIN = 3.0                                      # WCAG vs surface
 DEFAULT_SURFACE = {"light": "#fcfcfb", "dark": "#1a1a19"}
 
@@ -58,6 +59,27 @@ MACHADO = {
 def hex2srgb(h):
     h = h.strip().lstrip("#")
     return tuple(int(h[i:i+2], 16) / 255 for i in (0, 2, 4))
+
+# ── input boundary ── EVERY user-supplied color string (palette entries AND
+# the surface) passes these before any math: unguarded, malformed input
+# either raises or fails OPEN. Normalization is spelled out rather than
+# engine-native: JS trim() and Python str.strip() differ at the edges
+# (trim() strips U+FEFF; str.strip() strips U+001C-U+001F and U+0085), so
+# the shared set is their intersection — ASCII whitespace plus the Unicode
+# space/separator characters both engines strip, which also covers the
+# NBSP/em-space padding picked up when copy-pasting hex lists from rendered
+# pages. Keep these three definitions in lockstep with the JS twin.
+_WS = (" \t\n\v\f\r\u00a0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006"
+       "\u2007\u2008\u2009\u200a\u2028\u2029\u202f\u205f\u3000")
+
+def strip_ws(v):
+    return v.strip(_WS)
+
+def split_colors(raw):
+    return [c for c in (strip_ws(s) for s in (raw or "").split(",")) if c]
+
+def is_hex_color(v):
+    return re.fullmatch(r"#?[0-9a-fA-F]{6}", v) is not None
 
 def s2lin(c):
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
@@ -108,20 +130,27 @@ def deltaE(h1, h2, kind=None):
     b = lin2oklab(*(simulate(h2, kind) if kind else lin(h2)))
     return 100 * math.dist(a, b)
 
+def _jn(v):
+    # JSON-number parity with the JS twin: +x.toFixed(n) serializes an
+    # integral value as 1, but Python's round() keeps it a float and
+    # json.dumps prints 1.0 — normalize so the twins' output stays
+    # byte-identical on integral values (e.g. #ffffff's L of 1).
+    return int(v) if isinstance(v, float) and v.is_integer() else v
+
 # ── checks ──────────────────────────────────────────────────────────────────────
 def validate(palette, mode, surface, pairs="adjacent"):
     lo, hi = BAND[mode]
     report, ok = [], True
 
     # 2. lightness band
-    offband = [(c, round(oklch(c)[0], 3)) for c in palette if not (lo <= oklch(c)[0] <= hi)]
+    offband = [(c, _jn(round(oklch(c)[0], 3))) for c in palette if not (lo <= oklch(c)[0] <= hi)]
     if offband: ok = False
     report.append(("Lightness band", not offband,
                    f"all {len(palette)} inside L {lo}–{hi}" if not offband
                    else f"outside band: {json.dumps(offband, separators=(',', ':'))}"))
 
     # 3. chroma floor
-    lowc = [(c, round(oklch(c)[1], 3)) for c in palette if oklch(c)[1] < CHROMA_FLOOR]
+    lowc = [(c, _jn(round(oklch(c)[1], 3))) for c in palette if oklch(c)[1] < CHROMA_FLOOR]
     if lowc: ok = False
     report.append(("Chroma floor", not lowc,
                    f"all {len(palette)} >= {CHROMA_FLOOR}" if not lowc
@@ -153,7 +182,7 @@ def validate(palette, mode, surface, pairs="adjacent"):
     #     protects everyone else — neighbors must stay easy to tell apart under
     #     unsimulated vision too. A hard gate: secondary encoding does not
     #     excuse it, and weak pairs are not masked to keep an existing palette
-    #     validating (this floor is what forced the July 2026 re-order
+    #     validating (this floor forced the first of the July 2026 re-orders
     #     of the shipped set: same steps, re-ordered, clears 19.6/19.3).
     nworst = None
     for i, j in pairlist:
@@ -170,7 +199,7 @@ def validate(palette, mode, surface, pairs="adjacent"):
                    if nworst else "n/a"))
 
     # 5. contrast vs surface
-    low = [(c, round(contrast(c, surface), 2)) for c in palette if contrast(c, surface) < CONTRAST_MIN]
+    low = [(c, _jn(round(contrast(c, surface), 2))) for c in palette if contrast(c, surface) < CONTRAST_MIN]
     # contrast below 3:1 is a documented conditional relax (visible labels / table view), not a hard fail
     report.append(("Contrast vs surface", "pass" if not low else "relief",
                    f"all {len(palette)} >= {CONTRAST_MIN:g}:1" if not low
@@ -198,11 +227,11 @@ def validate_ordinal(palette, mode, surface):
     if not mono: ok = False
     report.append(("Lightness monotone", mono,
                    "steps read light→dark" if mono
-                   else f"out of order — L values {json.dumps([round(l,3) for l in Ls], separators=(',', ':'))}"))
+                   else f"out of order — L values {json.dumps([_jn(round(l,3)) for l in Ls], separators=(',', ':'))}"))
 
     # Adjacent ΔL — each step must be visibly distinct from its neighbour.
     gaps = [abs(Ls[i+1] - Ls[i]) for i in range(len(Ls)-1)]
-    thin = [(palette[i], palette[i+1], round(g,3)) for i, g in enumerate(gaps) if g < ORDINAL_MIN_DL]
+    thin = [(palette[i], palette[i+1], _jn(round(g,3))) for i, g in enumerate(gaps) if g < ORDINAL_MIN_DL]
     if thin: ok = False
     report.append(("Adjacent ΔL", not thin,
                    f"all gaps >= {ORDINAL_MIN_DL}" if not thin
@@ -241,8 +270,18 @@ def main():
                     help="ordered categories (funnel, tiers, buckets) — validate as a "
                          "one-hue ramp instead of the categorical checks.")
     a = ap.parse_args()
-    palette = [c.strip() for c in a.palette.split(",") if c.strip()]
-    surface = a.surface or DEFAULT_SURFACE[a.mode]
+    palette = split_colors(a.palette)
+    if not palette:
+        print('usage: python validate_palette.py "#hex,#hex,..." [--mode light|dark] [--surface #hex] [--pairs adjacent|all] [--ordinal]', file=sys.stderr)
+        sys.exit(2)
+    # An empty/whitespace-only surface counts as absent (falls back to the
+    # default), preserving the pre-boundary falsy behavior.
+    raw_surface = strip_ws(a.surface) if a.surface is not None else ""
+    surface = raw_surface or DEFAULT_SURFACE[a.mode]
+    bad_hex = [c for c in [*palette, surface] if not is_hex_color(c)]
+    if bad_hex:
+        print(f"invalid hex value(s): {', '.join(bad_hex)} — expected #rrggbb", file=sys.stderr)
+        sys.exit(2)
 
     report, ok = (validate_ordinal(palette, a.mode, surface) if a.ordinal
                   else validate(palette, a.mode, surface, a.pairs))

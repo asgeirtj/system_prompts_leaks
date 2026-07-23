@@ -21,6 +21,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Design (full prompt + 53 tools + 22 skills + 10 starter sources)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design.md) · [skills](Anthropic/Claude%20Design/Skills) · [starter components](Anthropic/Claude%20Design/Starter%20components) |
 | **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
 | **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/Claude%20Code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/Claude%20Code/claude-code-sonnet-5.md) · [Haiku 4.5](Anthropic/Claude%20Code/claude-code-haiku-4.5.md) |
 | **OpenCode · Pi · CommandCode** | July 16, 2026 | [OpenCode system prompt](OpenCode/opencode.md) · [Pi system prompt](Pi/instructions.md) · [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
@@ -29,7 +30,6 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **DeepSeek** | July 14, 2026 | [DeepSeek system prompt](DeepSeek/deepseek-chat.md) |
 | **ChatGPT 5.6** | July 10, 2026 | [ChatGPT 5.6 system prompt (Sol, extra high)](OpenAI/gpt-5.6-sol-extra-high.md) · [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
 | **Claude Sonnet 5** | July 1, 2026 | [Claude Sonnet 5 system prompt](Anthropic/claude-sonnet-5.md) |
-| **Claude Design (full prompt + 48 tools + 16 skills + 9 starter sources)** | June 26, 2026 | [Claude Design system prompt](Anthropic/claude-design.md) |
 | **GitHub Copilot for macOS (app)** | June 18, 2026 | [Copilot for macOS system prompt](Microsoft/copilot-macos-app.md) |
 | **GPT-5.5 Codex (full prompt)** | June 18, 2026 | [Codex GPT-5.5 full system prompt](OpenAI/Codex/codex-full.md) |
 | **Claude Fable 5** | June 9, 2026 | [Claude Fable 5 system prompt](Anthropic/claude-fable-5.md) |
@@ -80,7 +80,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Product | Prompt |
 |---------|--------|
-| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design.md) |
+| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design.md) · [skills](Anthropic/Claude%20Design/Skills) · [starter components](Anthropic/Claude%20Design/Starter%20components) |
 | **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork-dispatch.md) |
 | Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-word.md) · [Claude in PowerPoint](Anthropic/claude-in-powerpoint.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |

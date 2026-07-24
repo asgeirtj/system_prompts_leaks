@@ -14,8 +14,31 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 ![Last Commit](https://img.shields.io/github/last-commit/asgeirtj/system_prompts_leaks?style=flat)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](http://makeapullrequest.com)
 
+## AI agents & agentic systems
 
+This catalog now covers a wider range of agentic products and subagent architectures, not only chat-only prompts.
 
+### GitHub-ready improvements
+
+The repository now includes stronger GitHub support for maintainability and collaboration:
+- contribution templates and issue forms
+- a pull request template
+- a security policy
+- automated markdown link validation via GitHub Actions
+- repository ownership guidance with CODEOWNERS
+- an auto-generated AI agent catalog in [AGENT_CATALOG.md](AGENT_CATALOG.md)
+
+You can open [AGENT_CATALOG.md](AGENT_CATALOG.md) to browse the agentic prompts and subagent definitions available in this archive.
+
+| Agentic system | What is included |
+|---|---|
+| Anthropic Claude Code | Subagent prompts and agent-oriented instructions in [Anthropic/Claude Code agents](Anthropic/Claude%20Code/agents/README.md) and the main Claude Code captures. |
+| Anthropic Claude Design / Cowork | Design and collaborative-agent prompts for visual and workflow tasks. |
+| OpenAI ChatGPT Agent Mode / Codex | Agentic browsing, coding, execution, and workspace workflows. |
+| Microsoft Copilot Agent | VS Code and CLI agent experiences for developer workflows. |
+| Google Gemini CLI / Jules / Workspace | CLI and workspace-oriented agent prompts. |
+| xAI Grok Build | Build-oriented agent prompt and related Grok variants. |
+| Misc agentic tools | Amp Code, CommandCode, Devin, Warp, Zed, OpenCode and similar AI-native agents. |
 
 ## Recently Updated
 
@@ -55,7 +78,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **Claude Code (Opus 4.8)** | [**Claude Code system prompt (Opus 4.8)**](Anthropic/Claude%20Code/claude-code-opus-4.8.md) |
 | **Claude Code (Sonnet 5)** | [Claude Code system prompt (Sonnet 5)](Anthropic/Claude%20Code/claude-code-sonnet-5.md) |
 | Claude Code (older models) | [Opus 4.7](Anthropic/Claude%20Code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/Claude%20Code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/Claude%20Code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/Claude%20Code/claude-code-haiku-4.5.md) |
-| Subagents | [Claude Code subagent system prompts](Anthropic/Claude%20Code/agents) |
+| Subagents | [Claude Code subagent system prompts](Anthropic/Claude%20Code/agents/README.md) |
 | Skills & commands | [Claude Code bundled skills](Anthropic/Claude%20Code/bundled-skills) · [Slash commands](Anthropic/Claude%20Code/slash-commands) · [Skills](Anthropic/Claude%20Code/skills) |
 | Injected reminders | [Claude Code injected reminders](Anthropic/Claude%20Code/injected-reminders)  |
 | MCP servers | [Claude Code MCP server system prompts](Anthropic/Claude%20Code/mcp-servers) |
@@ -119,7 +142,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Old 4o variants | [4o WhatsApp](OpenAI/Old/gpt-4o-whatsapp.md) · [4o new personality](OpenAI/4o-2025-09-03-new-personality.md) · [Monday GPT](OpenAI/Old/monday-gpt.md) |
 | Old tools | [Canvas](OpenAI/Old/tool-canvas-canmore.md) · [Image gen](OpenAI/Old/tool-create-image-image_gen.md) · [File search](OpenAI/Old/tool-file_search.md) · [Python](OpenAI/Old/tool-python-code.md) · [Web search](OpenAI/Old/tool-web-search.md) |
 | Old policies | [Image safety](OpenAI/Old/prompt-image-safety-policies.md) · [Image safety (2026)](OpenAI/Old/image-safety-policies.md) · [Automation context](OpenAI/Old/prompt-automation-context.md) |
-| Deprecated features | [GPT-5 personalities](OpenAI/gpt-5-listener-personality.md) · [GPT-5.1 personalities](OpenAI/gpt-5.1-efficient.md) · [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/deprecated/) |
+| Deprecated features | [GPT-5 personalities](OpenAI/gpt-5-listener-personality.md) · [GPT-5.1 personalities](OpenAI/gpt-5.1-efficient.md) · [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old) |
 | GPT-5.1 (old) | [Professional](OpenAI/gpt-5.1-professional.md) |
 
 </details>
@@ -174,7 +197,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Grok 3 | [Grok 3 system prompt](xAI/grok-3.md) |
 | Grok Account | [Grok account system prompt](xAI/grok-account.md) |
 | Grok Personas | [Grok persona prompts](xAI/grok-personas.md) |
-| Safety Instructions | [Grok safety instructions](xAI/grok.com-post-new-safety-instructions.md) |
+| Safety Instructions | [Grok safety instructions](xAI/grok-4-with-new-safety-instructions.md) |
 
 </details>
 

@@ -16,6 +16,10 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 ## AI agents & agentic systems
 
+### API connection flow for agents
+
+To connect an agent to a provider API, copy [.env.example](.env.example) to a local .env file and fill in the required keys. The checker script in [scripts/agent_api_connector.py](scripts/agent_api_connector.py) reports which providers are currently configured.
+
 This catalog now covers a wider range of agentic products and subagent architectures, not only chat-only prompts.
 
 ### GitHub-ready improvements
@@ -29,8 +33,9 @@ The repository now includes stronger GitHub support for maintainability and coll
 - dependency update monitoring with Dependabot
 - repository ownership guidance with CODEOWNERS
 - an auto-generated AI agent catalog in [AGENT_CATALOG.md](AGENT_CATALOG.md)
+- an API connection workflow for agent providers in [AGENT_API_STATUS.md](AGENT_API_STATUS.md)
 
-You can open [AGENT_CATALOG.md](AGENT_CATALOG.md) to browse the agentic prompts and subagent definitions available in this archive.
+You can open [AGENT_CATALOG.md](AGENT_CATALOG.md) to browse the agentic prompts and subagent definitions available in this archive, and [AGENT_API_STATUS.md](AGENT_API_STATUS.md) to check which provider APIs are configured.
 
 | Agentic system | What is included |
 |---|---|

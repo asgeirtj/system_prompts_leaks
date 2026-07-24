@@ -39,13 +39,13 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
-| **Claude Fable 5** | [**Claude Fable 5 system prompt**](Anthropic/claude-fable-5.md) · |
-| **Claude Opus 4.8** | [**Claude Opus 4.8 system prompt**](Anthropic/claude-opus-4.8.md) · |
+| **Claude Fable 5** | [**Claude Fable 5 system prompt**](Anthropic/claude-fable-5.md) |
+| **Claude Opus 4.8** | [**Claude Opus 4.8 system prompt**](Anthropic/claude-opus-4.8.md) |
 | **Claude Sonnet 5** | [**Claude Sonnet 5 system prompt**](Anthropic/claude-sonnet-5.md) |
-| Claude Opus 4.7 | [Claude Opus 4.7 system prompt](Anthropic/claude-opus-4.7.md) · |
+| Claude Opus 4.7 | [Claude Opus 4.7 system prompt](Anthropic/claude-opus-4.7.md) |
 | Claude Opus 4.6 | [Claude Opus 4.6 system prompt](Anthropic/claude-opus-4.6.md) · [No tools](Anthropic/claude-opus-4.6-no-tools.md) |
 | Claude Sonnet 4.6 | [Claude Sonnet 4.6 system prompt](Anthropic/claude-sonnet-4.6.md) · [No tools](Anthropic/claude-sonnet-4.6-no-tools.md) |
-| Claude.ai | [Claude.ai injected reminders](Anthropic/anthropic_reminders.md) — |
+| Claude.ai | [Claude.ai injected reminders](Anthropic/anthropic_reminders.md) |
 
 ### Claude Code system prompts
 
@@ -55,7 +55,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **Claude Code (Opus 4.8)** | [**Claude Code system prompt (Opus 4.8)**](Anthropic/Claude%20Code/claude-code-opus-4.8.md) |
 | **Claude Code (Sonnet 5)** | [Claude Code system prompt (Sonnet 5)](Anthropic/Claude%20Code/claude-code-sonnet-5.md) |
 | Claude Code (older models) | [Opus 4.7](Anthropic/Claude%20Code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/Claude%20Code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/Claude%20Code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/Claude%20Code/claude-code-haiku-4.5.md) |
-| Subagents | [Claude Code subagent system prompts](Anthropic/Claude%20Code/agents) — |
+| Subagents | [Claude Code subagent system prompts](Anthropic/Claude%20Code/agents) |
 | Skills & commands | [Claude Code bundled skills](Anthropic/Claude%20Code/bundled-skills) · [Slash commands](Anthropic/Claude%20Code/slash-commands) · [Skills](Anthropic/Claude%20Code/skills) |
 | Injected reminders | [Claude Code injected reminders](Anthropic/Claude%20Code/injected-reminders)  |
 | MCP servers | [Claude Code MCP server system prompts](Anthropic/Claude%20Code/mcp-servers) |
@@ -71,9 +71,6 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-word.md) · [Claude in PowerPoint](Anthropic/claude-in-powerpoint.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |
 | Claude iOS app | [Claude mobile iOS system prompt](Anthropic/claude-mobile-ios.md) |
-
-
-</details>
 
 ![OpenAI](https://shieldcn.dev/badge/OpenAI-412991.svg?logo=ri%3ASiOpenai&variant=secondary&mode=light)
 

@@ -5,6 +5,14 @@
 # System Prompts Leaks
 Leaked system prompts, captured verbatim — the hidden instructions and rules that ChatGPT, Claude, Gemini, Grok and every other AI chatbot receives before your first message.
 
+## Professional AI platform
+
+This repository now includes a lightweight but professional AI product foundation with:
+- a SQLite-backed prompt database
+- a FastAPI backend for prompts, chat, and lead capture
+- a polished landing experience for product positioning
+- deployment guidance for local, Docker, and production-style environments
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset=".github/banner-dark.png">
   <source media="(prefers-color-scheme: light)" srcset=".github/banner-light.png">

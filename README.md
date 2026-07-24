@@ -25,6 +25,8 @@ The repository now includes stronger GitHub support for maintainability and coll
 - a pull request template
 - a security policy
 - automated markdown link validation via GitHub Actions
+- CodeQL and secret scanning workflows for stronger repository protection
+- dependency update monitoring with Dependabot
 - repository ownership guidance with CODEOWNERS
 - an auto-generated AI agent catalog in [AGENT_CATALOG.md](AGENT_CATALOG.md)
 

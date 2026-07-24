@@ -100,7 +100,11 @@ def main() -> int:
         if not output_path.is_absolute():
             output_path = ROOT / output_path
         output_path.write_text(payload, encoding="utf-8")
-        print(f"Wrote {output_path.relative_to(ROOT).as_posix()}")
+        try:
+            display_path = output_path.relative_to(ROOT).as_posix()
+        except ValueError:
+            display_path = output_path.as_posix()
+        print(f"Wrote {display_path}")
     else:
         print(payload, end="")
 

@@ -28,6 +28,7 @@ def build_landing_page() -> str:
             <ul>
               <li>Freemium assistant experience for users</li>
               <li>Premium prompt packs and workflows</li>
+              <li>Gemini-ready AI experiences with provider integration</li>
               <li>Affiliate revenue from AI tools and services</li>
               <li>Scalable SaaS foundation from day one</li>
             </ul>

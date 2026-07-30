@@ -1,7 +1,25 @@
+<p align="center">
+  <sub>Thanks to</sub>  
+</p>
+
+<p align="center">
+  <a href="https://go.asgeirtj.workers.dev/latitude">
+    <img src="assets/latitude-dark.png" alt="Latitude Logo" width="700"/>
+  </a>
+</p>
+
+<div align="center" markdown="1">
+
+### [Make your AI agents self-healing](https://go.asgeirtj.workers.dev/latitude)  
+[Open Source AI Monitoring](https://go.asgeirtj.workers.dev/latitude)
+
+</div>
+
+---
+
 > **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://wapo.st/49t4gSb) (May 11, 2026)
 > 
 > **CEPS' AI World** built a live data dashboard from this repo's files: [System prompts and what they tell us about the chat before the chat](https://aiworld.eu/story/system-prompts-and-what-they-tell-us-about-the-chat-before-the-chat)  (July 10, 2026)
-
 # System Prompts Leaks
 Leaked system prompts, captured verbatim — the hidden instructions and rules that ChatGPT, Claude, Gemini, Grok and every other AI chatbot receives before your first message.
 

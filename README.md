@@ -332,9 +332,9 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 <a href="https://www.star-history.com/?repos=asgeirtj%2Fsystem_prompts_leaks&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&theme=dark&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&theme=dark&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
  </picture>
 </a>
 

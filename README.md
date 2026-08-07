@@ -10,8 +10,8 @@
 
 <div align="center" markdown="1">
 
-### [Make your AI agents self-healing](https://go.asgeirtj.workers.dev/latitude)  
-[Open Source AI Monitoring](https://go.asgeirtj.workers.dev/latitude)
+### [Open Source Agent Analytics](https://go.asgeirtj.workers.dev/latitude)  
+[Make your agents self healing](https://go.asgeirtj.workers.dev/latitude)
 
 </div>
 

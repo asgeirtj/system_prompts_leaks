@@ -11,7 +11,7 @@
 <div align="center" markdown="1">
 
 ### [Open Source Agent Analytics](https://go.asgeirtj.workers.dev/latitude)  
-[Make your agents self healing](https://go.asgeirtj.workers.dev/latitude)
+[Understand your agents in production](https://go.asgeirtj.workers.dev/latitude)
 
 </div>
 

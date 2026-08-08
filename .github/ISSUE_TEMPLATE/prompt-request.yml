@@ -1,0 +1,22 @@
+name: Prompt request
+about: Request a new system prompt or agent prompt to add to the archive
+description: Use this template when you want to request a prompt capture.
+title: "[Prompt request] "
+labels: [enhancement]
+body:
+  - type: input
+    id: product
+    attributes:
+      label: Product or model
+      description: Which AI product or model should be added?
+      placeholder: e.g. Claude Code, Gemini CLI, Grok Build
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Share any relevant details, links, or notes.
+      placeholder: Paste any known prompt text, source, or notes.
+    validations:
+      required: false

@@ -1,27 +1,32 @@
 # Contributing
 
-Thanks for helping grow this collection! Here's how to contribute.
+Thanks for helping grow this collection. The repository is designed to stay useful, searchable, and easy to maintain.
 
-## Adding a system prompt
+## How to contribute
 
-1. Fork this repo on GitHub.
-
+1. Fork this repository on GitHub.
 2. Clone your fork locally.
-
-3. Pick the right folder:
-   - `Anthropic/` — Claude models
-   - `OpenAI/` — ChatGPT, GPT, o-series, Codex
-   - `Google/` — Gemini models
-   - `xAI/` — Grok models
-   - `Perplexity/` — Perplexity models
-   - `Misc/` — everything else
-
-4. Create a `.md` file with a descriptive name matching the model or product.
-
-5. Paste the raw system prompt as-is. Don't summarize or paraphrase — the full, unedited text is the point.
-
-6. Commit, push to your fork, and open a PR back to this repo.
+3. Choose the correct folder for the prompt:
+   - `Anthropic/` — Claude models and integrations
+   - `OpenAI/` — ChatGPT, GPT, o-series, and Codex
+   - `Google/` — Gemini models and tools
+   - `xAI/` — Grok prompts and variants
+   - `Perplexity/` — Perplexity products
+   - `Misc/` — other agentic or AI-native tools
+4. Create a descriptive `.md` file matching the product or model.
+5. Paste the system prompt as-is. The value of this archive comes from preserving the original wording.
+6. Update the index in [README.md](../README.md) if needed.
+7. Commit your changes, push to your fork, and open a pull request.
 
 ## Requesting a prompt
 
-Don't have the prompt yourself? [Open an issue](https://github.com/asgeirtj/system_prompts_leaks/issues) with the model or product name and we'll try to track it down.
+If you do not have the prompt yourself, [open an issue](https://github.com/asgeirtj/system_prompts_leaks/issues) with the product or model name and any context you can share.
+
+## GitHub workflow improvements
+
+This repository now includes:
+- issue templates for prompt requests
+- a pull request template
+- a security policy
+- a link-validation workflow for markdown files
+- CODEOWNERS for repository ownership

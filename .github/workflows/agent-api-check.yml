@@ -1,0 +1,29 @@
+name: Agent API check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  agent-api-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check API connection readiness
+        run: python scripts/agent_api_connector.py --format md --output AGENT_API_STATUS.md
+
+      - name: Upload API status artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-api-status
+          path: AGENT_API_STATUS.md

@@ -28,11 +28,13 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 |-------|--------------------|--------|
 | **Claude Sonnet 5** | July 1, 2026 | Absent from the page as of August 17, 2026 |
 
-## Publication lag
+## Publication timing
 
-Anthropic dates each entry to the model's release day, but the entries appear on the page days later (verified by continuous page monitoring):
+Anthropic dates each entry to the model's release day. Continuous page monitoring (since May 2026) tracks when entries actually appear:
 
 - **Claude Opus 4.8** — entry labeled May 28, 2026; actually published June 4, 2026 (7 days after release)
 - **Claude Fable 5** — entry labeled June 9, 2026; actually published overnight June 12–13, 2026 (3–4 days after release)
-- **Claude Opus 5** — entry labeled July 24, 2026; published July 24, 2026 (same day as release, no lag)
+- **Claude Opus 5** — entry labeled July 24, 2026; published July 24, 2026 (same day)
 - **Claude Sonnet 5** — nothing published 47+ days after release
+
+Entries older than the monitoring have unknown actual publication dates.

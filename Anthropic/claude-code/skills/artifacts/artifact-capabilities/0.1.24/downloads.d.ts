@@ -17,7 +17,11 @@ declare namespace Claude {
     /**
      * Stable error codes; treat unknown codes as `"unavailable"`.
      * - `rejected_extension` — extension missing or outside the allowlist
-     *   (`gif png jpg jpeg webp mp4 webm txt json md`).
+     *   (`gif png jpg jpeg webp mp4 webm txt json md`, plus the extended set
+     *   below when enabled).
+     * - `extension_not_enabled` — the extension is in the extended set
+     *   (`docx pptx epub csv ttf html svg`) but extended types are not
+     *   enabled for this view; offer a base-set format instead.
      * - `too_large` — over 16 MiB.
      * - `declined` — the viewer said no (or let the prompt expire);
      *   never auto-retry.
@@ -32,6 +36,7 @@ declare namespace Claude {
      */
     type DownloadsErrorCode =
       | "rejected_extension"
+      | "extension_not_enabled"
       | "too_large"
       | "declined"
       | "rate_limited"

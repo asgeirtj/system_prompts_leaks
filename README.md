@@ -39,6 +39,9 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |
+| **Claude Cowork (new capture + setup skills)** | August 17, 2026 | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [setup skills](Anthropic/claude-cowork) |
+| **Claude Science** | August 14, 2026 | [Claude Science system prompt](Anthropic/claude-science.md) |
 | **Codex GPT-5.6 (Sol variant)** | July 26, 2026 | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) · [Sol](OpenAI/Codex/gpt-5.6-sol.md) |
 | **Grok 4.5** | July 26, 2026 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
 | **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
@@ -90,7 +93,8 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Product | Prompt |
 |---------|--------|
 | **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design.md) · [skills](Anthropic/claude-design/Skills) · [starter components](Anthropic/claude-design/Starter%20components) |
-| **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) |
+| **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |
+| **Claude Science** | [Claude Science system prompt](Anthropic/claude-science.md) |
 | Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-word.md) · [Claude in PowerPoint](Anthropic/claude-in-powerpoint.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |
 | Claude iOS app | [Claude mobile iOS system prompt](Anthropic/claude-mobile-ios.md) |
@@ -233,6 +237,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Product | Prompt |
 |---------|--------|
 | Meta AI | [Meta AI Muse Spark system prompt](Meta/meta-spark.md) · [Muse Spark 1.1](Meta/muse-spark-1.1.md) |
+| **Muse Code** | [Muse Code system prompt](Meta/muse-code.md) |
 
 ## Mistral system prompts
 

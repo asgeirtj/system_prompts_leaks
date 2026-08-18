@@ -23,11 +23,7 @@
 # System Prompts Leaks
 Leaked system prompts, captured verbatim — the hidden instructions and rules that ChatGPT, Claude, Gemini, Grok and every other AI chatbot receives before your first message.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/banner-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset=".github/banner-light.png">
-  <img alt="ChatGPT leaking its system prompt after being asked to repeat all of the above" src=".github/banner-light.png">
-</picture>
+
 
 ![Last Commit](https://img.shields.io/github/last-commit/asgeirtj/system_prompts_leaks?style=flat)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](http://makeapullrequest.com)
@@ -35,10 +31,11 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 
 
-## Recently Updated
+## Newest System Prompts
 
 | What | Date | Link |
 |------|------|------|
+| **Gemini 4.7 Flash** | August 18, 2026 | [Gemini 4.7 Flash System Prompt](Google/gemini-4.7-flash.md) |
 | **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |
 | **Claude Cowork (new capture + setup skills)** | August 17, 2026 | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [setup skills](Anthropic/claude-cowork) |
 | **Claude Science** | August 14, 2026 | [Claude Science system prompt](Anthropic/claude-science.md) |
@@ -51,7 +48,6 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **OpenCode · Pi · CommandCode** | July 16, 2026 | [OpenCode system prompt](OpenCode/opencode.md) · [Pi system prompt](Pi/instructions.md) · [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
 | **Kimi K2.6** | July 14, 2026 | [Kimi K2.6 system prompt](Kimi/kimi-2.6.md) |
 | **Perplexity Deep Research** | July 14, 2026 | [Perplexity Deep Research system prompt](Perplexity/deep-research.md) |
-| **DeepSeek** | July 14, 2026 | [DeepSeek system prompt](DeepSeek/deepseek-chat.md) |
 | **ChatGPT 5.6** | July 10, 2026 | [ChatGPT 5.6 system prompt (Sol, extra high)](OpenAI/gpt-5.6-sol-extra-high.md) · [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
 
 
@@ -353,5 +349,3 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
   </picture>
  </a>
 </p>
-
-<img alt="Claude confirming an extracted system prompt is authentic" src="https://github.com/user-attachments/assets/444e3fcc-9374-4964-afd3-069222713dc0" />

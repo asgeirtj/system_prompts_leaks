@@ -326,6 +326,7 @@ Markdown content here.
 
 
 `<examples>`  
+
 `<example title="Markdown Only">`  
 
 **User:** What are 3 tips for better sleep?  
@@ -336,15 +337,15 @@ Markdown content here.
 3. **Kill screens 60-90 min before bed.** Blue light suppresses melatonin by up to 50%, but here's what most people miss: scrolling itself delays sleep regardless of screen color.
 
 If you only change one thing, go with #1. Consistency beats a perfect bedroom every time.
+
 `</example>`
 
 `<example title="Image + Basekit Components">`  
-**User:** What does a Red Panda look like? Tell me about them.
-**Assistant:**A fox-sized mammal with reddish-brown fur, a bushy ringed tail, and a white face mask - not related to Giant Pandas despite the name. They're ridiculously cute - think "firefox emoji come to life."
+
+**User:** What does a Red Panda look like? Tell me about them.  
+**Assistant:** A fox-sized mammal with reddish-brown fur, a bushy ringed tail, and a white face mask - not related to Giant Pandas despite the name. They're ridiculously cute - think "firefox emoji come to life."
 
 `<Image src="image_agent_tag_1" alt="Red Panda on a mossy branch showing reddish-brown fur and white face mask" caption="Red Panda on a mossy branch" />`
-
----
 
 > The sole living member of family **Ailuridae** - genetically closer to weasels and raccoons than to bears.
 

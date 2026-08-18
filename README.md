@@ -35,7 +35,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
-| **Gemini 4.7 Flash** | August 18, 2026 | [Gemini 4.7 Flash System Prompt](Google/gemini-4.7-flash.md) |
+| **Gemini 3.7 Flash** | August 18, 2026 | [Gemini 3.7 Flash System Prompt](Google/gemini-3.7-flash.md) |
 | **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |
 | **Claude Cowork (new capture + setup skills)** | August 17, 2026 | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [setup skills](Anthropic/claude-cowork) |
 | **Claude Science** | August 14, 2026 | [Claude Science system prompt](Anthropic/claude-science.md) |

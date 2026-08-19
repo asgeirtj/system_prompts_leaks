@@ -1,6 +1,6 @@
----  
-name: code-walkthrough  
-description: Generate an interactive walkthrough artifact explaining code in this project — expandable sections, annotated snippets, and "why this matters" callouts, pitched at someone seeing the code for the first time.  
+---
+name: code-walkthrough
+description: Generate an interactive walkthrough artifact explaining code in this project — expandable sections, annotated snippets, and "why this matters" callouts, pitched at someone seeing the code for the first time.
 ---
 
 No target was given. Ask the user which file, directory, or PR they want explained — one short question — and stop until they answer.

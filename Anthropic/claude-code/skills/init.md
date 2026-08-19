@@ -1,3 +1,8 @@
+---
+name: init
+description: Initialize a new CLAUDE.md file with codebase documentation
+---
+
 Please analyze this codebase and create a CLAUDE.md file, which will be given to future instances of Claude Code to operate in this repository.
 
 What to add:

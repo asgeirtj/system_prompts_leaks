@@ -1,6 +1,6 @@
----  
-name: pr-explainer  
-description: Generate a shareable walkthrough artifact for a pull request — what changed, why, and a reviewer-oriented before/after narrative.  
+---
+name: pr-explainer
+description: Generate a shareable walkthrough artifact for a pull request — what changed, why, and a reviewer-oriented before/after narrative.
 ---
 
 No PR number was given — explain the current branch's pending PR:

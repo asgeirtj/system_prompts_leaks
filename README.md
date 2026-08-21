@@ -31,10 +31,11 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 
 
-## Newest System Prompts
+## Most recent additions/changes
 
 | What | Date | Link |
 |------|------|------|
+| **Grok Bot** | August 21, 2026 | [Grok Bot System Prompt](xAI/grok-bot.md) |
 | **Gemini 3.7 Flash** | August 18, 2026 | [Gemini 3.7 Flash System Prompt](Google/gemini-3.7-flash.md) |
 | **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |
 | **Claude Cowork (new capture + setup skills)** | August 17, 2026 | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [setup skills](Anthropic/claude-cowork) |

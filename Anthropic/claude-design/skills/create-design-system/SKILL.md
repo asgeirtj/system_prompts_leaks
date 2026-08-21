@@ -62,7 +62,7 @@ Starting points
 - Consuming projects show a "Starting Points" picker that lets users seed a new design with a component or screen from this system. Entries are opt-in via a tag — separate from `@dsCard` (which populates the Design System tab).
 - To mark a component: add `@startingPoint section="<group>" subtitle="<one line>" viewport="<WxH>"` to the JSDoc on its `<Name>.d.ts` props interface. The picker thumbnail is that directory's `@dsCard`-tagged HTML, so make sure it renders sensibly at the declared viewport.
 - To mark a screen: add `<!-- @startingPoint section="<group>" subtitle="<one line>" viewport="<WxH>" -->` as the first line of the HTML file. The screen itself is the thumbnail.
-- When the user says "create a starting point <X>" (or "add <X> as a starting point"), write an HTML file with the `<!-- @startingPoint section="…" -->` comment as its first line — any `.html` in the project with that tag is indexed. `ui_kits/<x>/index.html` is the conventional home but not required.
+- When the user says "create a starting point `<X>`" (or "add `<X>` as a starting point"), write an HTML file with the `<!-- @startingPoint section="…" -->` comment as its first line — any `.html` in the project with that tag is indexed. `ui_kits/<x>/index.html` is the conventional home but not required.
 - When the user asks to remove or retitle a starting point, edit the tag. When they ask to change a thumbnail, edit the `@dsCard`-tagged HTML in that component's directory (component) or the screen HTML itself.
 
 UI kit details:
@@ -89,6 +89,7 @@ SKILL.md
 - When you are done, we should make this file cross-compatible with Agent SKills in case the user wants to download it and use it in Claude Code.
 - Create a SKILL.md file like this:
 
+```
 <skill-md>
 ---
 name: {brand}-design
@@ -100,5 +101,5 @@ Read the README.md file within this skill, and explore the other available files
 If creating visual artifacts (slides, mocks, throwaway prototypes, etc), copy assets out and create static HTML files for the user to view. If working on production code, you can copy assets and read the rules here to become an expert in designing with this brand.
 If the user invokes this skill without any other guidance, ask them what they want to build or design, ask some questions, and act as an expert designer who outputs HTML artifacts _or_ production code, depending on the need.
 </skill-md>
-
+```
 Additionally, remind the user they need to set the File type to Design System in the Share menu so that others in their org can view this design system.

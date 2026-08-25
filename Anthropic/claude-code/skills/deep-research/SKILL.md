@@ -2,6 +2,7 @@
 name: deep-research
 description: Deep research harness — fan-out web searches, fetch sources, adversarially verify claims, synthesize a cited report.
 when_to_use: When the user wants a deep, multi-source, fact-checked research report on any topic. BEFORE invoking, check if the question is specific enough to research directly — if underspecified (e.g., "what car to buy" without budget/use-case/region), ask 2-3 clarifying questions to narrow scope. Then pass the refined question as args, weaving the answers in.
+disable-model-invocation: true
 ---
 
 Run the "deep-research" workflow.

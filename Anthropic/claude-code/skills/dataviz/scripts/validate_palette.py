@@ -3,18 +3,18 @@
 Validate a categorical chart palette against the computable data-viz checks.
 
 Design-system-agnostic: feed it ANY palette's hex values plus the mode and
-surface, and it computes — never eyeballs —
+surface, and it computes \u2014 never eyeballs \u2014
 the five checks that can be measured from color alone:
 
-  2. Lightness band   — OKLCH L within the mode's band
-  3. Chroma floor     — OKLCH C >= floor (below it a hue reads as gray)
-  4. CVD separation   — OKLab ΔE (×100) between slots under simulated protan/deutan
+  2. Lightness band   \u2014 OKLCH L within the mode's band
+  3. Chroma floor     \u2014 OKLCH C >= floor (below it a hue reads as gray)
+  4. CVD separation   \u2014 OKLab \u0394E (×100) between slots under simulated protan/deutan
                         (tritan reported); adjacent pairs by default, --pairs all
                         for scatter/bubble/maps
-  4b. Normal-vision floor — worst OKLab ΔE (×100) on the active pairlist
+  4b. Normal-vision floor \u2014 worst OKLab \u0394E (×100) on the active pairlist
       (adjacent by default; all pairs with --pairs all) under unsimulated vision;
                         full-color readers must be able to tell neighbors apart too
-  5. Contrast vs surface — WCAG ratio of each mark against the chart surface
+  5. Contrast vs surface \u2014 WCAG ratio of each mark against the chart surface
 
 Checks 1 (fixed hue order) and 6 (values resolve to real ramp steps) are
 structural rules the skill enforces, not measurable from hexes alone.
@@ -24,22 +24,22 @@ Usage:
   python validate_palette.py "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
 
 Exit code 0 unless a check hard-FAILs; 1 on any FAIL. WARN bands do not fail:
-adjacent CVD in the 6–8 floor band, and contrast in the sub-3:1 relief band, are
+adjacent CVD in the 6\u20138 floor band, and contrast in the sub-3:1 relief band, are
 reported as WARNs and still exit 0 (each is legal only with mandatory secondary
 encoding: direct labels, gaps, or texture). The normal-vision floor is a hard
 gate: a worst unsimulated pair below 15 FAILs the run.
 """
 import sys, math, json, argparse, re
 
-# ── thresholds ────────────────────────────────────────────────────────────────
+# -- thresholds ----------------------------------------------------------------
 BAND = {"light": (0.43, 0.77), "dark": (0.48, 0.67)}   # OKLCH L
 CHROMA_FLOOR = 0.10                                     # OKLCH C
-# ΔE is Euclidean distance in OKLab ×100. The CVD thresholds are calibrated to
-# the Machado-Oliveira-Fernandes (2009) severity-1.0 simulation below — the sim
+# Delta E is Euclidean distance in OKLab ×100. The CVD thresholds are calibrated to
+# the Machado-Oliveira-Fernandes (2009) severity-1.0 simulation below - the sim
 # model is part of the standard, not an implementation detail (swapping in e.g.
 # Viénot-1999 moves borderline pairs and would require recalibrating these).
-CVD_TARGET, CVD_FLOOR = 8.0, 6.0                        # OKLab ΔE×100, min(protan, deutan), adjacent pairs
-NORMAL_FLOOR = 15.0                                     # OKLab ΔE×100, worst pair on the active pairlist, unsimulated vision
+CVD_TARGET, CVD_FLOOR = 8.0, 6.0                        # OKLab Delta E×100, min(protan, deutan), adjacent pairs
+NORMAL_FLOOR = 15.0                                     # OKLab Delta E×100, worst pair on the active pairlist, unsimulated vision
 CONTRAST_MIN = 3.0                                      # WCAG vs surface
 DEFAULT_SURFACE = {"light": "#fcfcfb", "dark": "#1a1a19"}
 
@@ -55,17 +55,17 @@ MACHADO = {
                [-0.078411, 0.930809, 0.147602],
                [0.004733, 0.691367, 0.303900]]}
 
-# ── color conversions ──────────────────────────────────────────────────────────
+# -- color conversions ----------------------------------------------------------
 def hex2srgb(h):
     h = h.strip().lstrip("#")
     return tuple(int(h[i:i+2], 16) / 255 for i in (0, 2, 4))
 
-# ── input boundary ── EVERY user-supplied color string (palette entries AND
+# -- input boundary -- EVERY user-supplied color string (palette entries AND
 # the surface) passes these before any math: unguarded, malformed input
 # either raises or fails OPEN. Normalization is spelled out rather than
 # engine-native: JS trim() and Python str.strip() differ at the edges
 # (trim() strips U+FEFF; str.strip() strips U+001C-U+001F and U+0085), so
-# the shared set is their intersection — ASCII whitespace plus the Unicode
+# the shared set is their intersection - ASCII whitespace plus the Unicode
 # space/separator characters both engines strip, which also covers the
 # NBSP/em-space padding picked up when copy-pasting hex lists from rendered
 # pages. Keep these three definitions in lockstep with the JS twin.
@@ -125,7 +125,7 @@ def simulate(h, kind):
     return (max(0.0, min(1.0, sr)), max(0.0, min(1.0, sg)), max(0.0, min(1.0, sb)))
 
 def deltaE(h1, h2, kind=None):
-    # Euclidean distance in OKLab, ×100. kind=None → unsimulated (normal) vision.
+    # Euclidean distance in OKLab, ×100. kind=None -> unsimulated (normal) vision.
     a = lin2oklab(*(simulate(h1, kind) if kind else lin(h1)))
     b = lin2oklab(*(simulate(h2, kind) if kind else lin(h2)))
     return 100 * math.dist(a, b)
@@ -133,11 +133,11 @@ def deltaE(h1, h2, kind=None):
 def _jn(v):
     # JSON-number parity with the JS twin: +x.toFixed(n) serializes an
     # integral value as 1, but Python's round() keeps it a float and
-    # json.dumps prints 1.0 — normalize so the twins' output stays
+    # json.dumps prints 1.0 - normalize so the twins' output stays
     # byte-identical on integral values (e.g. #ffffff's L of 1).
     return int(v) if isinstance(v, float) and v.is_integer() else v
 
-# ── checks ──────────────────────────────────────────────────────────────────────
+# -- checks ----------------------------------------------------------------------
 def validate(palette, mode, surface, pairs="adjacent"):
     lo, hi = BAND[mode]
     report, ok = [], True
@@ -146,7 +146,7 @@ def validate(palette, mode, surface, pairs="adjacent"):
     offband = [(c, _jn(round(oklch(c)[0], 3))) for c in palette if not (lo <= oklch(c)[0] <= hi)]
     if offband: ok = False
     report.append(("Lightness band", not offband,
-                   f"all {len(palette)} inside L {lo}–{hi}" if not offband
+                   f"all {len(palette)} inside L {lo}\u2013{hi}" if not offband
                    else f"outside band: {json.dumps(offband, separators=(',', ':'))}"))
 
     # 3. chroma floor
@@ -175,11 +175,11 @@ def validate(palette, mode, surface, pairs="adjacent"):
     cvd_state = "pass" if wd >= CVD_TARGET else ("floor" if wd >= CVD_FLOOR else "fail")
     if cvd_state == "fail": ok = False
     report.append(("CVD separation", cvd_state,
-                   f"worst {label} {worst[3]}↔{worst[2]} ΔE {wd:.1f} ({worst[1]}) · "
+                   f"worst {label} {worst[3]}\u2194{worst[2]} \u0394E {wd:.1f} ({worst[1]}) · "
                    f"tritan {tri:.1f}" if worst else "n/a"))
 
     # 4b. Normal-vision floor. The CVD gate protects dichromat readers; this one
-    #     protects everyone else — neighbors must stay easy to tell apart under
+    #     protects everyone else - neighbors must stay easy to tell apart under
     #     unsimulated vision too. A hard gate: secondary encoding does not
     #     excuse it, and weak pairs are not masked to keep an existing palette
     #     validating (this floor forced the first of the July 2026 re-orders
@@ -193,9 +193,9 @@ def validate(palette, mode, surface, pairs="adjacent"):
     nor_state = "pass" if nd >= NORMAL_FLOOR else "fail"
     if nor_state == "fail": ok = False
     report.append(("Normal-vision floor", nor_state,
-                   f"worst {label} {nworst[2]}↔{nworst[1]} ΔE {nd:.1f} (normal)"
+                   f"worst {label} {nworst[2]}\u2194{nworst[1]} \u0394E {nd:.1f} (normal)"
                    + ("" if nd >= NORMAL_FLOOR else
-                      f" — below {NORMAL_FLOOR:.0f}, hard to tell apart even with full color vision")
+                      f" \u2014 below {NORMAL_FLOOR:.0f}, hard to tell apart even with full color vision")
                    if nworst else "n/a"))
 
     # 5. contrast vs surface
@@ -203,12 +203,12 @@ def validate(palette, mode, surface, pairs="adjacent"):
     # contrast below 3:1 is a documented conditional relax (visible labels / table view), not a hard fail
     report.append(("Contrast vs surface", "pass" if not low else "relief",
                    f"all {len(palette)} >= {CONTRAST_MIN:g}:1" if not low
-                   else f"below {CONTRAST_MIN:g}:1 — relief required (visible labels or table view): {json.dumps(low, separators=(',', ':'))}"))
+                   else f"below {CONTRAST_MIN:g}:1 \u2014 relief required (visible labels or table view): {json.dumps(low, separators=(',', ':'))}"))
     return report, ok
 
 
-# ── ordinal ramp ──────────────────────────────────────────────────────────────
-ORDINAL_MIN_DL = 0.06          # min OKLCH ΔL between adjacent steps
+# -- ordinal ramp --------------------------------------------------------------
+ORDINAL_MIN_DL = 0.06          # min OKLCH delta L between adjacent steps
 ORDINAL_LIGHT_FLOOR = 2.0      # lightest step: WCAG contrast vs surface
 
 def validate_ordinal(palette, mode, surface):
@@ -221,31 +221,31 @@ def validate_ordinal(palette, mode, surface):
     report, ok = [], True
     Ls = [oklch(c)[0] for c in palette]
 
-    # Monotone lightness — sorted by L must match input order (or its reverse).
+    # Monotone lightness - sorted by L must match input order (or its reverse).
     order = sorted(range(len(Ls)), key=Ls.__getitem__)
     mono = order == list(range(len(Ls))) or order == list(range(len(Ls)))[::-1]
     if not mono: ok = False
     report.append(("Lightness monotone", mono,
-                   "steps read light→dark" if mono
-                   else f"out of order — L values {json.dumps([_jn(round(l,3)) for l in Ls], separators=(',', ':'))}"))
+                   "steps read light\u2192dark" if mono
+                   else f"out of order \u2014 L values {json.dumps([_jn(round(l,3)) for l in Ls], separators=(',', ':'))}"))
 
-    # Adjacent ΔL — each step must be visibly distinct from its neighbour.
+    # Adjacent delta L - each step must be visibly distinct from its neighbour.
     gaps = [abs(Ls[i+1] - Ls[i]) for i in range(len(Ls)-1)]
     thin = [(palette[i], palette[i+1], _jn(round(g,3))) for i, g in enumerate(gaps) if g < ORDINAL_MIN_DL]
     if thin: ok = False
-    report.append(("Adjacent ΔL", not thin,
+    report.append(("Adjacent \u0394L", not thin,
                    f"all gaps >= {ORDINAL_MIN_DL}" if not thin
                    else f"steps too close: {json.dumps(thin, separators=(',', ':'))}"))
 
-    # Lightest step vs surface — the pale end must still read as a mark.
+    # Lightest step vs surface - the pale end must still read as a mark.
     lightest = max(palette, key=lambda c: oklch(c)[0]) if mode == "light" else min(palette, key=lambda c: oklch(c)[0])
     cr = contrast(lightest, surface)
     if cr < ORDINAL_LIGHT_FLOOR: ok = False
     report.append(("Light-end contrast", cr >= ORDINAL_LIGHT_FLOOR,
                    f"{lightest} at {cr:.2f}:1 vs surface"
-                   + ("" if cr >= ORDINAL_LIGHT_FLOOR else f" — below {ORDINAL_LIGHT_FLOOR:g}:1 floor")))
+                   + ("" if cr >= ORDINAL_LIGHT_FLOOR else f" \u2014 below {ORDINAL_LIGHT_FLOOR:g}:1 floor")))
 
-    # Single hue — an ordinal ramp is one hue; a hue jump means it's categorical.
+    # Single hue - an ordinal ramp is one hue; a hue jump means it's categorical.
     hues = []
     for c in palette:
         _, a, bb = lin2oklab(*lin(c))
@@ -255,7 +255,7 @@ def validate_ordinal(palette, mode, surface):
     one_hue = spread <= 40
     if not one_hue: ok = False
     report.append(("Single hue", one_hue,
-                   f"hue spread {spread:.0f}°" + ("" if one_hue else " — >40°, not a one-hue ramp")))
+                   f"hue spread {spread:.0f}°" + ("" if one_hue else " \u2014 >40°, not a one-hue ramp")))
     return report, ok
 
 def main():
@@ -267,7 +267,7 @@ def main():
                     help="adjacent: stacks/bars/lines (default). all: scatter/bubble/maps/"
                          "small-multiples, where any two marks can sit side by side.")
     ap.add_argument("--ordinal", action="store_true",
-                    help="ordered categories (funnel, tiers, buckets) — validate as a "
+                    help="ordered categories (funnel, tiers, buckets) \u2014 validate as a "
                          "one-hue ramp instead of the categorical checks.")
     a = ap.parse_args()
     palette = split_colors(a.palette)
@@ -280,7 +280,7 @@ def main():
     surface = raw_surface or DEFAULT_SURFACE[a.mode]
     bad_hex = [c for c in [*palette, surface] if not is_hex_color(c)]
     if bad_hex:
-        print(f"invalid hex value(s): {', '.join(bad_hex)} — expected #rrggbb", file=sys.stderr)
+        print(f"invalid hex value(s): {', '.join(bad_hex)} \u2014 expected #rrggbb", file=sys.stderr)
         sys.exit(2)
 
     report, ok = (validate_ordinal(palette, a.mode, surface) if a.ordinal
@@ -290,12 +290,13 @@ def main():
     print(f"\nPalette ({a.mode}, surface {surface}, {kind}): {len(palette)} slots")
     for name, state, detail in report:
         print(f"  [{glyph[state]:4}] {name:22} {detail}")
+    verdict = "ALL CHECKS PASS" if ok else "FAILED \u2014 fix the marked checks"
     if a.ordinal:
-        print(f"\n  → {'ALL CHECKS PASS' if ok else 'FAILED — fix the marked checks'}"
+        print(f"\n  \u2192 {verdict}"
               "  (ordinal: one hue, monotone L, visible step gaps, light end clears surface)")
     else:
-        print(f"\n  → {'ALL CHECKS PASS' if ok else 'FAILED — fix the marked checks'}"
-              "  (CVD in the 6–8 floor band is legal ONLY with secondary encoding:"
+        print(f"\n  \u2192 {verdict}"
+              "  (CVD in the 6\u20138 floor band is legal ONLY with secondary encoding:"
               " direct labels, gaps, or texture)")
         print("  scope: categorical palettes only. For a lone status/text color check WCAG"
               " text contrast; for a sequential ramp, lightness monotonicity.\n")

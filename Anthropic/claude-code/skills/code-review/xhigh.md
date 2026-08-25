@@ -18,7 +18,7 @@ review that target instead. Treat this diff as the review scope.
 Run **10 independent finder angles** via the Agent tool. Each
 surfaces **up to 8 candidate findings**. Do NOT let one angle's conclusions
 suppress another's — if two angles flag the same line for different reasons,
-record both.
+record both. If the Agent tool is not available in your current tool set, do not error — perform each angle (and each verification) yourself, sequentially, in this context.
 
 ### Angle A — line-by-line diff scan
 
@@ -156,4 +156,6 @@ Return findings as a JSON array of at most 15 objects:
 ```
 
 Ranked most-severe first. If more than 15 survive, keep the 15 most
-severe. If nothing survives verification, return `[]`.
+severe. If nothing survives verification, return `[]`. Do not call the
+ReportFindings tool even if it is available - this review's
+output contract is the JSON block above.

@@ -9,10 +9,10 @@ useless to an agent.
 
 A good server run skill has:
 
-1. **Prerequisites & setup** — same as any project.
-2. **Run** — the background-launch pattern (below), not a blocking command.
-3. **Verify** — a `curl` or similar that confirms the server is actually up.
-4. **Stop** — how to cleanly terminate the background process.
+1. **Prerequisites & setup** - same as any project.
+2. **Run** - the background-launch pattern (below), not a blocking command.
+3. **Verify** - a `curl` or similar that confirms the server is actually up.
+4. **Stop** - how to cleanly terminate the background process.
 
 If the background-launch + readiness-poll + smoke-curl sequence is more
 than a couple of lines, put it in a `smoke.sh` inside the skill directory
@@ -45,22 +45,27 @@ Then the verification step:
 
 > ```bash
 > curl http://localhost:3000/health
-> # → {"status":"ok"}
+> # -> {"status":"ok"}
 > ```
 
 And stopping:
 
 > ```bash
 > kill $SERVER_PID
-> # or, if you've lost the PID:
-> pkill -f "node.*server.js"
+> # $! is the npm wrapper's PID and npm doesn't forward SIGTERM to the
+> # server it spawned - killing the port's listener is what reliably frees it:
+> lsof -ti:3000 -sTCP:LISTEN | xargs -r kill
 > ```
+
+Prefer the captured PID or the port over `pkill -f "<pattern>"`. Broad
+patterns like `pkill -f "next|vite|node"` match the agent's own command
+line and can kill the session that ran them.
 
 ## Details worth documenting
 
 - **Which port.** Make it explicit and say how to override it (`PORT=4000 npm start`).
 - **What "ready" looks like.** A specific log line or a health endpoint to hit.
-- **Required env vars.** Database URL, API keys, etc. — with a template `.env`
+- **Required env vars.** Database URL, API keys, etc. - with a template `.env`
   if the list is long.
 - **Hot reload vs production mode.** If they differ meaningfully, say which
   to use and when.
@@ -88,19 +93,21 @@ Here's what a Run section for a typical Node API might look like:
 >   sleep 0.5
 > done
 > curl http://localhost:3000/health
-> # → {"status":"ok","version":"1.2.3"}
+> # -> {"status":"ok","version":"1.2.3"}
 > ```
 >
-> Logs are at `/tmp/api.log`. Stop with:
+> Logs are at `/tmp/api.log`. Stop by killing the port's listener (`$!`
+> after `npm run dev &` is the npm wrapper, and npm doesn't forward
+> SIGTERM to the server it spawned):
 >
 > ```bash
-> pkill -f "tsx watch src/index.ts"
+> lsof -ti:3000 -sTCP:LISTEN | xargs -r kill
 > ```
 >
 > ### Environment
 >
 > | Variable | Required | Default | Notes |
 > |---|---|---|---|
-> | `DATABASE_URL` | Yes | — | Postgres connection string |
+> | `DATABASE_URL` | Yes | - | Postgres connection string |
 > | `PORT` | No | `3000` | |
 > | `LOG_LEVEL` | No | `info` | `debug` / `info` / `warn` / `error` |

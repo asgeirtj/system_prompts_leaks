@@ -41,9 +41,19 @@ Report code-review findings as a typed list so the host UI can render them. Use 
             "description": "One-sentence statement of the defect",
             "type": "string"
           },
+          "short_summary": {
+            "description": "Compressed label for compact UI (≤60 chars): the claim alone, no rationale or consequence clause",
+            "type": "string",
+            "maxLength": 60
+          },
           "failure_scenario": {
             "description": "Concrete inputs/state → wrong output/crash",
             "type": "string"
+          },
+          "category": {
+            "description": "Short kebab-case slug of the finding type, e.g. \"correctness\", \"simplification\", \"efficiency\", \"test-coverage\"",
+            "type": "string",
+            "maxLength": 40
           },
           "verdict": {
             "description": "Set when a verify pass ran; absent on inline-only reviews",

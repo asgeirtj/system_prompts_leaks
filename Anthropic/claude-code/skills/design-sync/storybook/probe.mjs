@@ -1,15 +1,15 @@
 // One chromium page visit against the reference storybook-static: fiber-walk
 // provider detection. Fallback diagnostic for when
 // the .storybook/preview decorator bundle fails (or doesn't exist) and
-// previews show context/provider errors — it infers the provider chain the
+// previews show context/provider errors - it infers the provider chain the
 // repo's own storybook wraps stories in, as a cfg.provider suggestion.
-// Provider match is name-based (displayName/name) — the storybook page's
+// Provider match is name-based (displayName/name) - the storybook page's
 // React is a separate bundled copy, so identity-matching against our
 // _ds_bundle.js wouldn't work.
 //
 // Standalone usage (prints a cfg.provider suggestion as JSON on stdout):
 //   node storybook/probe.mjs --storybook-static .design-sync/sb-reference \
-//     [--story-id <id>] [--names Button,ThemeProvider,…]
+//     [--story-id <id>] [--names Button,ThemeProvider,...]
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -17,13 +17,13 @@ import { pathToFileURL } from 'node:url';
 import { serveDir } from './http-serve.mjs';
 
 // Walk fibers from the story's leaf node upward, recording every named
-// component. `names` (when non-empty) filters to that set — pass the DS's
+// component. `names` (when non-empty) filters to that set - pass the DS's
 // exported names so story-internal wrappers don't pollute the chain; with no
 // filter, every PascalCase-named fiber is recorded (diagnostic mode).
 const FIBER_WALK_STORE = `((names) => {
   const set = new Set(names);
   const root = document.querySelector('#storybook-root') || document.querySelector('#root');
-  // Descend to the leaf, skipping injected metadata elements — CSS-in-JS
+  // Descend to the leaf, skipping injected metadata elements \u2014 CSS-in-JS
   // runtimes often put a <style>/<script> as the first child, which has no
   // fiber and would dead-end provider detection.
   const SKIP = /^(STYLE|SCRIPT|LINK|META|TEMPLATE)$/;
@@ -53,7 +53,7 @@ const RESOLVE_PROPS = `(() => {
   };
   // The chain runs outermost-first. Keep only the outermost component plus
   // any immediately-nested one whose name suggests it's part of the provider
-  // shell (Provider/Theme/Root/App) — layout components like Box/Grid deeper
+  // shell (Provider/Theme/Root/App) \u2014 layout components like Box/Grid deeper
   // in are story-specific, not provider.
   const chain = window.__dsChain || [];
   const shell = chain.slice(0, 1).concat(
@@ -70,13 +70,13 @@ const RESOLVE_PROPS = `(() => {
   });
 })`;
 
-// `sbStatic` is served directly — the reference storybook build, not an
+// `sbStatic` is served directly - the reference storybook build, not an
 // uploaded artifact.
 export async function probe({ sbStatic, firstStoryId, exportedNames = [] }) {
   let pw;
   try { pw = await import('playwright'); }
   catch {
-    console.error('[NO_CHROMIUM] provider detection skipped — set cfg.provider manually if the DS needs one');
+    console.error('[NO_CHROMIUM] provider detection skipped \u2014 set cfg.provider manually if the DS needs one');
     return { provider: null };
   }
   const { srv, port } = await serveDir(sbStatic);
@@ -88,7 +88,7 @@ export async function probe({ sbStatic, firstStoryId, exportedNames = [] }) {
     const page = await browser.newPage();
     await page.goto(`http://127.0.0.1:${port}/iframe.html?id=${encodeURIComponent(firstStoryId)}&viewMode=story`, { waitUntil: 'networkidle', timeout: 30_000 });
     // Storybook 7+ renders into #storybook-root; v6 into #root. Wait for
-    // CONTENT, not any child — CSS-in-JS runtimes inject <style> first and
+    // CONTENT, not any child - CSS-in-JS runtimes inject <style> first and
     // waitForSelector locks onto the first match.
     await page.waitForSelector(':is(#storybook-root, #root) > :not(style,script,link,meta,template)', { timeout: 10_000 }).catch(() => {});
     await page.evaluate(`(${FIBER_WALK_STORE})(${JSON.stringify(exportedNames)})`).catch(() => 0);
@@ -107,7 +107,7 @@ export async function probe({ sbStatic, firstStoryId, exportedNames = [] }) {
   }
 }
 
-// ── standalone CLI ─────────────────────────────────────────────────────────
+// -- standalone CLI ---------------------------------------------------------
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
   const argv = process.argv.slice(2);
   const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i < 0 ? d : argv[i + 1]; };
@@ -121,15 +121,15 @@ if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.m
     const idx = JSON.parse(readFileSync(join(sbStatic, 'index.json'), 'utf8'));
     storyId = Object.values(idx.entries ?? idx.stories ?? {}).find((e) => !e.type || e.type === 'story')?.id;
   }
-  if (!storyId) { console.error('no story entries in index.json — pass --story-id'); process.exit(2); }
+  if (!storyId) { console.error('no story entries in index.json \u2014 pass --story-id'); process.exit(2); }
   const names = (flag('names') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   const { provider } = await probe({ sbStatic, firstStoryId: storyId, exportedNames: names });
-  // The cfg.provider suggestion — paste into .design-sync/config.json after
+  // The cfg.provider suggestion - paste into .design-sync/config.json after
   // resolving each $hint: literals for small scalars; for data the repo
   // already owns (locale JSON, theme objects), prefer a 2-line module via
   // cfg.extraEntries referenced with {"$ref": "<export>"} (repo files need
   // an explicit ./ or ../ package-relative entry; bare names resolve from
-  // node_modules) — an inlined copy duplicates into every card and rots
+  // node_modules) - an inlined copy duplicates into every card and rots
   // when the source file changes, so anything sizable or evolving belongs
   // behind a $ref.
   console.log(JSON.stringify({ provider }, null, 2));

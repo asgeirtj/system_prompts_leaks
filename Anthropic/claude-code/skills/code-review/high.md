@@ -17,7 +17,7 @@ review that target instead. Treat this diff as the review scope.
 
 Run **8 independent finder angles** via the Agent tool. Each
 surfaces **up to 6 candidate findings** with `file`, `line`, a one-line
-`summary`, and a concrete `failure_scenario`.
+`summary`, and a concrete `failure_scenario`. If the Agent tool is not available in your current tool set, do not error — perform each angle (and each verification) yourself, sequentially, in this context.
 
 ### Angle A — line-by-line diff scan
 
@@ -131,4 +131,6 @@ Return findings as a JSON array of at most 10 objects:
 ```
 
 Ranked most-severe first. If more than 10 survive, keep the 10 most
-severe. If nothing survives verification, return `[]`.
+severe. If nothing survives verification, return `[]`. Do not call the
+ReportFindings tool even if it is available - this review's
+output contract is the JSON block above.

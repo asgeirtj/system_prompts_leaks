@@ -2,7 +2,7 @@
 
 Electron apps have a window. A future agent in a headless container
 can't see a window. So your deliverable here is not a markdown file
-that says "`npm start` opens a window" — it's a **driver script** that
+that says "`npm start` opens a window" - it's a **driver script** that
 launches the app under xvfb, exposes a REPL of commands (click, type,
 screenshot), and lets an agent poke the UI by sending lines of text.
 
@@ -13,8 +13,8 @@ The skill's `SKILL.md` then becomes a short manual for that driver.
 ```
 apps/desktop/
   .claude/skills/run-desktop/
-    SKILL.md               ← short. "run the driver, here are the commands"
-    driver.mjs             ← REPL: stdin commands → Playwright actions
+    SKILL.md               <- short. "run the driver, here are the commands"
+    driver.mjs             <- REPL: stdin commands -> Playwright actions
 ```
 
 The driver IS the product. Without it, the skill describes a GUI an
@@ -25,7 +25,7 @@ real e2e suite wants to share, move it to `e2e-playwright/driver.mjs`
 (or `scripts/drive.mjs`) and update the skill's paths. The skill stays
 at `.claude/skills/run-desktop/`; the driver finds a better home.
 
-## Step 1 — get the app to launch AT ALL under xvfb
+## Step 1 - get the app to launch AT ALL under xvfb
 
 This is usually the hardest part and produces most of the Gotchas. The
 README will say "macOS/Windows only." Ignore that. Install xvfb + the
@@ -39,7 +39,7 @@ apt-get install -y xvfb libnss3 libgbm1 libasound2t64 libgtk-3-0 \
 # does a Vite/webpack build THEN launches. You want just the build:
 npm install
 npx electron-forge start &   # builds .vite/build/ or dist/
-sleep 20 && kill %1          # kill it once built — you'll launch yourself
+sleep 20 && kill %1          # kill it once built - you'll launch yourself
 
 # Now try the raw launch
 xvfb-run -a node -e "
@@ -55,17 +55,17 @@ xvfb-run -a node -e "
 "
 ```
 
-Iterate until it launches. Each missing `.so` → one more `apt-get`
-package → one more line in Prerequisites. Each launch timeout → check
+Iterate until it launches. Each missing `.so` -> one more `apt-get`
+package -> one more line in Prerequisites. Each launch timeout -> check
 the `nodeCliInspect` fuse isn't disabled, check the build output exists.
 
 **`--no-sandbox` is almost always needed in containers.** Electron's
 sandbox needs CAP_SYS_ADMIN or user namespaces. Neither by default.
 
-## Step 2 — build the REPL driver
+## Step 2 - build the REPL driver
 
 Once you can launch it, turn that throwaway script into a REPL. Start
-minimal — you will add commands as you need them. **The REPL is the
+minimal - you will add commands as you need them. **The REPL is the
 right shape** because an agent can run it inside tmux and iterate
 without relaunching the (slow) app on every interaction.
 
@@ -98,11 +98,11 @@ const COMMANDS = {
       env: { ...process.env, DISPLAY: process.env.DISPLAY || ':99' },
       timeout: 30_000,
     });
-    // Electron has no clean "loaded" signal — this sleep is a blind guess.
+    // Electron has no clean "loaded" signal - this sleep is a blind guess.
     // Replace with a poll once you know what ready looks like for this app:
     // wait until windows() includes the expected URL, or waitForSelector on firstWindow().
     await new Promise(r => setTimeout(r, 8_000));
-    // Find the real UI page. Often NOT firstWindow() — may be a
+    // Find the real UI page. Often NOT firstWindow() - may be a
     // splash screen, or the real content is in a BrowserView overlay.
     page = app.windows().find(w => !w.url().startsWith('devtools://'))
         ?? await app.firstWindow();
@@ -127,7 +127,7 @@ const COMMANDS = {
       if (!el) return 'NOT_FOUND';
       el.click(); return 'OK';
     }, sel);
-    console.log('click', sel, '→', r);
+    console.log('click', sel, '->', r);
   },
 
   async 'click-text'(text) {
@@ -139,7 +139,7 @@ const COMMANDS = {
       if (!el) return 'NOT_FOUND';
       el.click(); return 'OK: ' + el.tagName;
     }, text);
-    console.log('click-text', JSON.stringify(text), '→', r);
+    console.log('click-text', JSON.stringify(text), '->', r);
   },
 
   async type(text)  { if (page) await page.keyboard.type(text, { delay: 30 }); },
@@ -179,7 +179,7 @@ const COMMANDS = {
   help() { console.log('commands:', Object.keys(COMMANDS).join(', ')); },
 };
 
-// Stop Electron from stealing stdin — use the raw fd.
+// Stop Electron from stealing stdin - use the raw fd.
 const stdin = fs.createReadStream(null, { fd: fs.openSync('/dev/stdin', 'r') });
 const rl = readline.createInterface({ input: stdin, output: process.stdout, prompt: 'driver> ' });
 
@@ -187,23 +187,23 @@ rl.on('line', async line => {
   const [cmd, ...rest] = line.trim().split(/\s+/);
   if (!cmd) return rl.prompt();
   const fn = COMMANDS[cmd];
-  if (!fn) { console.log('unknown:', cmd, '— try: help'); return rl.prompt(); }
+  if (!fn) { console.log('unknown:', cmd, ' - try: help'); return rl.prompt(); }
   try { await fn(rest.join(' ')); } catch (e) { console.log('ERROR:', e.message); }
   if (cmd === 'quit') { rl.close(); process.exit(0); }
   rl.prompt();
 });
 rl.on('close', async () => { await COMMANDS.quit(); process.exit(0); });
 
-console.log('<app> driver — "help" for commands, "launch" to start');
+console.log('<app> driver - "help" for commands, "launch" to start');
 rl.prompt();
 ```
 
 **This is a starting skeleton.** As you try to reach interesting parts
 of the app you'll add app-specific commands: navigate to a particular
 view, focus a weird input type, bypass an auth gate, whatever. Those
-commands encode hard-won knowledge — keep them.
+commands encode hard-won knowledge - keep them.
 
-## Step 3 — use it yourself, via tmux
+## Step 3 - use it yourself, via tmux
 
 Run the driver the same way the next agent will:
 
@@ -222,12 +222,12 @@ tmux capture-pane -t app -p
 Then actually open `/tmp/shots/01-landing.png`. Is it the app? Is it
 blank? Is it a login screen? Each of these tells you what to do next.
 
-Keep going — click into the main feature, fill a form, see the result
+Keep going - click into the main feature, fill a form, see the result
 show up, screenshot it. The driver grows whatever commands you need
-(`focus-input`, `goto-settings`, `login-as-test-user`…). When one real
+(`focus-input`, `goto-settings`, `login-as-test-user`...). When one real
 flow works end-to-end, you're done building and ready to write.
 
-## Step 4 — write SKILL.md
+## Step 4 - write SKILL.md
 
 Keep it short. The driver is the meat; `SKILL.md` is the manual.
 Structure that works:
@@ -240,7 +240,7 @@ Structure that works:
 > <App> is an Electron desktop app. For agent/automated use, drive it
 > via the Playwright REPL at `.claude/skills/run-desktop/driver.mjs`
 > under xvfb. Launch is slow (~10s) and the interesting UI lives in a
-> BrowserView, not the main window — the driver handles both.
+> BrowserView, not the main window - the driver handles both.
 >
 > All paths are relative to `apps/desktop/`.
 >
@@ -255,7 +255,7 @@ Structure that works:
 >
 > ```bash
 > npm install
-> npx electron-forge start   # builds .vite/build/ — Ctrl-C once built
+> npx electron-forge start   # builds .vite/build/ - Ctrl-C once built
 > # <any patch you had to apply: sed a feature gate, etc.>
 > ```
 >
@@ -285,8 +285,8 @@ Structure that works:
 > | command | what it does |
 > |---|---|
 > | `launch` | launch the app, wait for windows |
-> | `ss [name]` | screenshot → `/tmp/shots/<name>.png` |
-> | `click <css-sel>` | click element (via DOM, not coords — see Gotchas) |
+> | `ss [name]` | screenshot -> `/tmp/shots/<name>.png` |
+> | `click <css-sel>` | click element (via DOM, not coords - see Gotchas) |
 > | `click-text <text>` | click button/link containing text |
 > | `type <text>` / `press <key>` | keyboard input |
 > | `wait <css-sel>` | wait for element, 10s timeout |
@@ -295,7 +295,7 @@ Structure that works:
 > | `windows` | list all windows + webContents (find the real UI) |
 > | `quit` | close app, exit |
 >
-> Plus any app-specific commands you built: `<your-command>` — <what it does>.
+> Plus any app-specific commands you built: `<your-command>` - <what it does>.
 >
 > ## Run (human path)
 >
@@ -305,13 +305,13 @@ Structure that works:
 >
 > ## Gotchas
 >
-> - **<the specific weird thing you hit>** — <why> → <fix/workaround>
-> - <etc. — only things you actually hit, not generic advice>
+> - **<the specific weird thing you hit>** - <why> -> <fix/workaround>
+> - <etc. - only things you actually hit, not generic advice>
 >
 > ## Troubleshooting
 >
-> - **Launch timeout (30s):** build output missing? → re-run the build
->   step. `nodeCliInspect` fuse disabled? → Playwright can't attach;
+> - **Launch timeout (30s):** build output missing? -> re-run the build
+>   step. `nodeCliInspect` fuse disabled? -> Playwright can't attach;
 >   don't disable that fuse in dev builds.
 > - **"Missing X server":** forgot `xvfb-run`. Headless Linux needs it.
 > - **Stale Xvfb locks:** `rm -f /tmp/.X*-lock; pkill Xvfb`
@@ -328,19 +328,19 @@ These are real patterns from real Electron apps. You'll hit some subset:
 - **The real UI is in a BrowserView, not a BrowserWindow.** Playwright
   sees it as a separate "window" with a different URL. The `windows`
   command exists exactly for figuring this out. `getBrowserViews()`
-  may also return empty on newer Electron — use
+  may also return empty on newer Electron - use
   `webContents.getAllWebContents()` instead.
 
 - **`locator.click()` clicks the wrong thing.** Playwright computes
   click coordinates relative to the main window. If your content is in
   a BrowserView overlay, those coordinates hit the window behind it.
   The driver skeleton uses `page.evaluate(el => el.click())` for this
-  reason — DOM click bypasses coordinates entirely.
+  reason - DOM click bypasses coordinates entirely.
 
 - **Feature gates block the thing you need to test.** The app checks a
   plan tier, or an env flag, or a feature flag baked into SSR HTML.
   Find where the check happens (grep the built output for the gate
-  name) and patch it for your local run — a `sed` on the build output,
+  name) and patch it for your local run - a `sed` on the build output,
   an env var override, or (for SSR-embedded flags) intercept the
   response via CDP `Fetch.enable` and rewrite it in-flight. Document
   exactly what you patched and why.
@@ -353,5 +353,5 @@ These are real patterns from real Electron apps. You'll hit some subset:
   `createReadStream` trick in the skeleton protects your REPL's input.
 
 - **Native modules fail to load** (keychain, notifications, etc.).
-  Usually non-fatal — the core app runs, those features no-op. Note it
+  Usually non-fatal - the core app runs, those features no-op. Note it
   and move on.

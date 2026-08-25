@@ -1,7 +1,7 @@
 // Shared by probe.mjs, compare.mjs, and package-capture.mjs. Kept standalone
 // (node builtins only) so serving files never drags in the build toolchain
 // (esbuild, ts-morph).
-// Also runnable directly — `node http-serve.mjs <dir>` serves <dir> and
+// Also runnable directly - `node http-serve.mjs <dir>` serves <dir> and
 // prints the URL (used for the human review pass over .review.html).
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
@@ -20,7 +20,7 @@ export function serveDir(root) {
       p = resolve(root, '.' + pathname);
     } catch { res.statusCode = 400; return res.end(); }
     // 200 on / so a caller can goto('/') to establish a same-origin page
-    // before setContent() (→ fonts load same-origin, no CORS header needed).
+    // before setContent() (-> fonts load same-origin, no CORS header needed).
     if (pathname === '/') { res.setHeader('Content-Type', 'text/html'); return res.end('<!doctype html>'); }
     if (!p.startsWith(rootAbs) || !existsSync(p) || !statSync(p).isFile()) { res.statusCode = 404; return res.end(); }
     res.setHeader('Content-Type', MIME[extname(p)] ?? 'application/octet-stream');

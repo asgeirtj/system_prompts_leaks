@@ -1,5 +1,5 @@
 // Shared filesystem + string helpers used across the converter modules.
-// Pure functions only — no process globals, no CLI parsing. One exception:
+// Pure functions only - no process globals, no CLI parsing. One exception:
 // gitWorkspaceRoot reads HOME/USERPROFILE for its containment guard, so the
 // home bound has a single definition instead of one per caller.
 
@@ -16,9 +16,9 @@ export const ls = (d, o) =>
   readdirSync(d, o).sort((a, b) => (a.name ?? a).localeCompare(b.name ?? b));
 
 // Containment bound for config-supplied paths (docsDir, tsconfig, cssEntry,
-// extraFonts…). dirname(node_modules) alone is too narrow in monorepos —
+// extraFonts...). dirname(node_modules) alone is too narrow in monorepos -
 // pnpm installs per-package, and docs/tsconfig commonly live in sibling
-// packages or at the repo root — so widen to the enclosing git repo when one
+// packages or at the repo root - so widen to the enclosing git repo when one
 // exists (`.git` may be a file: worktrees, submodules). Never $HOME or /
 // even when they carry .git (dotfiles repos must not turn the whole home
 // dir into "the repo"); callers keep realpath as the symlink vet.
@@ -30,11 +30,11 @@ export function gitWorkspaceRoot(base) {
   if (homeEnv) { try { home = realpathSync(homeEnv); } catch { home = resolve(homeEnv); } }
   let d = base;
   while (true) {
-    // relative() instead of string equality — case-insensitive on Windows,
+    // relative() instead of string equality - case-insensitive on Windows,
     // where the realpath-fallback home and the realpath'd walk can disagree
     // purely on casing.
-    // parse(d).root === d is true at any filesystem root — '/', 'C:\\',
-    // UNC shares — where resolve('/') is only the CWD-DRIVE root on Windows
+    // parse(d).root === d is true at any filesystem root - '/', 'C:\\',
+    // UNC shares - where resolve('/') is only the CWD-DRIVE root on Windows
     // and would let a stray D:\.git become the ceiling on another drive.
     if ((home && relative(home, d) === '') || parse(d).root === d) return base;
     if (existsSync(join(d, '.git'))) return d;
@@ -64,9 +64,9 @@ export function exportName(storyName, used) {
   return out;
 }
 
-// Storybook title → {name, group}. titleMap remaps a derived name to the
+// Storybook title -> {name, group}. titleMap remaps a derived name to the
 // real export name (e.g. {"Toast": "ToastNotification"}). With `exportedSet`,
-// scan segments right-to-left for the first that's a known export — handles
+// scan segments right-to-left for the first that's a known export - handles
 // 3-level titles like `Media/Carousel/Simple` where the last segment is the
 // story variant, not the component.
 export function titleParts(title, titleMap = {}, exportedSet = null) {
@@ -91,7 +91,7 @@ export function titleParts(title, titleMap = {}, exportedSet = null) {
 }
 
 
-// JSDoc `/** … */` block immediately preceding `name`'s own declaration,
+// JSDoc `/** ... */` block immediately preceding `name`'s own declaration,
 // `* ` gutters stripped, empty string when no match. Walks backward from the
 // decl so a multi-export file picks the nearest doc, not the first-in-file.
 export function leadingJsdoc(text, name) {
@@ -121,59 +121,59 @@ export function walk(dir, accept = () => true, out = []) {
   return out;
 }
 
-// ── Config schema: known top-level keys ────────────────────────────────
+// -- Config schema: known top-level keys --------------------------------
 // esbuild lowers `import.meta` to {} under format:'iife', so the standard
 // cross-bundler asset idiom `new URL('img.png', import.meta.url)`
-// (webpack/Vite/parcel) throws at the URL constructor — at module init for
+// (webpack/Vite/parcel) throws at the URL constructor - at module init for
 // top-level refs, blanking every preview cell (or a whole Vite-built dist
 // bundle). Every iife compile spreads this define so the module loads: the
 // asset 404s (demo images don't ship) but the component renders. `.invalid`
-// is RFC-reserved — never resolves, fails fast. Known trade-off: a dist
-// guard like `typeof import.meta.url === 'string' ? … : fallback` now takes
-// the URL branch instead of its fallback — inherent to defining the value
+// is RFC-reserved - never resolves, fails fast. Known trade-off: a dist
+// guard like `typeof import.meta.url === 'string' ? ... : fallback` now takes
+// the URL branch instead of its fallback - inherent to defining the value
 // at all, and the unguarded idiom (a hard crash before this) is the
 // dominant real-world shape.
 export const IIFE_IMPORT_META_DEFINE = {
   'import.meta.url': '"https://ds-preview.invalid/"',
-  // Vite-convention env — `import.meta.env.MODE` under iife throws at module
+  // Vite-convention env - `import.meta.env.MODE` under iife throws at module
   // init without it. Same trade-off as .url: feature-detecting code takes the
   // env branch with these synthetic values instead of its fallback.
   'import.meta.env': '{"MODE":"development","DEV":true,"PROD":false,"SSR":false,"BASE_URL":"/"}',
 };
 
-// Failure-signature → hypothesis lines, printed under the raw error they
-// annotate (stderr-only, never persisted). High-specificity signatures only —
+// Failure-signature -> hypothesis lines, printed under the raw error they
+// annotate (stderr-only, never persisted). High-specificity signatures only -
 // a wrong named remedy anchors harder than none. Order matters: glob/scheme
 // must match before the generic module-miss entry.
 export const ERROR_REMEDIES = [
   [/could not resolve "[^"]*\*[^"]*"/i,
-    'glob import (a bundler-specific idiom esbuild cannot resolve) — verify: the specifier in the error contains * — if confirmed: fork story-imports.mjs to stub that module'],
+    'glob import (a bundler-specific idiom esbuild cannot resolve) \u2014 verify: the specifier in the error contains * \u2014 if confirmed: fork story-imports.mjs to stub that module'],
   [/could not resolve "node:[^"]*"/i,
-    'Node builtin imported in a browser-platform bundle (esbuild cannot resolve it) — verify: the specifier starts with node: — if confirmed: fork story-imports.mjs to stub it, or drop the import in an owned .tsx'],
-  // 2+ chars before the colon — a single letter is a Windows drive path.
+    'Node builtin imported in a browser-platform bundle (esbuild cannot resolve it) \u2014 verify: the specifier starts with node: \u2014 if confirmed: fork story-imports.mjs to stub it, or drop the import in an owned .tsx'],
+  // 2+ chars before the colon - a single letter is a Windows drive path.
   [/could not resolve "[a-z][\w.+-]+:[^"]*"/i,
-    'custom URL-scheme import (bundler plugin territory) — verify: the specifier carries a scheme prefix (not a drive letter or node:) — if confirmed: fork story-imports.mjs to resolve or stub it'],
+    'custom URL-scheme import (bundler plugin territory) \u2014 verify: the specifier carries a scheme prefix (not a drive letter or node:) \u2014 if confirmed: fork story-imports.mjs to resolve or stub it'],
   [/importing with (a type|the "[^"]+") attribute .{0,40}is not supported|import attribute/i,
-    'build-time macro import (evaluated by the repo\'s own bundler) — esbuild cannot evaluate it; fork story-imports.mjs to stub the macro module, or skip those stories'],
+    'build-time macro import (evaluated by the repo\'s own bundler) \u2014 esbuild cannot evaluate it; fork story-imports.mjs to stub the macro module, or skip those stories'],
   // Covers the major libraries' provider-error phrasings.
   [/must be used within|outside (of )?(a |the )?\w* ?provider|provider was not found|could not find .{0,60}context value|forgot to wrap|wrapped in a <\w*provider/i,
-    'missing context provider — verify: storybook shape: node .ds-sync/storybook/probe.mjs --storybook-static .design-sync/sb-reference (detects the actual chain); package shape: check the repo\'s own usage examples — if confirmed: set cfg.provider'],
+    'missing context provider \u2014 verify: storybook shape: node .ds-sync/storybook/probe.mjs --storybook-static .design-sync/sb-reference (detects the actual chain); package shape: check the repo\'s own usage examples \u2014 if confirmed: set cfg.provider'],
   [/cannot find module|could not resolve/i,
-    'runtime module miss — verify: the named module is package API (a story-only helper should bundle via cfg.storyImports.bundle instead) — if confirmed: add it via cfg.extraEntries'],
+    'runtime module miss \u2014 verify: the named module is package API (a story-only helper should bundle via cfg.storyImports.bundle instead) \u2014 if confirmed: add it via cfg.extraEntries'],
   [/invalid hook call|multiple copies of react/i,
-    'two React instances — verify: the erroring module imports react directly instead of the shared global — if confirmed: cfg.storyImports.shim it'],
+    'two React instances \u2014 verify: the erroring module imports react directly instead of the shared global \u2014 if confirmed: cfg.storyImports.shim it'],
   [/failed to fetch|networkerror|net::err/i,
-    'live network call in a story (offline capture cannot serve it) — verify: the story fetches an external URL — if confirmed: cfg.overrides.<Name>.skip that story, or accept close'],
+    'live network call in a story (offline capture cannot serve it) \u2014 verify: the story fetches an external URL \u2014 if confirmed: cfg.overrides.<Name>.skip that story, or accept close'],
 ];
 export const remedyFor = (t) => ERROR_REMEDIES.find(([re]) => re.test(String(t ?? '')))?.[1] ?? '';
-// The one rendering of a hypothesis — format lives in exactly one place.
+// The one rendering of a hypothesis - format lives in exactly one place.
 export const hypothesisLine = (t) => {
   const h = remedyFor(t);
   return h ? `    hypothesis: ${h}` : '';
 };
 
 // The single source of truth for what .design-sync/config.json accepts.
-// Strict on key NAMES only — interiors (provider.props, overrides entries)
+// Strict on key NAMES only - interiors (provider.props, overrides entries)
 // are deliberately freeform, and type mistakes already fail loudly in the
 // build. Strictness is the migration trigger: when a breaking change
 // removes a key, it moves to REMOVED_CONFIG_KEYS with a pointer to where
@@ -192,13 +192,13 @@ export const CONFIG_KEYS = new Set([
   'titleMap', 'overrides', 'componentSrcMap', 'dtsPropsFor',
   'docsDir', 'docsMap', 'guidelinesGlob', 'readmeHeader',
 ]);
-// name → where the value lives now. Seed on removal; prune after a few
+// name -> where the value lives now. Seed on removal; prune after a few
 // releases once stale configs have cycled through a sync.
 export const REMOVED_CONFIG_KEYS = new Map([
-  ['previewArgs', 'the generated-preview tier is gone — author .design-sync/previews/<Name>.tsx instead (it fully replaces previewArgs), then delete this key'],
+  ['previewArgs', 'the generated-preview tier is gone \u2014 author .design-sync/previews/<Name>.tsx instead (it fully replaces previewArgs), then delete this key'],
 ]);
 
-// Returns ALL violations at once (the consumer is usually an agent — a
+// Returns ALL violations at once (the consumer is usually an agent - a
 // one-pass repair beats whack-a-mole re-runs). Empty array = valid.
 export function validateConfig(cfg) {
   if (typeof cfg !== 'object' || cfg === null || Array.isArray(cfg)) {
@@ -208,11 +208,11 @@ export function validateConfig(cfg) {
   for (const k of Object.keys(cfg)) {
     if (CONFIG_KEYS.has(k)) continue;
     if (REMOVED_CONFIG_KEYS.has(k)) {
-      errors.push(`"${k}" — ${REMOVED_CONFIG_KEYS.get(k)}`);
+      errors.push(`"${k}" \u2014 ${REMOVED_CONFIG_KEYS.get(k)}`);
       continue;
     }
     const near = [...CONFIG_KEYS].find((n) => n.toLowerCase() === k.toLowerCase());
-    errors.push(`unknown key "${k}"${near ? ` — did you mean "${near}"?` : ''}`);
+    errors.push(`unknown key "${k}"${near ? ` \u2014 did you mean "${near}"?` : ''}`);
   }
   return errors;
 }

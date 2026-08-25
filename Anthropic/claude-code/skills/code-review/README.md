@@ -3,8 +3,8 @@
 The prompt templates behind Claude Code's built-in `/code-review` skill. The text is
 compiled into the Claude Code binary and injected into the conversation as a user-message
 block when the command runs. Content here was extracted from the binary and byte-verified
-against live API captures (MITM proxy); all five effort tiers re-verified byte-identical
-against the 2.1.211 binary on 2026-07-16.
+against live API captures (MITM proxy); all five effort tiers re-verified against the
+2.1.245 bundle on 2026-08-25 (two additions since 2.1.211 — see below).
 
 ## Usage
 
@@ -24,6 +24,21 @@ When arguments are passed, the injected block is prefixed with `Review target: `
 | `report-findings-tool.md` | the `ReportFindings` tool (description + JSON schema) attached to sessions where the host UI renders typed findings — the alternative output channel to the JSON array |
 
 The finder angles: A line-by-line diff scan, B removed-behavior auditor, C cross-file tracer, D language-pitfall specialist (xhigh/max only), E wrapper/proxy correctness (xhigh/max only), plus Reuse, Simplification, Efficiency, Altitude, and Conventions (CLAUDE.md violations).
+
+## Which prompt a model actually gets
+
+The effort level is only half the routing key; the model family is the other half. The
+five files here are the `default` column — what a model family with no dedicated cell
+receives. The binary's matrix also carries:
+
+| Model family | Cells that differ from `default` |
+|---|---|
+| `claude-sonnet-5` | `low` uses a variant that targets `min(files, 4)` findings instead of capping at 4 |
+| `claude-opus-4-8` | its own `o48-low/med/high/xhigh` prompts at low–xhigh; `max` is the shared `max` |
+| `claude-opus-5` | `medium` and `high` both collapse to a single "minimal prompt → single careful diff pass → ≤15 findings" cell that reports via `ReportFindings`; `xhigh` reuses the opus-4-8 xhigh cell; `low` and `max` are the shared ones |
+
+There is also a no-`Agent`-tool fallback for every tier: when the `Agent` tool is absent
+the same angles run inline, single-pass, with no subagent verify.
 
 The binary also contains sibling variants not reproduced here: an output mode that reports via a `ReportFindings` tool call instead of a JSON array, an artifact-publishing step (findings rendered to a shareable HTML page), and a workflow-backed orchestration used at high/xhigh/max when workflows are enabled (one finder per correctness angle, one merged cleanup finder, a verifier per distinct file:line, then synthesis).
 

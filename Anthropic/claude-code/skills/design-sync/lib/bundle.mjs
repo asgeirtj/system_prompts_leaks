@@ -1,4 +1,4 @@
-// esbuild bundling: dist entry → IIFE at window.<GLOBAL>, plus the
+// esbuild bundling: dist entry -> IIFE at window.<GLOBAL>, plus the
 // `/* @ds-bundle: {...} */` first-line header the claude.ai/design app's
 // self-check parses.
 
@@ -9,18 +9,18 @@ import { dirname, join, resolve } from 'node:path';
 import { IIFE_IMPORT_META_DEFINE } from './common.mjs';
 
 // Resolve the package's browser entry. Prefer ESM (tree-shakes cleaner).
-// `soft` → return null on miss instead of exiting (caller synthesizes from src/).
+// `soft` -> return null on miss instead of exiting (caller synthesizes from src/).
 export function resolveDistEntry({ pkgDir, pkgJson, override, pkgName, soft = false }) {
   if (override) {
     const p = resolve(override);
     if (!existsSync(p)) {
-      console.error(`[NO_DIST] --entry ${override} doesn't exist — run the DS's build.`);
+      console.error(`[NO_DIST] --entry ${override} doesn't exist \u2014 run the DS's build.`);
       if (soft) return null;
       process.exit(1);
     }
     return p;
   }
-  // exports conditions can nest ({types, default:{types, default}}) — flatten.
+  // exports conditions can nest ({types, default:{types, default}}) - flatten.
   const str = (v) => (typeof v === 'string' ? v : v?.default ? str(v.default) : null);
   const cand = [
     pkgJson.module,
@@ -41,7 +41,7 @@ export function resolveDistEntry({ pkgDir, pkgJson, override, pkgName, soft = fa
   process.exit(1);
 }
 
-// react/react-dom are externals → resolved to window.React / window.ReactDOM.
+// react/react-dom are externals -> resolved to window.React / window.ReactDOM.
 // Everything else is bundled from NODE_MODULES.
 export const reactShim = {
   name: 'react-global',
@@ -58,19 +58,19 @@ export const reactShim = {
     // from node_modules can be a different major (e.g. react-is@19 checks
     // for 'react.transitional.element' while react@18 emits 'react.element'),
     // which makes isElement() always false and breaks components that
-    // branch on it (count badges, nav indicators, …).
+    // branch on it (count badges, nav indicators, ...).
     b.onResolve({ filter: /^react-is$/ }, () => ({ path: 'react-is-shim', namespace: 'shim' }));
     // scheduler must be the same instance window.React uses internally; a
     // second bundled copy breaks concurrent rendering.
     b.onResolve({ filter: /^scheduler(\/|$)/ }, () => ({ path: 'scheduler-shim', namespace: 'shim' }));
     b.onLoad({ filter: /^react-shim$/, namespace: 'shim' }, () => ({
-      // Automatic-runtime jsx/jsxs → createElement. Two invariants matter:
-      //  · key is the 3rd ARG, never in props — lift it into the createElement
+      // Automatic-runtime jsx/jsxs -> createElement. Two invariants matter:
+      //  · key is the 3rd ARG, never in props - lift it into the createElement
       //    config object.
       //  · jsxs means "static children array": the compiler emits it for
       //    <div><A/><B/></div> as jsxs("div",{children:[A,B]}). The real
       //    react/jsx-runtime suppresses key validation for that array. We
-      //    must SPREAD it into createElement variadic args — passing the
+      //    must SPREAD it into createElement variadic args - passing the
       //    array via props.children makes React's reconciler treat it as a
       //    dynamic list and warn "missing key" on every component with 2+
       //    static children. jsx (single child slot) keeps the child as one
@@ -86,7 +86,7 @@ module.exports.Fragment=R.Fragment;`,
     }));
     b.onLoad({ filter: /^react-dom-shim$/, namespace: 'shim' }, () => ({
       // preload/preinit/preconnect/prefetchDNS (React 18.3+/19 resource
-      // hints) must exist — some DSes call them at Provider mount.
+      // hints) must exist - some DSes call them at Provider mount.
       contents: 'var D=window.ReactDOM,n=function(){};' +
         'module.exports=Object.assign({preload:n,preinit:n,preconnect:n,prefetchDNS:n,preloadModule:n,preinitModule:n},D);',
       loader: 'js',
@@ -110,9 +110,9 @@ exports.Fragment=R.Fragment;exports.Suspense=R.Suspense;exports.StrictMode=R.Str
       loader: 'js',
     }));
     b.onLoad({ filter: /^scheduler-shim$/, namespace: 'shim' }, () => ({
-      // A DS dist/ rarely imports scheduler directly — when it does, it
+      // A DS dist/ rarely imports scheduler directly - when it does, it
       // means react-dom leaked into the dist. Surface it.
-      contents: `throw new Error("[SCHEDULER_MISSING] this DS's dist/ imports 'scheduler' directly — usually react-dom leaked into the dist. Check the DS build's externals.");`,
+      contents: `throw new Error("[SCHEDULER_MISSING] this DS's dist/ imports 'scheduler' directly \u2014 usually react-dom leaked into the dist. Check the DS build's externals.");`,
       loader: 'js',
     }));
   },
@@ -120,11 +120,11 @@ exports.Fragment=R.Fragment;exports.Suspense=R.Suspense;exports.StrictMode=R.Str
 
 // Build a resolve plugin from tsconfig compilerOptions.paths. esbuild's
 // built-in `tsconfig` option only applies paths to files covered by that
-// tsconfig, which the synth entry (in OUT) isn't — so we resolve explicitly.
+// tsconfig, which the synth entry (in OUT) isn't - so we resolve explicitly.
 export function tsconfigPathsPlugin(tsconfigPath) {
   let paths, baseUrl;
   try {
-    // Strip // and /* */ comments — tsconfig.json permits them, JSON.parse doesn't.
+    // Strip // and /* */ comments - tsconfig.json permits them, JSON.parse doesn't.
     const raw = readFileSync(tsconfigPath, 'utf8')
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/(^|[^:])\/\/.*$/gm, '$1');
@@ -164,8 +164,8 @@ export function tsconfigPathsPlugin(tsconfigPath) {
 
 // Bundle `entry` to a single IIFE at the project root. Returns paths +
 // inlinedExternals (npm packages esbuild pulled in, derived from the
-// metafile — react/react-dom/react-is are externalized so excluded).
-// Options shared by the runtime bundle pass and the export-evidence pass —
+// metafile - react/react-dom/react-is are externalized so excluded).
+// Options shared by the runtime bundle pass and the export-evidence pass -
 // one source so the two resolutions can never drift: a loader or plugin
 // present in one but not the other would either throw the evidence pass
 // into its silent null-fallback or, worse, make the evidence diverge from
@@ -207,19 +207,19 @@ export async function bundleToIife({ entry, globalName, nodePaths, out, tsconfig
       format: 'iife',
       globalName,
       // __dsMainNs (set by package-build when extraEntries are present) is
-      // the main package's runtime namespace — Object.assign it over the
+      // the main package's runtime namespace - Object.assign it over the
       // merged IIFE exports so main-package names win over icon collisions.
       footer: { js: `window.${globalName}=${globalName}.__dsMainNs?Object.assign({},${globalName},${globalName}.__dsMainNs,{__dsMainNs:undefined}):${globalName};` },
       outfile: bundleJs,
       logLevel: 'warning',
-      // iife can't evaluate import.meta.url natively — define it here only.
+      // iife can't evaluate import.meta.url natively - define it here only.
       // The esm evidence pass supports it natively, and a define is not
       // resolution-affecting, so the two graphs still resolve identically.
       // Merged over the shared define (a bare override would drop NODE_ENV).
       define: { ...shared.define, ...IIFE_IMPORT_META_DEFINE },
     });
   } catch (e) {
-    // Tag unbuilt workspace siblings — package exists in node_modules but its
+    // Tag unbuilt workspace siblings - package exists in node_modules but its
     // entry points at a dist/ that hasn't been built.
     const unresolved = [...new Set((e.errors ?? []).map((er) => er.text.match(/Could not resolve "([^"]+)"/)?.[1]).filter(Boolean))];
     const siblings = unresolved.filter((p) => {
@@ -237,7 +237,7 @@ export async function bundleToIife({ entry, globalName, nodePaths, out, tsconfig
           `Run their build, or npm install the published versions.`,
       );
     } else if (unresolved.length) {
-      console.error(`[UNRESOLVED_IMPORT] ${unresolved.join(', ')} — missing from node_modules.`);
+      console.error(`[UNRESOLVED_IMPORT] ${unresolved.join(', ')} \u2014 missing from node_modules.`);
     }
     throw e;
   }
@@ -255,16 +255,16 @@ export async function bundleToIife({ entry, globalName, nodePaths, out, tsconfig
 }
 
 // Evidence pass for the provider gate: rebuild the same entry as ESM
-// (write:false, nothing touches disk) and read esbuild's own export list —
+// (write:false, nothing touches disk) and read esbuild's own export list -
 // the same resolution that produced the runtime bundle, so presence/absence
 // is provable where a .d.ts scan is heuristic. One residual unknowable:
 // `export * from <cjs>` isn't statically enumerable (esbuild emits a
 // runtime __reExport and the names are missing from `exports`), and the
-// metafile carries no signal for WHICH import is a star — so any bundled
+// metafile carries no signal for WHICH import is a star - so any bundled
 // CJS input downgrades absence from provable to unverifiable (cjsPresent).
 // That over-triggers for plain CJS imports (a bundled lodash softens the
 // gate), which is the accepted price of never minting a false fatal.
-// Returns null on ANY failure: the caller must fall back to scan evidence —
+// Returns null on ANY failure: the caller must fall back to scan evidence -
 // this pass may only ever change a gate verdict, never fail a build the
 // real bundle pass accepted.
 export async function bundleExportEvidence({ entry, nodePaths, tsconfig }) {
@@ -280,7 +280,7 @@ export async function bundleExportEvidence({ entry, nodePaths, tsconfig }) {
     const out = Object.values(r.metafile?.outputs ?? {})[0];
     const exports = new Set((out?.exports ?? []).filter((n) => n !== '__dsMainNs'));
     // The react-family shims are authored as CJS and appear in every build's
-    // inputs under the 'shim:' namespace — they can't hide DS names, so
+    // inputs under the 'shim:' namespace - they can't hide DS names, so
     // only genuinely-bundled CJS counts toward the unverifiable signal.
     const cjsPresent = Object.entries(r.metafile?.inputs ?? {}).some(
       ([k, i]) => i.format === 'cjs' && !k.startsWith('shim:'),
@@ -291,15 +291,15 @@ export async function bundleExportEvidence({ entry, nodePaths, tsconfig }) {
   }
 }
 
-// Prepend the `/* @ds-bundle: {…} */` first-line header. The
-// claude.ai/design app reads this; format is load-bearing — namespace +
+// Prepend the `/* @ds-bundle: {...} */` first-line header. The
+// claude.ai/design app reads this; format is load-bearing - namespace +
 // components feed the consuming agent and the ds_manifest;
 // sourceHashes + inlinedExternals drive the keep-vs-rebuild decision.
 // `*/` inside the JSON is escaped so the comment can't terminate early.
 export function stampHeader(bundleJs, { namespace, components, inlinedExternals }) {
   const body = readFileSync(bundleJs, 'utf8');
   const out = dirname(bundleJs);
-  // Keyed by per-component output paths — what decideBundleRebuild compares
+  // Keyed by per-component output paths - what decideBundleRebuild compares
   // against. Includes .d.ts and .prompt.md so contract/doc-only edits also
   // surface in the incremental-upload diff.
   const sourceHashes = Object.fromEntries(

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the current diff, or a PR number/branch/path target, for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud (requires claude.ai account access)); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review.
+description: Review the current diff, or a PR number/branch/path target, for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review. For ultra on a GitHub.com PR target, --post asks to post the finished review’s findings to the PR as a single comment from the user’s GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
 ---
 
 `high effort → 3+5 angles × 6 candidates → 1-vote verify (recall-biased) → ≤10 findings`
@@ -22,7 +22,7 @@ review that target instead. Treat this diff as the review scope.
 
 Run **8 independent finder angles** via the Agent tool. Each
 surfaces **up to 6 candidate findings** with `file`, `line`, a one-line
-`summary`, and a concrete `failure_scenario`.
+`summary`, and a concrete `failure_scenario`. If the Agent tool is not available in your current tool set, do not error — perform each angle (and each verification) yourself, sequentially, in this context.
 
 ### Angle A — line-by-line diff scan
 
@@ -136,4 +136,6 @@ Return findings as a JSON array of at most 10 objects:
 ```
 
 Ranked most-severe first. If more than 10 survive, keep the 10 most
-severe. If nothing survives verification, return `[]`.
+severe. If nothing survives verification, return `[]`. Do not call the
+ReportFindings tool even if it is available - this review's
+output contract is the JSON block above.

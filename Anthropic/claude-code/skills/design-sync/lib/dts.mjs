@@ -1,5 +1,5 @@
 // .d.ts extraction via ts-morph (real TS checker). Resolves the apparent
-// structural type of each <Name>Props — unwraps Omit/Pick, follows extends
+// structural type of each <Name>Props - unwraps Omit/Pick, follows extends
 // chains and intersections, resolves `(typeof X)[number]` / mapped types to
 // literal unions.
 
@@ -9,7 +9,7 @@ import { Project, Node, ts } from 'ts-morph';
 
 export function findTypesRoot(pkgDir, pkgJson) {
   // Workspace/monorepo packages often point dev `types` at src/*.ts (no .d.ts
-  // tree there); publishConfig carries the published .d.ts entry — prefer it
+  // tree there); publishConfig carries the published .d.ts entry - prefer it
   // when it exists on disk.
   const pubTypes = pkgJson.publishConfig?.types;
   if (pubTypes && existsSync(join(pkgDir, pubTypes))) return dirname(join(pkgDir, pubTypes));
@@ -24,7 +24,7 @@ export function findTypesRoot(pkgDir, pkgJson) {
 }
 
 // *Props are prop interfaces; ALL-CAPS are object constants; *Manager /
-// *Placements / *Context are utility singletons; use* are hooks — none
+// *Placements / *Context are utility singletons; use* are hooks - none
 // renderable. (dts.nonComponents also catches React.Context by symbol kind;
 // the suffix check is belt-and-suspenders for DSes where that misses.)
 export const isComponentName = (n) => !n.endsWith('Props') && !/^[A-Z][A-Z0-9_]+$/.test(n)
@@ -35,7 +35,7 @@ export const isComponentName = (n) => !n.endsWith('Props') && !/^[A-Z][A-Z0-9_]+
 // namespace member of that prefix per the `compounds` map (i.e. Table.Row
 // exists, so top-level TableRow is the same subpart). Name shape alone
 // can't distinguish TableRow (only renders inside Table) from ButtonGroup
-// (standalone) — the compounds membership is the reliable signal. For DSes
+// (standalone) - the compounds membership is the reliable signal. For DSes
 // that export subparts top-level only (no `Table.Row` namespace), this
 // conservatively does nothing.
 export function partitionSubcomponents(names, compounds) {
@@ -43,7 +43,7 @@ export function partitionSubcomponents(names, compounds) {
   const parentOf = new Map();
   for (const n of names) {
     const parts = n.match(/[A-Z][a-z0-9]*/g) ?? [];
-    // Try longest prefix first, keep trying shorter ones — `ListItemText`
+    // Try longest prefix first, keep trying shorter ones - `ListItemText`
     // with compounds {List: ['ItemText']} must reach `List` even if
     // `ListItem` is itself a top-level name.
     for (let i = parts.length - 1; i >= 1; i--) {
@@ -53,8 +53,8 @@ export function partitionSubcomponents(names, compounds) {
       if ((compounds?.get(prefix) ?? []).includes(suffix)) { parentOf.set(n, prefix); break; }
     }
   }
-  // Flatten transitively — TableRowCell → TableRow → Table becomes
-  // TableRowCell → Table, so the caller's per-root bucketing doesn't lose
+  // Flatten transitively - TableRowCell -> TableRow -> Table becomes
+  // TableRowCell -> Table, so the caller's per-root bucketing doesn't lose
   // subs whose immediate parent is itself a sub. Terminates: each parent has
   // strictly fewer PascalCase parts than its child.
   for (const [n] of parentOf) {
@@ -65,17 +65,17 @@ export function partitionSubcomponents(names, compounds) {
   return { parentOf };
 }
 
-// One Project per package — loadDts/exportedNames share it.
+// One Project per package - loadDts/exportedNames share it.
 const projects = new Map();
 
 function projectFor(pkgDir, typesRoot) {
   if (projects.has(pkgDir)) return projects.get(pkgDir);
   // Derive node_modules for cross-package resolution (React, peer deps).
-  // Normalize separators — pkgDir may have backslashes on Windows.
+  // Normalize separators - pkgDir may have backslashes on Windows.
   const posix = pkgDir.split('\\').join('/');
   const i = posix.lastIndexOf('/node_modules/');
   let nodeModules = i >= 0 ? join(pkgDir.slice(0, i), 'node_modules') : join(pkgDir, '..');
-  // Workspace packages live outside node_modules — walk up to the hoisted
+  // Workspace packages live outside node_modules - walk up to the hoisted
   // root node_modules so @types/react resolves (otherwise React utility types
   // collapse to `any` and inherited props drop out of the emitted bodies).
   if (!existsSync(join(nodeModules, '@types', 'react'))) {
@@ -85,7 +85,7 @@ function projectFor(pkgDir, typesRoot) {
     }
   }
   const pj = JSON.parse(readFileSync(join(pkgDir, 'package.json'), 'utf8'));
-  // Same publishConfig preference as findTypesRoot — keep the two in sync.
+  // Same publishConfig preference as findTypesRoot - keep the two in sync.
   const pubEntry = pj.publishConfig?.types;
   const entry = join(pkgDir, (pubEntry && existsSync(join(pkgDir, pubEntry)) ? pubEntry : null) || pj.types || pj.typings || 'index.d.ts');
   const project = new Project({
@@ -100,9 +100,9 @@ function projectFor(pkgDir, typesRoot) {
     },
   });
   // Add the package's own .d.ts tree plus @types/react (otherwise
-  // `ComponentPropsWithoutRef<…>` is `any` and intersection types collapse).
+  // `ComponentPropsWithoutRef<...>` is `any` and intersection types collapse).
   const reactTypes = join(nodeModules, '@types', 'react', 'index.d.ts');
-  // The negation must be absolute-scoped to match the positive pattern —
+  // The negation must be absolute-scoped to match the positive pattern -
   // ts-morph's fast-glob ignores bare `!**/node_modules/**` otherwise.
   const root = typesRoot ?? dirname(entry);
   project.addSourceFilesAtPaths([`${root}/**/*.d.ts`, `!${root}/**/node_modules/**`]);
@@ -114,12 +114,12 @@ function projectFor(pkgDir, typesRoot) {
   const pkgDirStd = pkgDir.split('\\').join('/').replace(/\/?$/, '/');
   if (existsSync(reactTypes)) project.addSourceFileAtPath(reactTypes);
   else console.error(
-    '\n[DTS_REACT] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+    '\n[DTS_REACT] \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n' +
     '[DTS_REACT] @types/react not found in node_modules. React utility types\n' +
-    '[DTS_REACT] (ComponentPropsWithoutRef, FC, …) will resolve to `any`, so\n' +
+    '[DTS_REACT] (ComponentPropsWithoutRef, FC, \u2026) will resolve to `any`, so\n' +
     '[DTS_REACT] components whose props extend them will emit EMPTY bodies.\n' +
     '[DTS_REACT] Fix: `npm i -D @types/react` then rebuild.\n' +
-    '[DTS_REACT] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n',
+    '[DTS_REACT] \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n',
   );
   if (existsSync(entry)) project.addSourceFileAtPath(entry);
   const ctx = { project, entry, pkgDir: pkgDirStd };
@@ -134,7 +134,7 @@ function projectFor(pkgDir, typesRoot) {
 // returns StandardizedFilePath (forward-slash), so the substring checks are
 // cross-platform.
 const KEEP_PROP = /^(children|className|style|as|asChild|ref|id)$/;
-// Style-system bases are detected by SHAPE, two-tier (canonical contract —
+// Style-system bases are detected by SHAPE, two-tier (canonical contract -
 // the call sites point here):
 // - EXTERNAL packages: >STYLE_SYSTEM_THRESHOLD CSS/token-named props,
 //   counted per package directory (the node_modules/<pkg>/ boundary), so a
@@ -170,21 +170,21 @@ function detectStyleSystemDirs(props, pkgDir, declFile) {
     if (!d) continue;
     const fp = d.getSourceFile().getFilePath();
     // Key shape encodes the tier (see the canonical contract above
-    // CSS_PROP_NAME): external packages → node_modules/<pkg>/ prefix key
-    // (trailing slash); in-package declarations → exact FILE key. The
+    // CSS_PROP_NAME): external packages -> node_modules/<pkg>/ prefix key
+    // (trailing slash); in-package declarations -> exact FILE key. The
     // DEEPEST node_modules boundary decides: a dep nested under the
     // package's own node_modules (un-hoisted version conflict) is external.
     // One principle, no orientation cases: a declaration is IN-PACKAGE iff
     // the package that OWNS its file is the package being synced.
     // ownerOf() = deepest node_modules package boundary, null for
-    // workspace paths. This derives every layout — nested dep under the
-    // package's own node_modules (different owner → external), dual-publish
-    // nested manifest (same owner → in-package even though pkgDir sits
+    // workspace paths. This derives every layout - nested dep under the
+    // package's own node_modules (different owner -> external), dual-publish
+    // nested manifest (same owner -> in-package even though pkgDir sits
     // below the boundary), DS synced from inside a host package's
-    // node_modules (host files have a shallower owner → external).
+    // node_modules (host files have a shallower owner -> external).
     // In-package files key per-FILE; external files key per owning package.
     // Ownerless externals (sibling workspace packages) key per-file at the
-    // in-package bar — the documented out-of-scope fallback in the
+    // in-package bar - the documented out-of-scope fallback in the
     // canonical block above.
     const owner = ownerOf(fp);
     const inPackage = owner === pkgOwner && (owner !== null || fp.startsWith(pkgDir));
@@ -197,7 +197,7 @@ function detectStyleSystemDirs(props, pkgDir, declFile) {
     if (key === declFile) continue;
     cssByDir.set(key, (cssByDir.get(key) ?? 0) + 1);
   }
-  // Per-tier bars — rationale in the canonical block above CSS_PROP_NAME.
+  // Per-tier bars - rationale in the canonical block above CSS_PROP_NAME.
   const keys = [];
   for (const [k, n] of cssByDir) {
     const bar = k.endsWith('/') ? STYLE_SYSTEM_THRESHOLD : IN_PACKAGE_FILE_THRESHOLD;
@@ -213,7 +213,7 @@ function isOwnProp(p, pkgDir, styleSystemDirs) {
   const fp = d.getSourceFile().getFilePath();
   // Same owner-identity discriminator as detectStyleSystemDirs, same order
   // of authority: a flagged in-package FILE drops first (exact match); then
-  // owner-equality keeps the DS's own API — checked BEFORE dir keys because
+  // owner-equality keeps the DS's own API - checked BEFORE dir keys because
   // a flagged dir key can be an ANCESTOR of pkgDir (DS synced from inside a
   // host package's node_modules) and must not swallow in-package files;
   // then flagged external packages drop by prefix.
@@ -242,15 +242,15 @@ function typeText(t, at) {
     let uniq = [...new Set(parts)];
     if (uniq.length === 2 && uniq.includes('true') && uniq.includes('false')) return 'boolean';
     // Collapse the structural expansion of React.ReactNode (string | number |
-    // ReactElement<…> | Iterable<ReactNode> | ReactPortal | Promise<…>) back to
-    // the alias — when the alias symbol is lost, the expansion blows past the
+    // ReactElement<...> | Iterable<ReactNode> | ReactPortal | Promise<...>) back to
+    // the alias - when the alias symbol is lost, the expansion blows past the
     // length cap below and would truncate into invalid TS.
     if (uniq.includes('ReactPortal') && uniq.some((u) => u.startsWith('Iterable<ReactNode>'))) {
       const RN_MEMBER = /^(string|number|bigint|boolean|ReactPortal|Iterable<ReactNode>.*|ReactElement<.*|Promise<.*)$/;
       uniq = [...new Set([...uniq.filter((u) => !RN_MEMBER.test(u)), 'React.ReactNode'])];
     }
     // Function-type members are invalid un-parenthesized inside a union
-    // (`string | (x) => void` doesn't parse) — wrap them.
+    // (`string | (x) => void` doesn't parse) - wrap them.
     if (uniq.length > 1) uniq = uniq.map((u) => (u.includes('=>') ? `(${u})` : u));
     // Cap very wide unions (icon-name sets can be 600+ members).
     if (uniq.length > 24) uniq = [...uniq.slice(0, 16), `(string & {}) /* +${uniq.length - 16} more */`];
@@ -258,7 +258,7 @@ function typeText(t, at) {
   } else {
     s = t.getText(at, ts.TypeFormatFlags.NoTruncation).replace(/import\("[^"]*"\)\./g, '');
   }
-  // Never hard-slice an over-long type — a cut generic/object literal is
+  // Never hard-slice an over-long type - a cut generic/object literal is
   // invalid TS and fails the validator's [DTS_PARSE] check (and the app's
   // API-contract parse). Fall back to a safe wide type instead; the JSDoc
   // line above the prop carries the human-readable detail.
@@ -285,7 +285,7 @@ export function exportedNames(pkgDir, pkgJson) {
 // Builds the context propsBodyFor/jsdocFor read from. `nonComponents` /
 // `compounds` are derived from the checker's symbol kinds.
 export function loadDts(typesRoot) {
-  // typesRoot is always under <nm>/<pkg>/… — walk up to the real package
+  // typesRoot is always under <nm>/<pkg>/... - walk up to the real package
   // root: the nearest package.json with a `name` field, skipping stubs
   // (`{"type":"module"}` in esm/ or dist/). dirname-fixed-point is the
   // cross-platform root test (`/` vs `C:\`).
@@ -297,20 +297,20 @@ export function loadDts(typesRoot) {
     }
   }
   // projectFor normalizes pkgDir to forward-slashes (ts-morph's
-  // StandardizedFilePath) — use that for every fp.startsWith() downstream.
+  // StandardizedFilePath) - use that for every fp.startsWith() downstream.
   const { project, entry, pkgDir } = projectFor(walk, typesRoot);
   const sf = project.getSourceFile(entry);
   const nonComponents = new Set();
   const compounds = new Map();
   if (sf) for (const [name, decls] of sf.getExportedDeclarations()) {
     if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) continue;
-    // Declaration-merged names (`interface Button {}` + `const Button: …`)
-    // return both decls — prefer the value decl so the merge isn't
+    // Declaration-merged names (`interface Button {}` + `const Button: ...`)
+    // return both decls - prefer the value decl so the merge isn't
     // misclassified as type-only by whichever the checker listed first.
     const d = decls.find((x) =>
       Node.isVariableDeclaration(x) || Node.isFunctionDeclaration(x) ||
       Node.isClassDeclaration(x) || Node.isSourceFile(x)) ?? decls[0];
-    // Namespace export (`export * as X`) → compound with its own value members.
+    // Namespace export (`export * as X`) -> compound with its own value members.
     if (Node.isSourceFile(d)) {
       const members = [...d.getExportedDeclarations().entries()]
         .filter(([n, ds]) => /^[A-Z][a-z]/.test(n) && ds.some((x) => !Node.isInterfaceDeclaration(x) && !Node.isTypeAliasDeclaration(x)))
@@ -327,13 +327,13 @@ export function loadDts(typesRoot) {
     if (Node.isClassDeclaration(d) && d.isAbstract()) { nonComponents.add(name); continue; }
     if (Node.isClassDeclaration(d)) continue;  // always renderable; compounds via statics aren't handled here
     if (!Node.isVariableDeclaration(d) && !Node.isFunctionDeclaration(d)) continue;
-    // `const X: FC<…> & { Sub: … }` (possibly through an alias/Omit) —
+    // `const X: FC<...> & { Sub: ... }` (possibly through an alias/Omit) -
     // PascalCase callable properties declared in-package are compound members
     // (React.Component lifecycle names have underscores / fail the full match).
     const t = d.getType();
     const members = [];
     // PascalCase props can't be style-system CSS-shorthands, so the empty
-    // list is correct here — detectStyleSystemDirs would contribute nothing.
+    // list is correct here - detectStyleSystemDirs would contribute nothing.
     const noStyle = [];
     for (const p of t.getProperties()) {
       const pn = p.getName();
@@ -344,7 +344,7 @@ export function loadDts(typesRoot) {
     // Only provably-not-renderable consts are filtered: a plain object/record
     // type whose every property is a primitive (token/enum
     // objects like Colors or Sizes). Anything with a call signature, construct signature, or a
-    // non-primitive property stays — class components and forwardRef wrappers
+    // non-primitive property stays - class components and forwardRef wrappers
     // without call sigs on the instance type must not be dropped here.
     if (t.isObject() && !t.getCallSignatures().length && !t.getConstructSignatures().length && !members.length && !t.isAny()) {
       const props = t.getProperties();
@@ -376,7 +376,7 @@ export function propsBodyFor(name, ctx) {
     if (decl) break;
   }
   // Fallback: derive from the component symbol's first call signature.
-  // Prefer the value decl (declaration-merging — see loadDts).
+  // Prefer the value decl (declaration-merging - see loadDts).
   if (!decl) {
     const decls = project.getSourceFile(entry)?.getExportedDeclarations().get(name) ?? [];
     const exp = decls.find((d) =>
@@ -397,7 +397,7 @@ let loggedStyleSystemDirs;
 function emitBody(type, at, generics, pkgDir) {
   const lines = [];
   const props = type.getApparentType().getProperties();
-  // `at` is the component's own Props declaration site — its file is exempt
+  // `at` is the component's own Props declaration site - its file is exempt
   // from per-FILE flagging (see detectStyleSystemDirs).
   const styleSystemDirs = detectStyleSystemDirs(props, pkgDir, at.getSourceFile().getFilePath());
   // Surface a one-shot [DTS_STYLE_SYSTEM] line per flagged package so the
@@ -413,7 +413,7 @@ function emitBody(type, at, generics, pkgDir) {
       ?? (dir.startsWith(pkgDir) ? dir.slice(pkgDir.length) : dir);
     const bar = isDirKey ? STYLE_SYSTEM_THRESHOLD : IN_PACKAGE_FILE_THRESHOLD;
     console.error(
-      `[DTS_STYLE_SYSTEM] filtering ${pkg} props (>${bar} CSS-shorthand-named props) — override a component with cfg.dtsPropsFor.<Name> if these are real API`,
+      `[DTS_STYLE_SYSTEM] filtering ${pkg} props (>${bar} CSS-shorthand-named props) \u2014 override a component with cfg.dtsPropsFor.<Name> if these are real API`,
     );
   }
   for (const p of props) {
@@ -422,10 +422,10 @@ function emitBody(type, at, generics, pkgDir) {
     const pt = p.getTypeAtLocation(at);
     let tt = typeText(pt, at);
     // Structural hint when the type text hides the shape (aliased functions /
-    // arrays) — smartDefaultProps reads these to pick the right required-stub.
+    // arrays) - smartDefaultProps reads these to pick the right required-stub.
     const members = pt.isUnion() ? pt.getUnionTypes() : [pt];
     if (members.some((u) => u.getCallSignatures().length)) tt += ' /* @fn */';
-    // Tuples are not @arr — `[]` has the wrong length and `[0]` access crashes
+    // Tuples are not @arr - `[]` has the wrong length and `[0]` access crashes
     // either way; optional tuples are safer left unset.
     else if (members.some((u) => u.isArray())) tt += ' /* @arr */';
     // Leading JSDoc on the prop declaration, if any.
@@ -444,19 +444,19 @@ function emitBody(type, at, generics, pkgDir) {
 // Scaffold-preview defaults from the resolved props body. Conservative: fill
 // only what's needed for a meaningful first render (children + variant axis +
 // visibility toggles + required arrays). Optional string/number/Date props are
-// left unset — filling them with placeholder values crashes more than it
+// left unset - filling them with placeholder values crashes more than it
 // helps.
 //
-// Void-element-ish components — a string `children` would throw at render.
+// Void-element-ish components - a string `children` would throw at render.
 const VOID_LIKE = /^(Text|Number|Search|Password|File|Masked)?Input$|^(TextField|TextArea|Textarea|Img|Image|Avatar|Hr|Br|Spacer|Divider|Separator|Slider|Progress|ProgressBar)$/;
-// Ordered preference for the variant axis — earlier wins. `type` is last so
+// Ordered preference for the variant axis - earlier wins. `type` is last so
 // the HTML `type` attr ("button"|"submit"|"reset") doesn't beat `variant`.
 const VARIANT_RANK = ['variant', 'intent', 'kind', 'appearance', 'tone', 'status', 'size', 'color', 'type'];
 export function smartDefaultProps(name, pb) {
   const body = pb?.body ?? '';
   const props = {};
   let variants = null;
-  // Matches the 2-space indent emitBody writes — keep the two in sync.
+  // Matches the 2-space indent emitBody writes - keep the two in sync.
   // `.+` (not `[^;]+`) so object-param types with inner semicolons still match.
   for (const m of body.matchAll(/^ {2}([a-zA-Z_$][\w$]*)(\??)\s*:\s*(.+);$/gm)) {
     const [, prop, q, t] = m;
@@ -477,27 +477,27 @@ export function smartDefaultProps(name, pb) {
       }
     }
     // Structural hints (/* @fn */, /* @arr */) from emitBody are authoritative
-    // over the text regexes — `(() => void)[]` has @arr, so the `=>` in the
+    // over the text regexes - `(() => void)[]` has @arr, so the `=>` in the
     // element type must not flip it to isFn. The text regexes cover
     // cfg.dtsPropsFor overrides with no hints.
     const hasFn = t.includes('/* @fn */'), hasArr = t.includes('/* @arr */');
     const isFn = hasFn || (!hasArr && /=>|\)\s*:/.test(t));
     const isArr = !isFn && (hasArr || /\[\]|Array</.test(t));
     if (prop === 'children' && /React\.ReactNode|ReactElement/.test(t) && !isFn && !VOID_LIKE.test(name)) props.children = name;
-    // Visibility toggles — an overlay/dialog with open=false renders nothing.
+    // Visibility toggles - an overlay/dialog with open=false renders nothing.
     else if (/^(open|isOpen|visible|show|defaultOpen|expanded|checked|active|selected)$/.test(prop) && t === 'boolean') props[prop] = true;
-    // Callable (required or optional) — optional stays unset (DSes guard
+    // Callable (required or optional) - optional stays unset (DSes guard
     // optional callbacks); required gets a noop.
     else if (isFn) { if (req) props[prop] = { $raw: '()=>null' }; }
     // Arrays (required or optional). `[]` is crash-safe but renders nothing.
     // Props that look like data/option lists get a small sample so the
     // preview has visible rows; element shape is best-effort from the type
-    // text (string[] → strings; otherwise {id,label,value}).
+    // text (string[] -> strings; otherwise {id,label,value}).
     else if (isArr) {
       const isList = /^(items|options|tabs|rows|columns|data|actions|fields|links|steps|choices|values)$/i.test(prop);
       const elT = t.replace(/\/\*.*?\*\//g, '').trim();
       const elIsString = /^(?:readonly\s+)?string\[\]|^ReadonlyArray<string>|^Array<string>/.test(elT);
-      // Over-provision keys — extra ones are ignored, and this covers the
+      // Over-provision keys - extra ones are ignored, and this covers the
       // common {id|key} + {label|text|name|title} + value conventions.
       props[prop] = isList
         ? elIsString
@@ -508,11 +508,11 @@ export function smartDefaultProps(name, pb) {
           })
         : [];
     }
-    // Optional everything-else stays unset — the component's own defaults are
+    // Optional everything-else stays unset - the component's own defaults are
     // safer than a placeholder.
     else if (!req) continue;
     // Required props get a type-appropriate stub so the render doesn't crash
-    // on `undefined.…` / `undefined()`. `$raw` values are emitted verbatim by
+    // on `undefined....` / `undefined()`. `$raw` values are emitted verbatim by
     // scaffoldPropsExpr (not JSON-stringified).
     else if (/\bDate\b/.test(t)) props[prop] = { $raw: 'new Date()' };
     else if (/ElementType|ComponentType|JSXElementConstructor/.test(t)) props[prop] = 'div';
@@ -521,7 +521,7 @@ export function smartDefaultProps(name, pb) {
     else if (/^number\b/.test(t)) props[prop] = 0;
     else if (/^boolean\b/.test(t)) props[prop] = false;
     else if (/^\{/.test(t) || /Record<|Partial<|Pick<|Omit</.test(t)) props[prop] = {};
-    // Fallback: required prop of unrecognized shape — `{}` is the least likely
+    // Fallback: required prop of unrecognized shape - `{}` is the least likely
     // to crash `.foo` access.
     else props[prop] = {};
   }

@@ -1,6 +1,6 @@
 // Storybook source adapter. Builds (or copies) storybook-static, parses
 // index.json into the component list, resolves each component's story SOURCE
-// file, and pairs index story names to the module's export keys — the inputs
+// file, and pairs index story names to the module's export keys - the inputs
 // preview-gen-storybook.mjs needs to compile story modules as previews.
 // Story args are never evaluated here: stories run only in the browser,
 // against the shipped bundle.
@@ -15,7 +15,7 @@ import { storybookStubPlugin } from './story-imports.mjs';
 function pickStorybookDir({ INPUTS, PKG, SB_CONFIG_DIR }) {
   if (SB_CONFIG_DIR) return SB_CONFIG_DIR;
   // Many repos name the config dir via `storybook dev -c <dir>` in
-  // package.json scripts — that's authoritative when present.
+  // package.json scripts - that's authoritative when present.
   try {
     const scripts = JSON.parse(readFileSync(join(INPUTS, 'package.json'), 'utf8')).scripts ?? {};
     for (const s of Object.values(scripts)) {
@@ -45,7 +45,7 @@ function pickStorybookDir({ INPUTS, PKG, SB_CONFIG_DIR }) {
 
 // Storybook derives a story's display name from its export key (startCase);
 // squash-compare pairs them back without re-implementing the exact algorithm.
-// storyName overrides break the pairing for that story → it stays unpaired
+// storyName overrides break the pairing for that story -> it stays unpaired
 // and its cell is omitted; a component with no paired stories shows the
 // floor card.
 const squash = (s) => String(s ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
@@ -73,9 +73,9 @@ async function storyModuleExports(absPath) {
 // Resolve each component's story source file(s) and pair its index stories
 // to module export keys (c.storySrc / c.srcSha / c.storyIds[].exportKey).
 // A component's stories may live in ONE file or be split across many files
-// sharing a title — each story pairs against the exports of its OWN file
+// sharing a title - each story pairs against the exports of its OWN file
 // (its index.json importPath). index.json importPaths are relative to the
-// storybook PROJECT root — the .storybook dir's parent when we know it; cwd
+// storybook PROJECT root - the .storybook dir's parent when we know it; cwd
 // and the static dir's parent as fallbacks (--storybook-static-only runs).
 async function resolveStorySources(csfComponents, sbDir, sbStatic) {
   const bases = [...new Set([
@@ -93,7 +93,7 @@ async function resolveStorySources(csfComponents, sbDir, sbStatic) {
     const srcs = [...new Set(srcByIp.values())];
     if (!srcs.length) continue;
     c.storySrc = srcs[0];
-    // srcSha spans ALL story files — an edit to any of them is a contract
+    // srcSha spans ALL story files - an edit to any of them is a contract
     // change for the component.
     const h = createHash('sha256');
     for (const f of srcs) h.update(readFileSync(f));
@@ -105,7 +105,7 @@ async function resolveStorySources(csfComponents, sbDir, sbStatic) {
     for (const s of c.storyIds ?? []) {
       total++;
       const f = srcByIp.get(s.importPath) ?? srcs[0];
-      // Display name first; fall back to the story ID's tail — storybook
+      // Display name first; fall back to the story ID's tail - storybook
       // derives it from the export key, so it survives `name:` overrides
       // ("button--my-story" pairs to export MyStory whatever the name says).
       const k = keysByFile.get(f)?.get(squash(s.name))
@@ -125,7 +125,7 @@ export async function resolveStorybook(ctx) {
     sbStatic = null;
   }
   // storybook-static is parsed for index.json (component list + story source
-  // pairing) and the CSS fallback, then discarded — previews render
+  // pairing) and the CSS fallback, then discarded - previews render
   // self-contained from the bundle. Built into a dot-prefixed dir so it's
   // never uploaded.
   if (!sbStatic && sbDir) {
@@ -184,11 +184,11 @@ export async function resolveStorybook(ctx) {
     }
     for (const c of byComp.values()) csfComponents.push(c);
     console.error(
-      `  storybook-static: ${Object.keys(idx.entries ?? {}).length} entries → ${csfComponents.length} components`,
+      `  storybook-static: ${Object.keys(idx.entries ?? {}).length} entries \u2192 ${csfComponents.length} components`,
     );
     await resolveStorySources(csfComponents, sbDir, sbStatic);
   } else {
-    console.error(`[SB_BUILD_FAIL] no storybook-static and no .storybook/ dir found — pass --storybook-static <dir> or run from a repo with .storybook/.`);
+    console.error(`[SB_BUILD_FAIL] no storybook-static and no .storybook/ dir found \u2014 pass --storybook-static <dir> or run from a repo with .storybook/.`);
   }
   return { shape: 'storybook', entry, components: csfComponents, sbStatic, sbDir };
 }
@@ -196,7 +196,7 @@ export async function resolveStorybook(ctx) {
 // Bundle .storybook/preview.{tsx,ts,jsx,js} decorators into
 // _vendor/preview-decorators.js so each preview can wrap its mount in the same
 // provider chain Storybook does. Best-effort: bail (return false) if there's
-// no decorator array or the bundle fails — cfg.provider remains the manual
+// no decorator array or the bundle fails - cfg.provider remains the manual
 // fallback. Imports of the DS package itself are shimmed to window.<GLOBAL>
 // so the decorator's provider components are the same instances the
 // previews use.
@@ -204,29 +204,29 @@ export async function bundlePreviewDecorators({ sbDir, OUT, NODE_MODULES, PKG, P
   if (!sbDir) return false;
   const sbPreview = ['tsx', 'ts', 'jsx', 'js'].map((e) => join(sbDir, `preview.${e}`)).find(existsSync);
   if (!sbPreview) {
-    console.error(`  (preview decorators: no preview.{tsx,ts,jsx,js} in ${sbDir} — nothing to bundle; cfg.provider is the manual path)`);
+    console.error(`  (preview decorators: no preview.{tsx,ts,jsx,js} in ${sbDir} \u2014 nothing to bundle; cfg.provider is the manual path)`);
     return false;
   }
-  // \bdecorators\b (not just `decorators:` / `decorators=`) — re-export forms
+  // \bdecorators\b (not just `decorators:` / `decorators=`) - re-export forms
   // like `export { decorators }` are real; a false positive is harmless (the
   // wrapper finds no array at runtime and __dsDecorate stays null).
   if (!/\bdecorators\b/.test(readFileSync(sbPreview, 'utf8'))) {
-    console.error(`  (preview decorators: ${sbPreview} never mentions decorators — nothing to bundle; if providers live elsewhere, set cfg.provider)`);
+    console.error(`  (preview decorators: ${sbPreview} never mentions decorators \u2014 nothing to bundle; if providers live elsewhere, set cfg.provider)`);
     return false;
   }
   const { build } = await import('esbuild');
   const entry = join(OUT, '.preview-decorators-entry.mjs');
   // The decorator receives (Story, ctx). We pass a Story fn that returns the
   // already-built inner element and a minimal ctx whose globals are seeded
-  // from globalTypes defaultValues / initialGlobals — theming decorators read
+  // from globalTypes defaultValues / initialGlobals - theming decorators read
   // ctx.globals.theme et al, and storybook's own default render uses exactly
   // these values. Single-function decorators are legal CSF ([].concat).
   // A decorator returning undefined (an addon stub, a manager-side noop)
-  // falls through to the inner render with one console warning — otherwise
+  // falls through to the inner render with one console warning - otherwise
   // one unrecognized addon silently blanks every preview.
   writeFileSync(entry, `import * as pv from ${JSON.stringify(sbPreview)};
 var ds = [].concat((pv.default && pv.default.decorators) || pv.decorators || []).filter(function(d){return typeof d==="function"});
-if (!ds.length) console.warn("[ds] preview decorators: the preview module mentions decorators but exposed none at runtime (indirect export?) — previews render without the provider chain; set cfg.provider if components need one");
+if (!ds.length) console.warn("[ds] preview decorators: the preview module mentions decorators but exposed none at runtime (indirect export?) \u2014 previews render without the provider chain; set cfg.provider if components need one");
 var GT = (pv.default && pv.default.globalTypes) || pv.globalTypes || {};
 var G = {};
 for (var k in GT) { if (GT[k] && GT[k].defaultValue !== undefined) G[k] = GT[k].defaultValue; }
@@ -235,13 +235,13 @@ for (var k2 in IG) { G[k2] = IG[k2]; }
 var ctx = {args:{},argTypes:{},globals:G,parameters:{},viewMode:"story",loaded:{},id:"",name:"",title:"",kind:"",componentId:""};
 // reduce (not reduceRight): Storybook composes first-in-array = innermost.
 // The chain runs inside a rendered component so decorator hooks have a
-// dispatcher — calling decorators eagerly (outside render) would null it.
+// dispatcher \u2014 calling decorators eagerly (outside render) would null it.
 window.__dsDecorate = !ds.length ? null : function(el){
   return window.React.createElement(function(){
     return ds.reduce(function(inner,d){
       var out = d(function(){return inner}, ctx);
       if (out === undefined) {
-        if (!window.__dsDecoratorWarned) { window.__dsDecoratorWarned = 1; console.warn("[ds] a preview decorator returned undefined — skipped (addon stub?)"); }
+        if (!window.__dsDecoratorWarned) { window.__dsDecoratorWarned = 1; console.warn("[ds] a preview decorator returned undefined \u2014 skipped (addon stub?)"); }
         return inner;
       }
       return out;
@@ -249,14 +249,14 @@ window.__dsDecorate = !ds.length ? null : function(el){
   });
 };`);
   // Shim the DS package (by name, or by a relative path that resolves under
-  // PKG_DIR — e.g. `../src` from .storybook/) to window.<GLOBAL> so we don't
+  // PKG_DIR - e.g. `../src` from .storybook/) to window.<GLOBAL> so we don't
   // re-bundle the whole DS and the provider's Context matches the bundle's.
   const pkgRoot = resolve(PKG_DIR);
   const dsShim = {
     name: 'ds-global',
     setup(b) {
       const escPkg = PKG.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      // Exact match only — subpath imports (<pkg>/locales/en.json) must bundle
+      // Exact match only - subpath imports (<pkg>/locales/en.json) must bundle
       // normally, not shim to a nonexistent window.<GLOBAL>.<subpath>.
       b.onResolve({ filter: new RegExp(`^${escPkg}$`) }, () => ({ path: 'ds', namespace: 'ds-shim' }));
       b.onResolve({ filter: /^\.\.?\// }, (a) => {
@@ -272,23 +272,23 @@ window.__dsDecorate = !ds.length ? null : function(el){
     },
   };
   // Storybook-runtime/addon/msw packages are preview-time only. Stubbed (not
-  // externalized — `external` in IIFE output leaves a bare require() that
+  // externalized - `external` in IIFE output leaves a bare require() that
   // throws in-browser); manager-api gets functional no-ops. One definition,
   // shared with preview compilation, lives in story-imports.mjs.
   const stubEmpty = storybookStubPlugin();
   // React shim for the decorator bundle: read window.React/ReactDOM at USE
-  // time (getters), not via `var R = window.React` at thunk-define time —
+  // time (getters), not via `var R = window.React` at thunk-define time -
   // esbuild can hoist the CJS thunk call before the page global is live.
   const reactGlobal = {
     name: 'react-global',
     setup(b) {
       // Catch every subpath (react/jsx-runtime, react-dom/client,
-      // react-dom/server, …) so a transitive package's own `import React`
+      // react-dom/server, ...) so a transitive package's own `import React`
       // can't bundle a second copy alongside the page's window.React.
       b.onResolve({ filter: /^react(-dom)?($|\/)/ }, (a) =>
         ({ path: a.path.startsWith('react-dom') ? 'rd' : 'r', namespace: 'rg' }));
       // ownKeys + getOwnPropertyDescriptor so esbuild's __toESM/__copyProps
-      // (which enumerate via getOwnPropertyNames) see every React export —
+      // (which enumerate via getOwnPropertyNames) see every React export -
       // otherwise `import {useState} from 'react'` is undefined.
       const proxy = (g, extra) => `new Proxy(${extra},{
   get:function(o,k){return k in o?o[k]:(${g}||{})[k]},
@@ -312,7 +312,7 @@ module.exports=${proxy('window.React', '{jsx:jsx,jsxs:jsx,jsxDEV:jsx,Fragment:un
       bundle: true, format: 'iife', platform: 'browser', target: 'es2020',
       jsx: 'automatic', loader: { '.js': 'jsx', '.json': 'json' },
       nodePaths: [NODE_MODULES], plugins: [reactGlobal, dsShim, stubEmpty],
-      // Same defines as the preview compile — provider chains routinely guard
+      // Same defines as the preview compile - provider chains routinely guard
       // on NODE_ENV/__DEV__, and esbuild leaves undefined identifiers to
       // throw at load time.
       define: {
@@ -333,8 +333,8 @@ module.exports=${proxy('window.React', '{jsx:jsx,jsxs:jsx,jsxDEV:jsx,Fragment:un
       console.error(`  ! preview decorator bundle failed: ${firstLine}`);
       // No hypothesis line here: the resolve-class remedies name the
       // story-imports fork seam, which this bundle's hardcoded plugins never
-      // consult — the only actionable remedy is the unconditional line below.
-      console.error('    decorators will not wrap previews — set cfg.provider to supply the context they provided');
+      // consult - the only actionable remedy is the unconditional line below.
+      console.error('    decorators will not wrap previews \u2014 set cfg.provider to supply the context they provided');
     }
     return false;
   } finally {

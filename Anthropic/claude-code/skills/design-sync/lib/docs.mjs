@@ -1,5 +1,5 @@
-// Per-component doc discovery + guidelines copy. Heuristic probe (sibling →
-// docsDir → stories.mdx) with cfg overrides (docsMap, docsDir, guidelinesGlob),
+// Per-component doc discovery + guidelines copy. Heuristic probe (sibling ->
+// docsDir -> stories.mdx) with cfg overrides (docsMap, docsDir, guidelinesGlob),
 // plus a minimal-transform .md/.mdx ingester. The output goes into <Name>.prompt.md
 // so the design agent gets usage judgment alongside the structured API contract.
 
@@ -7,7 +7,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, writeFileSyn
 import { basename, dirname, extname, isAbsolute, join, relative, sep } from 'node:path';
 import { walk } from './common.mjs';
 
-// Cap on the doc body that lands in <Name>.prompt.md — the design agent reads
+// Cap on the doc body that lands in <Name>.prompt.md - the design agent reads
 // every .prompt.md, so one huge doc would crowd out the rest.
 export const DOC_BODY_CAP = 8000;
 
@@ -21,22 +21,22 @@ const slug = (s) => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 
 // Find the doc file for one component. First match wins.
 function findComponentDoc(c, { docsDirFiles, mapped, cfgPath }) {
-  // cfg.docsMap value: explicit path → bounded via the same cfgPath/outside
+  // cfg.docsMap value: explicit path -> bounded via the same cfgPath/outside
   // validation tsconfig/cssEntry/extraFonts use; null excludes. Extension-
   // gated so a config-supplied path can't point at e.g. `.env`.
   if (mapped !== undefined) {
     if (!mapped) return null;
     if (!isDocExt(mapped)) {
-      console.error(`  ! docsMap.${c.name}: ${mapped} is not .md/.mdx — skipped`);
+      console.error(`  ! docsMap.${c.name}: ${mapped} is not .md/.mdx \u2014 skipped`);
       return null;
     }
     return cfgPath(mapped, `docsMap.${c.name}`) ?? null;
   }
   // Sibling of the component's source. The storybook shape has no srcPath
-  // (components come from index.json) — the story source's directory is the
+  // (components come from index.json) - the story source's directory is the
   // stand-in; stories are conventionally colocated with the component, so a
   // sibling Button.mdx is found either way. README.md only counts when the
-  // source dir is component-named (e.g. Button/README.md) — a flat-layout
+  // source dir is component-named (e.g. Button/README.md) - a flat-layout
   // components/ui/README.md would otherwise match every component.
   const near = c.srcPath ?? c.storySrc;
   const dir = near ? dirname(near) : null;
@@ -51,10 +51,10 @@ function findComponentDoc(c, { docsDirFiles, mapped, cfgPath }) {
       if (existsSync(p)) return p;
     }
   }
-  // Under docsDir — basename match, case/kebab/space-insensitive. Exact
+  // Under docsDir - basename match, case/kebab/space-insensitive. Exact
   // match wins over a plural filename (`alerts.mdx` for Alert) so that when
   // both `Tab` and `Tabs` exist, `tabs.mdx` maps to Tabs. Multiple exact
-  // matches are announced — first-match-wins must never be silent, because
+  // matches are announced - first-match-wins must never be silent, because
   // the fix (a docsMap pin) only happens if someone hears about it.
   const want = slug(c.name);
   let plural = null;
@@ -65,7 +65,7 @@ function findComponentDoc(c, { docsDirFiles, mapped, cfgPath }) {
     else if (!plural && s === `${want}s`) plural = p;
   }
   if (exact.length > 1) {
-    console.error(`[DOCS_AMBIGUOUS] ${c.name}: ${exact.length} docs slug-match (${exact.map((p) => basename(p)).join(', ')}) — using ${basename(exact[0])}; pin cfg.docsMap.${c.name} to choose`);
+    console.error(`[DOCS_AMBIGUOUS] ${c.name}: ${exact.length} docs slug-match (${exact.map((p) => basename(p)).join(', ')}) \u2014 using ${basename(exact[0])}; pin cfg.docsMap.${c.name} to choose`);
   }
   if (exact.length) return exact[0];
   if (plural) return plural;
@@ -79,7 +79,7 @@ function findComponentDoc(c, { docsDirFiles, mapped, cfgPath }) {
 
 // Run discovery once; attach c.docPath per component, log summary. cfgPath is
 // the bounded validator from package-build.mjs (same one tsconfig/cssEntry/
-// extraFonts route through) — outside-workspace paths are skipped + logged.
+// extraFonts route through) - outside-workspace paths are skipped + logged.
 export function discoverDocs({ components, PKG_DIR, cfg, cfgPath }) {
   const docsDir = cfg.docsDir
     ? cfgPath(cfg.docsDir, 'docsDir')
@@ -93,7 +93,7 @@ export function discoverDocs({ components, PKG_DIR, cfg, cfgPath }) {
   const missed = [];
   for (const c of components) {
     const mapped = cfg.docsMap?.[c.name];
-    // `docsMap.<Name> = null` is a deliberate exclusion — not an unmapped
+    // `docsMap.<Name> = null` is a deliberate exclusion - not an unmapped
     // component, so no [DOCS_UNMAPPED] nudge to map what was just excluded.
     if (mapped === null) { excluded++; continue; }
     const p = findComponentDoc(c, { docsDirFiles, mapped, cfgPath });
@@ -104,13 +104,13 @@ export function discoverDocs({ components, PKG_DIR, cfg, cfgPath }) {
     } else missed.push(c.name);
   }
   // Attribution makes enumeration-smell visible: "62 via docsMap, 0
-  // discovered" says the map duplicates what discovery already does —
+  // discovered" says the map duplicates what discovery already does -
   // config expresses conventions and exceptions, never enumerations.
-  console.error(`  docs: ${matched}/${components.length} components matched${docsDir ? ` (cfg.docsDir=${relative(PKG_DIR, docsDir) || '.'})` : ''}${viaMap ? ` — ${viaMap} via docsMap, ${matched - viaMap} discovered` : ''}${excluded ? `, ${excluded} excluded (docsMap null)` : ''}`);
+  console.error(`  docs: ${matched}/${components.length} components matched${docsDir ? ` (cfg.docsDir=${relative(PKG_DIR, docsDir) || '.'})` : ''}${viaMap ? ` \u2014 ${viaMap} via docsMap, ${matched - viaMap} discovered` : ''}${excluded ? `, ${excluded} excluded (docsMap null)` : ''}`);
   if (matched > 0) for (const n of missed) console.error(`[DOCS_UNMAPPED] ${n}`);
 }
 
-// Minimal transform — NOT a parser. Strip frontmatter (parsing just
+// Minimal transform - NOT a parser. Strip frontmatter (parsing just
 // category/keywords), drop the .mdx import block and JSX-only lines.
 export function ingestDoc(path) {
   let txt = readFileSync(path, 'utf8');
@@ -129,7 +129,7 @@ export function ingestDoc(path) {
     }
   }
   // Drop noise that applies to .md and .mdx alike: HTML comments, raw
-  // <style>/<script> blocks, and VuePress/dumi-style `:::tip … :::`
+  // <style>/<script> blocks, and VuePress/dumi-style `:::tip ... :::`
   // admonition fences (keep the content between the fences).
   txt = txt
     .replace(/<!--[\s\S]*?-->/g, '')
@@ -138,8 +138,8 @@ export function ingestDoc(path) {
   if (/\.mdx$/i.test(path)) {
     const lines = txt.split('\n');
     // Drop the leading import block. A prettier-wrapped multi-line import
-    // (`import {\n  X,\n} from '…';`) spans until the `from '…';` line. A
-    // terminated single line (side-effect `import './x';` — no `from`) does
+    // (`import {\n  X,\n} from '...';`) spans until the `from '...';` line. A
+    // terminated single line (side-effect `import './x';` - no `from`) does
     // NOT enter multi-line mode.
     let i = 0, inImport = false;
     while (i < lines.length) {
@@ -154,7 +154,7 @@ export function ingestDoc(path) {
       break;
     }
     // Drop JSX component blocks. Depth-track on PascalCase open/close tags so
-    // a multi-line <Canvas>\n <Story …/>\n</Canvas> is dropped in full. Only
+    // a multi-line <Canvas>\n <Story .../>\n</Canvas> is dropped in full. Only
     // count tags on block-level-JSX lines (or inside an open block) so inline
     // `` `<Button>` `` mentions and fenced code don't poison depth.
     const out = [];
@@ -178,19 +178,19 @@ export function ingestDoc(path) {
     // hard cut when the nearest boundary is unreasonably far back.
     const cut = body.slice(0, DOC_BODY_CAP).replace(/\s+\S*$/, '');
     body = (cut.length > DOC_BODY_CAP - 500 ? cut : body.slice(0, DOC_BODY_CAP)) +
-      `\n\n_(truncated — see ${basename(path)} for full)_`;
-    console.error(`  docs: ${basename(path)} truncated (${orig} → ${body.length})`);
+      `\n\n_(truncated \u2014 see ${basename(path)} for full)_`;
+    console.error(`  docs: ${basename(path)} truncated (${orig} \u2192 ${body.length})`);
   }
   return { body, category, keywords };
 }
 
-// Tiny glob: `**` → any depth, `*` → any chars in one segment. Anchored under
+// Tiny glob: `**` -> any depth, `*` -> any chars in one segment. Anchored under
 // PKG_DIR. The walk base and any literal (no-wildcard) entry are bounded via
 // cfgPath; matched files whose realpath escapes workspaceRoot are dropped.
 function matchGlob(glob, { PKG_DIR, cfgPath, quiet }) {
   if (!glob.includes('*')) {
     if (!isDocExt(glob)) {
-      if (!quiet) console.error(`  ! guidelinesGlob: ${glob} is not .md/.mdx — skipped`);
+      if (!quiet) console.error(`  ! guidelinesGlob: ${glob} is not .md/.mdx \u2014 skipped`);
       return [];
     }
     const p = cfgPath(glob, 'guidelinesGlob');
@@ -198,14 +198,14 @@ function matchGlob(glob, { PKG_DIR, cfgPath, quiet }) {
   }
   const parts = glob.split('/');
   const i = parts.findIndex((p) => p.includes('*'));
-  // Bound the walk base too — `../**/*.md` would otherwise walk arbitrary
+  // Bound the walk base too - `../**/*.md` would otherwise walk arbitrary
   // directories. Falls back to PKG_DIR (always in-bounds) when i === 0.
   // `quiet` (default globs the user never set) skips the not-found warning.
   if (quiet && i > 0 && !existsSync(join(PKG_DIR, ...parts.slice(0, i)))) return [];
   const base = i > 0 ? cfgPath(parts.slice(0, i).join('/'), 'guidelinesGlob') : PKG_DIR;
   if (!base) return [];
-  // `**/` → zero-or-more directory segments (so `docs/**/*.md` matches both
-  // `docs/x.md` and `docs/sub/x.md`); `**` elsewhere → any depth; `*` →
+  // `**/` -> zero-or-more directory segments (so `docs/**/*.md` matches both
+  // `docs/x.md` and `docs/sub/x.md`); `**` elsewhere -> any depth; `*` ->
   // any chars within a segment.
   const rx = new RegExp('^' + glob.replace(/[.+^${}()|[\]\\]/g, '\\$&')
     .replace(/\*\*\//g, '§§/').replace(/\*\*/g, '§§').replace(/\*/g, '[^/]*')
@@ -240,18 +240,18 @@ export function emitGuidelines({ cfg, PKG_DIR, OUT, cfgPath, workspaceRoot }) {
       try { real = realpathSync(p); } catch { continue; }
       const wsRel = relative(workspaceRoot, real);
       if (wsRel.startsWith('..') || isAbsolute(wsRel)) {
-        console.error(`  ! guidelinesGlob: matched ${p} resolves outside the workspace root — skipped`);
+        console.error(`  ! guidelinesGlob: matched ${p} resolves outside the workspace root \u2014 skipped`);
         continue;
       }
       // Dest preserves PKG_DIR-relative subpath when the file is inside the
-      // package; otherwise (in-workspace but outside the package — e.g. a
+      // package; otherwise (in-workspace but outside the package - e.g. a
       // sibling docs package) collapses to basename so the dest can never
       // escape OUT/guidelines/.
       let rel = relative(PKG_DIR, p).split(sep).join('/');
       if (rel.startsWith('../') || isAbsolute(rel)) rel = basename(p);
       const dest = join(OUT, 'guidelines', rel);
       if (dests.has(dest)) {
-        console.error(`  ! guidelines: ${rel} would overwrite an earlier file with the same dest — skipped`);
+        console.error(`  ! guidelines: ${rel} would overwrite an earlier file with the same dest \u2014 skipped`);
         continue;
       }
       dests.add(dest);
@@ -265,12 +265,12 @@ export function emitGuidelines({ cfg, PKG_DIR, OUT, cfgPath, workspaceRoot }) {
       join(OUT, 'guidelines', 'index.md'),
       `# Guidelines\n\n${copied.map((r) => `- [${basename(r, extname(r))}](./${r})`).join('\n')}\n`,
     );
-    console.error(`  guidelines: ${copied.length} file(s) → guidelines/`);
+    console.error(`  guidelines: ${copied.length} file(s) \u2192 guidelines/`);
   }
   return copied;
 }
 
-// Read PascalCase named exports from a preview .tsx (either home — the caller
+// Read PascalCase named exports from a preview .tsx (either home - the caller
 // picks owned-first) as fenced JSX blocks for the synthesized ## Examples
 // section. Gracefully empty when the file/dir doesn't exist.
 export function previewExamples(previewPath) {

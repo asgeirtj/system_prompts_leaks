@@ -20,53 +20,53 @@ if (!OUT || !existsSync(OUT)) {
 const rsFlag = process.argv.indexOf('--render-sample');
 const RENDER_SAMPLE = rsFlag > 0 ? Number(process.argv[rsFlag + 1]) || 0 : 0;
 // Explicit acknowledgment that the render check can't run here (no chromium).
-// Without it, a missing playwright is a FAILURE — a silent skip lets the
+// Without it, a missing playwright is a FAILURE - a silent skip lets the
 // final summary imply a validation that never happened.
 const NO_RENDER_CHECK = process.argv.includes('--no-render-check');
 
 // Bundle-relative path for reporting and render-check URLs. relative() (not a
 // length-based slice) so OUT spelled as `./out`, with a trailing slash, or
-// backslashed still yields `components/...` — a prefix-length mismatch would
+// backslashed still yields `components/...` - a prefix-length mismatch would
 // shear leading characters off every rel and 404 every render-check URL.
 const relOut = (p) => relative(OUT, p).replaceAll('\\', '/');
 
 let errors = 0;
 let warnings = 0;
-const fail = (msg) => { errors++; console.error(`✗ ${msg}`); };
+const fail = (msg) => { errors++; console.error(`\u2717 ${msg}`); };
 const warn = (msg) => { warnings++; console.error(`! ${msg}`); };
 const ok = (msg) => console.error(`  ${msg}`);
 // Thin/blank remedy hint: "author a preview" is wrong advice when one is
-// already authored — then the authored preview itself is what measures thin
+// already authored - then the authored preview itself is what measures thin
 // (portals and fixed positioning collapse measured height) and the fix is to
 // confirm the screenshot, not to author what already exists.
 const previewRemedy = (name) => existsSync(join('.design-sync', 'previews', `${name}.tsx`))
-  ? `.design-sync/previews/${name}.tsx is already authored and still trips this check — portals/fixed positioning can collapse measured output; confirm the screenshot and record in NOTES.md if benign, or rework the preview`
-  : `author .design-sync/previews/${name}.tsx — owned files win over generated ones`;
+  ? `.design-sync/previews/${name}.tsx is already authored and still trips this check \u2014 portals/fixed positioning can collapse measured output; confirm the screenshot and record in NOTES.md if benign, or rework the preview`
+  : `author .design-sync/previews/${name}.tsx \u2014 owned files win over generated ones`;
 
 // .ds-build-meta.json well-formed (local-only build metadata; not uploaded).
 let ver;
 try {
   ver = JSON.parse(readFileSync(join(OUT, '.ds-build-meta.json'), 'utf8'));
   ok(`.ds-build-meta.json: ${ver.componentCount} components (${ver.shape})`);
-  // A --skip-dts build emits stub .d.ts bodies — fine for the fix loop, never
+  // A --skip-dts build emits stub .d.ts bodies - fine for the fix loop, never
   // for upload (the .d.ts is the design agent's API contract).
-  if (ver.dtsStubbed) fail('[DTS_STUBBED] built with --skip-dts — re-run package-build without it before the upload gate');
+  if (ver.dtsStubbed) fail('[DTS_STUBBED] built with --skip-dts \u2014 re-run package-build without it before the upload gate');
 } catch (e) { fail(`.ds-build-meta.json: ${e.message}`); }
 
 // _ds_bundle.js exists at root + loadable (syntax-valid IIFE) + a well-formed
-// first-line `/* @ds-bundle: {…} */` header the claude.ai/design app's
+// first-line `/* @ds-bundle: {...} */` header the claude.ai/design app's
 // self-check parses. headerMeta feeds the [BUNDLE_EXPORT] smoke check below.
 const bundleJs = join(OUT, '_ds_bundle.js');
 let headerMeta = null;
-if (!existsSync(bundleJs)) fail('_ds_bundle.js missing — [NO_DIST] the package build failed');
+if (!existsSync(bundleJs)) fail('_ds_bundle.js missing \u2014 [NO_DIST] the package build failed');
 else {
   const src = readFileSync(bundleJs, 'utf8');
   const kb = (statSync(bundleJs).size / 1024).toFixed(0);
   try { new Function(src); ok(`_ds_bundle.js: ${kb} KB, syntax OK`); }
-  catch (e) { fail(`_ds_bundle.js: syntax error — ${e.message}`); }
+  catch (e) { fail(`_ds_bundle.js: syntax error \u2014 ${e.message}`); }
   // Header: first line only, un-escape `*\/`.
   const m = /^\/\* @ds-bundle: (.*) \*\//.exec(src.split('\n', 1)[0]);
-  if (!m) fail('_ds_bundle.js: missing first-line `/* @ds-bundle: {…} */` header');
+  if (!m) fail('_ds_bundle.js: missing first-line `/* @ds-bundle: {\u2026} */` header');
   else {
     try {
       const meta = JSON.parse(m[1].replace(/\*\\\//g, '*/'));
@@ -80,32 +80,32 @@ else {
         ok(`_ds_bundle.js header: window.${meta.namespace}, ${meta.components.length} components, ${meta.inlinedExternals.length} inlined externals`);
         headerMeta = meta;
       }
-    } catch (e) { fail(`_ds_bundle.js header: invalid JSON — ${e.message}`); }
+    } catch (e) { fail(`_ds_bundle.js header: invalid JSON \u2014 ${e.message}`); }
   }
 }
 
-// _ds_sync.json — the verification anchor future syncs diff against
+// _ds_sync.json - the verification anchor future syncs diff against
 // (uploaded with the bundle; remote-diff derives verified-by-upload from it).
 try {
   const sync = JSON.parse(readFileSync(join(OUT, '_ds_sync.json'), 'utf8'));
   const badShape = (v) => !v || typeof v !== 'object' || Array.isArray(v);
   const n = badShape(sync.renderHashes) ? -1 : Object.keys(sync.renderHashes).length;
   // n === 0 is legitimate for a tokens-only sync (componentCount 0).
-  if (!sync.styleSha || n < 0 || (n === 0 && ver?.componentCount !== 0)) fail('_ds_sync.json missing styleSha/renderHashes — rebuild');
+  if (!sync.styleSha || n < 0 || (n === 0 && ver?.componentCount !== 0)) fail('_ds_sync.json missing styleSha/renderHashes \u2014 rebuild');
   else {
     let live = null;
-    try { live = createHash('sha256').update(readFileSync(bundleJs)).digest('hex').slice(0, 12); } catch { /* bundle missing — NO_DIST already failed above */ }
-    if (live && sync.bundleSha12 !== live) fail('_ds_sync.json is stale (bundleSha mismatch) — rebuild so the anchor describes this bundle');
+    try { live = createHash('sha256').update(readFileSync(bundleJs)).digest('hex').slice(0, 12); } catch { /* bundle missing - NO_DIST already failed above */ }
+    if (live && sync.bundleSha12 !== live) fail('_ds_sync.json is stale (bundleSha mismatch) \u2014 rebuild so the anchor describes this bundle');
     else ok(`_ds_sync.json: ${n} render hash(es), anchor matches the bundle`);
   }
   // Recompute every render hash from what's actually on disk. A stale entry
   // (interrupted preview-rebuild, hand edit, lost concurrent patch) would
-  // mark an unverified component "verified-by-upload" forever — the one
+  // mark an unverified component "verified-by-upload" forever - the one
   // failure mode the anchor model can't tolerate.
   try {
     let manifest = null;
     try { manifest = JSON.parse(readFileSync(join(OUT, '.stories-map.json'), 'utf8')); }
-    catch { ok('(render-hash recompute skipped — no .stories-map.json; off-script layouts skip this check)'); }
+    catch { ok('(render-hash recompute skipped \u2014 no .stories-map.json; off-script layouts skip this check)'); }
     const { renderHashFor } = await import(new URL('./lib/sync-hashes.mjs', import.meta.url).href);
     const stale = [];
     if (manifest) {
@@ -115,26 +115,26 @@ try {
         : {});
       if (sync.renderHashes[c.name] !== liveHash) stale.push(c.name);
     }
-    if (stale.length) fail(`[SYNC_STALE] _ds_sync.json renderHashes don't match disk for: ${stale.join(', ')} — rebuild (package-build.mjs) so the anchor describes this output`);
+    if (stale.length) fail(`[SYNC_STALE] _ds_sync.json renderHashes don't match disk for: ${stale.join(', ')} \u2014 rebuild (package-build.mjs) so the anchor describes this output`);
     else if (manifest.components?.length) ok(`_ds_sync.json render hashes match disk (${manifest.components.length} recomputed)`);
     }
   } catch (e) { fail(`_ds_sync.json recompute failed (${String(e.message ?? e).split('\n')[0]})`); }
 } catch (e) {
   // An off-script layout (no .stories-map.json manifest) may legitimately
-  // omit the sidecar — no anchor just means the next sync re-verifies
+  // omit the sidecar - no anchor just means the next sync re-verifies
   // everything. A script build must always have it.
-  if (e?.code === 'ENOENT' && !existsSync(join(OUT, '.stories-map.json'))) warn('_ds_sync.json absent — acceptable only for an off-script layout; with no anchor the next sync re-verifies everything');
-  else fail(`_ds_sync.json unreadable (${e.message}) — the verification anchor must upload with the bundle`);
+  if (e?.code === 'ENOENT' && !existsSync(join(OUT, '.stories-map.json'))) warn('_ds_sync.json absent \u2014 acceptable only for an off-script layout; with no anchor the next sync re-verifies everything');
+  else fail(`_ds_sync.json unreadable (${e.message}) \u2014 the verification anchor must upload with the bundle`);
 }
 
-// styles.css — the styles entry point. Normally @imports ≥1 file. A CSS-in-JS
+// styles.css - the styles entry point. Normally @imports >=1 file. A CSS-in-JS
 // DS legitimately has nothing to import; the build marks that case with a
 // `@ds-styles: runtime` comment, which downgrades the empty file to a warning.
 const stylesCss = join(OUT, 'styles.css');
-if (!existsSync(stylesCss)) fail('styles.css missing — the styles entry point the app reads');
+if (!existsSync(stylesCss)) fail('styles.css missing \u2014 the styles entry point the app reads');
 else {
   const txt = readFileSync(stylesCss, 'utf8');
-  // Each @import target must exist on disk — a broken relative path means
+  // Each @import target must exist on disk - a broken relative path means
   // everything is unstyled post-upload.
   let n = 0, missing = 0;
   for (const m of txt.matchAll(/@import\s+(?:url\()?["']([^"']+)["']/g)) {
@@ -144,17 +144,17 @@ else {
   }
   if (n > 0) { if (!missing) ok(`styles.css: ${n} @import(s), all resolve`); }
   else if (/@ds-styles:\s*runtime/.test(txt)) {
-    warn('[CSS_RUNTIME] styles.css has no @imports — DS styles itself at runtime (CSS-in-JS). OK; verify the render check passes. If the DS does ship a stylesheet, set cfg.cssEntry. Already set cfg.cssEntry and renders verify? Then this is informational — do not chase it.');
+    warn('[CSS_RUNTIME] styles.css has no @imports \u2014 DS styles itself at runtime (CSS-in-JS). OK; verify the render check passes. If the DS does ship a stylesheet, set cfg.cssEntry. Already set cfg.cssEntry and renders verify? Then this is informational \u2014 do not chase it.');
   } else {
-    fail('styles.css has no @import lines — no tokens/component/font CSS was scraped');
+    fail('styles.css has no @import lines \u2014 no tokens/component/font CSS was scraped');
   }
-  // Rendered designs receive ONLY the styles.css transitive @import closure —
+  // Rendered designs receive ONLY the styles.css transitive @import closure -
   // a real bundle stylesheet outside it silently unstyles every design built
   // with the DS (the preview cards link it directly, masking the gap).
   let bundleTxt = '';
   try { bundleTxt = readFileSync(join(OUT, '_ds_bundle.css'), 'utf8'); } catch { /* CSS-in-JS / headless */ }
   if (bundleTxt.trim() && !bundleTxt.startsWith('/* @ds-css-runtime') && !/@import\s+(?:url\()?["']\.\/_ds_bundle\.css["']/.test(txt)) {
-    fail('[CSS_BUNDLE_UNREACHABLE] _ds_bundle.css has real CSS but styles.css does not @import it — rebuild (or add `@import "./_ds_bundle.css";`)');
+    fail('[CSS_BUNDLE_UNREACHABLE] _ds_bundle.css has real CSS but styles.css does not @import it \u2014 rebuild (or add `@import "./_ds_bundle.css";`)');
   }
   // Relative @imports retained inside the bundle css dangle the same way.
   for (const m of bundleTxt.matchAll(/@import\s+(?:url\()?["']([^"']+)["']/g)) {
@@ -163,23 +163,23 @@ else {
   }
 }
 
-// _ds_bundle.css — if present, must be real CSS (not a stub @import).
+// _ds_bundle.css - if present, must be real CSS (not a stub @import).
 const bundleCss = join(OUT, '_ds_bundle.css');
 if (existsSync(bundleCss)) {
   const sz = statSync(bundleCss).size;
   const txt = readFileSync(bundleCss, 'utf8');
   const stripped = txt.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@(import|charset)\b[^;]*;/g, '').trim();
   if (txt.includes('@ds-css-runtime')) {
-    console.error('[CSS_RUNTIME] _ds_bundle.css is the runtime-styles stub — expected for CSS-in-JS DSes');
+    console.error('[CSS_RUNTIME] _ds_bundle.css is the runtime-styles stub \u2014 expected for CSS-in-JS DSes');
   } else if (sz < 500 && stripped.length === 0) {
-    fail(`[CSS_PLACEHOLDER] _ds_bundle.css is ${sz}B of @import-only stub — set cfg.cssEntry to the compiled stylesheet (storybook repos: the build-time CSS fallback should have caught this — check for [CSS_FROM_STORYBOOK] in the build log)`);
+    fail(`[CSS_PLACEHOLDER] _ds_bundle.css is ${sz}B of @import-only stub \u2014 set cfg.cssEntry to the compiled stylesheet (storybook repos: the build-time CSS fallback should have caught this \u2014 check for [CSS_FROM_STORYBOOK] in the build log)`);
   } else ok(`_ds_bundle.css: ${(sz / 1024).toFixed(0)} KB`);
 }
 
-// Token coverage — CSS custom properties referenced by the shipped stylesheets
+// Token coverage - CSS custom properties referenced by the shipped stylesheets
 // but defined by none of them. Fires when the DS keeps its tokens in a sibling
 // package that wasn't picked up. Skips var(--x, fallback) forms (they degrade
-// gracefully) and degrades to no warning on any parse hiccup. Non-blocking —
+// gracefully) and degrades to no warning on any parse hiccup. Non-blocking -
 // the screenshot review (contact sheets / grading) is where colorless
 // previews are caught.
 try {
@@ -191,14 +191,14 @@ try {
   }
   let allCss = cssFiles.filter(p => existsSync(p)).map(p => readFileSync(p, 'utf8')).join('\n');
   // Vars the bundle's own JS sets at runtime (via setProperty / inline style)
-  // count as defined — they're in what ships, just not in a .css file.
+  // count as defined - they're in what ships, just not in a .css file.
   if (existsSync(bundleJs)) {
     const js = readFileSync(bundleJs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
     for (const m of js.matchAll(/setProperty\(\s*['"`](--[\w-]+)/g)) allCss += `\n${m[1]}:;`;
     for (const m of js.matchAll(/['"`](--[\w-]+)['"`]\s*:/g)) allCss += `\n${m[1]}:;`;
   }
   // Component-local vars are often defined in inline <style> blocks the
-  // preview HTML itself emits — those ship and are part of the closure.
+  // preview HTML itself emits - those ship and are part of the closure.
   (function scanStyles(d) {
     if (!existsSync(d)) return;
     for (const e of readdirSync(d, { withFileTypes: true })) {
@@ -213,13 +213,13 @@ try {
   const referenced = [...new Set([...allCss.matchAll(/var\(\s*(--[\w-]+)\s*\)/g)].map(m => m[1]))];
   const missing = referenced.filter(v => !defined.has(v));
   if (missing.length > 3) {
-    warn(`[TOKENS_MISSING] ${missing.length} CSS custom ${missing.length === 1 ? 'property' : 'properties'} referenced but not defined in shipped stylesheets: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ', …' : ''}. Set cfg.tokensPkg (or cfg.tokensGlob) to the package that defines them, or cfg.provider if they're injected at runtime by a theme provider. Vars a component sets at runtime (inline style / JS) are EXPECTED to be absent here — check a rendered preview before chasing.`);
+    warn(`[TOKENS_MISSING] ${missing.length} CSS custom ${missing.length === 1 ? 'property' : 'properties'} referenced but not defined in shipped stylesheets: ${missing.slice(0, 8).join(', ')}${missing.length > 8 ? ', \u2026' : ''}. Set cfg.tokensPkg (or cfg.tokensGlob) to the package that defines them, or cfg.provider if they're injected at runtime by a theme provider. Vars a component sets at runtime (inline style / JS) are EXPECTED to be absent here \u2014 check a rendered preview before chasing.`);
   } else if (referenced.length) {
     ok(`tokens: ${defined.size} defined, ${referenced.length} referenced${missing.length ? ` (${missing.length} missing, below threshold)` : ''}`);
   }
 } catch {}
 
-// Brand-font coverage — families the shipped CSS references but no shipped
+// Brand-font coverage - families the shipped CSS references but no shipped
 // @font-face declares. Common for corporate DSes whose host app provides the
 // brand font; the DS pane then renders with system substitutes. Heuristic and
 // strictly non-blocking: warn() only, and any parse hiccup degrades to no
@@ -241,7 +241,7 @@ try {
     'inherit', 'initial', 'unset', 'revert', 'revert-layer', 'none', 'auto',
     'normal', 'italic', 'bold', 'bolder', 'lighter', 'oblique', 'small-caps',
   ]);
-  // cfg.runtimeFontPrefixes — family-name prefixes for fonts served at
+  // cfg.runtimeFontPrefixes - family-name prefixes for fonts served at
   // runtime (via a <script> or font service, not CSS @import), so the
   // FONT_MISSING check treats them as system-equivalent.
   const runtimePrefixes = (ver?.runtimeFontPrefixes ?? []).map((p) => p.toLowerCase()).filter(Boolean);
@@ -260,10 +260,10 @@ try {
   }
   // Per-file so @font-face url()s resolve against the file they live in. A
   // family with only dangling local url()s was emitted (so [FONT_MISSING]
-  // won't fire — it's in `declared`) but the font file was never copied; the
+  // won't fire - it's in `declared`) but the font file was never copied; the
   // DS pane falls back to system fonts with no other signal.
   const declared = new Set();
-  const dangling = new Map(); // lowercased family → sample url that didn't resolve
+  const dangling = new Map(); // lowercased family -> sample url that didn't resolve
   const cssChunks = [];
   for (const p of cssPaths) {
     if (!existsSync(p)) continue;
@@ -285,7 +285,7 @@ try {
     }
   }
   const css = cssChunks.join('\n');
-  // Remote font-host @import present → families are served at runtime, not
+  // Remote font-host @import present -> families are served at runtime, not
   // shipped. Soften to info instead of warning.
   const hasRemoteFonts = /@import[^;]*(?:fonts\.googleapis|fonts\.gstatic|use\.typekit|fonts\.bunny)/i.test(css);
   // Custom properties: a lookup map for one-level-at-a-time var() resolution,
@@ -294,7 +294,7 @@ try {
   for (const m of css.matchAll(/(--[\w-]+)\s*:\s*([^;}]+)/g)) customProps.set(m[1], m[2].trim());
   const resolveVars = (v, depth = 0) => (depth > 3 ? v : v.replace(/var\(\s*(--[\w-]+)[^)]*\)/g, (_, name) =>
     (customProps.has(name) ? resolveVars(customProps.get(name), depth + 1) : '')));
-  const missing = new Map(); // lowercased family → { display, hint }
+  const missing = new Map(); // lowercased family -> { display, hint }
   const collect = (value, hint) => {
     for (let part of resolveVars(String(value)).split(',')) {
       part = part.trim().replace(/^['"]|['"]$/g, '').trim();
@@ -304,27 +304,27 @@ try {
       missing.set(key, { display: part, hint });
     }
   };
-  // font-family declarations outside @font-face blocks…
+  // font-family declarations outside @font-face blocks...
   const sansFontFace = css.replace(/@font-face\s*\{[^}]*\}/g, '');
   for (const m of sansFontFace.matchAll(/font-family\s*:\s*([^;}]+)/g)) collect(m[1], null);
-  // …plus font-token custom properties (--ds-font-mono and friends), skipping
-  // non-family font props (size/weight/feature-settings/…).
+  // ...plus font-token custom properties (--ds-font-mono and friends), skipping
+  // non-family font props (size/weight/feature-settings/...).
   for (const [name, value] of customProps) {
     if (/font/i.test(name) && !/font-(feature|variation|variant|kerning|stretch|optical|smooth(?:ing)?|size|weight|style|display|color|palette|leading|numeric|case|transform|synthesis)/i.test(name)) collect(value, name);
   }
   if (missing.size) {
     const list = [...missing.values()].map((m) => `"${m.display}"${m.hint ? ` (${m.hint})` : ''}`).join(', ');
     if (hasRemoteFonts) {
-      ok(`[FONT_REMOTE] ${list} — a remote font-host @import is present; assuming it serves these at runtime`);
+      ok(`[FONT_REMOTE] ${list} \u2014 a remote font-host @import is present; assuming it serves these at runtime`);
     } else {
-      warn(`[FONT_MISSING] ${list} referenced by the shipped CSS but no @font-face ships them — add the woff2 + @font-face via cfg.extraFonts, or accept substitutes (the DS pane will render with system fonts)`);
+      warn(`[FONT_MISSING] ${list} referenced by the shipped CSS but no @font-face ships them \u2014 add the woff2 + @font-face via cfg.extraFonts, or accept substitutes (the DS pane will render with system fonts)`);
     }
   }
   if (dangling.size) {
     const list = [...dangling.entries()].map(([fam, u]) => `"${fam}" (url: ${u})`).join(', ');
-    warn(`[FONT_DANGLING] ${list} — @font-face is shipped but its url() target isn't (the rule emits but the font file wasn't copied; check cfg.extraFonts paths or the build log for a "resolves outside" skip)`);
+    warn(`[FONT_DANGLING] ${list} \u2014 @font-face is shipped but its url() target isn't (the rule emits but the font file wasn't copied; check cfg.extraFonts paths or the build log for a "resolves outside" skip)`);
   }
-} catch { /* heuristic only — never block validation on a font-parse hiccup */ }
+} catch { /* heuristic only - never block validation on a font-parse hiccup */ }
 
 // README + per-component files. Parity with the app's self-check: each
 // preview's first line must be the @dsCard comment (else the DS pane never
@@ -345,11 +345,11 @@ let previews = 0, prompts = 0, badCard = 0, badLink = 0, badPrompt = 0;
       // group is required; further attributes (viewport="WxH" on single-mode
       // cards, name/subtitle on hand-authored ones) are allowed after it.
       if (!/^<!--\s*@dsCard\s+group="[^"]*"[^>]*-->/.test(txt.split('\n', 1)[0])) {
-        badCard++; fail(`[DSCARD_MISSING] ${rel}: first line isn't a \`<!-- @dsCard group="…" -->\` comment`);
+        badCard++; fail(`[DSCARD_MISSING] ${rel}: first line isn't a \`<!-- @dsCard group="\u2026" -->\` comment`);
       }
       for (const m of txt.matchAll(/<link\b[^>]*\bhref="([^"]+)"/g)) {
         if (/^https?:|^data:/.test(m[1])) continue;
-        // _ds_bundle.css is optional (CSS-in-JS DSes have none) — a dangling
+        // _ds_bundle.css is optional (CSS-in-JS DSes have none) - a dangling
         // <link> to it is a harmless browser 404, not a validator error.
         if (m[1].endsWith('/_ds_bundle.css') && !existsSync(bundleCss)) continue;
         if (!existsSync(resolve(dirname(p), m[1]))) {
@@ -366,16 +366,17 @@ let previews = 0, prompts = 0, badCard = 0, badLink = 0, badPrompt = 0;
 })(join(OUT, 'components'));
 const tokensOnly = ver?.componentCount === 0;
 if (previews === 0 && !tokensOnly) fail('no <Name>.html previews under components/');
-else if (!badCard && !badLink && !badPrompt) ok(tokensOnly ? 'tokens-only DS — no component previews' : `components/: ${previews} previews, ${prompts} .prompt.md`);
+else if (!badCard && !badLink && !badPrompt) ok(tokensOnly ? 'tokens-only DS \u2014 no component previews' : `components/: ${previews} previews, ${prompts} .prompt.md`);
 if (ver && previews !== ver.componentCount) {
   fail(`count mismatch: ${previews} previews vs ${ver.componentCount} components`);
 }
 
-// TypeScript syntax check on every emitted .d.ts — catches malformed prelude/
-// body debris before it reaches the app's parser. Best-effort (needs
-// typescript in node_modules, usually present via the DS's own dev deps).
+// TypeScript syntax check on every emitted .d.ts - catches malformed prelude/
+// body debris before it reaches the app's parser. Uses the compiler ts-morph
+// bundles (a required converter dependency, so present regardless of the DS's
+// own `typescript` - v7 has no JS API on its root export). Best-effort.
 try {
-  const ts = await import('typescript');
+  const { ts } = await import('ts-morph');
   let dtsErrs = 0;
   (function walkDts(d) {
     for (const e of readdirSync(d, { withFileTypes: true })) {
@@ -392,23 +393,23 @@ try {
   })(join(OUT, 'components'));
   if (!dtsErrs) ok(`all .d.ts parse cleanly`);
 } catch {
-  console.error('  (.d.ts parse check skipped — typescript not in node_modules)');
+  console.error('  (.d.ts parse check skipped \u2014 ts-morph not in node_modules)');
 }
 
-// Render check (optional — runs when playwright is importable and
+// Render check (optional - runs when playwright is importable and
 // --no-render-check wasn't passed). Opens EVERY <Name>.html, captures
-// pageerror throws, and asserts the first root is non-empty — catches
+// pageerror throws, and asserts the first root is non-empty - catches
 // runtime-broken bundles the file-shape checks above miss.
 let pw;
 if (!NO_RENDER_CHECK) { try { pw = await import('playwright'); } catch { /* not installed */ } }
 if (!pw) {
   // json presence must always mean "THIS run render-verified these entries"
-  // (the contact-sheets.json convention) — drop any prior run's copy.
+  // (the contact-sheets.json convention) - drop any prior run's copy.
   rmSync(join(OUT, '.render-check.json'), { force: true });
   if (NO_RENDER_CHECK) {
-    warn('[RENDER_SKIPPED] render check did not run (--no-render-check) — previews are NOT visually verified');
+    warn('[RENDER_SKIPPED] render check did not run (--no-render-check) \u2014 previews are NOT visually verified');
   } else {
-    fail('[RENDER_SKIPPED] playwright not importable — the render check did NOT run. `npm i -D playwright && npx playwright install chromium`, then re-run validate (or pass --no-render-check to accept an unverified bundle).');
+    fail('[RENDER_SKIPPED] playwright not importable \u2014 the render check did NOT run. `npm i -D playwright && npx playwright install chromium`, then re-run validate (or pass --no-render-check to accept an unverified bundle).');
   }
 } else {
   const htmls = [];
@@ -420,7 +421,7 @@ if (!pw) {
     }
   })(join(OUT, 'components'));
   // Large DSes (>RENDER_SAMPLE components) render-check a deterministic
-  // sample — full pass on 200+ previews can exceed the verify-loop budget.
+  // sample - full pass on 200+ previews can exceed the verify-loop budget.
   // Use `--render-sample 0` for the full set.
   const sample = RENDER_SAMPLE && htmls.length > RENDER_SAMPLE
     ? htmls.filter((_, i) => i % Math.ceil(htmls.length / RENDER_SAMPLE) === 0)
@@ -442,12 +443,12 @@ if (!pw) {
     let pageErrs = [];
     page.on('pageerror', (e) => pageErrs.push(String(e).split('\n')[0]));
 
-    // [BUNDLE_EXPORT] smoke — every header component must be a function (or a
+    // [BUNDLE_EXPORT] smoke - every header component must be a function (or a
     // compound namespace with function members) on window.<namespace> once the
     // bundle evaluates. Catches exports dropped by ESM ambiguous star
-    // re-exports and dist entries that point at a partial build — failures the
+    // re-exports and dist entries that point at a partial build - failures the
     // per-preview render check only surfaces indirectly as cell errors.
-    // Skipped for tokens-only bundles (empty components ⇒ nothing to assert,
+    // Skipped for tokens-only bundles (empty components => nothing to assert,
     // and the namespace wait would just burn its timeout).
     if (headerMeta?.components?.length) {
       try {
@@ -470,24 +471,24 @@ if (!pw) {
           }
           return { exp: Object.keys(NS).length, compound, bad };
         }, { g: headerMeta.namespace, ns: headerMeta.components.map((c) => c.name) });
-        if (compound.length) console.error(`  [BUNDLE_EXPORT] ${compound.length} compound namespace(s) (usable via .Sub): ${compound.slice(0, 8).join(', ')}${compound.length > 8 ? ', …' : ''}`);
-        if (bad.length) fail(`[BUNDLE_EXPORT] ${bad.length}/${headerMeta.components.length} not a component on window.${headerMeta.namespace}: ${bad.slice(0, 8).join(', ')}${bad.length > 8 ? ', …' : ''}`);
+        if (compound.length) console.error(`  [BUNDLE_EXPORT] ${compound.length} compound namespace(s) (usable via .Sub): ${compound.slice(0, 8).join(', ')}${compound.length > 8 ? ', \u2026' : ''}`);
+        if (bad.length) fail(`[BUNDLE_EXPORT] ${bad.length}/${headerMeta.components.length} not a component on window.${headerMeta.namespace}: ${bad.slice(0, 8).join(', ')}${bad.length > 8 ? ', \u2026' : ''}`);
         else ok(`window.${headerMeta.namespace}: ${exp} exports (${headerMeta.components.length - compound.length} fn + ${compound.length} compound)`);
       } catch (e) {
-        console.error(`  (bundle-export smoke skipped — ${String(e).split('\n')[0]})`);
+        console.error(`  (bundle-export smoke skipped \u2014 ${String(e).split('\n')[0]})`);
       }
     }
 
     for (const rel of sample) {
       pageErrs = [];
-      // components/<group>/<Name>/<Name>.html → <group>__<Name>.png
+      // components/<group>/<Name>/<Name>.html -> <group>__<Name>.png
       const [, group, name] = rel.match(/^components\/([^/]+)\/([^/]+)\//) ?? [,'misc', rel.split('/').pop()];
       const shot = join(shotDir, `${group}__${name}.png`);
       let pngBytes = 0, rootEmpty = true, err = null, caught = 0, firstCaught = null, texts = [], nEls = 0, variantsIdentical = false, hollow = [], maxHeight = 0, nPlaceholder = 0, nFallback = 0, gridOverflow = null, gridOverflowCells = [], storyExports = [];
       try {
         await page.goto(`http://127.0.0.1:${port}/${rel}`, { waitUntil: 'networkidle', timeout: 15000 });
-        // Per-mount try/catch in the preview writes `⚠ <message>` into the
-        // cell instead of throwing — count those as errors too. Also collect
+        // Per-mount try/catch in the preview writes `\u26A0 <message>` into the
+        // cell instead of throwing - count those as errors too. Also collect
         // each mount's textContent / element count / painted-ness and compare
         // innerHTMLs for the thin / variantsIdentical checks below. Portal
         // roots under document.body are included so a portalled Dialog isn't
@@ -532,13 +533,13 @@ if (!pw) {
           const texts = [], htmls = [], hollow = [];
           for (const r of roots) {
             const t = r.textContent ?? '';
-            if (t.startsWith('⚠')) { caught++; firstCaught ??= t.slice(2, 150); continue; }
+            if (t.startsWith('\u26A0')) { caught++; firstCaught ??= t.slice(2, 150); continue; }
             texts.push(t.trim());
             htmls.push(r.innerHTML);
             hollow.push(!t.trim() && !paints(r));
             nEls = Math.max(nEls, r.querySelectorAll('*').length);
             // Measure the mount's children (the component's own root(s)),
-            // not the mount div — the harness cell may have intrinsic height
+            // not the mount div - the harness cell may have intrinsic height
             // even when the component collapsed to 0. Max over all children
             // so a 0-height VisuallyHidden-first sibling doesn't mask a
             // tall second child.
@@ -559,9 +560,9 @@ if (!pw) {
           const nFallback = document.querySelectorAll('[data-ds-fallback]').length;
           // Grid-layout geometry (the floor card has no grid; mode
           // exemptions below). 'wide': a story renders wider than its
-          // cell — the cell clip is cropping it in the product card.
+          // cell - the cell clip is cropping it in the product card.
           // 'escape': a story positions content outside any cell (fixed
-          // descendants, or portal content mounted in grid mode) — no grid
+          // descendants, or portal content mounted in grid mode) - no grid
           // geometry can present it; takes precedence over 'wide'.
           // Offending cells are named (their h4 = the story label) so the
           // remedy is attributable per story; storyExports feed the
@@ -569,15 +570,15 @@ if (!pw) {
           let gridOverflow = null;
           let gridOverflowCells = [];
           // single is fully exempt (one full-bleed story in a transformed
-          // containing-block wrapper — nothing left to detect). column is
+          // containing-block wrapper - nothing left to detect). column is
           // exempt only from 'wide' (it IS the wide remedy): portals and
           // fixed content paint over / crop in a column card exactly as in
-          // a grid, so escape stays monitored — matching compare.mjs's
+          // a grid, so escape stays monitored - matching compare.mjs's
           // [PORTAL?], which flags any mode !== 'single'. Without this, a
           // portal story added to a column card on a later re-sync could
           // never be flagged (the doctrine says don't re-chase validates).
           if (window.__dsMode === 'grid' || window.__dsMode === 'column') {
-            // Render-truth visibility for escape classification — computed
+            // Render-truth visibility for escape classification - computed
             // styles and textContent are both blind to actual rendering
             // (display doesn't inherit; textContent reads hidden subtrees).
             // A subtree "shows" when some node generates a box (display:none
@@ -590,7 +591,7 @@ if (!pw) {
             const subtreeShows = (root) => {
               let n = 0;
               for (const el of [root, ...root.querySelectorAll('*')]) {
-                if (++n > 1500) return true; // budget hit on a huge fixed subtree — assume it shows
+                if (++n > 1500) return true; // budget hit on a huge fixed subtree - assume it shows
                 const b = el.getBoundingClientRect();
                 if (b.width === 0 && b.height === 0) continue;
                 const ecs = getComputedStyle(el);
@@ -602,8 +603,8 @@ if (!pw) {
               return false;
             };
             // Measure at the PRODUCT column bound, not this page's 1200px
-            // viewport: the product pane is ≤728px (− 2×24px body padding →
-            // 680px grid box), where auto-fill yields narrower cells — a
+            // viewport: the product pane is <=728px (- 2×24px body padding ->
+            // 680px grid box), where auto-fill yields narrower cells - a
             // story can fit a ~370px cell here and still crop in the
             // product's ~330px. Constrain the grid, measure, restore.
             const grid = document.querySelector('.ds-grid');
@@ -613,7 +614,7 @@ if (!pw) {
             for (const cell of document.querySelectorAll('section.ds-cell')) {
               const label = cell.querySelector('h4')?.textContent ?? '?';
               let kind = window.__dsMode === 'grid' && cell.scrollWidth > cell.clientWidth + 8 ? 'wide' : null;
-              // Per-cell budget — a DOM-heavy cell must not starve later
+              // Per-cell budget - a DOM-heavy cell must not starve later
               // cells' scans (a shared counter silently disabled detection
               // for the rest of the card).
               let cellWalked = 0;
@@ -627,11 +628,11 @@ if (!pw) {
               if (kind) gridOverflow = kind === 'escape' || gridOverflow === 'escape' ? 'escape' : 'wide';
             }
             if (grid) grid.style.maxWidth = prevMaxWidth;
-            // Portal content can't be attributed to a cell — flag the card.
+            // Portal content can't be attributed to a cell - flag the card.
             // Same render-truth gate: a keep-mounted CLOSED overlay portaled
             // to body (display:none content) must not escalate.
             if (gridOverflow !== 'escape' && portals.some(subtreeShows)) gridOverflow = 'escape';
-            // Name only the cells matching the FINAL kind — the escape warn
+            // Name only the cells matching the FINAL kind - the escape warn
             // must not present wide-only cells as fixed/portal offenders
             // (portal-only escalation legitimately names none).
             gridOverflowCells = gridOverflow === 'escape' ? escapeCells : gridOverflow === 'wide' ? wideCells : [];
@@ -649,10 +650,10 @@ if (!pw) {
       // design components (Divider, Spinner) have no name-text so don't trip.
       const squash = (s) => s.replace(/[\s_-]+/g, '').toLowerCase();
       const nameS = squash(name);
-      // Name-only = the squashed text is ≥2 repetitions of the name. React
+      // Name-only = the squashed text is >=2 repetitions of the name. React
       // concatenates adjacent text nodes, so 4× `{"Name"}` children becomes
       // `"NameNameNameName"` with no separators. A single occurrence (e.g.
-      // FormLabel→"Form label", Loading→"loading") is likely the component's
+      // FormLabel->"Form label", Loading->"loading") is likely the component's
       // legitimate rendered label, not a placeholder; `hasPlaceholder` covers
       // the generator-emitted case.
       const nameReps = (t) => {
@@ -664,7 +665,7 @@ if (!pw) {
       const hasRealText = texts.some((t) => t && nameReps(t) === 0);
       const nameOnly = hasNameText && !hasRealText;
       // hasPlaceholder: a `data-ds-placeholder` element is in the mounted DOM
-      // — the generator's intentional dashed-box. An edit-hint, not an error.
+      // - the generator's intentional dashed-box. An edit-hint, not an error.
       const hasPlaceholder = nPlaceholder > 0;
       // allHollow: every mount has no text and paints nothing.
       const allHollow = hollow.length > 0 && hollow.every(Boolean);
@@ -675,56 +676,56 @@ if (!pw) {
       const thin = !err && (nameOnly || allHollow || collapsed);
       // The typographic floor card (data-ds-fallback) is an INTENTIONAL
       // state: the component imported fine but has no authored preview.
-      // It is never bad/thin — it's counted separately so the summary stays
+      // It is never bad/thin - it's counted separately so the summary stays
       // honest about how many cards show a render vs the floor.
       const fallbackCard = !err && nFallback > 0;
       // A floor card is never bad: pageerrors from its abandoned render
       // attempt and a small (mostly-white) screenshot are the designed
-      // degradation — the typographic block in the DOM is the honest state.
+      // degradation - the typographic block in the DOM is the honest state.
       const bad = err || rootEmpty || (!fallbackCard && (errs || blank));
       // Presentation finding, not a render failure (never feeds `bad`):
       // structured so a driver/agent can apply the remedy without re-parsing
       // the warn text. gridOverflowCells names the offending stories.
       // primaryStory is deliberately ABSENT from the escape suggestion: the
       // override is MERGED into cfg.overrides, so absence preserves an
-      // existing deliberate pick (column→escape escalation) and otherwise
-      // means first-export — a null would clobber the pick.
+      // existing deliberate pick (column->escape escalation) and otherwise
+      // means first-export - a null would clobber the pick.
       const suggestedOverride = gridOverflow === 'escape'
         ? { cardMode: 'single' }
         : gridOverflow === 'wide' ? { cardMode: 'column' } : undefined;
       results.push({ name, group, rel, errs, caught, firstErr: pageErrs[0] ?? firstCaught ?? err, pngBytes, blank, rootEmpty, thin: thin && !fallbackCard, nameOnly, allHollow, collapsed, hasPlaceholder, nPlaceholder, fallbackCard, maxHeight: Math.round(maxHeight), variantsIdentical, bad, gridOverflow, gridOverflowCells: gridOverflow ? gridOverflowCells : undefined, suggestedOverride, texts });
       if (err) fail(`[RENDER] ${rel}: ${err}`);
       else if (rootEmpty) fail(`[RENDER] ${rel}: root empty`);
-      else if (fallbackCard) { /* intentional floor — counted in the summary line */ }
+      else if (fallbackCard) { /* intentional floor - counted in the summary line */ }
       else if (errs) {
         const first = pageErrs[0] ?? firstCaught;
         warn(`[RENDER_ERRORS] ${rel}: ${first} (${errs} total${caught ? `, ${caught} caught in-cell` : ''})`);
         const hyp = hypothesisLine(first);
         if (hyp) console.error(hyp);
       }
-      else if (blank) warn(`[RENDER_BLANK] ${rel}: renders but PNG is ${pngBytes}B (<5KB — likely blank; ${previewRemedy(name)})`);
-      else if (thin || variantsIdentical) warn(`[RENDER_THIN] ${rel}: ${variantsIdentical ? 'variants render identically' : nameOnly ? `mounted text is just "${name}"` : collapsed ? `DOM content present but rendered height is ${Math.round(maxHeight)}px` : 'mounts have no text and paint nothing'} — ${previewRemedy(name)}`);
-      // Independent of the render-failure chain — a card can render cleanly
+      else if (blank) warn(`[RENDER_BLANK] ${rel}: renders but PNG is ${pngBytes}B (<5KB \u2014 likely blank; ${previewRemedy(name)})`);
+      else if (thin || variantsIdentical) warn(`[RENDER_THIN] ${rel}: ${variantsIdentical ? 'variants render identically' : nameOnly ? `mounted text is just "${name}"` : collapsed ? `DOM content present but rendered height is ${Math.round(maxHeight)}px` : 'mounts have no text and paint nothing'} \u2014 ${previewRemedy(name)}`);
+      // Independent of the render-failure chain - a card can render cleanly
       // AND present badly in the product grid.
       if (gridOverflow) {
         const who = gridOverflowCells.length
-          ? ` (${gridOverflowCells.slice(0, 5).join(', ')}${gridOverflowCells.length > 5 ? ', …' : ''})`
+          ? ` (${gridOverflowCells.slice(0, 5).join(', ')}${gridOverflowCells.length > 5 ? ', \u2026' : ''})`
           : '';
         const pick = storyExports.length
           ? `one of: ${storyExports.join(', ')}`
-          : 'best export'; // templated inside <...> below — no own brackets
+          : 'best export'; // templated inside <...> below - no own brackets
         warn(gridOverflow === 'escape'
-          ? `[GRID_OVERFLOW] ${rel}: stories position content outside their cells${who} (fixed/portal) — no grid layout can present this. Merge into cfg.overrides.${name} in .design-sync/config.json: {"cardMode": "single", "primaryStory": "<${pick}>"}, then batch ALL flagged components into one targeted rebuild (preview-rebuild.mjs --components A,B,...). Grades carry and the targeted loop accepts presentation-only edits; no confirming re-validate needed — single cards are fully exempt from this check by construction.`
-          : `[GRID_OVERFLOW] ${rel}: stories render wider than their grid cells${who} — the product card crops them. Merge into cfg.overrides.${name} in .design-sync/config.json: {"cardMode": "column"} (full card width per story, all stories kept), then batch ALL flagged components into one targeted rebuild (preview-rebuild.mjs --components A,B,...). Grades carry and the targeted loop accepts presentation-only edits; no confirming re-validate needed — column cards can't re-flag wide by construction (escape stays monitored).`);
+          ? `[GRID_OVERFLOW] ${rel}: stories position content outside their cells${who} (fixed/portal) \u2014 no grid layout can present this. Merge into cfg.overrides.${name} in .design-sync/config.json: {"cardMode": "single", "primaryStory": "<${pick}>"}, then batch ALL flagged components into one targeted rebuild (preview-rebuild.mjs --components A,B,...). Grades carry and the targeted loop accepts presentation-only edits; no confirming re-validate needed \u2014 single cards are fully exempt from this check by construction.`
+          : `[GRID_OVERFLOW] ${rel}: stories render wider than their grid cells${who} \u2014 the product card crops them. Merge into cfg.overrides.${name} in .design-sync/config.json: {"cardMode": "column"} (full card width per story, all stories kept), then batch ALL flagged components into one targeted rebuild (preview-rebuild.mjs --components A,B,...). Grades carry and the targeted loop accepts presentation-only edits; no confirming re-validate needed \u2014 column cards can't re-flag wide by construction (escape stays monitored).`);
       }
     }
     writeFileSync(join(OUT, '.render-check.json'), JSON.stringify(results, null, 2));
     const badOnes = results.filter((r) => r.bad);
     const floorOnes = results.filter((r) => r.fallbackCard);
-    const floorNote = floorOnes.length ? ` (${floorOnes.length} showing the typographic floor card — unauthored previews, not failures)` : '';
+    const floorNote = floorOnes.length ? ` (${floorOnes.length} showing the typographic floor card \u2014 unauthored previews, not failures)` : '';
     if (!badOnes.length) ok(`render check: ${results.length}/${results.length} previews render cleanly${floorNote} (screenshots in _screenshots/)`);
     else console.error(`  render check: ${results.length - badOnes.length}/${results.length} clean; ${badOnes.length} need attention${floorNote} (see .render-check.json, _screenshots/)`);
-    // Contact sheets — tile every screenshot into labeled 4×4 grids so the
+    // Contact sheets - tile every screenshot into labeled 4×4 grids so the
     // post-validate sweep can read the whole set in a few image reads instead
     // of sampling. Best-effort and strictly additive: never fail()/warn(),
     // never changes the exit code, and only writes inside _screenshots/.
@@ -737,7 +738,7 @@ if (!pw) {
         const PER_SHEET = 16;
         const entries = [...results].sort((a, b) => a.name.localeCompare(b.name));
         const sheetCount = Math.ceil(entries.length / PER_SHEET);
-        const statusOf = (r) => (r.fallbackCard ? '◌ floor card' : r.rootEmpty ? '✗ empty' : r.blank ? '✗ blank' : r.bad ? '✗ error' : r.thin ? '⚠ thin' : r.variantsIdentical ? '⚠ variants identical' : '✓');
+        const statusOf = (r) => (r.fallbackCard ? '\u25CC floor card' : r.rootEmpty ? '\u2717 empty' : r.blank ? '\u2717 blank' : r.bad ? '\u2717 error' : r.thin ? '\u26A0 thin' : r.variantsIdentical ? '\u26A0 variants identical' : '\u2713');
         const borderOf = (r) => (r.bad ? '#d33' : r.thin || r.variantsIdentical ? '#d90' : '#ddd');
         const index = [];
         let failedTiles = 0;
@@ -755,13 +756,13 @@ if (!pw) {
               + `<div style="font:600 18px system-ui;color:#222;padding:6px 8px;overflow-wrap:anywhere">${r.name} <span style="font-weight:400;color:#555">${statusOf(r)}</span></div>${img}</div>`;
           }).join('\n');
           const html = `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;background:#fff;width:1500px">`
-            + `<div style="font:600 20px system-ui;color:#222;padding:12px 10px">render check — sheet ${s + 1}/${sheetCount} — components ${s * PER_SHEET + 1}–${s * PER_SHEET + slice.length} of ${entries.length} (alphabetical)</div>`
+            + `<div style="font:600 20px system-ui;color:#222;padding:12px 10px">render check \u2014 sheet ${s + 1}/${sheetCount} \u2014 components ${s * PER_SHEET + 1}\u2013${s * PER_SHEET + slice.length} of ${entries.length} (alphabetical)</div>`
             + `<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:0 10px 10px">${cells}</div></body></html>`;
           writeFileSync(join(shotDir, `.contact-sheet-${s + 1}.html`), html);
           await page.goto(`http://127.0.0.1:${port}/_screenshots/.contact-sheet-${s + 1}.html`, { waitUntil: 'networkidle', timeout: 15000 });
           await page.evaluate(() => Promise.all([...document.images].map((i) => i.decode().catch(() => {}))));
           // Tile fidelity: a broken/undecoded <img> must never silently stand
-          // in for a real screenshot — swap it for an explicit label.
+          // in for a real screenshot - swap it for an explicit label.
           failedTiles += await page.evaluate(() => {
             let n = 0;
             for (const img of [...document.images]) {
@@ -784,21 +785,21 @@ if (!pw) {
           if (m && Number(m[1]) > sheetCount) rmSync(join(shotDir, f), { force: true });
         }
         writeFileSync(join(shotDir, 'contact-sheets.json'), JSON.stringify(index, null, 2));
-        console.error(`  contact sheets: ${sheetCount} sheet(s)${failedTiles ? `, ${failedTiles} tile(s) failed to load` : ''} → _screenshots/contact-sheet-1.png${sheetCount > 1 ? ` … contact-sheet-${sheetCount}.png` : ''}`);
+        console.error(`  contact sheets: ${sheetCount} sheet(s)${failedTiles ? `, ${failedTiles} tile(s) failed to load` : ''} \u2192 _screenshots/contact-sheet-1.png${sheetCount > 1 ? ` \u2026 contact-sheet-${sheetCount}.png` : ''}`);
       }
     } catch (e) {
-      console.error(`  (contact sheets skipped — ${String(e).split('\n')[0]})`);
+      console.error(`  (contact sheets skipped \u2014 ${String(e).split('\n')[0]})`);
     }
   } catch (e) {
-    // A broken chromium must fail like a missing playwright does — a silent
+    // A broken chromium must fail like a missing playwright does - a silent
     // skip would mint an anchor that vouches for renders nobody checked.
-    fail(`[RENDER_SKIPPED] render check did not run (${String(e).split('\n')[0]}) — \`npx playwright install chromium\` and re-run, or pass --no-render-check to accept an unverified bundle`);
+    fail(`[RENDER_SKIPPED] render check did not run (${String(e).split('\n')[0]}) \u2014 \`npx playwright install chromium\` and re-run, or pass --no-render-check to accept an unverified bundle`);
   } finally {
     await browser?.close();
     srv.close();
   }
 }
 
-const warnNote = warnings ? ` (${warnings} warning(s) — review above, non-blocking)` : '';
-console.error(errors ? `\n${errors} error(s) — open a <Name>.html in a browser via \`npx serve ${OUT}\` to inspect.` : `\n✓ bundle is complete${warnNote}`);
+const warnNote = warnings ? ` (${warnings} warning(s) \u2014 review above, non-blocking)` : '';
+console.error(errors ? `\n${errors} error(s) \u2014 open a <Name>.html in a browser via \`npx serve ${OUT}\` to inspect.` : `\n\u2713 bundle is complete${warnNote}`);
 process.exit(errors ? 1 : 0);

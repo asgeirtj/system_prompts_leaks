@@ -8,30 +8,30 @@
 //   re-verification; artifact churn on a source-stable component
 //   (renderChurned) keeps its grades and gets a sampled spot-check instead.
 //   Either side missing sourceKeys, or a keyRecipe mismatch, falls back to
-//   the renderHashes partition — today's behavior, never something worse.
+//   the renderHashes partition - today's behavior, never something worse.
 //
 //   UPLOAD (sourceHashes + bundleSha12 + styleSha): which files the project
-//   is missing. This is a SUPERSET concern — renderHash deliberately ignores
+//   is missing. This is a SUPERSET concern - renderHash deliberately ignores
 //   .d.ts/.prompt.md edits and lockstep bundle changes, all of which still
 //   must ship. Never scope uploads by the verification partition.
 //
-// The agent fetches the remote sidecar (DesignSync get_file — only it has
+// The agent fetches the remote sidecar (DesignSync get_file - only it has
 // auth) and saves it to a file; this script does the deterministic part.
-// No --remote (project empty / never synced / fetch failed) → everything is
+// No --remote (project empty / never synced / fetch failed) -> everything is
 // unverified and everything uploads: full first-sync scope.
 //
 // Usage: node remote-diff.mjs --local <ds-bundle dir> [--remote <saved-sidecar.json>]
 // Writes <ds-bundle>/.sync-diff.json:
 //   {
-//     styleChanged,                      // styling surface moved → re-ships (upload.styling); never re-verifies
+//     styleChanged,                      // styling surface moved -> re-ships (upload.styling); never re-verifies
 //     unchanged: [..], changed: [..],    // verification scope (capture + grading)
 //     added: [..], removed: [..],
-//     renderChurned: [..],               // sources stable, artifacts moved — grades
+//     renderChurned: [..],               // sources stable, artifacts moved - grades
 //                                        // kept; the driver spot-checks a sample
 //     keyedBy,                           // 'sourceKeys' | 'renderHashes' (fallback)
 //     upload: {
-//       any,                             // false ⇒ nothing to upload at all
-//       components: [..],                // informational — components whose upload files
+//       any,                             // false => nothing to upload at all
+//       components: [..],                // informational - components whose upload files
 //                                        // changed; feeds upload.any and the narration.
 //                                        // NOT a write scope: the skill mandates full
 //                                        // writes on every upload (storybook SKILL.md §6,
@@ -54,7 +54,7 @@ const flag = (n) => { const i = argv.indexOf(`--${n}`); return i < 0 ? null : ar
   const VALUE_FLAGS = ['local', 'remote'];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i].startsWith('--') && VALUE_FLAGS.includes(argv[i].slice(2))) { i++; continue; }
-    console.error(`(unrecognized argument "${argv[i]}" — ignored; usage: remote-diff.mjs --local <ds-bundle> [--remote <saved-sidecar.json>])`);
+    console.error(`(unrecognized argument "${argv[i]}" \u2014 ignored; usage: remote-diff.mjs --local <ds-bundle> [--remote <saved-sidecar.json>])`);
   }
 }
 const OUT = flag('local') && resolve(flag('local'));
@@ -67,16 +67,16 @@ const validSidecar = (s) =>
 
 let local;
 try { local = JSON.parse(readFileSync(join(OUT, '_ds_sync.json'), 'utf8')); }
-catch (e) { console.error(`✗ ${OUT}/_ds_sync.json unreadable (${e.message}) — run package-build.mjs first`); process.exit(1); }
-if (!validSidecar(local)) { console.error('✗ local _ds_sync.json malformed (styleSha/renderHashes/sourceHashes) — rebuild'); process.exit(1); }
+catch (e) { console.error(`\u2717 ${OUT}/_ds_sync.json unreadable (${e.message}) \u2014 run package-build.mjs first`); process.exit(1); }
+if (!validSidecar(local)) { console.error('\u2717 local _ds_sync.json malformed (styleSha/renderHashes/sourceHashes) \u2014 rebuild'); process.exit(1); }
 
 // Local self-check: a sidecar from an older build than the bundle would
 // vouch for hashes that don't describe what's on disk.
 let liveBundleSha;
 try { liveBundleSha = createHash('sha256').update(readFileSync(join(OUT, '_ds_bundle.js'))).digest('hex').slice(0, 12); }
-catch { console.error(`✗ ${OUT}/_ds_bundle.js unreadable — run package-build.mjs first`); process.exit(1); }
+catch { console.error(`\u2717 ${OUT}/_ds_bundle.js unreadable \u2014 run package-build.mjs first`); process.exit(1); }
 if (local.bundleSha12 !== liveBundleSha) {
-  console.error('✗ local _ds_sync.json is stale (bundleSha mismatch with _ds_bundle.js) — rebuild before diffing');
+  console.error('\u2717 local _ds_sync.json is stale (bundleSha mismatch with _ds_bundle.js) \u2014 rebuild before diffing');
   process.exit(1);
 }
 
@@ -89,13 +89,13 @@ const remotePath = flag('remote');
 if (remotePath) {
   anchorReason = 'unreadable';
   try { remote = JSON.parse(readFileSync(remotePath, 'utf8')); }
-  catch (e) { console.error(`! remote sidecar unreadable (${e.message}) — treating as no anchor`); }
+  catch (e) { console.error(`! remote sidecar unreadable (${e.message}) \u2014 treating as no anchor`); }
   if (remote && !validSidecar(remote)) {
-    console.error('! remote sidecar malformed — treating as no anchor');
+    console.error('! remote sidecar malformed \u2014 treating as no anchor');
     remote = null;
     anchorReason = 'malformed';
   } else if (remote && remote.shape !== local.shape) {
-    console.error(`! source shape changed (${remote.shape} → ${local.shape}) — hashes are not comparable across recipes; full re-verification`);
+    console.error(`! source shape changed (${remote.shape} \u2192 ${local.shape}) \u2014 hashes are not comparable across recipes; full re-verification`);
     remote = null;
     anchorReason = 'shape_changed';
   } else if (remote) {
@@ -103,7 +103,7 @@ if (remotePath) {
   }
 }
 
-// components/<group>/<Name>/<file> — the per-name view of sourceHashes paths
+// components/<group>/<Name>/<file> - the per-name view of sourceHashes paths
 // powers regroup/move detection (key changes) and delete derivation.
 function byName(sourceHashes) {
   const m = new Map();
@@ -129,22 +129,22 @@ const out = {
 if (!remote) {
   out.added = localNames;
   out.upload.components = localNames;
-  console.error(`no remote anchor — full scope (${localNames.length} component(s) verify + upload)`);
+  console.error(`no remote anchor \u2014 full scope (${localNames.length} component(s) verify + upload)`);
 } else {
-  // ── Verification partition (capture + grading scope). Source-key
+  // -- Verification partition (capture + grading scope). Source-key
   // inequality when both sidecars carry comparable keys; styling changes
   // never re-verify either way. styleChanged drives the upload partition.
   const keysOk = (s) => s.sourceKeys && typeof s.sourceKeys === 'object' && !Array.isArray(s.sourceKeys);
   const useSourceKeys = keysOk(local) && keysOk(remote) &&
     local.keyRecipe !== undefined && remote.keyRecipe === local.keyRecipe;
   if (keysOk(remote) && keysOk(local) && !useSourceKeys) {
-    console.error(`! source-key recipe changed (remote keyRecipe ${remote.keyRecipe} → local ${local.keyRecipe}) — falling back to the render-hash partition (full re-verification of changed artifacts)`);
+    console.error(`! source-key recipe changed (remote keyRecipe ${remote.keyRecipe} \u2192 local ${local.keyRecipe}) \u2014 falling back to the render-hash partition (full re-verification of changed artifacts)`);
   }
   out.keyedBy = useSourceKeys ? 'sourceKeys' : 'renderHashes';
   out.styleChanged = remote.styleSha !== local.styleSha;
   for (const n of localNames) {
     if (!(n in remote.renderHashes)) { out.added.push(n); continue; }
-    // A name missing from either sourceKeys map is unknown — re-verify.
+    // A name missing from either sourceKeys map is unknown - re-verify.
     const changed = useSourceKeys
       ? remote.sourceKeys[n] === undefined || local.sourceKeys[n] === undefined || remote.sourceKeys[n] !== local.sourceKeys[n]
       : remote.renderHashes[n] !== local.renderHashes[n];
@@ -152,17 +152,17 @@ if (!remote) {
     out.unchanged.push(n);
     // Sources held, artifacts moved: grades carry, the driver spot-checks a
     // sample, and the fresh artifacts still re-ship (renderChurned joins the
-    // upload set below — else the anchor never refreshes and this re-fires).
+    // upload set below - else the anchor never refreshes and this re-fires).
     if (useSourceKeys && remote.renderHashes[n] !== local.renderHashes[n]) out.renderChurned.push(n);
   }
   out.removed = Object.keys(remote.renderHashes).filter((n) => !(n in local.renderHashes));
 
-  // ── Upload partition (what the project is missing).
+  // -- Upload partition (what the project is missing).
   const localBy = byName(local.sourceHashes);
   const remoteBy = byName(remote.sourceHashes);
   const uploadSet = new Set();
   // Added/changed components re-ship their card/preview files; so do
-  // renderChurned ones — their grades carry but their artifacts moved.
+  // renderChurned ones - their grades carry but their artifacts moved.
   for (const n of [...out.added, ...out.changed, ...out.renderChurned]) uploadSet.add(n);
   // Source files moved (path OR content): catches .d.ts/.prompt.md/.jsx-only
   // edits that the render hash deliberately ignores, and regroups (path keys
@@ -175,7 +175,7 @@ if (!remote) {
     }
   }
   out.upload.components = [...uploadSet].sort();
-  // Deletes: every remote component path that no longer exists locally —
+  // Deletes: every remote component path that no longer exists locally -
   // removed components entirely, the OLD group's paths after a regroup, and
   // residue files a kept component no longer emits (sourceHashes is
   // existence-filtered at build time, so a dropped .prompt.md leaves a
@@ -198,16 +198,16 @@ if (!remote) {
     }
   }
   // A remote component present in renderHashes but absent from sourceHashes
-  // has no derivable paths — its deletes can't be computed. Loud, not silent.
+  // has no derivable paths - its deletes can't be computed. Loud, not silent.
   for (const n of Object.keys(remote.renderHashes)) {
     if (!(n in local.renderHashes) && !remoteBy.has(n)) {
-      console.error(`! removed component "${n}" has no sourceHashes coverage in the remote sidecar — its remote files can't be derived for deletion; list_files and clean up by hand once`);
+      console.error(`! removed component "${n}" has no sourceHashes coverage in the remote sidecar \u2014 its remote files can't be derived for deletion; list_files and clean up by hand once`);
     }
   }
   out.upload.bundle = remote.bundleSha12 !== local.bundleSha12;
   out.upload.styling = out.styleChanged;
   // A sidecar missing auxSha (malformed or hand-produced off-envelope) can't
-  // vouch for the docs surface — treat as changed so guidelines/README ship.
+  // vouch for the docs surface - treat as changed so guidelines/README ship.
   out.upload.aux = remote.auxSha === undefined || local.auxSha === undefined || remote.auxSha !== local.auxSha;
   out.upload.any = out.upload.components.length > 0 || out.upload.deletePaths.length > 0 || out.upload.bundle || out.upload.styling || out.upload.aux;
   // Recipe UPGRADE with byte-identical artifacts: nothing above triggers, so
@@ -215,9 +215,9 @@ if (!remote) {
   // closes (a later pipeline churn then costs a full re-verify instead of
   // the grades-kept canary). Flip upload.any: the upload is full-writes by
   // doctrine (idempotent; identical bytes are cheap) and always ships
-  // _ds_sync.json last — one routine upload closes the window for good.
+  // _ds_sync.json last - one routine upload closes the window for good.
   // Direction-gated: recipes are forward-only, so only a LOCAL-newer flip
-  // refreshes — an older-skill machine must never downgrade a newer anchor
+  // refreshes - an older-skill machine must never downgrade a newer anchor
   // (mixed-version fleets would ping-pong full uploads otherwise), and a
   // keyRecipe-less local sidecar (foreign generator) must never loop.
   if (!useSourceKeys && keysOk(local) && keysOk(remote) && !out.upload.any &&
@@ -226,12 +226,12 @@ if (!remote) {
     out.upload.any = true;
   }
 
-  console.error(`verify: ${out.unchanged.length} verified-by-upload (skip capture/grade), ${out.changed.length} changed, ${out.added.length} new, ${out.removed.length} removed${out.renderChurned.length ? `, ${out.renderChurned.length} artifact-churned with stable sources (grades kept — spot-check)` : ''} [keyed on ${out.keyedBy}]`);
+  console.error(`verify: ${out.unchanged.length} verified-by-upload (skip capture/grade), ${out.changed.length} changed, ${out.added.length} new, ${out.removed.length} removed${out.renderChurned.length ? `, ${out.renderChurned.length} artifact-churned with stable sources (grades kept \u2014 spot-check)` : ''} [keyed on ${out.keyedBy}]`);
   console.error(out.upload.any
     ? ((out.upload.components.length || out.upload.deletePaths.length || out.upload.bundle || out.upload.styling || out.upload.aux)
       ? `upload: ${out.upload.components.length} component(s), ${out.upload.deletePaths.length} delete(s)${out.upload.bundle ? ', bundle' : ''}${out.upload.styling ? ', styling' : ''}${out.upload.aux ? ', docs' : ''} (+ _ds_sync.json last)`
-      : 'upload: anchor refresh — artifacts match but the anchor is on an older key recipe; the routine upload (storybook SKILL.md §6 / non-storybook §5, _ds_sync.json last) closes the fallback window')
-    : 'upload: nothing — the project already matches this build');
+      : 'upload: anchor refresh \u2014 artifacts match but the anchor is on an older key recipe; the routine upload (storybook SKILL.md §6 / non-storybook §5, _ds_sync.json last) closes the fallback window')
+    : 'upload: nothing \u2014 the project already matches this build');
 }
 writeFileSync(join(OUT, '.sync-diff.json'), JSON.stringify(out, null, 2) + '\n');
-console.error(`→ ${join(OUT, '.sync-diff.json')}`);
+console.error(`\u2192 ${join(OUT, '.sync-diff.json')}`);

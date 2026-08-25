@@ -23,4 +23,5 @@ hunk.
 
 Output at most **4 findings**, most-severe first, one line each:
 `path/to/file.ext:123 — what's wrong and the concrete failure`. If nothing
-qualifies, output exactly `(none)`.
+qualifies, output exactly `(none)`. Do not call the
+ReportFindings tool even if it is available.

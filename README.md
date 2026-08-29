@@ -35,6 +35,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Grok 4.6** | August 29, 2026 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | **Grok Bot** | August 21, 2026 | [Grok Bot System Prompt](xAI/grok-bot.md) |
 | **Gemini 3.7 Flash** | August 18, 2026 | [Gemini 3.7 Flash System Prompt](Google/gemini-3.7-flash.md) |
 | **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |

@@ -44,13 +44,13 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **Codex GPT-5.6 (Sol variant)** | July 26, 2026 | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) · [Sol](OpenAI/Codex/gpt-5.6-sol.md) |
 | **Grok 4.5** | July 26, 2026 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
 | **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
-| **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design.md) · [skills](Anthropic/claude-design/Skills) · [starter components](Anthropic/claude-design/Starter%20components) |
+| **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
 | **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/claude-code/claude-code-sonnet-5.md)  |
 | **OpenCode · Pi · CommandCode** | July 16, 2026 | [OpenCode system prompt](OpenCode/opencode.md) · [Pi system prompt](Pi/instructions.md) · [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
 | **Kimi K2.6** | July 14, 2026 | [Kimi K2.6 system prompt](Kimi/kimi-2.6.md) |
 | **Perplexity Deep Research** | July 14, 2026 | [Perplexity Deep Research system prompt](Perplexity/deep-research.md) |
-| **ChatGPT 5.6** | July 10, 2026 | [ChatGPT 5.6 system prompt (Sol, extra high)](OpenAI/gpt-5.6-sol-extra-high.md) · [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
+| **ChatGPT 5.6** | July 10, 2026 | [ChatGPT 5.6 system prompt (Sol, extra high)](OpenAI/gpt-5.6-sol.md) · [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
 
 
 ---
@@ -81,8 +81,8 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | **Claude Code (Sonnet 5)** | [Claude Code system prompt (Sonnet 5)](Anthropic/claude-code/claude-code-sonnet-5.md) |
 | Claude Code (older models) | [Opus 4.7](Anthropic/claude-code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/claude-code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/claude-code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/claude-code/claude-code-haiku-4.5.md) |
 | Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
-| Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/slash-commands) |
-| MCP servers | [Claude Code MCP server system prompts](Anthropic/claude-code/mcp-servers) |
+| Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/commands) |
+| MCP servers | [Claude in Chrome MCP server system prompt](Anthropic/claude-in-chrome.md) |
 | Docs assistant | [docs.claude.com assistant instructions](Anthropic/claude-code/claude-code-docs-assistant.md) |
 
 
@@ -90,7 +90,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Product | Prompt |
 |---------|--------|
-| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design.md) · [skills](Anthropic/claude-design/Skills) · [starter components](Anthropic/claude-design/Starter%20components) |
+| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |
 | **Claude Science** | [Claude Science system prompt](Anthropic/claude-science.md) |
 | Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-word.md) · [Claude in PowerPoint](Anthropic/claude-in-powerpoint.md) |
@@ -103,7 +103,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
-| **ChatGPT 5.6 Sol** | [**ChatGPT 5.6 system prompt (Sol, extra high)**](OpenAI/gpt-5.6-sol-extra-high.md) |
+| **ChatGPT 5.6 Sol** | [**ChatGPT 5.6 system prompt (Sol, extra high)**](OpenAI/gpt-5.6-sol.md) |
 | **ChatGPT 5.5 Thinking** | [**ChatGPT 5.5 Thinking system prompt**](OpenAI/gpt-5.5-thinking.md) |
 | **ChatGPT 5.5 Instant** | [**ChatGPT 5.5 Instant system prompt**](OpenAI/gpt-5.5-instant.md) |
 | ChatGPT 5.4 | [ChatGPT 5.4 Thinking system prompt](OpenAI/gpt-5.4-thinking.md) |
@@ -112,7 +112,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | ChatGPT 5 | [ChatGPT 5 Thinking system prompt](OpenAI/gpt-5-thinking.md) · [Agent mode](OpenAI/chatgpt-gpt-5-agent-mode.md) |
 | **ChatGPT Atlas** | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
 | ChatGPT 4.5 | [ChatGPT 4.5 system prompt](OpenAI/chatgpt-4.5.md) |
-| ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/ChatGPT/chatgpt-4o-deprecation-preparedness-prompt.md) |
+| ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/chatgpt-4o-deprecation-preparedness-prompt.md) |
 | Voice modes | [ChatGPT advanced voice mode system prompt](OpenAI/gpt-4o-advanced-voice-mode.md) · [Legacy voice mode](OpenAI/gpt-4o-legacy-voice-mode.md) |
 | Personalities | [ChatGPT personality instructions](OpenAI/chatgpt-personality-instructions.md) |
 | Memory | [ChatGPT advanced memory system prompt](OpenAI/tool-advanced-memory.md) |

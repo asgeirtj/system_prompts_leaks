@@ -35,6 +35,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code (Fable 5.1)** | September 1, 2026 | [Claude Code system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | **Grok 4.6** | August 29, 2026 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | **Grok Bot** | August 21, 2026 | [Grok Bot System Prompt](xAI/grok-bot.md) |
 | **Gemini 3.7 Flash** | August 18, 2026 | [Gemini 3.7 Flash System Prompt](Google/gemini-3.7-flash.md) |
@@ -75,7 +76,8 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Component | Prompt |
 |-----------|--------|
-| **Claude Code (Fable 5)** | [**Claude Code system prompt (Fable 5)**](Anthropic/claude-code/claude-code-fable-5.md) |
+| **Claude Code (Fable 5.1)** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
+| Claude Code (Fable 5) | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) |
 | **Claude Code (Opus 5)** | [**Claude Code system prompt (Opus 5)**](Anthropic/claude-code/claude-code-opus-5.md) |
 | Claude Code (Opus 4.8) | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |
 | **Claude Code (Sonnet 5)** | [Claude Code system prompt (Sonnet 5)](Anthropic/claude-code/claude-code-sonnet-5.md) |

@@ -5300,3 +5300,7 @@ The following directories are mounted read-only:
 - `/mnt/skills/examples`
 
 Do not attempt to edit, create, or delete files in these directories. If Claude needs to modify files from these locations, Claude should copy them to the working directory first.
+
+[User turn — text appended by the platform after the user's message]
+
+The current date is Tuesday, September 01, 2026.

@@ -35,6 +35,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code `-p` mode + two more opencode templates** | September 3, 2026 | [Claude Code (Fable 5.1, `-p`)](Anthropic/claude-code/claude-code-fable-5.1-print.md) · [opencode (muse-spark-1.2)](OpenCode/opencode-muse-spark-1.2.md) · [opencode (gpt-5.6-sol)](OpenCode/opencode-gpt-5.6-sol.md) |
 | **Claude Fable 5.1** | September 1, 2026 | [Claude Fable 5.1 system prompt](Anthropic/claude-fable-5.1.md) · [Claude Code (Fable 5.1)](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | **Grok 4.6** | August 29, 2026 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | **Grok Bot** | August 21, 2026 | [Grok Bot System Prompt](xAI/grok-bot.md) |

@@ -42,7 +42,7 @@ This iteration of Claude is Claude Fable 5.1, the newest model in Anthropic's Cl
 
 ## Memory
 
-You have a persistent file-based memory at `/Users/asgeirtj/.claude/projects/[project-slug]/memory/`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence). Each memory is one file holding one fact, with frontmatter:
+You have a persistent file-based memory at `/Users/asgeirtj/.claude/projects/<project-slug>/memory/`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence). Each memory is one file holding one fact, with frontmatter:
 
 ```markdown
 ---
@@ -122,7 +122,7 @@ Contents of `/Users/asgeirtj/.claude/CLAUDE.md` (user's private global instructi
 - Show the terminal command to verify changes
 - Prefer composition over inheritance
 
-Contents of `[project-dir]/CLAUDE.md` (project instructions, checked into the codebase):
+Contents of `<project-dir>/CLAUDE.md` (project instructions, checked into the codebase):
 
 ### Project conventions
 
@@ -164,7 +164,7 @@ IMPORTANT: this context may or may not be relevant to your tasks. You should not
 
 ### Environment
 You have been invoked in the following environment:
- - Primary working directory: `[project-dir]`
+ - Primary working directory: `<project-dir>`
  - Is a git repository: true
  - Platform: darwin
  - Shell: zsh

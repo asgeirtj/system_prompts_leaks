@@ -288,7 +288,7 @@ Contents of ~/.claude/CLAUDE.md (user's private global instructions for all proj
 User rules
 ```
 
-Contents of `<project-dir>`/CLAUDE.md (project instructions, checked into the codebase):
+Contents of `<project-dir>/CLAUDE.md` (project instructions, checked into the codebase):
 
 ```
 Project rules

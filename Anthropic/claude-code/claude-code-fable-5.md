@@ -155,7 +155,7 @@ Contents of `/Users/asgeirtj/.claude/CLAUDE.md` (user's private global instructi
 - Show the terminal command to verify changes
 - Prefer composition over inheritance
 
-Contents of `[project-dir]`/CLAUDE.md (project instructions, checked into the codebase):
+Contents of `[project-dir]/CLAUDE.md` (project instructions, checked into the codebase):
 
 ### Project conventions
 

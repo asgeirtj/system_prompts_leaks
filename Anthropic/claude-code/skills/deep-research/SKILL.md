@@ -20,6 +20,4 @@ Phases:
 
 Invoke: Workflow({ name: "deep-research" })
 
-## Workflow Script
-
-[scripts/workflow-script.js](scripts/workflow-script.js)
+If the user asks you to modify this workflow or write a new script, load the `workflow-authoring` skill first.

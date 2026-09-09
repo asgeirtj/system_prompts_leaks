@@ -8,8 +8,9 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 | ---- | ----------------------- | --------- | ------------------------------------ |
 | 400  | `invalid_request_error` | No        | Invalid request format or parameters |
 | 401  | `authentication_error`  | No        | Invalid or missing API key           |
-| 403  | `permission_error`      | No        | API key lacks permission             |
-| 404  | `not_found_error`       | No        | Invalid endpoint or model ID         |
+| 402  | `billing_error`         | No        | Billing or payment problem           |
+| 403  | `permission_error`      | No        | Not allowed for this credential      |
+| 404  | `not_found_error`       | No        | Unknown endpoint, or model not found or not available to your org |
 | 413  | `request_too_large`     | No        | Request exceeds size limits          |
 | 429  | `rate_limit_error`      | Yes       | Too many requests                    |
 | 500  | `api_error`             | Yes       | Anthropic service issue              |
@@ -26,6 +27,7 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 - Invalid parameter types (e.g., string where integer expected)
 - Empty messages array
 - Messages not alternating user/assistant
+- An `anthropic-beta` value that does not exist or is not enabled for your organization. Both cases return the same message: ``Unexpected value(s) `<value>` for the `anthropic-beta` header.``
 
 **Example error:**
 
@@ -66,11 +68,13 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 
 **Causes:**
 
-- API key doesn't have access to the requested model
-- Organization-level restrictions
-- Attempting to access beta features without beta access
+- The credential's organization or workspace is not allowed to perform this operation.
+- The request was blocked by an access requirement, such as a region restriction or identity verification, for a model your organization can otherwise use. The message says what to do.
+- Rarely, the model server denies a request that passed the API's access check. The message is `Access to this model requires an access grant your request does not have.`
 
-**Fix:** Check your API key permissions in the Console. You may need a different API key or to request access to specific features.
+A model your organization cannot use is normally a 404, not a 403 (see below). A beta header your organization is not enabled for is a 400.
+
+**Fix:** Check your organization's access and workspace settings in the Console.
 
 ---
 
@@ -80,9 +84,12 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 
 - Typo in model ID (e.g., `claude-sonnet-4.6` instead of `claude-sonnet-4-6`)
 - Using deprecated model ID
+- A model ID that exists but is not available to your organization
 - Invalid API endpoint
 
-**Fix:** Use exact model IDs from the models documentation. You can use aliases (e.g., `claude-opus-5`).
+A model that does not exist and a model your organization cannot use return the same response, `not_found_error` with a message that starts with `model: <id>`. The API does not reveal whether a model exists to callers who cannot use it.
+
+**Fix:** Use exact model IDs from the models documentation. You can use aliases (e.g., `claude-opus-5`). To see which models your organization can use, call `GET /v1/models`.
 
 ---
 
@@ -251,7 +258,7 @@ if err != nil {
 
 ### Error `.type` Field
 
-All `APIStatusError` subclasses now expose a `.type` property (Python: `.type`, TypeScript: `.type`, Java: `.errorType()`, Go: `.Type()`, Ruby: `.type`, PHP: `.type`) that returns the API error type string (e.g., `"invalid_request_error"`, `"authentication_error"`, `"rate_limit_error"`, `"overloaded_error"`). Use this for programmatic error classification when you need finer granularity than the HTTP status code - for example, distinguishing `"billing_error"` from `"permission_error"` (both map to 403).
+All `APIStatusError` subclasses now expose a `.type` property (Python: `.type`, TypeScript: `.type`, Java: `.errorType()`, Go: `.Type()`, Ruby: `.type`, PHP: `.type`) that returns the API error type string (e.g., `"invalid_request_error"`, `"authentication_error"`, `"rate_limit_error"`, `"overloaded_error"`). Use this to classify errors by type name instead of by status code. `"billing_error"` is a 402 and `"permission_error"` is a 403.
 
 ```python
 except anthropic.APIStatusError as e:

@@ -7,7 +7,7 @@ import com.anthropic.core.http.StreamResponse;
 import com.anthropic.models.messages.RawMessageStreamEvent;
 
 MessageCreateParams params = MessageCreateParams.builder()
-    .model(Model.CLAUDE_OPUS_4_8)
+    .model("claude-opus-5")
     .maxTokens(64000L)
     .addUserMessage("Write a haiku")
     .build();
@@ -21,3 +21,4 @@ try (StreamResponse<RawMessageStreamEvent> streamResponse = client.messages().cr
 ```
 
 ---
+

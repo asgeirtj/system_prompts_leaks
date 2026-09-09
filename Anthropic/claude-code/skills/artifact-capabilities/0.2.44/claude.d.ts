@@ -13,16 +13,20 @@
  * artifacts use a different, flat `window.claude`; neither `use()` nor
  * these namespaces exist there.)
  *
- * Timing. `window.claude` exists before any of your script runs and
- * this contract promises nothing on it but `use`: treat
- * `window.claude.db`, `window.claude.room` and every other capability
- * member as `undefined` at every moment. The namespace arrives later,
- * through the promise, once the viewer has answered and the module has
- * loaded — never during your script's first synchronous run, and not
- * ordered against `DOMContentLoaded` either way, so don't assume the
- * DOM is complete when it resolves. Render the page without it and
- * light features up when it resolves. With no viewer answering (a
- * kernel-bearing page with no viewer shell around it) it resolves
+ * Timing. Inside a viewer the page is framed and `window.claude` exists
+ * before any of your script runs. Served top-level by the platform, as
+ * its own page on the artifact's own host, it has the same `use`-only
+ * `window.claude` before your script too, and every `use()` resolves
+ * `null` there for now; any other top-level copy of the page (a saved
+ * file, another host) has no `window.claude` at all. This contract
+ * promises nothing on it but `use`: treat `window.claude.db`,
+ * `window.claude.room` and every other capability member as `undefined`
+ * at every moment. The namespace arrives later, through the promise, once
+ * the viewer has answered and the module has loaded — never during your
+ * script's first synchronous run, and not ordered against
+ * `DOMContentLoaded` either way, so don't assume the DOM is complete
+ * when it resolves. Render the page without it and light features up
+ * when it resolves. Framed by a host that never answers, it resolves
  * `null` after 10 s.
  *
  * The resolved namespace is platform-owned and read-only: a frozen

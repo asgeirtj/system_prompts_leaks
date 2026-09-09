@@ -1,6 +1,7 @@
 ---
 name: simplify
-description: Review the changed code for reuse, simplification, efficiency, and altitude cleanups, then apply the fixes. Quality only — it does not hunt for bugs; use /code-review for that.
+description: |-
+  Review the changed code for reuse, simplification, efficiency, and altitude cleanups, then apply the fixes. Quality only — it does not hunt for bugs; use /code-review for that.
 ---
 
 `/simplify → 4 cleanup agents in parallel → apply the fixes`
@@ -50,10 +51,11 @@ alternative.
 
 ### Altitude
 
-Check that each change is implemented at the right depth, not as a fragile
-bandaid. Special cases layered on shared infrastructure are a sign the fix
-isn't deep enough — prefer generalizing the underlying mechanism over adding
-special cases.
+Check that each change fixes the root cause at the right depth rather than
+patching a symptom with a fragile bandaid. Special cases layered on shared
+infrastructure are a sign the fix isn't deep enough — prefer the simpler, more
+general change to the underlying mechanism over adding special cases, and name
+that change.
 
 ## Phase 2 — Apply the fixes
 
@@ -63,4 +65,3 @@ fix would change intended behavior, require changes well outside the reviewed
 diff, or that you judge to be a false positive — note the skip rather than
 arguing with it. Finish with a brief summary of what was fixed and what was
 skipped (or confirm the code was already clean).
-

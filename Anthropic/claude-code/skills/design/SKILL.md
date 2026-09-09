@@ -76,12 +76,17 @@ Everything lives in the one payload file:
   canvas.json" below): positions, pages, launch view. Seed it for any
   multi-artboard design.
 - **Images** become `files` entries holding base64 under their
-  filename. Keep each under ~70 KB - downsample with whatever is on the
-  machine (`sips -Z 1200`, `magick in.png -resize 1200x out.png`,
-  Pillow); if nothing is, say so and use fewer, smaller images - the
-  whole document republishes on every save (16 MiB cap) and the editor
+  filename - the default for any image you embed yourself. Keep each
+  under ~70 KB - downsample with whatever is on the machine
+  (`sips -Z 1200`, `magick in.png -resize 1200x out.png`, Pillow); if
+  nothing is, say so and use fewer, smaller images - the whole
+  document republishes on every save (16 MiB cap) and the editor
   silently drops any entry over 2 MiB (the helper refuses one). The
-  helper stores them (`--image`) and warns when one is large.
+  helper stores them (`--image`) and warns when one is large. If you
+  upload an image to the canvas with the Artifact tool's `upload_asset`
+  instead, reference it as `_blob/<id>` (the id from the result) with
+  NO leading slash, whatever url the result shows - the canvas page
+  only inlines that form; `/_blob/<id>` renders as a broken image.
 - **Referencing files from .dc.html** - every failure below is silent:
   store images as **BARE base64** (no `data:` prefix - the runtime adds
   the wrapper; a stored data:-URI double-wraps into a broken image);
@@ -90,7 +95,9 @@ Everything lives in the one payload file:
   exactly (literal substitution; CSS `url(./logo.png)` works in any
   quote form); only `.png .jpg .jpeg .gif .webp .avif .bmp .svg`
   entries resolve as images; a missing entry renders as a broken image
-  with no warning.
+  with no warning. The one reference that is not a files entry is an
+  uploaded asset's relative `_blob/<id>` (above), which the page
+  inlines the same way.
 
 ## Workflow
 
@@ -892,9 +899,10 @@ These facts shape every decision:
   artifact-publish capability's republish, which the payload already
   wires - never call it yourself and never add a stand-in for it).
   Assets must be inline: the editor's JS/CSS already is, images ride as
-  bare base64 files entries, and any webfont not from Google Fonts must
-  be a `@font-face` data: URI inside the artboard. `'unsafe-eval'` IS
-  allowed, so eval and WASM work.
+  bare base64 files entries (or as an uploaded asset's relative
+  `_blob/<id>` reference, which the page inlines too), and any webfont
+  not from Google Fonts must be a `@font-face` data: URI inside the
+  artboard. `'unsafe-eval'` IS allowed, so eval and WASM work.
 - **Saving is publishing.** A save hands the platform a complete
   replacement document; it commits a new immutable version for
   EVERYONE, and every open view - including the one that saved -

@@ -6,7 +6,6 @@
 
 The SDK repository's `MIGRATION.md` is the authoritative change list - WebFetch it (URL in `shared/live-sources.md` -> SDK major-version upgrade guides) when you can, and if it disagrees with this file, follow `MIGRATION.md` and say so in your report. The other Python files in this skill may still show 0.x-era details; for a project on 1.x, this file takes precedence.
 
-<!-- Maintenance: this file is the executable form of anthropic-sdk-python's MIGRATION.md. Re-check it against that file whenever .sdk-hashes.json moves the Python SDK pin across a 1.x release. Last reconciled with MIGRATION.md at the 1.0.0 release (2026-08-20): the `extra_body` note for sampling parameters, and the beta helpers no longer warning about `output_format=Model`. -->
 
 ---
 

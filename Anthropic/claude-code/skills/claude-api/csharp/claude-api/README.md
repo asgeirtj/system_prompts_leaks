@@ -35,7 +35,7 @@ Write from this table instead of reflecting the SDK assembly. Endpoint column te
 | Programmatic tool calling | non-beta | `CodeExecutionTool20260120`, `ToolResultBlockParam`, `ContentBlockParam` |
 | Task budgets | beta | `BetaOutputConfig` with `TaskBudget = new BetaTokenTaskBudget { ... }` |
 | Tool search | non-beta | `new ToolUnion(new ToolSearchToolRegex20251119 { Type = ToolSearchToolRegex20251119Type.ToolSearchToolRegex20251119 })` - `Type` must be set explicitly. |
-| Web search | non-beta | `new ToolUnion(new WebSearchTool20260209())` - the latest variant with dynamic filtering (Claude Fable 5.1 + Claude Opus 5 + Opus 4.8/4.7/4.6 + Claude Sonnet 4.6 + Sonnet 4.6). For older models or Vertex, use `WebSearchTool20250305()` |
+| Web search | non-beta | `new ToolUnion(new WebSearchTool20260209())` - the latest variant with dynamic filtering (Claude Fable 5.1 + Claude Opus 5 + Opus 4.8/4.7/4.6 + Claude Sonnet 5 + Sonnet 4.6). For older models or Vertex, use `WebSearchTool20250305()` |
 
 ### Discovering type and member names
 
@@ -157,7 +157,7 @@ var response = await client.Messages.Create(new MessageCreateParams
     MaxTokens = 16000,
     // ThinkingConfigParam? implicitly converts from the concrete variant classes -
     // no wrapper needed.
-    // display opt-in: default is omitted (empty thinking text) on Fable 5 / Mythos 5 / Claude Opus 5 / Opus 4.8 / 4.7
+    // display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5, Opus 4.8/4.7, and Claude Sonnet 5
     Thinking = new ThinkingConfigAdaptive { Display = Display.Summarized },
     Messages =
     [

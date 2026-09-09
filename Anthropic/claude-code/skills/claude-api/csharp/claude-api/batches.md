@@ -11,3 +11,4 @@ var batch = await client.Messages.Batches.Create(new() {
 // Poll client.Messages.Batches.Retrieve(batch.ID) until ProcessingStatus == "ended",
 // then iterate client.Messages.Batches.Results(batch.ID).
 ```
+

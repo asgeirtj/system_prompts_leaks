@@ -174,7 +174,7 @@ The loop will run for multiple rounds, possibly across multiple sessions. Keep s
   "tags": ["topic-a", "hard"],
   "grade": {"pass": 1, "quality": 7.2, "verbosity": 3.0},
   "explanation": {"quality": "Cites two sources; balanced."},
-  "model": "claude-opus-4-7",
+  "model": "claude-opus-5",
   "latency_s": 12.4,
   "tool_calls": 2, "web_searches": 1,
   "usage": {"input_tokens": 1200, "output_tokens": 480} }

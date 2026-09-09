@@ -1,6 +1,7 @@
 ---
 name: code-review
-description: Review the current diff, or a PR number/branch/path target, for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review. For ultra on a GitHub.com PR target, --post asks to post the finished review’s findings to the PR as a single comment from the user’s GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
+description: |-
+  Review the current diff, or a PR number/branch/path target, for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review. For ultra on a GitHub.com PR target, --post asks to post the finished review’s findings to the PR as a single comment from the user’s GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
 ---
 
 `high effort → 3+5 angles × 6 candidates → 1-vote verify (recall-biased) → ≤10 findings`
@@ -72,10 +73,11 @@ alternative.
 
 ### Altitude
 
-Check that each change is implemented at the right depth, not as a fragile
-bandaid. Special cases layered on shared infrastructure are a sign the fix
-isn't deep enough — prefer generalizing the underlying mechanism over adding
-special cases.
+Check that each change fixes the root cause at the right depth rather than
+patching a symptom with a fragile bandaid. Special cases layered on shared
+infrastructure are a sign the fix isn't deep enough — prefer the simpler, more
+general change to the underlying mechanism over adding special cases, and name
+that change.
 
 ### Conventions (CLAUDE.md)
 

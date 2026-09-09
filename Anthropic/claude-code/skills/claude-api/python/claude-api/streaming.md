@@ -52,7 +52,7 @@ Claude may return text, thinking blocks, or tool use. Handle each appropriately:
 with client.messages.stream(
     model="claude-opus-5",
     max_tokens=64000,
-    thinking={"type": "adaptive", "display": "summarized"},  # display opt-in: default is omitted (empty thinking text) on Fable 5 / Mythos 5 / Claude Opus 5 / Opus 4.8 / 4.7
+    thinking={"type": "adaptive", "display": "summarized"},  # display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5, Opus 4.8/4.7, and Claude Sonnet 5
     messages=[{"role": "user", "content": "Analyze this problem"}]
 ) as stream:
     for event in stream:

@@ -3,8 +3,9 @@
 The prompt templates behind Claude Code's built-in `/code-review` skill. The text is
 compiled into the Claude Code binary and injected into the conversation as a user-message
 block when the command runs. Content here was extracted from the binary and byte-verified
-against live API captures (MITM proxy); all five effort tiers re-verified against the
-2.1.245 bundle on 2026-08-25 (two additions since 2.1.211 — see below).
+against live API captures (MITM proxy); all five effort tiers re-captured from live
+2.1.263 invocations on 2026-09-08 (session model Claude Fable 5.1, so these are the
+cells that family receives — see the routing table below).
 
 ## Usage
 

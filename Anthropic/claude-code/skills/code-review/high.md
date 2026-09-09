@@ -67,10 +67,11 @@ alternative.
 
 ### Altitude
 
-Check that each change is implemented at the right depth, not as a fragile
-bandaid. Special cases layered on shared infrastructure are a sign the fix
-isn't deep enough — prefer generalizing the underlying mechanism over adding
-special cases.
+Check that each change fixes the root cause at the right depth rather than
+patching a symptom with a fragile bandaid. Special cases layered on shared
+infrastructure are a sign the fix isn't deep enough — prefer the simpler, more
+general change to the underlying mechanism over adding special cases, and name
+that change.
 
 ### Conventions (CLAUDE.md)
 

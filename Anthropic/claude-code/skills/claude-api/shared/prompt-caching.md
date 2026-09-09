@@ -64,7 +64,7 @@ Many requests share a large fixed preamble (few-shot examples, retrieved docs, i
 
 ### Mid-conversation system messages
 
-**Claude Opus 5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, and Claude Mythos 5.1; no beta header. Not available on Claude Sonnet 4.6** - use top-level `system` there. (Sources conflict on Claude Sonnet 4.6: the model config marks it supported, but every canonical docs page omits it. Treat it as unsupported and catch the 400.) When an operator instruction arrives mid-conversation - a mode switch, updated context, dynamically injected state - send it as `{"role": "system", "content": "..."}` appended to `messages[]`, rather than editing top-level `system`. Editing top-level `system` changes the prefix ahead of the entire conversation history, so every cached turn is re-processed uncached; a `role: "system"` message sits after the history and leaves the cached prefix intact.
+**Claude Opus 5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, and Claude Mythos 5.1; no beta header. Not available on Claude Sonnet 5** - use top-level `system` there. (Sources conflict on Claude Sonnet 5: the model config marks it supported, but every canonical docs page omits it. Treat it as unsupported and catch the 400.) When an operator instruction arrives mid-conversation - a mode switch, updated context, dynamically injected state - send it as `{"role": "system", "content": "..."}` appended to `messages[]`, rather than editing top-level `system`. Editing top-level `system` changes the prefix ahead of the entire conversation history, so every cached turn is re-processed uncached; a `role: "system"` message sits after the history and leaves the cached prefix intact.
 
 ```json
 // Top-level system stays byte-identical; new instruction goes after the cached history
@@ -133,7 +133,7 @@ Fix by moving the dynamic piece after the last breakpoint, making it determinist
 | Model | Minimum |
 |---|---:|
 | Claude Opus 5, Claude Fable 5, Claude Mythos 5, Claude Fable 5.1, Claude Mythos 5.1 | 512 tokens |
-| Opus 4.8, Claude Sonnet 4.6, Sonnet 4.6, Sonnet 4.5, Opus 4.1, Opus 4, Sonnet 4 | 1024 tokens |
+| Opus 4.8, Claude Sonnet 5, Sonnet 4.6, Sonnet 4.5, Opus 4.1, Opus 4, Sonnet 4 | 1024 tokens |
 | Opus 4.7, Mythos Preview, Haiku 3.5 | 2048 tokens |
 | Opus 4.6, Opus 4.5, Haiku 4.5 | 4096 tokens |
 

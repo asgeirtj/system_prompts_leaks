@@ -11,11 +11,11 @@ Help the user debug an issue they're encountering in this current Claude Code se
 
 Debug logging was OFF for this session until now. Nothing prior to this /debug invocation was captured.
 
-Tell the user that debug logging is now active at `{debug_log_path}`, ask them to reproduce the issue, then re-read the log. If they can't reproduce, they can also restart with `claude --debug` to capture logs from startup.
+Tell the user that debug logging is now active at `~/.claude/debug/{{SESSION_ID}}.txt`, ask them to reproduce the issue, then re-read the log. If they can't reproduce, they can also restart with `claude --debug` to capture logs from startup.
 
 ## Session Debug Log
 
-The debug log for the current session is at: `{debug_log_path}`
+The debug log for the current session is at: `~/.claude/debug/{{SESSION_ID}}.txt`
 
 No log file exists yet.
 
@@ -23,7 +23,7 @@ For additional context, grep for [ERROR] and [WARN] lines across the full file.
 
 ## Daemon
 
-No daemon lock or status file found — the background daemon does not appear to be running. If the issue involves background sessions or `claude agents`, the daemon log (if any) is at `{user_home}/.claude/daemon.log`.
+No daemon lock or status file found — the background daemon does not appear to be running. If the issue involves background sessions or `claude agents`, the daemon log (if any) is at `~/.claude/daemon.log`.
 
 ## Issue Description
 
@@ -32,9 +32,9 @@ The user did not describe a specific issue. Read the debug log and summarize any
 ## Settings
 
 Remember that settings are in:
-* user - {user_home}/.claude/settings.json
-* project - {working_directory}/.claude/settings.json
-* local - {working_directory}/.claude/settings.local.json
+* user - ~/.claude/settings.json
+* project - /private/tmp/skillcap/.claude/settings.json
+* local - /private/tmp/skillcap/.claude/settings.local.json
 
 ## Instructions
 

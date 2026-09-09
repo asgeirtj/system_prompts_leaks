@@ -3,10 +3,16 @@
  *
  * One decision, two arms: displaying data that should stay current is
  * `watchTool`; performing an action once is `callTool`. Use `listTools()`
- * to see which connectors the viewer has available. Calls run with the
+ * to see which servers the viewer has available, and `server(name)` for a
+ * handle whose methods are one server's tools. Calls run with the
  * viewer's credentials; your code never sees tokens. Obtain the
  * namespace with `const mcp = await claude.use("mcp")` — `null` means
- * this view cannot run the capability; design for absence.
+ * this view cannot run the capability; design for absence. Besides the
+ * viewer's connectors, a view may reach Claude's own servers for this
+ * artifact (`kind: "artifact"` in `listTools()`; today `artifacts_data`,
+ * this artifact's document store, on a page that declared `db`): then
+ * `use("mcp")` resolves whatever the connector manifest's state — none
+ * declared, or declared but not granted to this viewer.
  */
 
 declare namespace Claude {
@@ -27,19 +33,23 @@ declare namespace Claude {
    *   you do not handle individually — the anti-pattern is collapsing
    *   the codes that do have a distinct fix into that one banner.
    * - Retry only errors stamped `retryable: true` (today
-   *   `server_unavailable`, and `rate_limited` if it ever fires) — at
-   *   most once per user-visible refresh, after a short randomized
+   *   `server_unavailable`, `rate_limited` if it ever fires, and the
+   *   `upstream_error` a first call gets when the viewer's consent for
+   *   that connector could not be asked or was left undecided just now)
+   *   — at most once per user-visible refresh, after a short randomized
    *   delay, honoring `retryAfterMs` when present, and ONLY for reads.
    *   `server_unavailable` (the runtime's reply timeout and upstream
    *   5xx land here) and `upstream_error` are AMBIGUOUS outcomes for
    *   writes: a rejection is NOT proof the tool did not run. Re-issue a
    *   write only behind a fresh user gesture, and where the connector
    *   offers a read, re-read state first. Never retry `needs_reauth` or
-   *   `server_not_connected` — repeating the call cannot succeed:
-   *   `needs_reauth` means credential refresh was already exhausted
-   *   upstream, and `server_not_connected` means no connector is
-   *   configured at all. Render their documented reconnect/add fallback
-   *   copy instead.
+   *   `server_not_connected` unattended — repeating the call cannot
+   *   succeed on its own: `needs_reauth` means credential refresh was
+   *   already exhausted upstream, and `server_not_connected` means no
+   *   connector is configured at all (for a `host:` server: no host
+   *   bridge on this surface, or the local server is not running). Render
+   *   their documented reconnect/add or no-host fallback copy instead; a
+   *   later viewer action may bring a host server back.
    * - Consent is readable and requestable per connector via the
    *   `permissions` capability's scoped names: `"mcp:<server>"`, with
    *   the server name exactly as declared in the manifest (the same
@@ -62,6 +72,23 @@ declare namespace Claude {
    *   envelope rides the rejection's `result` field for the rare
    *   inspector. An immediate retry with the same arguments rarely
    *   helps; surface the reported message in the affected section.
+   * - Host servers (`host:<name>`): a manifest entry whose `server`
+   *   starts with `host:` names an MCP server running on the VIEWER'S
+   *   DEVICE, reached through the Claude app that shows the page (the
+   *   desktop app first). `<name>` is the local server's name with
+   *   anything outside `[A-Za-z0-9_-]` replaced by `_`. The API is the
+   *   same — `callTool("host:filesystem", "read_file", {...})`, consent
+   *   per server via `"mcp:host:filesystem"` — with three differences:
+   *   outside the app (a browser tab, an embedded drawer) every call
+   *   fails — `server_not_connected` once the shell routes `host:`
+   *   calls to the app; the service itself never runs a `host:` tool —
+   *   and there `listTools()` then omits the server, so always render a
+   *   no-host fallback; the app may ask the viewer to confirm a call
+   *   that is not annotated read-only, which can take a while or come
+   *   back `cancelled`; and only the Artifact's owner can use host
+   *   servers for now. Once the shell routes `host:` calls to the app,
+   *   tool input goes to the device rather than the service, which then
+   *   sees which tool ran, never its arguments.
    * - Pages that make several calls per refresh (dashboards,
    *   multi-section reports) contain each failure in the section it
    *   affects: one failed call annotates or greys out its own section
@@ -86,6 +113,18 @@ declare namespace Claude {
      * for UX; `.message` is human-readable but not localized. `.server`
      * echoes the connector display name when the failure is scoped to
      * one connector.
+     *
+     * For one of Claude's own servers (`kind: "artifact"`) the codes keep
+     * their meaning with these readings: `not_in_manifest` — this
+     * artifact's data is not reachable for this viewer any more (or the
+     * call named another artifact); `bad_request` — a tool the page may
+     * not call, or malformed input; `capability_disabled` — this view has
+     * lost its binding to the server; `server_unavailable` (retryable) —
+     * the server did not answer in time or is paused; `tool_error` — the
+     * store refused the operation, `.message` carrying its error envelope
+     * as JSON text (`{"error":{"code", ...}}`) and `.result` the whole
+     * result. `needs_reauth`, `selection_required` and
+     * `blocked_by_policy` do not arise for them.
      */
     interface McpError {
       code: McpErrorCode;
@@ -121,7 +160,10 @@ declare namespace Claude {
      * - `server_not_connected` — no callable connector with this display
      *   name for the current viewer. Also usually pre-empted by the
      *   shell's load-time prompt; in-frame fallback: "Add {server} in
-     *   claude.ai Settings → Connectors".
+     *   claude.ai Settings → Connectors". For a `host:` server it also
+     *   means this surface has no host bridge (not inside the Claude
+     *   app) or the local server is not running — render the no-host
+     *   fallback; the shell never prompts for these.
      * - `selection_required` — the viewer has more than one callable
      *   connector with this display name and has not yet chosen one. The
      *   shell prompts the viewer to choose at most once per loaded version
@@ -132,7 +174,11 @@ declare namespace Claude {
      * - `server_unavailable` — upstream MCP server unreachable/5xx/timeout;
      *   transient, stamped `retryable: true`.
      * - `not_in_manifest` — `(server, tool)` is outside the frame's
-     *   published manifest or the scope the viewer consented to.
+     *   published manifest (a page bug), or outside the scope the viewer
+     *   consented to: they turned this connector off for the page, or
+     *   declined it when the page's first call on it asked. Render that
+     *   connector's section as not allowed for this view; do not re-ask
+     *   in a loop.
      * - `blocked_by_policy` — tool is in the manifest but org policy blocks
      *   it for this viewer.
      * - `approval_required` — org policy requires per-call approval for
@@ -150,9 +196,11 @@ declare namespace Claude {
      *   a duplicate watch registration, the per-view watch limit (64 —
      *   unsubscribe unused watches), or an unknown method on an older
      *   shell.
-     * - `cancelled` — the call's `AbortSignal` fired. Only observable on
-     *   calls that passed one. Upstream outcome UNKNOWN: the tool may
-     *   still have run.
+     * - `cancelled` — the call's `AbortSignal` fired (upstream outcome
+     *   UNKNOWN: the tool may still have run), or, for a `host:` server
+     *   only, the viewer declined the app's confirm for a call that is
+     *   not annotated read-only (that call never ran). Without a signal
+     *   it is only ever the latter.
      * - `rate_limited` — RESERVED: never returned today, but handle it
      *   anyway. The shell refused the call locally (the page exceeded
      *   its connector budget). Wait `retryAfterMs` (else a few
@@ -160,10 +208,19 @@ declare namespace Claude {
      *   Upstream throttling stays `server_unavailable`.
      * - `upstream_error` — anything else. Also the unanswered-call
      *   shape when an established shell stops replying — after the
-     *   shell-announced reply budget (~130 s by default). A top-level
-     *   direct navigation never gets that far: `window.claude` is
-     *   absent there, and an embedded-but-unserved frame
-     *   settles `not_granted` within about 10 s. Gate on
+     *   shell-announced reply budget (~130 s by default). Also a first
+     *   call on a connector whose consent the viewer could not give just
+     *   then (another prompt was open, or the prompt closed before a
+     *   decision): stamped `retryable: true` with `retryAfterMs`, and
+     *   that call never reached the connector, so re-issuing it after the
+     *   wait is safe even for a write — but it is not distinguishable by
+     *   shape from other retryable `upstream_error`s, so a write that
+     *   must not run twice still waits for a fresh user gesture. A top-level
+     *   page never gets that far: served by the platform on the
+     *   artifact's own host it has `window.claude` but `use("mcp")`
+     *   resolves `null` there for now, and any other top-level copy
+     *   has no `window.claude` at all; an embedded-but-unserved frame
+     *   resolves `use("mcp")` `null` within about 10 s. Gate on
      *   `use("mcp")`'s resolution, never by probing with a call.
      *
      * Lifecycle codes (from the runtime itself, not the connector path):
@@ -251,14 +308,40 @@ declare namespace Claude {
       destructiveHint?: boolean;
     }
 
-    /** One tool exposed by a connector. */
+    /** One tool exposed by a server. */
     interface ToolInfo {
       name: string;
       description: string;
       /** Absent as a whole on older shells, and for tools whose
-       * connector declared nothing. */
+       * server declared nothing. */
       annotations?: ToolAnnotations;
     }
+
+    /** {@link describeTool}'s answer: one tool with its JSON Schemas. */
+    interface ToolDescription extends ToolInfo {
+      /** JSON Schema of the tool's `input` argument. */
+      inputSchema: unknown;
+      /** JSON Schema of the call's `payload`, when the server declares one. */
+      outputSchema?: unknown;
+    }
+
+    /**
+     * A per-server handle from {@link server}: one own method per listed
+     * tool (any valid tool name — letters, digits, `_`, `.`, `-` — except
+     * `then`, `toJSON` and `Object.prototype` members; reach a hyphenated
+     * one as `handle["get-doc"](input)`). Each method takes the tool's `input` (and
+     * {@link CallToolOptions}), resolves to the call's `payload` (see
+     * {@link CallToolResult}; the whole result when no payload is
+     * derivable), and rejects with the same {@link McpError}
+     * {@link callTool} would. The object is frozen; any other tool stays
+     * reachable through {@link callTool}.
+     */
+    type ServerHandle = Readonly<
+      Record<
+        string,
+        (input?: unknown, options?: CallToolOptions) => Promise<unknown>
+      >
+    >;
 
     /**
      * Connector auth posture — a CLOSED set, normalized by the runtime.
@@ -277,7 +360,8 @@ declare namespace Claude {
     type ServerAuthStatus = "connected" | "needs_reauth" | "unknown";
 
     /** One connector the viewer has connected, intersected with the
-     * manifest.
+     * manifest — or, before the viewer has been asked about it, one the
+     * page declares (`authStatus: "unknown"`).
      *
      * ADDRESSING (settled): `server` is the connector DISPLAY NAME and
      * will remain so — it will never accept a connector id (ids are
@@ -291,6 +375,14 @@ declare namespace Claude {
     interface ServerInfo {
       /** Connector display name — the `server` argument to {@link callTool}. */
       server: string;
+      /** What kind of server this is: absent or `"connector"` — one of the
+       * viewer's claude.ai connectors; `"artifact"` — one of Claude's own
+       * servers for this artifact (no manifest entry, no viewer consent,
+       * never bars public sharing; its tools act on this artifact only;
+       * {@link watchTool}, {@link invalidate} and {@link CallToolOptions}
+       * caching do not apply to it — keep live data on `use("db")`).
+       * Older shells never list artifact servers. */
+      kind?: "connector" | "artifact";
       authStatus: ServerAuthStatus;
       tools: ToolInfo[];
     }
@@ -356,9 +448,11 @@ declare namespace Claude {
        * Abort this call. Held by the runtime — never crosses to the
        * shell; abort rejects promptly with `{code: "cancelled"}` and
        * best-effort-cancels the upstream execution. Best-effort: the
-       * tool MAY still have run — treat `cancelled` as outcome-unknown
+       * tool MAY still have run — treat an aborted call as outcome-unknown
        * and never pass a signal on a one-shot action you cannot
-       * double-fire. An AbortSignal such as `AbortSignal.timeout(ms)`,
+       * double-fire. (A `host:` call can also reject `cancelled` with no
+       * signal — the viewer declined the app's confirm; that one never
+       * ran.) An AbortSignal such as `AbortSignal.timeout(ms)`,
        * where available, is the per-call deadline mechanism — there is
        * deliberately no `timeoutMs` option. Older shells ignore the
        * cancel: the promise still rejects promptly.
@@ -375,9 +469,10 @@ declare namespace Claude {
      * that should stay current? That is {@link watchTool}.
      *
      * `server` is the connector's display name (e.g. `"Google
-     * Calendar"`), not a UUID. `(server, tool)` must be inside the
-     * scope the viewer consented to or the call rejects with
-     * `not_in_manifest`.
+     * Calendar"`), not a UUID — or `host:<name>` for a local server on
+     * the viewer's device (see the namespace doc). `(server, tool)`
+     * must be inside the scope the viewer consented to or the call
+     * rejects with `not_in_manifest`.
      *
      * `input` must be plain JSON: objects, arrays, strings, numbers,
      * booleans, `null`. `Map`/`Set`/`Date`/typed arrays/`BigInt` reject
@@ -487,7 +582,12 @@ declare namespace Claude {
      * List the connectors callable from this frame: the frame's published
      * manifest intersected with the connectors the current viewer has
      * actually connected. Call at load to adapt the UI to what's available
-     * before calling {@link callTool}.
+     * before calling {@link callTool}. A connector the viewer has not yet
+     * been asked about lists from the manifest alone — `authStatus:
+     * "unknown"`, its declared tool names, empty descriptions, no
+     * annotations — and the first {@link callTool} or {@link watchTool}
+     * on it asks the viewer (the call waits for the answer); listing
+     * never asks.
      *
      * Duplicate-connector selection FIELDS never reach pages, but the
      * pending state is observable: a duplicated, not-yet-chosen connector
@@ -496,9 +596,43 @@ declare namespace Claude {
      * `selection_required`. Render the same degraded view you use for
      * `server_not_connected`.
      *
+     * With `server`, lists that one server or none. Claude's own servers
+     * for this artifact (`kind: "artifact"`) list first when present; one
+     * the shell cannot read right now is omitted from the list (ask
+     * {@link server} for it to see why).
+     *
      * Rejects with {@link McpError}; never throws synchronously.
      */
-    function listTools(): Promise<ListToolsResult>;
+    function listTools(server?: string): Promise<ListToolsResult>;
+
+    /**
+     * A handle for one server — a connector from the manifest, or one of
+     * Claude's own servers for this artifact — whose methods are its
+     * listed tools ({@link ServerHandle}):
+     *
+     *     const data = await mcp.server("artifacts_data");
+     *     await data.set({ path: "tasks/t1", data: { title: "Ship it" } });
+     *     const { docs } = await data.query({ collection: "tasks" });
+     *
+     * Rejects `server_not_connected` when no server by that name is
+     * reachable from this view or it lists with no callable tools (on an
+     * older shell that is every artifact server), `needs_reauth` for a
+     * connector that lists in that state, and otherwise with
+     * {@link McpError} as {@link listTools} does.
+     */
+    function server(name: string): Promise<ServerHandle>;
+
+    /**
+     * One tool's description and JSON Schemas. Answered for Claude's own
+     * artifact servers; a connector name rejects `bad_request`, and an
+     * older shell rejects an artifact server's too (`bad_request`, or
+     * `capability_disabled` with no connector bridge) — treat any
+     * rejection as "no schema available".
+     */
+    function describeTool(
+      server: string,
+      tool: string,
+    ): Promise<ToolDescription>;
   }
 }
 

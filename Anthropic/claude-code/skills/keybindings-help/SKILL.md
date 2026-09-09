@@ -1,7 +1,7 @@
 ---
 name: keybindings-help
-description: 'Use when the user wants to customize keyboard shortcuts, rebind keys, add chord bindings, or modify ~/.claude/keybindings.json. Examples: "rebind ctrl+s", "add a chord shortcut", "change the submit key", "customize keybindings".'
-user-invocable: false
+description: |-
+  Use when the user wants to customize keyboard shortcuts, rebind keys, add chord bindings, or modify ~/.claude/keybindings.json. Examples: "rebind ctrl+s", "add a chord shortcut", "change the submit key", "customize keybindings".
 ---
 
 # Keybindings Skill
@@ -165,13 +165,18 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `Tabs` | When tab navigation is active |
 | `Attachments` | When navigating image attachments in a select dialog |
 | `Footer` | When footer indicators are focused |
+| `AbovePrompt` | When a plugin's button above the prompt has keyboard focus |
+| `AbovePromptInput` | When a plugin's input field above the prompt has keyboard focus |
+| `AbovePromptSelect` | When a plugin's select above the prompt has keyboard focus |
 | `MessageSelector` | When the message selector (rewind) is open |
 | `DiffDialog` | When the diff dialog is open |
 | `DiffPanel` | When the diff sidebar panel is open |
 | `ModelPicker` | When the model picker is open |
+| `EffortSlider` | When the effort slider is open |
 | `Select` | When a select/list component is focused |
 | `Plugin` | When the plugin dialog is open |
 | `Scroll` | When a scrollable view is focused (fullscreen layout) |
+| `Agents` | When the agents view (`claude agents`) is open |
 
 ## Available Actions
 
@@ -202,6 +207,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `chat:thinkingToggle` | `meta+t` | Chat |
 | `chat:workflowKeywordToggle` | `meta+w` | Chat |
 | `chat:submit` | `enter` | Chat |
+| `chat:queueSubmit` | `ctrl+x enter` | Chat |
 | `chat:newline` | `ctrl+j` | Chat |
 | `chat:undo` | `ctrl+_`, `ctrl+-`, `ctrl+shift+-`, `ctrl+shift+_` | Chat |
 | `chat:externalEditor` | `ctrl+x ctrl+e`, `ctrl+g` | Chat |
@@ -221,7 +227,6 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `confirm:previousField` | (none) | Confirmation |
 | `confirm:cycleMode` | `shift+tab` | Confirmation |
 | `confirm:toggle` | `space` | Confirmation |
-| `confirm:toggleExplanation` | `ctrl+e` | Confirmation |
 | `tabs:next` | `tab`, `right` | Tabs |
 | `tabs:previous` | `shift+tab`, `left` | Tabs |
 | `transcript:toggleShowAll` | `ctrl+e` | Transcript |
@@ -247,6 +252,14 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `footer:clearSelection` | `escape` | Footer |
 | `footer:close` | `x` | Footer |
 | `footer:dismiss` | `backspace`, `delete` | Footer |
+| `abovePrompt:toggle` | `ctrl+x ctrl+a` | Chat |
+| `abovePrompt:focus` | `ctrl+x tab` | Chat |
+| `abovePrompt:next` | `tab`, `right`, `down`, `tab`, `down`, `tab` | AbovePrompt |
+| `abovePrompt:previous` | `shift+tab`, `left`, `up`, `shift+tab`, `up`, `shift+tab` | AbovePrompt |
+| `abovePrompt:press` | `enter`, `space`, `enter`, `enter` | AbovePrompt |
+| `abovePrompt:leave` | `escape`, `escape`, `escape` | AbovePrompt |
+| `abovePrompt:highlightNext` | `down` | AbovePromptSelect |
+| `abovePrompt:highlightPrevious` | `up` | AbovePromptSelect |
 | `messageSelector:up` | `up`, `k`, `ctrl+p` | MessageSelector |
 | `messageSelector:down` | `down`, `j`, `ctrl+n` | MessageSelector |
 | `messageSelector:top` | `ctrl+up`, `shift+up`, `meta+up`, `shift+k` | MessageSelector |
@@ -262,6 +275,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `modelPicker:decreaseEffort` | `left` | ModelPicker |
 | `modelPicker:increaseEffort` | `right` | ModelPicker |
 | `modelPicker:thisSessionOnly` | `s` | ModelPicker |
+| `effortSlider:thisSessionOnly` | `s` | EffortSlider |
 | `select:next` | `down`, `j`, `ctrl+n`, `down`, `j`, `ctrl+n` | Settings |
 | `select:previous` | `up`, `k`, `ctrl+p`, `up`, `k`, `ctrl+p` | Settings |
 | `select:pageUp` | `pageup` | Select |
@@ -280,6 +294,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `settings:periodWeek` | `w` | Settings |
 | `settings:sortByTokens` | `t` | Settings |
 | `voice:pushToTalk` | `space` | Chat |
+| `scroll:previousPrompt` | `ctrl+pageup`, `alt+pageup` | Scroll |
+| `scroll:nextPrompt` | `ctrl+pagedown`, `alt+pagedown` | Scroll |
 | `scroll:pageUp` | `pageup`, `pageup` | Scroll |
 | `scroll:pageDown` | `pagedown`, `pagedown` | Scroll |
 | `scroll:lineUp` | `ctrl+p`, `k`, `up`, `wheelup` | Transcript |
@@ -298,3 +314,5 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `selection:extendDown` | `shift+down` | Scroll |
 | `selection:extendLineStart` | `shift+home` | Scroll |
 | `selection:extendLineEnd` | `shift+end` | Scroll |
+| `agents:switchView` | `ctrl+s` | Agents |
+| `agents:togglePin` | `ctrl+t` | Agents |

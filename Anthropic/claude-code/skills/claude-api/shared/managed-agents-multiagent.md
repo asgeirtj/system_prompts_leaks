@@ -25,7 +25,7 @@ agent = client.beta.agents.create(
 session = client.beta.sessions.create(agent=agent.id, environment_id=env.id)  # unchanged
 ```
 
-**Step 2 - move the reading-heavy work to a cheaper model.** Delegated research work is mostly searching, reading, and extracting: many input tokens, little hard reasoning. Create a second agent on a smaller model with a narrow `system` prompt and only the tools it needs, and list it next to `self`. A roster entry is only a reference: the worker runs on its own `model`, `system`, and `tools`, and its tokens are billed at its own model's rates. The large model spends its tokens on planning, checking, and synthesis; the small model does the bulk reading.
+**Step 2 - move the reading-heavy work to a cheaper model.** Delegated research work is mostly searching, reading, and extracting: many input tokens, little hard reasoning. Create a second agent on a smaller current-generation model (Claude Haiku 4.5, or Claude Sonnet 5 when the worker needs more judgment) with a narrow `system` prompt and only the tools it needs, and list it next to `self`. A roster entry is only a reference: the worker runs on its own `model`, `system`, and `tools`, and its tokens are billed at its own model's rates. The large model spends its tokens on planning, checking, and synthesis; the small model does the bulk reading.
 
 ```python
 worker = client.beta.agents.create(
@@ -56,7 +56,7 @@ lead = client.beta.agents.create(
 reviewer = client.beta.agents.create(
     name="Concurrency reviewer",
     description="Read-only reviewer for race conditions, deadlocks, lost updates, and retry/idempotency bugs. Give it the changed file paths and the invariants that must hold; it reports findings with file:line evidence. Spawn several on the same change for independent reviews.",
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     system="Review only the files you are pointed at. Look for concurrency bugs: unsynchronized shared state, lock ordering, non-atomic read-modify-write, retries without idempotency. Report each finding as file:line, the interleaving that triggers it, and a suggested fix; say plainly if you found none.",
     tools=[{"type": "agent_toolset_20260401", "default_config": {"enabled": False},
             "configs": [{"name": n, "enabled": True} for n in ("read", "glob", "grep")]}],
@@ -64,7 +64,7 @@ reviewer = client.beta.agents.create(
 test_writer = client.beta.agents.create(
     name="Test writer",
     description="Writes and runs tests. Give it the module path, the behavior to pin down, and the test command; it adds test files, runs them, and reports results with output.",
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     system="Write focused tests for the behavior you are given, run them with the command you are given, and report pass/fail, the relevant output, and the paths of files you added. Do not edit non-test code; if the code under test looks wrong, report that instead.",
     tools=[{"type": "agent_toolset_20260401", "default_config": {"enabled": True},
             "configs": [{"name": n, "enabled": False} for n in ("web_fetch", "web_search")]}],
@@ -184,7 +184,7 @@ An `{"type": "advisor", "model": "<model id>"}` roster entry gives the session's
 ```python
 agent = client.beta.agents.create(
     name="Backend engineer",
-    model="claude-sonnet-4-6",
+    model="claude-sonnet-5",
     system="You implement backend features end to end.",
     multiagent={
         "type": "coordinator",

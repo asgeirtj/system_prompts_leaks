@@ -250,3 +250,4 @@ tools: [
 Declare `['type' => 'memory_20250818', 'name' => 'memory']`. Handle the `tool_use` by reading/writing files under a fixed `/memories` directory. **Validate every model-supplied path**: resolve to its canonical form and verify it remains within the memory directory; reject traversal (`..`, symlinks) - see `shared/tool-use-concepts.md` § Client-Side Tools.
 
 ---
+

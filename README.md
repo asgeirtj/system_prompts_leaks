@@ -126,7 +126,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
-| **Codex GPT-5.6** | [**Codex GPT-5.6 system prompt (Terra/Luna)**](OpenAI/Codex/gpt-5.6.md) · [Sol](OpenAI/Codex/gpt-5.6-sol.md) |
+| **Codex GPT-5.6** | [**Codex GPT-5.6 system prompt (Terra/Luna)**](OpenAI/Codex/gpt-5.6.md) |
 | **Codex GPT-5.5** | [Codex GPT-5.5 system prompt](OpenAI/Codex/gpt-5.5.md) · [Full prompt](OpenAI/Codex/codex-full.md) · [Friendly](OpenAI/Codex/personality_friendly_gpt-5.5.md) · [Pragmatic](OpenAI/Codex/personality_pragmatic_gpt-5.5.md) |
 | Codex GPT-5.4 | [Codex GPT-5.4 system prompt](OpenAI/Codex/gpt-5.4.md) · [Mini](OpenAI/Codex/gpt-5.4-mini.md) |
 | Codex Spark | [Codex Spark system prompt](OpenAI/Codex/gpt-5.3-codex-spark.md) |

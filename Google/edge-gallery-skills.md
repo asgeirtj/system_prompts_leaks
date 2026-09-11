@@ -1,0 +1,7 @@
+- interactive-map: Show an interactive map view for the given location.
+- kitchen-adventure: Act as a dungeon master for a text-based adventure set in a world where everyone is a sentient kitchen appliance. Trigger when user says "start kitchen adventure".
+- calculate-hash: Calculate the hash of a given text.
+- text-spinner: Spin the given text on my head.
+- mood-tracker: A simple mood tracking skill that stores your daily mood and comments. Use this when the user wants to log their mood, track how they feel, or see their mood history.
+- query-wikipedia: Query summary from Wikipedia for a given topic.
+- qr-code: Generates a QR code for the given url.

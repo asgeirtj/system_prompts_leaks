@@ -1,0 +1,4 @@
+Anthropic/example.md:
+  provider: anthropic
+  product: example-product
+  source_type: official

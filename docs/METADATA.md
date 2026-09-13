@@ -118,6 +118,12 @@ entries; omit rather than guess.
 captured_at: 2026-09-01
 ```
 
+> **Note:** YAML parsers (including PyYAML's `safe_load`, used by the
+> validator) parse an unquoted `YYYY-MM-DD` value as a native date object,
+> not a string. The validator normalizes this automatically before checking
+> it against the schema, so writing the date unquoted as shown above is
+> fine and preferred.
+
 ### `source_type` (required)
 
 How the material became available. One of:

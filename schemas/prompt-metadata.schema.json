@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/asgeirtj/system_prompts_leaks/schemas/prompt-metadata.schema.json",
+  "title": "Prompt metadata sidecar file",
+  "description": "Schema for one metadata/<Provider>.yaml sidecar file, as defined in docs/METADATA.md. The file is a mapping from repository-relative prompt file path to a metadata entry describing that file's provenance, confidence, and basic structure. Prompt files themselves are never modified by this schema.",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/entry"
+  },
+  "propertyNames": {
+    "$comment": "Keys are repository-relative paths using forward slashes, matching `git ls-files` output.",
+    "type": "string",
+    "minLength": 1,
+    "pattern": "^[^\\\\]+$"
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "title": "Metadata entry",
+      "required": ["provider", "product", "source_type", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The company or organization associated with the prompt, e.g. \"anthropic\", \"openai\", \"google\", \"xai\"."
+        },
+        "product": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The product, application, or agent the prompt belongs to, e.g. \"claude-code\", \"chatgpt\", \"gemini-cli\"."
+        },
+        "model": {
+          "type": ["string", "null"],
+          "description": "The specific model associated with the prompt, when known. Optional/null for product-level entries not tied to one model."
+        },
+        "captured_at": {
+          "type": ["string", "null"],
+          "description": "The date the prompt was captured, extracted, published, or observed, formatted YYYY-MM-DD. Omit (null) rather than guess.",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "format": "date"
+        },
+        "source_type": {
+          "description": "How the material became available. See docs/METADATA.md for full definitions.",
+          "enum": [
+            "official",
+            "extracted",
+            "reverse_engineered",
+            "community_submitted",
+            "reconstructed",
+            "unknown"
+          ]
+        },
+        "confidence": {
+          "description": "How strongly the entry has been verified. See docs/METADATA.md for full definitions.",
+          "enum": ["high", "medium", "low", "unknown"]
+        },
+        "contains": {
+          "type": "array",
+          "description": "What the document holds.",
+          "items": {
+            "enum": [
+              "system_prompt",
+              "tool_definitions",
+              "skills",
+              "subagents",
+              "mcp",
+              "safety_rules",
+              "permission_rules",
+              "verification_rules",
+              "runtime_instructions"
+            ]
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      }
+    }
+  }
+}

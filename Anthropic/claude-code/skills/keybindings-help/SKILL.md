@@ -165,9 +165,11 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `Tabs` | When tab navigation is active |
 | `Attachments` | When navigating image attachments in a select dialog |
 | `Footer` | When footer indicators are focused |
-| `AbovePrompt` | When a plugin's button above the prompt has keyboard focus |
+| `AbovePrompt` | When a plugin's panel above the prompt, or a button in it, has keyboard focus |
 | `AbovePromptInput` | When a plugin's input field above the prompt has keyboard focus |
 | `AbovePromptSelect` | When a plugin's select above the prompt has keyboard focus |
+| `Pane` | When a plugin's pane has keyboard focus |
+| `PaneField` | When an input field or select in a plugin's pane has keyboard focus |
 | `MessageSelector` | When the message selector (rewind) is open |
 | `DiffDialog` | When the diff dialog is open |
 | `DiffPanel` | When the diff sidebar panel is open |
@@ -189,8 +191,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `app:toggleBrief` | `ctrl+shift+b` | Global |
 | `app:toggleReplTab` | (none) | Global |
 | `app:toggleDiffNoiseFilter` | (none) | Global |
-| `app:diffFileListUp` | `ctrl+up`, `meta+up` | Global |
-| `app:diffFileListDown` | `ctrl+down`, `meta+down` | Global |
+| `app:diffFileListUp` | `meta+up` | Global |
+| `app:diffFileListDown` | `meta+down` | Global |
 | `app:toggleDiffPreSession` | (none) | Global |
 | `app:cycleDiffBase` | `ctrl+x b` | DiffPanel |
 | `app:toggleTerminal` | (none) | Global |
@@ -254,12 +256,21 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `footer:dismiss` | `backspace`, `delete` | Footer |
 | `abovePrompt:toggle` | `ctrl+x ctrl+a` | Chat |
 | `abovePrompt:focus` | `ctrl+x tab` | Chat |
-| `abovePrompt:next` | `tab`, `right`, `down`, `tab`, `down`, `tab` | AbovePrompt |
-| `abovePrompt:previous` | `shift+tab`, `left`, `up`, `shift+tab`, `up`, `shift+tab` | AbovePrompt |
-| `abovePrompt:press` | `enter`, `space`, `enter`, `enter` | AbovePrompt |
-| `abovePrompt:leave` | `escape`, `escape`, `escape` | AbovePrompt |
+| `abovePrompt:next` | `tab`, `right`, `tab`, `down`, `tab`, `tab` | AbovePrompt |
+| `abovePrompt:previous` | `shift+tab`, `left`, `shift+tab`, `up`, `shift+tab`, `shift+tab` | AbovePrompt |
+| `abovePrompt:press` | `enter`, `space`, `enter`, `enter`, `enter` | AbovePrompt |
+| `abovePrompt:leave` | `escape`, `escape`, `escape`, `escape` | AbovePrompt |
 | `abovePrompt:highlightNext` | `down` | AbovePromptSelect |
 | `abovePrompt:highlightPrevious` | `up` | AbovePromptSelect |
+| `pane:scrollUp` | `up`, `up` | AbovePrompt |
+| `pane:scrollDown` | `down`, `down` | AbovePrompt |
+| `pane:pageUp` | `pageup`, `pageup` | AbovePrompt |
+| `pane:pageDown` | `pagedown`, `pagedown` | AbovePrompt |
+| `pane:top` | `home`, `home` | AbovePrompt |
+| `pane:bottom` | `end`, `end` | AbovePrompt |
+| `pane:grow` | `ctrl+x left`, `ctrl+x up` | Pane |
+| `pane:shrink` | `ctrl+x right`, `ctrl+x down` | Pane |
+| `pane:close` | `ctrl+x x`, `ctrl+x x` | Pane |
 | `messageSelector:up` | `up`, `k`, `ctrl+p` | MessageSelector |
 | `messageSelector:down` | `down`, `j`, `ctrl+n` | MessageSelector |
 | `messageSelector:top` | `ctrl+up`, `shift+up`, `meta+up`, `shift+k` | MessageSelector |
@@ -294,8 +305,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `settings:periodWeek` | `w` | Settings |
 | `settings:sortByTokens` | `t` | Settings |
 | `voice:pushToTalk` | `space` | Chat |
-| `scroll:previousPrompt` | `ctrl+pageup`, `alt+pageup` | Scroll |
-| `scroll:nextPrompt` | `ctrl+pagedown`, `alt+pagedown` | Scroll |
+| `scroll:previousPrompt` | `ctrl+up`, `ctrl+up` | Transcript |
+| `scroll:nextPrompt` | `ctrl+down`, `ctrl+down` | Transcript |
 | `scroll:pageUp` | `pageup`, `pageup` | Scroll |
 | `scroll:pageDown` | `pagedown`, `pagedown` | Scroll |
 | `scroll:lineUp` | `ctrl+p`, `k`, `up`, `wheelup` | Transcript |

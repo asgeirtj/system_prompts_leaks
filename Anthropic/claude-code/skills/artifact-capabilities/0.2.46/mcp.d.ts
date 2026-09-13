@@ -215,13 +215,17 @@ declare namespace Claude {
      *   that call never reached the connector, so re-issuing it after the
      *   wait is safe even for a write — but it is not distinguishable by
      *   shape from other retryable `upstream_error`s, so a write that
-     *   must not run twice still waits for a fresh user gesture. A top-level
-     *   page never gets that far: served by the platform on the
-     *   artifact's own host it has `window.claude` but `use("mcp")`
-     *   resolves `null` there for now, and any other top-level copy
-     *   has no `window.claude` at all; an embedded-but-unserved frame
-     *   resolves `use("mcp")` `null` within about 10 s. Gate on
-     *   `use("mcp")`'s resolution, never by probing with a call.
+     *   must not run twice still waits for a fresh user gesture. Top-level,
+     *   a page served by the platform on the artifact's own host has
+     *   `window.claude`, and `use("mcp")` resolves this same namespace
+     *   there only when the platform lets the artifact act as the
+     *   signed-in viewer (the platform answers its calls with these same
+     *   codes plus the two top-level codes below; Claude's own artifact
+     *   servers are not reachable there) and `null` otherwise; any other
+     *   top-level copy has no `window.claude` at all; an
+     *   embedded-but-unserved frame resolves `use("mcp")` `null` within
+     *   about 10 s. Gate on `use("mcp")`'s resolution, never by probing
+     *   with a call.
      *
      * Lifecycle codes (from the runtime itself, not the connector path):
      * - `not_granted` — the viewer's session did not grant MCP to this
@@ -234,6 +238,24 @@ declare namespace Claude {
      *   runtime serving this view; treat like `capability_disabled`.
      * - `transform_error` — the call's arguments could not be prepared;
      *   treat like `bad_request`.
+     *
+     * Top-level codes (only on a page served top-level on the artifact's
+     * own host; never inside a viewer):
+     * - `consent_required` — the viewer has not allowed this connector for
+     *   this artifact there: they declined when the call asked, or the
+     *   call waited about ten minutes for an answer (its "Review in Claude"
+     *   notice stays up). The call never reached the connector. Render
+     *   that connector's section as not allowed with a way to try again,
+     *   and call again only behind a fresh user gesture: that call asks
+     *   again, except that right after a decline the runtime waits out a
+     *   short quiet spell (seconds, longer after repeated declines) before
+     *   its notice goes up, the call waiting meanwhile; in a
+     *   {@link watchTool} handler treat it as a denial — the watch asks
+     *   again by itself once the viewer allows the connector or returns to
+     *   the tab.
+     * - `user_changed` — the account signed in on this host is no longer
+     *   the viewer the page was loaded for; the runtime replaces the page.
+     *   Render nothing from the call and make no further calls.
      */
     type McpErrorCode =
       | "needs_reauth"
@@ -252,7 +274,9 @@ declare namespace Claude {
       | "not_granted"
       | "capability_disabled"
       | "capability_removed"
-      | "transform_error";
+      | "transform_error"
+      | "consent_required"
+      | "user_changed";
 
     /** One content block in a {@link CallToolResult}. */
     type ContentBlock =

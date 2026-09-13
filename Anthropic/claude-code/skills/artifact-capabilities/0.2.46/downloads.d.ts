@@ -26,10 +26,12 @@ declare namespace Claude {
      *   list off for this view. Not the normal state: if it arrives, tell
      *   the viewer that format is unavailable here and stop — no retry,
      *   no pre-built fallback chain.
-     * - `too_large` — only an export answer (`request` set) can draw
-     *   it: the file is larger than the destination the viewer chose
-     *   accepts (16 MiB today). An ordinary save has no size limit, so
-     *   never cap, trim, or re-encode a download to fit one.
+     * - `too_large` — this file is over a ceiling: an export answer
+     *   (`request` set) larger than the destination the viewer chose
+     *   accepts (16 MiB today), or an ordinary save over 200 MiB in a
+     *   host that writes files itself (the Claude Android app). Other
+     *   ordinary saves have no size limit: never cap, trim, or re-encode
+     *   a download up front; on `too_large`, offer a smaller rendition.
      * - `declined` — the viewer said no (or let the prompt expire);
      *   never auto-retry.
      * - `rate_limited` — a prompt is already open or too many recent
@@ -61,13 +63,15 @@ declare namespace Claude {
 
     interface SaveRequest {
       /**
-       * Suggested filename with extension. It is sanitized and
-       * allowlist-checked; the viewer confirms the FINAL name, which may
-       * differ.
+       * Suggested filename with extension. It is sanitized (invisible
+       * characters dropped, repeated whitespace made one space, at most 240
+       * bytes of UTF-8) and allowlist-checked; the viewer confirms the
+       * FINAL name, which may differ.
        */
       filename: string;
       /**
-       * Non-empty contents; no size limit. Strings encode UTF-8. An
+       * Non-empty contents; no size limit short of `too_large` above.
+       * Strings encode UTF-8. An
        * ArrayBuffer is TRANSFERRED (detached after the call) — pass
        * `buf.slice(0)` if you still need it; views are copied; a Blob is
        * handed over as-is, neither read nor transferred (except when
@@ -89,9 +93,10 @@ declare namespace Claude {
     interface SaveResult {
       /**
        * `"saved"` = viewer accepted and the file was handed to the host's
-       * save surface — the browser download, or the native share sheet in
-       * the Claude iOS app (a host may still drop a download downstream,
-       * unobservably). `"delivered"` = the save carried `request` and the
+       * save surface — the browser download, the native share sheet in
+       * the Claude iOS app, or the Claude Android app's own file write,
+       * which it confirmed (a browser host may still drop a download
+       * downstream, unobservably). `"delivered"` = the save carried `request` and the
        * viewer accepted: the file was handed to the platform for the
        * destination they chose, not saved; show no "saved" notice.
        */

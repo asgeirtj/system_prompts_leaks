@@ -19,7 +19,7 @@ file), exporting `register(on, options)`. `on(event, matcher?, hook)` adds a
 hook; `options` holds the values of the fields the manifest's `userConfig`
 declares. Every hook has the shape `($, e, next)`: `$` is the engine
 interface (display, model, session, prompt, tools, filesystem, store,
-clock, network, host commands, settings, environment and the rest), `e` is the event's input as a plain value,
+clock, network, host commands, settings, environment, the config menu's rows and the rest), `e` is the event's input as a plain value,
 and `next(e)` continues to the other plugins and then the engine's own
 behaviour, resolving to the event's result. A hook that returns without
 calling `next` answers for itself; one that calls `next({ ...e, ... })`
@@ -28,12 +28,12 @@ The module runs in an environment of its own, with no DOM and no Node:
 everything outside it is reached through `$`. JSX is available with `h` as
 the factory.
 
-The events cover tool calls and their descriptions, the prompt as
-submitted, the system prompt's sections and the first message's context
-blocks, what the interface draws, the turn's start, steps and completion,
-the session's start and its inbound deliveries, skills, subagents and
-attribution text. Which of them a feature is, and what it needs from `$`,
-are the two questions worth settling before writing anything.
+The events cover tool calls and their descriptions, the prompt as submitted, the system prompt's sections and the first message's context blocks, what the interface
+draws, the turn's start, steps and completion, the session's start and deliveries, each hooks module's admission, skills, subagents and attribution text. Which of them a
+feature is, and what it needs from `$`, are the two questions worth settling before writing. One event streams: `turn.step`, a model request of the turn, whose hook is an
+async generator (`async function* ($, e, next) {}`, the one form that loads there); `next(e)` is the stream beneath, `yield* next(e)` forwards it and evaluates to the
+step's result, `for await` over it rewrites the chunks (`TurnStepChunk`) one at a time, yielding without `next` answers alone, and a chunk once yielded stays, so a hook
+that fails mid-stream is left where it stood and the rest of the response comes from beneath it.
 
 ## The types are the reference
 
@@ -64,7 +64,7 @@ only (repeat the flag for several). In an interactive session the folder is
 watched: saving a file reloads the hooks module, so `register` runs again in
 a fresh environment and the previous environment's timers are dropped.
 Options for a plugin loaded this way are read from settings under
-`pluginConfigs`, keyed by the plugin's `<name>` (or `<name>@inline`).
+`pluginConfigs`, keyed by the plugin's `<name>` (or `<name>@inline`); each non-secret `userConfig` field is a row in the config menu too, and a change there reloads the module with the new `options`.
 
 Run with `claude --debug` while developing. A hook that fails is skipped and
 the chain continues without it, unless its registration's `.catch` handler
@@ -75,10 +75,10 @@ refused, so a plugin that seems to do nothing has usually been told why.
 ## Drawing: ui.render
 
 A `ui.render` hook receives one component instance. `e.component` says
-which component, `e.surface` where it is drawn (`terminal` or `desktop`),
-`e.requestId` which instance (the tool_use_id for a tool row or dialog,
-the message id for a message, the agent id for a spinner), `e.props` the
-component's plain-data props, and `e.viewport`, when the surface has
+which component, `e.surface` where it is drawn (`terminal`, `desktop` or
+`mobile`), `e.requestId` which instance (the tool_use_id for a tool row or
+dialog, the message id for a message, the agent id for a spinner), `e.props`
+the component's plain-data props, and `e.viewport`, when the surface has
 measured, the size it draws into in character cells: `columns` and `rows`.
 A change of width re-runs every hooked site once the resize settles, so a
 tree sized to `columns` stays right; a change of height alone re-draws
@@ -87,12 +87,12 @@ changed.
 
 Build trees from the table `$.ui.resolve(e)` returns: the surface's element
 constructors, destructured into the hook's JSX tags (a module has no element
-globals). Tables differ per surface and narrowing `e.surface` narrows the
-table: check `Elements` before using an element on both. Return a tree,
-or `next({ ...e, props })` to change what the engine draws, or `next(e)` to
-leave it. A tree that does not validate (an element the surface lacks, a
-prop the element does not take, a child where none goes) is not drawn: the
-engine draws its own component instead and writes a line to the debug log
+globals). Tables differ per surface, see `Elements` (`mobile` has no `Input`,
+`Select` or `Client`, `terminal` no `Svg`); narrowing `e.surface` narrows the
+table. Return a tree, or `next({ ...e, props })` to change what the engine
+draws, or `next(e)` to leave it. A tree that does not validate (an element
+the surface lacks, a prop it does not take, a child where none goes) is not
+drawn: the engine draws its own instead and writes to the debug log a line
 beginning `ui.render (<Component>): a hook returned a tree that does not
 validate`, followed by the reason. When a drawing silently falls back,
 that line and the element's props type are the two things to read. Buttons,

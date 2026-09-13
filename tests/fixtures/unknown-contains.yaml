@@ -1,0 +1,7 @@
+Anthropic/example.md:
+  provider: anthropic
+  product: example-product
+  source_type: official
+  confidence: high
+  contains:
+    - made_up_value

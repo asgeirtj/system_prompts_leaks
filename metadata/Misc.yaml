@@ -1,0 +1,10 @@
+# Metadata for Misc/ prompt files. See docs/METADATA.md.
+
+Misc/warp-2.0-agent.md:
+  provider: warp
+  product: warp-agent-mode
+  captured_at: 2026-05-07
+  source_type: community_submitted
+  confidence: low
+  contains:
+    - system_prompt

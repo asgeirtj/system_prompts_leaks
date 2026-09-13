@@ -1,0 +1,12 @@
+# Metadata for OpenAI/ prompt files. See docs/METADATA.md.
+
+OpenAI/Codex/gpt-6-astra.md:
+  provider: openai
+  product: codex
+  model: gpt-6-astra
+  captured_at: 2026-09-04
+  source_type: extracted
+  confidence: medium
+  contains:
+    - system_prompt
+    - skills

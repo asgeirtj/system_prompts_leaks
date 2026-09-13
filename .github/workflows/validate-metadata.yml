@@ -1,0 +1,58 @@
+name: Validate prompt metadata
+
+# Validates metadata/*.yaml sidecar files (see docs/METADATA.md) against
+# schemas/prompt-metadata.schema.json using scripts/validate_metadata.py,
+# and runs that script's own pytest suite (tests/).
+#
+# Two metadata checks, matching the migration policy in docs/METADATA.md:
+#   1. Integrity (blocking): malformed YAML, schema violations, dangling
+#      paths, entries filed under the wrong provider, cross-file
+#      duplicates. This never fails just because a prompt file has no
+#      metadata yet -- most of the repository doesn't, and that's fine.
+#   2. Coverage on pull requests (informational, non-blocking): flags .md
+#      files added or modified in the PR that still have no metadata
+#      entry, as a nudge, without blocking the merge. Once the metadata
+#      convention is more established, drop `continue-on-error` on that
+#      step to make it blocking too.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt -r tests/requirements.txt
+
+      - name: Run validator test suite
+        run: pytest -q
+
+      - name: Validate metadata integrity
+        run: python scripts/validate_metadata.py --quiet
+
+      - name: Fetch PR base branch
+        if: github.event_name == 'pull_request'
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=1
+
+      - name: Check metadata coverage for changed prompt files (non-blocking)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          python scripts/validate_metadata.py \
+            --require-changed "origin/${{ github.event.pull_request.base.ref }}"

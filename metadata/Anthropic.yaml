@@ -1,0 +1,32 @@
+# Metadata for Anthropic/ prompt files.
+# See docs/METADATA.md for field definitions and docs/METADATA.md#migration-policy
+# for why most files in this folder have no entry here yet.
+
+Anthropic/official/2026-09-01-claude-fable-5.1.md:
+  provider: anthropic
+  product: claude.ai
+  model: claude-fable-5.1
+  captured_at: 2026-09-01
+  source_type: official
+  confidence: high
+  contains:
+    - system_prompt
+
+Anthropic/claude-fable-5.1.md:
+  provider: anthropic
+  product: claude.ai
+  model: claude-fable-5.1
+  captured_at: 2026-09-01
+  source_type: extracted
+  confidence: medium
+  contains:
+    - system_prompt
+
+Anthropic/claude-code/skills/code-review/SKILL.md:
+  provider: anthropic
+  product: claude-code
+  captured_at: 2026-09-09
+  source_type: extracted
+  confidence: medium
+  contains:
+    - skills

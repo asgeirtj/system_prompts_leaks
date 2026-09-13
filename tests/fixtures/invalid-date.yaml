@@ -1,0 +1,6 @@
+Anthropic/example.md:
+  provider: anthropic
+  product: example-product
+  source_type: official
+  confidence: high
+  captured_at: "01/01/2026"

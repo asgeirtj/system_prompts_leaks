@@ -1,0 +1,5 @@
+Anthropic/this-file-does-not-exist.md:
+  provider: anthropic
+  product: example-product
+  source_type: official
+  confidence: high

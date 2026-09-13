@@ -1,0 +1,9 @@
+Anthropic/example.md:
+  provider: anthropic
+  product: example-product
+  model: example-model
+  captured_at: 2026-01-01
+  source_type: official
+  confidence: high
+  contains:
+    - system_prompt

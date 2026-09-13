@@ -1,0 +1,13 @@
+# Metadata for xAI/ prompt files. See docs/METADATA.md.
+
+xAI/grok-4.6.md:
+  provider: xai
+  product: grok
+  model: grok-4.6
+  captured_at: 2026-08-29
+  source_type: extracted
+  confidence: medium
+  contains:
+    - system_prompt
+    - skills
+    - safety_rules

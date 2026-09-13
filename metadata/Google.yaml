@@ -1,0 +1,11 @@
+# Metadata for Google/ prompt files. See docs/METADATA.md.
+
+Google/gemini-3.7-flash.md:
+  provider: google
+  product: gemini
+  model: gemini-3.7-flash
+  captured_at: 2026-08-18
+  source_type: extracted
+  confidence: medium
+  contains:
+    - system_prompt

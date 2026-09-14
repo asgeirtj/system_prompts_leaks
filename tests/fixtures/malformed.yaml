@@ -1,3 +1,2 @@
-Anthropic/example.md:
-  provider: anthropic
-  product: [unterminated
+provider: anthropic
+product: [unterminated

@@ -16,32 +16,34 @@ from conftest import copy_fixture, run_validator, vm
 
 # ---------------------------------------------------------------------------
 # Schema-shaped failures: one fixture each, isolating a single violation.
+# Every fixture is a bare entry body; the mirrored path it's saved under
+# (via copy_fixture's dest_name) is what ties it to a prompt file.
 # ---------------------------------------------------------------------------
 
 
 def test_valid_entry_passes(metadata_dir, capsys):
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
     out = capsys.readouterr().out
     assert code == 0
-    assert "PASS metadata/Anthropic.yaml (1 entries)" in out
+    assert "PASS metadata/Anthropic/example.md.yaml -> Anthropic/example.md" in out
 
 
 def test_missing_required_field_fails(metadata_dir, capsys):
-    copy_fixture("missing-confidence.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("missing-confidence.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
     out = capsys.readouterr().out
     assert code == 1
-    assert "FAIL metadata/Anthropic.yaml" in out
+    assert "FAIL metadata/Anthropic/example.md.yaml" in out
     assert "'confidence' is a required property" in out
 
 
 def test_invalid_confidence_value_fails(metadata_dir, capsys):
-    copy_fixture("invalid-confidence.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("invalid-confidence.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -51,7 +53,7 @@ def test_invalid_confidence_value_fails(metadata_dir, capsys):
 
 
 def test_invalid_source_type_fails(metadata_dir, capsys):
-    copy_fixture("invalid-source-type.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("invalid-source-type.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -61,7 +63,7 @@ def test_invalid_source_type_fails(metadata_dir, capsys):
 
 
 def test_invalid_date_format_fails(metadata_dir, capsys):
-    copy_fixture("invalid-date.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("invalid-date.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -75,7 +77,7 @@ def test_unquoted_date_is_normalized_and_passes(metadata_dir, capsys):
     # valid.yaml uses an unquoted 2026-01-01, which PyYAML parses as a
     # datetime.date rather than a string -- the validator must normalize
     # this before checking it against the schema's string pattern.
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -84,7 +86,7 @@ def test_unquoted_date_is_normalized_and_passes(metadata_dir, capsys):
 
 
 def test_unknown_contains_value_fails(metadata_dir, capsys):
-    copy_fixture("unknown-contains.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("unknown-contains.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -94,7 +96,7 @@ def test_unknown_contains_value_fails(metadata_dir, capsys):
 
 
 def test_unexpected_property_rejected(metadata_dir, capsys):
-    copy_fixture("unexpected-property.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("unexpected-property.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -104,7 +106,7 @@ def test_unexpected_property_rejected(metadata_dir, capsys):
 
 
 def test_malformed_yaml_fails(metadata_dir, capsys):
-    copy_fixture("malformed.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("malformed.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
@@ -114,62 +116,52 @@ def test_malformed_yaml_fails(metadata_dir, capsys):
 
 
 def test_top_level_not_a_mapping_fails(metadata_dir, capsys):
-    copy_fixture("not-a-mapping.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("not-a-mapping.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
     out = capsys.readouterr().out
     assert code == 1
-    assert "must be a mapping" in out
-
-
-def test_non_string_key_reported_without_crashing(metadata_dir, capsys):
-    copy_fixture("non-string-key.yaml", metadata_dir, "Anthropic.yaml")
-
-    code = run_validator(metadata_dir)
-
-    out = capsys.readouterr().out
-    assert code == 1
-    assert "FAIL metadata/Anthropic.yaml" in out
+    assert "must be a metadata entry mapping" in out
 
 
 # ---------------------------------------------------------------------------
-# Sidecar-specific integrity checks (path existence, placement, duplicates).
+# Sidecar path-derivation and discovery (1:1 mirrored layout).
 # ---------------------------------------------------------------------------
 
 
 def test_dangling_path_fails(metadata_dir, capsys):
-    copy_fixture("dangling-path.yaml", metadata_dir, "Anthropic.yaml")
+    # Saved under a mirrored path for a prompt file that doesn't exist.
+    copy_fixture("dangling-path.yaml", metadata_dir, "Anthropic/this-file-does-not-exist.md.yaml")
 
     code = run_validator(metadata_dir)
 
     out = capsys.readouterr().out
     assert code == 1
+    assert "describes Anthropic/this-file-does-not-exist.md" in out
     assert "does not exist in the repository" in out
 
 
-def test_entry_in_wrong_sidecar_file_fails(metadata_dir, capsys):
-    # valid.yaml documents "Anthropic/example.md" but we save it as
-    # Google.yaml -- the path's real top-level directory doesn't match.
-    copy_fixture("valid.yaml", metadata_dir, "Google.yaml")
+def test_sidecar_files_are_discovered_recursively(metadata_dir, capsys):
+    # Nested sidecars under different subdirectories must all be found by
+    # the metadata/**/*.yaml glob, each resolving to its own mirrored path.
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "OpenAI/example.md.yaml")
 
     code = run_validator(metadata_dir)
 
     out = capsys.readouterr().out
-    assert code == 1
-    assert "belongs under Anthropic/" in out
-    assert "expected metadata/Anthropic.yaml" in out
+    assert code == 0
+    assert "PASS metadata/Anthropic/example.md.yaml -> Anthropic/example.md" in out
+    assert "PASS metadata/OpenAI/example.md.yaml -> OpenAI/example.md" in out
+    assert "2 sidecar file(s) checked, 0 failed." in out
 
 
-def test_duplicate_entry_across_sidecar_files_fails(metadata_dir, capsys):
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic-duplicate.yaml")
+def test_sidecar_to_prompt_path_strips_metadata_prefix_and_yaml_suffix(tmp_path):
+    metadata_dir = tmp_path / "metadata"
+    sidecar = metadata_dir / "Anthropic" / "claude-code" / "SKILL.md.yaml"
 
-    code = run_validator(metadata_dir)
-
-    out = capsys.readouterr().out
-    assert code == 1
-    assert "duplicate entry" in out
+    assert vm.sidecar_to_prompt_path(sidecar, metadata_dir) == "Anthropic/claude-code/SKILL.md"
 
 
 def test_no_metadata_dir_passes_with_zero_checked(temp_repo, capsys):
@@ -191,7 +183,7 @@ def test_no_metadata_dir_passes_with_zero_checked(temp_repo, capsys):
 def test_legacy_files_are_informational_by_default(metadata_dir, capsys):
     # Only Anthropic/example.md is documented; OpenAI/ and Google/ examples
     # are legacy but must not fail validation.
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir, quiet=False)
 
@@ -202,7 +194,7 @@ def test_legacy_files_are_informational_by_default(metadata_dir, capsys):
 
 
 def test_strict_fails_when_files_undocumented(metadata_dir, capsys):
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     code = run_validator(metadata_dir, strict=True)
 
@@ -212,18 +204,11 @@ def test_strict_fails_when_files_undocumented(metadata_dir, capsys):
 
 
 def test_strict_passes_when_fully_documented(temp_repo, metadata_dir, capsys):
-    for rel, filename in [
-        ("Anthropic/example.md", "Anthropic.yaml"),
-        ("OpenAI/example.md", "OpenAI.yaml"),
-        ("Google/example.md", "Google.yaml"),
-    ]:
-        (metadata_dir / filename).write_text(
-            f"""{rel}:
-  provider: test
-  product: test
-  source_type: official
-  confidence: high
-""",
+    for rel in ["Anthropic/example.md", "OpenAI/example.md", "Google/example.md"]:
+        sidecar = metadata_dir / f"{rel}.yaml"
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_text(
+            "provider: test\nproduct: test\nsource_type: official\nconfidence: high\n",
             encoding="utf-8",
         )
 
@@ -235,7 +220,7 @@ def test_strict_passes_when_fully_documented(temp_repo, metadata_dir, capsys):
 def test_require_changed_flags_only_changed_undocumented_files(
     temp_repo, metadata_dir, capsys
 ):
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
 
     # Modify an undocumented prompt file without committing -- `git diff`
     # against HEAD will see it as changed.
@@ -254,7 +239,7 @@ def test_require_changed_flags_only_changed_undocumented_files(
 def test_require_changed_passes_when_changed_file_is_documented(
     temp_repo, metadata_dir, capsys
 ):
-    copy_fixture("valid.yaml", metadata_dir, "Anthropic.yaml")
+    copy_fixture("valid.yaml", metadata_dir, "Anthropic/example.md.yaml")
     (temp_repo / "Anthropic" / "example.md").write_text("changed\n", encoding="utf-8")
 
     code = run_validator(metadata_dir, require_changed="HEAD", quiet=True)

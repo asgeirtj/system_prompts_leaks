@@ -1,14 +1,15 @@
 name: Validate prompt metadata
 
-# Validates metadata/*.yaml sidecar files (see docs/METADATA.md) against
+# Validates metadata/**/*.yaml sidecar files (one per prompt file,
+# mirroring the repo tree 1:1 -- see docs/METADATA.md) against
 # schemas/prompt-metadata.schema.json using scripts/validate_metadata.py,
 # and runs that script's own pytest suite (tests/).
 #
 # Two metadata checks, matching the migration policy in docs/METADATA.md:
 #   1. Integrity (blocking): malformed YAML, schema violations, dangling
-#      paths, entries filed under the wrong provider, cross-file
-#      duplicates. This never fails just because a prompt file has no
-#      metadata yet -- most of the repository doesn't, and that's fine.
+#      paths (a sidecar whose own path implies a prompt file that doesn't
+#      exist). This never fails just because a prompt file has no metadata
+#      yet -- most of the repository doesn't, and that's fine.
 #   2. Coverage on pull requests (informational, non-blocking): flags .md
 #      files added or modified in the PR that still have no metadata
 #      entry, as a nudge, without blocking the merge. Once the metadata

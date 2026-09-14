@@ -2,17 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/asgeirtj/system_prompts_leaks/schemas/prompt-metadata.schema.json",
   "title": "Prompt metadata sidecar file",
-  "description": "Schema for one metadata/<Provider>.yaml sidecar file, as defined in docs/METADATA.md. The file is a mapping from repository-relative prompt file path to a metadata entry describing that file's provenance, confidence, and basic structure. Prompt files themselves are never modified by this schema.",
-  "type": "object",
-  "additionalProperties": {
-    "$ref": "#/$defs/entry"
-  },
-  "propertyNames": {
-    "$comment": "Keys are repository-relative paths using forward slashes, matching `git ls-files` output.",
-    "type": "string",
-    "minLength": 1,
-    "pattern": "^[^\\\\]+$"
-  },
+  "description": "Schema for one metadata/<same path>.yaml sidecar file, as defined in docs/METADATA.md. The sidecar file's own repository-relative path (with the trailing .yaml stripped) identifies the prompt file it describes -- the file's content is the metadata entry itself, describing that prompt file's provenance, confidence, and basic structure. Prompt files themselves are never modified by this schema.",
+  "$ref": "#/$defs/entry",
   "$defs": {
     "entry": {
       "type": "object",

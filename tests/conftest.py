@@ -17,8 +17,10 @@ FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(SCRIPTS_DIR))
 import validate_metadata as vm  # noqa: E402  (import after sys.path tweak)
 
-# Prompt files that exist in every temp_repo fixture, matched by the sidecar
-# fixtures under tests/fixtures/ (which all key off "Anthropic/example.md").
+# Prompt files that exist in every temp_repo fixture. The sidecar fixtures
+# under tests/fixtures/ are plain entry bodies with no path of their own --
+# tests place them under metadata/<one of these>.yaml via copy_fixture()'s
+# dest_name to control which prompt file they describe.
 FIXTURE_PROMPT_FILES = [
     "Anthropic/example.md",
     "OpenAI/example.md",
@@ -61,11 +63,11 @@ def metadata_dir(temp_repo):
 
 def copy_fixture(name: str, dest_dir: Path, dest_name: str | None = None) -> Path:
     """Copy tests/fixtures/<name> into dest_dir, optionally under a
-    different filename (used to control which sidecar file a fixture's
-    entries land in, e.g. testing a path documented under the wrong
-    provider)."""
-    dest_dir.mkdir(parents=True, exist_ok=True)
+    different (possibly nested, e.g. "Anthropic/example.md.yaml") relative
+    path -- used to control which prompt file a fixture's entry is taken to
+    describe, since that's now derived from the sidecar's own location."""
     dest = dest_dir / (dest_name or name)
+    dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(FIXTURES_DIR / name, dest)
     return dest
 

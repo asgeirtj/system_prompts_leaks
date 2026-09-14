@@ -1,0 +1,7 @@
+provider: warp
+product: warp-agent-mode
+captured_at: 2026-05-07
+source_type: community_submitted
+confidence: low
+contains:
+  - system_prompt

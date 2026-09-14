@@ -1,30 +1,38 @@
 #!/usr/bin/env python3
-"""Validate metadata/<Provider>.yaml sidecar files.
+"""Validate metadata/<same path>.yaml sidecar files.
 
 See docs/METADATA.md for the full metadata specification and
 schemas/prompt-metadata.schema.json for the machine-readable schema.
 
-Each file under metadata/ is a YAML mapping of repository-relative prompt
-path -> metadata entry. This script:
+Metadata lives under metadata/, mirroring the repository's directory tree
+1:1. Each sidecar file's own path identifies the prompt file it describes:
+metadata/<path>.yaml describes the prompt file at <path> (append ".yaml" to
+a prompt's repo-relative path to get its sidecar's path, and vice versa).
+The sidecar file's content is the metadata entry itself -- no path key is
+needed, since the file's location already says which prompt it is about.
+This script:
 
-  1. Parses every metadata/*.yaml file (reports malformed YAML).
-  2. Validates each file's contents against the JSON Schema (reports every
-     violation per entry: missing required fields, invalid enum values,
-     invalid date format, unknown keys, etc.).
-  3. Confirms every path an entry describes actually exists in the repo
-     (catches typos and stale entries after a file is renamed or removed).
-  4. Confirms an entry lives in the sidecar file matching its own top-level
-     directory (catches copy-paste mistakes, e.g. an OpenAI/... path
-     documented in metadata/Anthropic.yaml).
-  5. Flags a path documented in more than one sidecar file.
-  6. Reports prompt files with no metadata entry at all ("legacy") as
+  1. Parses every metadata/**/*.yaml file (reports malformed YAML).
+  2. Validates each file's content against the JSON Schema (reports every
+     violation: missing required fields, invalid enum values, invalid date
+     format, unknown keys, etc.).
+  3. Confirms the prompt file implied by each sidecar's own path (strip the
+     trailing ".yaml") actually exists in the repo (catches typos and stale
+     entries after a prompt file is renamed or removed).
+  4. Reports prompt files with no matching sidecar at all ("legacy") as
      informational output, not a failure -- see the migration policy in
      docs/METADATA.md. Pass --require-changed <git-ref> to instead treat
      legacy status as a failure for prompt files that are new or modified
      relative to <git-ref> (intended for CI on a pull request). Pass
      --strict to require metadata for every prompt file in the repository.
 
-Exit status is non-zero if anything in 1-5 fails, or if 6 fails under
+Because the sidecar layout mirrors the prompt tree 1:1, a sidecar can never
+be misfiled under the wrong provider or collide with another sidecar over
+the same prompt file -- both are structurally impossible, so this script
+no longer needs to check for them (unlike the earlier one-file-per-provider
+design).
+
+Exit status is non-zero if anything in 1-3 fails, or if 4 fails under
 --require-changed / --strict.
 
 Usage:
@@ -60,6 +68,7 @@ except ImportError:  # pragma: no cover - dependency check
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_METADATA_DIR = REPO_ROOT / "metadata"
 DEFAULT_SCHEMA_PATH = REPO_ROOT / "schemas" / "prompt-metadata.schema.json"
+SIDECAR_SUFFIX = ".yaml"
 
 # Top-level directories that never hold prompt content and are excluded when
 # scanning the repo for "legacy" (undocumented) prompt files.
@@ -78,12 +87,12 @@ EXCLUDED_BASENAMES = {"README.md", "CONTRIBUTING.md"}
 
 
 class SidecarResult:
-    """Validation outcome for a single metadata/<Provider>.yaml file."""
+    """Validation outcome for a single metadata/<same path>.yaml sidecar."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, prompt_path: str):
         self.path = path
+        self.prompt_path = prompt_path
         self.errors: list[str] = []
-        self.entry_count = 0
 
     @property
     def ok(self) -> bool:
@@ -122,9 +131,18 @@ def load_schema(schema_path: Path) -> dict:
 
 
 def discover_sidecar_files(metadata_dir: Path) -> list[Path]:
+    """Every metadata/**/*.yaml sidecar file, recursively."""
     if not metadata_dir.is_dir():
         return []
-    return sorted(metadata_dir.glob("*.yaml"))
+    return sorted(metadata_dir.rglob("*.yaml"))
+
+
+def sidecar_to_prompt_path(sidecar_path: Path, metadata_dir: Path) -> str:
+    """The repo-relative prompt path a sidecar file describes: its path
+    relative to metadata_dir, with the trailing ".yaml" stripped."""
+    rel = sidecar_path.relative_to(metadata_dir).as_posix()
+    assert rel.endswith(SIDECAR_SUFFIX)  # guaranteed by the *.yaml glob
+    return rel[: -len(SIDECAR_SUFFIX)]
 
 
 def discover_prompt_files() -> list[str]:
@@ -172,12 +190,11 @@ def get_changed_paths(ref: str) -> set[str]:
 
 def validate_sidecar_file(
     sidecar_path: Path,
-    schema: dict,
+    metadata_dir: Path,
     validator: jsonschema.protocols.Validator,
-    seen_paths: dict[str, Path],
 ) -> SidecarResult:
-    result = SidecarResult(sidecar_path)
-    rel_sidecar = display_path(sidecar_path)
+    prompt_path = sidecar_to_prompt_path(sidecar_path, metadata_dir)
+    result = SidecarResult(sidecar_path, prompt_path)
 
     try:
         with sidecar_path.open(encoding="utf-8") as f:
@@ -186,47 +203,21 @@ def validate_sidecar_file(
         result.add(f"malformed YAML: {exc}")
         return result
 
-    if raw is None:
-        raw = {}
-
     if not isinstance(raw, dict):
         result.add(
-            f"top level must be a mapping of path -> metadata entry, got {type(raw).__name__}"
+            f"top level must be a metadata entry mapping, got {type(raw).__name__}"
         )
         return result
 
     doc = stringify_dates(raw)
-    result.entry_count = len(doc)
 
     for error in sorted(validator.iter_errors(doc), key=lambda e: list(e.path)):
         loc = "/".join(str(p) for p in error.path) or "<top level>"
         result.add(f"{loc}: {error.message}")
 
-    # Sidecar file name should match the top-level directory it documents,
-    # e.g. metadata/OpenAI.yaml documents OpenAI/... paths.
-    expected_top = sidecar_path.stem
-
-    for entry_path in doc.keys():
-        if not isinstance(entry_path, str):
-            continue  # already reported by schema validation (propertyNames)
-
-        full_path = REPO_ROOT / entry_path
-        if not full_path.is_file():
-            result.add(f"{entry_path}: path does not exist in the repository")
-
-        actual_top = entry_path.split("/", 1)[0]
-        if actual_top != expected_top:
-            result.add(
-                f"{entry_path}: documented in {rel_sidecar}, "
-                f"but belongs under {actual_top}/ "
-                f"(expected metadata/{actual_top}.yaml)"
-            )
-
-        if entry_path in seen_paths:
-            other = display_path(seen_paths[entry_path])
-            result.add(f"{entry_path}: duplicate entry (also documented in {other})")
-        else:
-            seen_paths[entry_path] = sidecar_path
+    full_path = REPO_ROOT / prompt_path
+    if not full_path.is_file():
+        result.add(f"describes {prompt_path}, but that file does not exist in the repository")
 
     return result
 
@@ -244,9 +235,8 @@ def run(
     validator = validator_cls(schema)
 
     sidecar_files = discover_sidecar_files(metadata_dir)
-    seen_paths: dict[str, Path] = {}
     results = [
-        validate_sidecar_file(path, schema, validator, seen_paths)
+        validate_sidecar_file(path, metadata_dir, validator)
         for path in sidecar_files
     ]
 
@@ -254,14 +244,14 @@ def run(
     for result in results:
         rel = display_path(result.path)
         if result.ok:
-            print(f"PASS {rel} ({result.entry_count} entries)")
+            print(f"PASS {rel} -> {result.prompt_path}")
         else:
             any_failed = True
             print(f"FAIL {rel}")
             for err in result.errors:
                 print(f"  - {err}")
 
-    documented = set(seen_paths.keys())
+    documented = {result.prompt_path for result in results}
     prompt_files = discover_prompt_files()
     legacy = sorted(set(prompt_files) - documented)
 
@@ -316,7 +306,7 @@ def main(argv: list[str] | None = None) -> int:
         "--metadata-dir",
         type=Path,
         default=DEFAULT_METADATA_DIR,
-        help="directory containing metadata/*.yaml sidecar files (default: metadata/)",
+        help="directory containing metadata/**/*.yaml sidecar files (default: metadata/)",
     )
     parser.add_argument(
         "--schema",
@@ -327,12 +317,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--require-changed",
         metavar="REF",
-        help="fail if a .md file added/modified relative to REF has no metadata entry",
+        help="fail if a .md file added/modified relative to REF has no matching sidecar",
     )
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="fail if ANY prompt file in the repository has no metadata entry",
+        help="fail if ANY prompt file in the repository has no matching sidecar",
     )
     parser.add_argument(
         "--quiet",

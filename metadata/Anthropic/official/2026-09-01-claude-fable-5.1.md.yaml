@@ -1,7 +1,7 @@
 provider: anthropic
-product: example-product
-model: example-model
-captured_at: 2026-01-01
+product: claude.ai
+model: claude-fable-5.1
+captured_at: 2026-09-01
 source_type: official
 confidence: high
 contains:

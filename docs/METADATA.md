@@ -22,62 +22,84 @@ not be touched or conflated with what this document defines.
 
 For that reason, metadata described here is **never** injected into prompt
 files as front matter. It lives in separate **sidecar files**, one per
-top-level provider directory, so a prompt file's byte content never changes
-because of a metadata edit.
+*prompt file*, mirroring the repository's directory structure 1:1 under
+`metadata/`, so a prompt file's byte content never changes because of a
+metadata edit.
 
 ## Storage format
 
-Metadata lives under `metadata/`, one YAML file per top-level directory in
-the repository, named identically to that directory:
+Metadata lives under `metadata/`, mirroring the repository's directory tree.
+Every prompt file's sidecar sits at the same relative path under `metadata/`,
+with `.yaml` appended to the original filename:
 
 ```text
-metadata/
-├── Anthropic.yaml
-├── OpenAI.yaml
-├── Google.yaml
-├── xAI.yaml
-├── Perplexity.yaml
-├── Misc.yaml
-├── ...
+Anthropic/official/2026-09-01-claude-fable-5.1.md
+    -> metadata/Anthropic/official/2026-09-01-claude-fable-5.1.md.yaml
+
+Anthropic/claude-code/claude-code-fable-5.1.md
+    -> metadata/Anthropic/claude-code/claude-code-fable-5.1.md.yaml
 ```
 
-Each file is a YAML mapping from **repository-relative path** (forward
-slashes, exactly as `git ls-files` prints it) to a metadata object:
+The mapping is purely mechanical — append `.yaml` to the prompt file's own
+repository-relative path — so it never needs to be looked up or inferred.
+
+Each sidecar file's content **is** the metadata object itself (no
+path key; the file's own location already identifies which prompt it
+describes):
 
 ```yaml
-Anthropic/official/2026-09-01-claude-fable-5.1.md:
-  provider: anthropic
-  product: claude-fable-5.1
-  model: claude-fable-5.1
-  captured_at: 2026-09-01
-  source_type: official
-  confidence: high
-  contains:
-    - system_prompt
-
-Anthropic/claude-code/claude-code-fable-5.1.md:
-  provider: anthropic
-  product: claude-code
-  model: claude-fable-5.1
-  captured_at: 2026-09-05
-  source_type: extracted
-  confidence: medium
-  contains:
-    - system_prompt
-    - tool_definitions
+# metadata/Anthropic/official/2026-09-01-claude-fable-5.1.md.yaml
+provider: anthropic
+product: claude-fable-5.1
+model: claude-fable-5.1
+captured_at: 2026-09-01
+source_type: official
+confidence: high
+contains:
+  - system_prompt
 ```
 
-A path with no entry in the matching sidecar file is a **legacy entry** —
-valid, just not yet described (see [Migration policy](#migration-policy)).
+```yaml
+# metadata/Anthropic/claude-code/claude-code-fable-5.1.md.yaml
+provider: anthropic
+product: claude-code
+model: claude-fable-5.1
+captured_at: 2026-09-05
+source_type: extracted
+confidence: medium
+contains:
+  - system_prompt
+  - tool_definitions
+```
 
-### Why a sidecar per top-level directory (and not one big file)
+A prompt file with no `metadata/<same path>.yaml` counterpart is a
+**legacy entry** — valid, just not yet described (see
+[Migration policy](#migration-policy)).
 
-- Keeps each file to a reviewable size and scoped to one provider, so a PR
-  adding one prompt touches one small, obviously-related metadata file.
-- Avoids merge conflicts between unrelated providers landing in the same PR
-  window.
-- Maps 1:1 onto the directory structure contributors already use, so "which
-  file describes `Anthropic/...`" has one obvious answer.
+### Why 1:1 mirrored sidecar files (and not one file per provider)
+
+An earlier revision of this design grouped every provider's entries into a
+single `metadata/<Provider>.yaml` map (e.g. `metadata/Anthropic.yaml`). PR
+review on the upstream contribution pointed out a real scaling problem with
+that layout, which this revision fixes:
+
+- **Merge conflicts on high-velocity providers.** With one file per
+  provider, every PR adding an Anthropic or OpenAI prompt edited the same
+  top-level YAML dictionary. Two PRs open at the same time against a
+  popular provider would conflict even when they described entirely
+  unrelated prompt files. Mirroring the tree 1:1 means two PRs only
+  conflict when they genuinely describe the *same* prompt file — a real
+  conflict either way, not an artifact of the storage layout.
+- **Small, obviously-scoped diffs.** A PR adding one prompt now touches
+  exactly one new metadata file, not a growing shared file.
+- **No lookup required.** The prompt-path -> metadata-path mapping is
+  mechanical (append `.yaml`), so both contributors and the validator can
+  derive one from the other directly, without scanning a map for the
+  matching key.
+- Still satisfies the original design principle above: the prompt file
+  itself is never touched, and all generated metadata lives in a clearly
+  separate `metadata/` tree that mirrors — but never merges into — the
+  prompt directories.
 
 ## Fields
 
@@ -183,11 +205,11 @@ contains:
 Converting all 400+ existing prompt files at once would produce an
 unreviewable diff and is explicitly **not** part of this change. Instead:
 
-- **Existing files** are allowed to have no entry in the sidecar file
-  ("legacy"). The validator treats a missing entry as a warning, not a
-  failure.
+- **Existing files** are allowed to have no matching sidecar file under
+  `metadata/` ("legacy"). The validator treats a missing sidecar as a
+  warning, not a failure.
 - **New or modified prompt files touched by a PR** are expected to gain a
-  metadata entry in the matching sidecar file as part of that PR. The
+  `metadata/<same path>.yaml` sidecar as part of that PR. The
   validator can be run in a stricter mode (see
   [`scripts/validate_metadata.py`](../scripts/validate_metadata.py), added in
   a later task) that enforces this for changed paths only.

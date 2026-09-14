@@ -332,9 +332,9 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 Have a prompt to add? See [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md)
 for how to submit one. New entries can optionally carry structured metadata
-(provenance and confidence) recorded in `metadata/*.yaml` — see
-[`docs/METADATA.md`](docs/METADATA.md) for the format; it's validated
-automatically in CI.
+(provenance and confidence) recorded in a small sidecar file under
+`metadata/` — see [`docs/METADATA.md`](docs/METADATA.md) for the format;
+it's validated automatically in CI.
 
 
 ## Contact

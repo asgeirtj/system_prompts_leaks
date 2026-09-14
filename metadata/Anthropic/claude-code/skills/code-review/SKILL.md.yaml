@@ -1,0 +1,7 @@
+provider: anthropic
+product: claude-code
+captured_at: 2026-09-09
+source_type: extracted
+confidence: medium
+contains:
+  - skills

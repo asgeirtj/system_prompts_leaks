@@ -1,0 +1,8 @@
+provider: anthropic
+product: claude.ai
+model: claude-fable-5.1
+captured_at: 2026-09-01
+source_type: official
+confidence: high
+contains:
+  - system_prompt

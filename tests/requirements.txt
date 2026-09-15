@@ -1,0 +1,4 @@
+# Test-only dependencies. Runtime deps for the validator itself are in
+# scripts/requirements.txt -- install both:
+#   pip install -r scripts/requirements.txt -r tests/requirements.txt
+pytest>=7.0

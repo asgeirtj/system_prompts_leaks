@@ -1,0 +1,4 @@
+provider: anthropic
+product: example-product
+source_type: official
+confidence: high

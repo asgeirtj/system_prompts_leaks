@@ -1,0 +1,7 @@
+# Python artifacts from scripts/validate_metadata.py and its tests
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Common OS/editor cruft
+.DS_Store

@@ -1,0 +1,3 @@
+# Dependencies for scripts/validate_metadata.py
+PyYAML>=6.0
+jsonschema>=4.18

@@ -35,6 +35,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code Advisor tool** | September 15, 2026 | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
 | **ChatGPT Work Codex (local)** | September 13, 2026 | [ChatGPT Work Codex local system prompt](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
 | **Gemini 3.8 Flash** | September 13, 2026 | [Gemini 3.8 Flash System Prompt](Google/gemini-3.8-flash.md) |
 | **Claude Code headless (Fable 5.1)** | September 5, 2026 | [Claude Code headless system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |

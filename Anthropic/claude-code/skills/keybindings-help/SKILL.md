@@ -271,6 +271,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `pane:grow` | `ctrl+x left`, `ctrl+x up` | Pane |
 | `pane:shrink` | `ctrl+x right`, `ctrl+x down` | Pane |
 | `pane:close` | `ctrl+x x`, `ctrl+x x` | Pane |
+| `pane:next` | (none) | Pane |
+| `pane:previous` | (none) | Pane |
 | `messageSelector:up` | `up`, `k`, `ctrl+p` | MessageSelector |
 | `messageSelector:down` | `down`, `j`, `ctrl+n` | MessageSelector |
 | `messageSelector:top` | `ctrl+up`, `shift+up`, `meta+up`, `shift+k` | MessageSelector |

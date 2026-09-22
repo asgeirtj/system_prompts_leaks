@@ -13,7 +13,7 @@ The user invoked `/loop` with no prompt and no interval. Run the autonomous chec
 ## Action
 
 1. **Run the autonomous check now**, following the instructions inlined below.
-2. **If the next tick is gated on an event** (CI finishing, a PR comment, a log line) and no Monitor is already running for it: arm one now with `persistent: true`. Its events wake this loop immediately — you do not wait for the ScheduleWakeup deadline. Arm once; on later ticks call TaskList first and skip if a monitor is already running.
+2. **If the next tick is gated on an event** (CI finishing, a PR comment, a log line) and no Monitor is already running for it: arm one now with `timeout_ms: 1800000`. Its events wake this loop immediately — you do not wait for the ScheduleWakeup deadline. A monitor expires after at most 30 minutes and tells you; on later ticks call TaskList first and re-arm only if no monitor for it is still running.
 3. **Briefly confirm**: that this is the autonomous default in dynamic-pacing mode, that you ran the check now, whether a Monitor is the primary wake signal, and what fallback delay you're about to pick. Write this as text *before* calling ScheduleWakeup — the turn ends as soon as that tool returns.
 4. **Then, as the last action of this turn, decide whether the loop continues.** If the next check is worth running, call ScheduleWakeup with:
    - `delaySeconds`: with a Monitor armed this is the fallback heartbeat (lean 1200–1800s). Without one, pick based on what you observed this turn — quiet branch? wait longer. Lots in flight? wait shorter. Read the tool's own description for cache-aware delay guidance.

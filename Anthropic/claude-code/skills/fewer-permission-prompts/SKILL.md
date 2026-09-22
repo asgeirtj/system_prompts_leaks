@@ -66,4 +66,3 @@ Then, add these to the project `.claude/settings.json` under `permissions.allow`
 9. **Report back.** Tell the user what you added (count + a few examples), what was already in the allowlist, and what you skipped and why (e.g. "dropped `rm` and `git push` — not read-only; dropped `cat`/`ls`/`git status` — already auto-allowed, no rule needed").
 
 Do not add anything to `permissions.deny` or `permissions.ask`. Do not touch any other settings field.
-

@@ -1,10 +1,10 @@
 ---
 name: code-review
 description: |-
-  Review the current diff, or a PR number/branch/path target, for correctness bugs and reuse/simplification/efficiency cleanups at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review. For ultra on a GitHub.com PR target, --post asks to post the finished review’s findings to the PR as a single comment from the user’s GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
+  Review the current diff, or a PR number/branch/path target, for correctness bugs (plus reuse/simplification/efficiency cleanups where the model's review recipe covers them) at the given effort level (low/medium: fewer, high-confidence findings; high→max: broader coverage, may include uncertain findings; ultra: deep multi-agent review in the cloud); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply the findings to the working tree after the review. For ultra on a GitHub.com PR target, --post asks to post the finished review’s findings to the PR as a single comment from the user’s GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
 ---
 
-`high effort → 3+5 angles × 6 candidates → 1-vote verify (recall-biased) → ≤10 findings`
+`high effort → 8 inline angles → dedup (no verify) → ≤10 findings`
 
 You are reviewing for **recall** at high effort: catch every real bug a careful
 reviewer would catch in one sitting. At this level, catching real bugs matters
@@ -21,9 +21,9 @@ review that target instead. Treat this diff as the review scope.
 
 ## Phase 1 — Find candidates (3 correctness angles + 3 cleanup angles + 1 altitude angle + 1 conventions angle, up to 6 each)
 
-Run **8 independent finder angles** via the Agent tool. Each
+Run **8 independent finder angles** in sequence yourself, in THIS context — do NOT spawn subagents for them. Each
 surfaces **up to 6 candidate findings** with `file`, `line`, a one-line
-`summary`, and a concrete `failure_scenario`. If the Agent tool is not available in your current tool set, do not error — perform each angle (and each verification) yourself, sequentially, in this context.
+`summary`, and a concrete `failure_scenario`.
 
 ### Angle A — line-by-line diff scan
 
@@ -99,30 +99,15 @@ is broken) instead of a crash. Correctness bugs always outrank cleanup,
 altitude, and conventions findings when the output cap forces a cut.
 
 Pass every candidate with a nameable failure scenario through — finders that
-silently drop half-believed candidates bypass the verify step and are the
-dominant cause of misses.
+silently drop half-believed candidates are the dominant cause of misses.
 
-## Phase 2 — Verify (1-vote, recall-biased)
+## Phase 2 — Dedup only (no verify)
 
-Dedup near-duplicates (same defect, same location, same reason → keep one). For
-each remaining candidate, run **one verifier** via the Agent tool:
-give it the diff, the relevant file(s), and the candidate; it returns exactly
-one of **CONFIRMED / PLAUSIBLE / REFUTED**.
-
-**PLAUSIBLE by default** — do not refute a candidate for being "speculative" or
-"depends on runtime state" when the state is realistic: concurrency races,
-nil/undefined on a rare-but-reachable path (error handler, cold cache, missing
-optional field), falsy-zero treated as missing, off-by-one on a boundary the
-code does not exclude, retry storms / partial failures, regex/allowlist that
-lost an anchor. These are PLAUSIBLE.
-
-**REFUTED** only when constructible from the code: factually wrong (quote the
-actual line); provably impossible (type/constant/invariant — show it); already
-handled in this diff (cite the guard); or pure style with no observable effect.
-
-Keep **CONFIRMED and PLAUSIBLE**. Drop REFUTED.
+Pool all candidates. Dedup near-duplicates only (same defect, same location, same reason → keep one). Do NOT run verifiers; do NOT re-judge. Sort by severity.
 
 ## Output
+
+Target **at least 5 findings**. If fewer genuine findings exist, emit what you have — do not invent to hit the floor.
 
 Return findings as a JSON array of at most 10 objects:
 
@@ -138,6 +123,6 @@ Return findings as a JSON array of at most 10 objects:
 ```
 
 Ranked most-severe first. If more than 10 survive, keep the 10 most
-severe. If nothing survives verification, return `[]`. Do not call the
+severe. If nothing survives, return `[]`. Do not call the
 ReportFindings tool even if it is available - this review's
 output contract is the JSON block above.

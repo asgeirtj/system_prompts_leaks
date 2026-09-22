@@ -33,6 +33,9 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 System Prompt](Anthropic/claude-opus-5.5.md) |
+| **Claude Code (Opus 5.5)** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
+| **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7.md) |
 | **Claude Projects** | September 21, 2026 | [Claude Projects - Thread Claude System Prompt](Anthropic/claude-projects-thread-claude.md)
 | **Claude Code Advisor tool** | September 15, 2026 | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
 | **ChatGPT Work Codex (local)** | September 13, 2026 | [ChatGPT Work Codex local system prompt](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
@@ -66,6 +69,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **Claude Opus 5.5** | [**Claude Opus 5.5 system prompt**](Anthropic/claude-opus-5.5.md) |
 | **Claude Fable 5.1** | [**Claude Fable 5.1 system prompt**](Anthropic/claude-fable-5.1.md) |
 | **Claude Opus 5** | [**Claude Opus 5 system prompt**](Anthropic/claude-opus-5.md) |
 | **Claude Fable 5** | [**Claude Fable 5 system prompt**](Anthropic/claude-fable-5.md) |
@@ -80,6 +84,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Component | Prompt |
 |-----------|--------|
+| **Claude Code (Opus 5.5)** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Claude Code (Fable 5.1)** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | **Claude Code (Opus 5)** | [**Claude Code system prompt (Opus 5)**](Anthropic/claude-code/claude-code-opus-5.md) |
 | **Claude Code (Fable 5)** | [**Claude Code system prompt (Fable 5)**](Anthropic/claude-code/claude-code-fable-5.md) |
@@ -192,6 +197,8 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **Grok 4.7** | [**Grok 4.7 system prompt** (Grok CLI)](xAI/grok-4.7.md) |
+| **Grok 4.6** | [**Grok 4.6 system prompt**](xAI/grok-4.6.md) |
 | **Grok 4.5** | [**Grok 4.5 system prompt**](xAI/grok-4.5.md) |
 | **Grok Build** | [**Grok Build system prompt** (CLI agent)](xAI/grok-build.md) |
 | **Grok 4.3 Beta** | [Grok 4.3 Beta system prompt](xAI/grok-4.3-beta.md) |

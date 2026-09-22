@@ -4,6 +4,8 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 
 | Model | Model release date | Archived prompt versions |
 |-------|--------------------|--------------------------|
+| **Claude Opus 5.5** | September 22, 2026 | [September 22, 2026](2026-09-22-claude-opus-5.5.md) |
+| **Claude Fable 5.1** | September 1, 2026 | [September 1, 2026](2026-09-01-claude-fable-5.1.md) |
 | **Claude Opus 5** | July 24, 2026 | [July 24, 2026](2026-07-24-claude-opus-5.md) |
 | **Claude Fable 5** | June 9, 2026 | [June 9, 2026](2026-06-09-claude-fable-5.md) |
 | **Claude Opus 4.8** | May 28, 2026 | [May 28, 2026](2026-05-28-claude-opus-4.8.md) |
@@ -26,7 +28,7 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 
 | Model | Model release date | Status |
 |-------|--------------------|--------|
-| **Claude Sonnet 5** | July 1, 2026 | Absent from the page as of August 17, 2026 |
+| **Claude Sonnet 5** | July 1, 2026 | Absent from the page as of September 22, 2026 |
 
 ## Publication timing
 
@@ -35,6 +37,8 @@ Anthropic dates each entry to the model's release day. Continuous page monitorin
 - **Claude Opus 4.8** — entry labeled May 28, 2026; actually published June 4, 2026 (7 days after release)
 - **Claude Fable 5** — entry labeled June 9, 2026; actually published overnight June 12–13, 2026 (3–4 days after release)
 - **Claude Opus 5** — entry labeled July 24, 2026; published July 24, 2026 (same day)
-- **Claude Sonnet 5** — nothing published 47+ days after release
+- **Claude Fable 5.1** — entry labeled September 1, 2026; published September 1, 2026 (same day)
+- **Claude Opus 5.5** — entry labeled September 22, 2026; published September 22, 2026 (same day)
+- **Claude Sonnet 5** — nothing published 83+ days after release
 
 Entries older than the monitoring have unknown actual publication dates.

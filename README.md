@@ -255,6 +255,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
+| Mistral Small 4 (DuckDuckGo) | [Mistral Small 4 system prompt](Mistral/mistral-small-4-duckduckgo.md) |
 | Mistral Medium 3.5 (Vibe) | [Mistral Medium 3.5 system prompt](Mistral/mistral-medium-3.5.md) |
 | Mistral Code | [Mistral Code system prompt](Mistral/mistral-code.md) |
 
@@ -304,6 +305,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
+| Alice AI | [Alice AI system prompt](Misc/alice-ai.md) |
 | Amp Code (Sourcegraph) | [Amp Code system prompt](Misc/amp-code.md) |
 | CommandCode CLI | [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
 | Devin CLI | [Devin CLI system prompt](Misc/devin-cli.md) |

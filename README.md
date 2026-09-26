@@ -1,37 +1,63 @@
-> **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://wapo.st/49t4gSb) (May 11, 2026)
+<p align="center">
+  <sub>Thanks to</sub>  
+</p>
+
+<p align="center">
+  <a href="https://go.asgeirtj.workers.dev/latitude">
+    <img src="assets/latitude-dark.png" alt="Latitude Logo" width="700"/>
+  </a>
+</p>
+
+<div align="center" markdown="1">
+
+### [Open Source Agent Analytics](https://go.asgeirtj.workers.dev/latitude)  
+[Understand your agents in production](https://go.asgeirtj.workers.dev/latitude)
+
+</div>
+
+---
+
+> **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
 > 
 > **CEPS' AI World** built a live data dashboard from this repo's files: [System prompts and what they tell us about the chat before the chat](https://aiworld.eu/story/system-prompts-and-what-they-tell-us-about-the-chat-before-the-chat)  (July 10, 2026)
 
-# System Prompts Leaks
-Leaked system prompts, captured verbatim — the hidden instructions and rules that ChatGPT, Claude, Gemini, Grok and every other AI chatbot receives before your first message.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/banner-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset=".github/banner-light.png">
-  <img alt="ChatGPT leaking its system prompt after being asked to repeat all of the above" src=".github/banner-light.png">
-</picture>
+# System Prompts Leaks
+
+The full verbatim System Prompts behind the most popular chatbots in the world. Carefully curated and complete. Feel free to open up a PR or get in contact if you got a different result.
 
 ![Last Commit](https://img.shields.io/github/last-commit/asgeirtj/system_prompts_leaks?style=flat)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](http://makeapullrequest.com)
 
-
-
-
-## Recently Updated
+## Most recent additions/changes
 
 | What | Date | Link |
 |------|------|------|
-| **Codex GPT-5.6 (Sol variant)** | July 26, 2026 | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) · [Sol](OpenAI/Codex/gpt-5.6-sol.md) |
+| **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 System Prompt](Anthropic/claude-opus-5.5.md) |
+| **Claude Code (Opus 5.5)** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
+| **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7.md) |
+| **Claude Projects** | September 21, 2026 | [Claude Projects - Thread Claude System Prompt](Anthropic/claude-projects-thread-claude.md)
+| **Claude Code Advisor tool** | September 15, 2026 | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
+| **ChatGPT Work Codex (local)** | September 13, 2026 | [ChatGPT Work Codex local system prompt](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
+| **Gemini 3.8 Flash** | September 13, 2026 | [Gemini 3.8 Flash System Prompt](Google/gemini-3.8-flash.md) |
+| **Claude Code headless (Fable 5.1)** | September 5, 2026 | [Claude Code headless system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
+| **Codex GPT-6-Astra** | September 4, 2026 | [Codex GPT-6-Astra system prompt](OpenAI/Codex/gpt-6-astra.md) |
+| **Claude Fable 5.1** | September 1, 2026 | [Claude Fable 5.1 system prompt](Anthropic/claude-fable-5.1.md) · [Claude Code (Fable 5.1)](Anthropic/claude-code/claude-code-fable-5.1.md) |
+| **Grok 4.6** | August 29, 2026 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
+| **Grok Bot** | August 21, 2026 | [Grok Bot System Prompt](xAI/grok-bot.md) |
+| **Gemini 3.7 Flash** | August 18, 2026 | [Gemini 3.7 Flash System Prompt](Google/gemini-3.7-flash.md) |
+| **Muse Code (Meta's coding CLI)** | August 17, 2026 | [Muse Code system prompt](Meta/muse-code.md) |
+| **Claude Cowork (new capture + setup skills)** | August 17, 2026 | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [setup skills](Anthropic/claude-cowork) |
+| **Claude Science** | August 14, 2026 | [Claude Science system prompt](Anthropic/claude-science.md) |
+| **Codex GPT-5.6 (Sol variant)** | July 26, 2026 | [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
 | **Grok 4.5** | July 26, 2026 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
-| **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/Claude%20Code/claude-code-opus-5.md) |
-| **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design.md) · [skills](Anthropic/Claude%20Design/Skills) · [starter components](Anthropic/Claude%20Design/Starter%20components) |
+| **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
+| **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
-| **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/Claude%20Code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/Claude%20Code/claude-code-sonnet-5.md)  |
+| **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/claude-code/claude-code-sonnet-5.md)  |
 | **OpenCode · Pi · CommandCode** | July 16, 2026 | [OpenCode system prompt](OpenCode/opencode.md) · [Pi system prompt](Pi/instructions.md) · [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
 | **Kimi K2.6** | July 14, 2026 | [Kimi K2.6 system prompt](Kimi/kimi-2.6.md) |
 | **Perplexity Deep Research** | July 14, 2026 | [Perplexity Deep Research system prompt](Perplexity/deep-research.md) |
-| **DeepSeek** | July 14, 2026 | [DeepSeek system prompt](DeepSeek/deepseek-chat.md) |
-| **ChatGPT 5.6** | July 10, 2026 | [ChatGPT 5.6 system prompt (Sol, extra high)](OpenAI/gpt-5.6-sol-extra-high.md) · [Codex GPT-5.6 system prompt](OpenAI/Codex/gpt-5.6.md) |
 
 
 ---
@@ -43,10 +69,12 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
-| **Claude Fable 5** | [**Claude Fable 5 system prompt**](Anthropic/claude-fable-5.md) |
+| **Claude Opus 5.5** | [**Claude Opus 5.5 system prompt**](Anthropic/claude-opus-5.5.md) |
+| **Claude Fable 5.1** | [**Claude Fable 5.1 system prompt**](Anthropic/claude-fable-5.1.md) |
 | **Claude Opus 5** | [**Claude Opus 5 system prompt**](Anthropic/claude-opus-5.md) |
+| **Claude Fable 5** | [**Claude Fable 5 system prompt**](Anthropic/claude-fable-5.md) |
 | Claude Opus 4.8 | [Claude Opus 4.8 system prompt](Anthropic/claude-opus-4.8.md) |
-| **Claude Sonnet 5** | [**Claude Sonnet 5 system prompt**](Anthropic/claude-sonnet-5.md) |
+| Claude Sonnet 5 | [Claude Sonnet 5 system prompt](Anthropic/claude-sonnet-5.md) |
 | Claude Opus 4.7 | [Claude Opus 4.7 system prompt](Anthropic/claude-opus-4.7.md) |
 | Claude Opus 4.6 | [Claude Opus 4.6 system prompt](Anthropic/claude-opus-4.6.md) · [No tools](Anthropic/claude-opus-4.6-no-tools.md) |
 | Claude Sonnet 4.6 | [Claude Sonnet 4.6 system prompt](Anthropic/claude-sonnet-4.6.md) · [No tools](Anthropic/claude-sonnet-4.6-no-tools.md) |
@@ -56,24 +84,27 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Component | Prompt |
 |-----------|--------|
-| **Claude Code (Fable 5)** | [**Claude Code system prompt (Fable 5)**](Anthropic/Claude%20Code/claude-code-fable-5.md) |
-| **Claude Code (Opus 5)** | [**Claude Code system prompt (Opus 5)**](Anthropic/Claude%20Code/claude-code-opus-5.md) |
-| Claude Code (Opus 4.8) | [Claude Code system prompt (Opus 4.8)](Anthropic/Claude%20Code/claude-code-opus-4.8.md) |
-| **Claude Code (Sonnet 5)** | [Claude Code system prompt (Sonnet 5)](Anthropic/Claude%20Code/claude-code-sonnet-5.md) |
-| Claude Code (older models) | [Opus 4.7](Anthropic/Claude%20Code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/Claude%20Code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/Claude%20Code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/Claude%20Code/claude-code-haiku-4.5.md) |
-| Subagents | [Claude Code subagent system prompts](Anthropic/Claude%20Code/agents) |
-| Skills & commands | [Claude Code bundled skills](Anthropic/Claude%20Code/bundled-skills) · [Slash commands](Anthropic/Claude%20Code/slash-commands) · [Skills](Anthropic/Claude%20Code/skills) |
-| Injected reminders | [Claude Code injected reminders](Anthropic/Claude%20Code/injected-reminders)  |
-| MCP servers | [Claude Code MCP server system prompts](Anthropic/Claude%20Code/mcp-servers) |
-| Docs assistant | [docs.claude.com assistant instructions](Anthropic/Claude%20Code/claude-code-docs-assistant.md) |
+| **Claude Code (Opus 5.5)** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
+| **Claude Code (Fable 5.1)** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
+| **Claude Code (Opus 5)** | [**Claude Code system prompt (Opus 5)**](Anthropic/claude-code/claude-code-opus-5.md) |
+| **Claude Code (Fable 5)** | [**Claude Code system prompt (Fable 5)**](Anthropic/claude-code/claude-code-fable-5.md) |
+| Claude Code (Opus 4.8) | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |
+| Claude Code (Sonnet 5) | [Claude Code system prompt (Sonnet 5)](Anthropic/claude-code/claude-code-sonnet-5.md) |
+| Claude Code (older models) | [Opus 4.7](Anthropic/claude-code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/claude-code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/claude-code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/claude-code/claude-code-haiku-4.5.md) |
+| Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
+| Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/commands) |
+| MCP servers | [Claude in Chrome MCP server system prompt](Anthropic/claude-in-chrome.md) |
+| Docs assistant | [docs.claude.com assistant instructions](Anthropic/claude-code/claude-code-docs-assistant.md) |
 
 
 ### Claude integrations
 
 | Product | Prompt |
 |---------|--------|
-| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design.md) · [skills](Anthropic/Claude%20Design/Skills) · [starter components](Anthropic/Claude%20Design/Starter%20components) |
-| **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork-dispatch.md) |
+| **Claude Projects** | [**Claude Projects - Thread Claude System Prompt**](Anthropic/claude-projects-thread-claude.md) |
+| **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
+| **Claude Cowork** | [Claude Cowork system prompt](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |
+| **Claude Science** | [Claude Science system prompt](Anthropic/claude-science.md) |
 | Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-word.md) · [Claude in PowerPoint](Anthropic/claude-in-powerpoint.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |
 | Claude iOS app | [Claude mobile iOS system prompt](Anthropic/claude-mobile-ios.md) |
@@ -84,7 +115,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
-| **ChatGPT 5.6 Sol** | [**ChatGPT 5.6 system prompt (Sol, extra high)**](OpenAI/gpt-5.6-sol-extra-high.md) |
+| **ChatGPT 5.6 Sol** | [**ChatGPT 5.6 system prompt (Sol, extra high)**](OpenAI/gpt-5.6-sol.md) |
 | **ChatGPT 5.5 Thinking** | [**ChatGPT 5.5 Thinking system prompt**](OpenAI/gpt-5.5-thinking.md) |
 | **ChatGPT 5.5 Instant** | [**ChatGPT 5.5 Instant system prompt**](OpenAI/gpt-5.5-instant.md) |
 | ChatGPT 5.4 | [ChatGPT 5.4 Thinking system prompt](OpenAI/gpt-5.4-thinking.md) |
@@ -93,7 +124,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | ChatGPT 5 | [ChatGPT 5 Thinking system prompt](OpenAI/gpt-5-thinking.md) · [Agent mode](OpenAI/chatgpt-gpt-5-agent-mode.md) |
 | **ChatGPT Atlas** | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
 | ChatGPT 4.5 | [ChatGPT 4.5 system prompt](OpenAI/chatgpt-4.5.md) |
-| ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/ChatGPT/chatgpt-4o-deprecation-preparedness-prompt.md) |
+| ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/chatgpt-4o-deprecation-preparedness-prompt.md) |
 | Voice modes | [ChatGPT advanced voice mode system prompt](OpenAI/gpt-4o-advanced-voice-mode.md) · [Legacy voice mode](OpenAI/gpt-4o-legacy-voice-mode.md) |
 | Personalities | [ChatGPT personality instructions](OpenAI/chatgpt-personality-instructions.md) |
 | Memory | [ChatGPT advanced memory system prompt](OpenAI/tool-advanced-memory.md) |
@@ -125,7 +156,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Old 4o variants | [4o WhatsApp](OpenAI/Old/gpt-4o-whatsapp.md) · [4o new personality](OpenAI/4o-2025-09-03-new-personality.md) · [Monday GPT](OpenAI/Old/monday-gpt.md) |
 | Old tools | [Canvas](OpenAI/Old/tool-canvas-canmore.md) · [Image gen](OpenAI/Old/tool-create-image-image_gen.md) · [File search](OpenAI/Old/tool-file_search.md) · [Python](OpenAI/Old/tool-python-code.md) · [Web search](OpenAI/Old/tool-web-search.md) |
 | Old policies | [Image safety](OpenAI/Old/prompt-image-safety-policies.md) · [Image safety (2026)](OpenAI/Old/image-safety-policies.md) · [Automation context](OpenAI/Old/prompt-automation-context.md) |
-| Deprecated features | [GPT-5 personalities](OpenAI/gpt-5-listener-personality.md) · [GPT-5.1 personalities](OpenAI/gpt-5.1-efficient.md) · [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/deprecated/) |
+| Deprecated features | [GPT-5 personalities](OpenAI/gpt-5-listener-personality.md) · [GPT-5.1 personalities](OpenAI/gpt-5.1-efficient.md) · [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
 | GPT-5.1 (old) | [Professional](OpenAI/gpt-5.1-professional.md) |
 
 </details>
@@ -166,6 +197,8 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Model | Prompt |
 |-------|--------|
+| **Grok 4.7** | [**Grok 4.7 system prompt** (Grok CLI)](xAI/grok-4.7.md) |
+| **Grok 4.6** | [**Grok 4.6 system prompt**](xAI/grok-4.6.md) |
 | **Grok 4.5** | [**Grok 4.5 system prompt**](xAI/grok-4.5.md) |
 | **Grok Build** | [**Grok Build system prompt** (CLI agent)](xAI/grok-build.md) |
 | **Grok 4.3 Beta** | [Grok 4.3 Beta system prompt](xAI/grok-4.3-beta.md) |
@@ -181,7 +214,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Grok 3 | [Grok 3 system prompt](xAI/grok-3.md) |
 | Grok Account | [Grok account system prompt](xAI/grok-account.md) |
 | Grok Personas | [Grok persona prompts](xAI/grok-personas.md) |
-| Safety Instructions | [Grok safety instructions](xAI/grok.com-post-new-safety-instructions.md) |
+| Safety Instructions | [Grok safety instructions](xAI/grok-4-with-new-safety-instructions.md) |
 
 </details>
 
@@ -216,6 +249,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 | Product | Prompt |
 |---------|--------|
 | Meta AI | [Meta AI Muse Spark system prompt](Meta/meta-spark.md) · [Muse Spark 1.1](Meta/muse-spark-1.1.md) |
+| **Muse Code** | [Muse Code system prompt](Meta/muse-code.md) |
 
 ## Mistral system prompts
 
@@ -264,7 +298,7 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 | Product | Prompt |
 |---------|--------|
-| Qwen 3.6 Plus | [Qwen 3.6 Plus system prompt](Qwen/qwen-3.6-plus.md) |
+| Qwen 3.6 Plus | [Qwen 3.6 Plus system prompt](Qwen/qwen3.6-plus.md) |
 
 ## Misc system prompts
 
@@ -314,9 +348,9 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
 
 <a href="https://www.star-history.com/?repos=asgeirtj%2Fsystem_prompts_leaks&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&theme=dark&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=EQ-O807pj1bSPYgKyA5jLwS5T2bqfW3b8ADNsSmVECobESl058V8OkfYQ0S0iG1iCfTLZwuDzaDNNTZ0SOb4rS8oXX-si3kZKlwgOoECQXqY0JrYhqCVdz2itd0pUv5fd-sVr5lbitvclGw1dS_piRTxiCLIDJGlJIWef3qXc8ZDE6zlhIiLbi56yv_e" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&theme=dark&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=asgeirtj/system_prompts_leaks&type=date&legend=top-left&sealed_token=nQoprDv11LAhUfdEhJQwh68tLNZVsRs7HpDDtfYrhzCCLL2xEmKvfetWg0LmQZuILQqB1usXnKXoNaVQ1lHeHeRiTglzkKGDFoTOfXSa-Su6voM7qA10z3h9nYoDWU-kcj_XDRZ62dn9Xjddd1P5qpcng_ts_-LXBQWL8QPHyKVwh-79xpUb7XahpXoV" />
  </picture>
 </a>
 
@@ -331,5 +365,3 @@ Leaked system prompts, captured verbatim — the hidden instructions and rules t
   </picture>
  </a>
 </p>
-
-<img alt="Claude confirming an extracted system prompt is authentic" src="https://github.com/user-attachments/assets/444e3fcc-9374-4964-afd3-069222713dc0" />

@@ -33,6 +33,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code Desktop (Fable 5.1)** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |
 | **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 System Prompt](Anthropic/claude-opus-5.5.md) |
 | **Claude Code (Opus 5.5)** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7.md) |
@@ -86,6 +87,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 |-----------|--------|
 | **Claude Code (Opus 5.5)** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Claude Code (Fable 5.1)** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
+| **Claude Code Desktop (Fable 5.1)** | [**Claude Code desktop app system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
 | **Claude Code (Opus 5)** | [**Claude Code system prompt (Opus 5)**](Anthropic/claude-code/claude-code-opus-5.md) |
 | **Claude Code (Fable 5)** | [**Claude Code system prompt (Fable 5)**](Anthropic/claude-code/claude-code-fable-5.md) |
 | Claude Code (Opus 4.8) | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |

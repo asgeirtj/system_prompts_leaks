@@ -234,10 +234,10 @@ Structure that works:
 
 > ---
 > name: run-desktop
-> description: Build, run, and drive the <app> Electron desktop app. Use when asked to start the desktop app, take a screenshot of it, build it, or interact with its UI.
+> description: Build, run, and drive the `<app>` Electron desktop app. Use when asked to start the desktop app, take a screenshot of it, build it, or interact with its UI.
 > ---
 >
-> <App> is an Electron desktop app. For agent/automated use, drive it
+> `<App>` is an Electron desktop app. For agent/automated use, drive it
 > via the Playwright REPL at `.claude/skills/run-desktop/driver.mjs`
 > under xvfb. Launch is slow (~10s) and the interesting UI lives in a
 > BrowserView, not the main window - the driver handles both.
@@ -256,7 +256,7 @@ Structure that works:
 > ```bash
 > npm install
 > npx electron-forge start   # builds .vite/build/ - Ctrl-C once built
-> # <any patch you had to apply: sed a feature gate, etc.>
+> # `<any patch you had to apply: sed a feature gate, etc.>`
 > ```
 >
 > ## Run (agent path)
@@ -295,7 +295,7 @@ Structure that works:
 > | `windows` | list all windows + webContents (find the real UI) |
 > | `quit` | close app, exit |
 >
-> Plus any app-specific commands you built: `<your-command>` - <what it does>.
+> Plus any app-specific commands you built: `<your-command>` - `<what it does>`.
 >
 > ## Run (human path)
 >
@@ -305,8 +305,8 @@ Structure that works:
 >
 > ## Gotchas
 >
-> - **<the specific weird thing you hit>** - <why> -> <fix/workaround>
-> - <etc. - only things you actually hit, not generic advice>
+> - **`<the specific weird thing you hit>`** - `<why>` -> <fix/workaround>
+> - `<etc. - only things you actually hit, not generic advice>`
 >
 > ## Troubleshooting
 >
@@ -315,7 +315,7 @@ Structure that works:
 >   don't disable that fuse in dev builds.
 > - **"Missing X server":** forgot `xvfb-run`. Headless Linux needs it.
 > - **Stale Xvfb locks:** `rm -f /tmp/.X*-lock; pkill Xvfb`
-> - <anything else you actually hit>
+> - `<anything else you actually hit>`
 
 ## Obstacles you will hit (and they go in Gotchas)
 

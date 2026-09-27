@@ -281,7 +281,6 @@ curl -X DELETE https://api.anthropic.com/v1/sessions/$SESSION_ID \
 curl -X POST https://api.anthropic.com/v1/files \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
-  -H "anthropic-beta: files-api-2025-04-14" \
   -F "file=@path/to/file.txt" \
   -F "purpose=agent"
 ```
@@ -297,13 +296,12 @@ List files the agent wrote to `/mnt/session/outputs/` during a session, then dow
 curl "https://api.anthropic.com/v1/files?scope_id=$SESSION_ID" \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
-  -H "anthropic-beta: files-api-2025-04-14,managed-agents-2026-04-01"
+  -H "anthropic-beta: managed-agents-2026-04-01"
 
 # Download a specific file
 curl "https://api.anthropic.com/v1/files/$FILE_ID/content" \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
-  -H "anthropic-beta: files-api-2025-04-14,managed-agents-2026-04-01" \
   -o downloaded_file.txt
 ```
 

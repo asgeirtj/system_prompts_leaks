@@ -9,7 +9,7 @@ Name the handle here - "drive it via
 app, or "start the dev server then drive it via `chromium-cli`" for a
 web app - so an agent knows where to look first.>
 
-<If the unit isn't at repo root:>
+`<If the unit isn't at repo root:>`
 All paths below are relative to `<unit-dir>/`.
 
 ## Prerequisites
@@ -22,7 +22,7 @@ sudo apt-get update
 sudo apt-get install -y <packages-you-actually-installed>
 ```
 
-<Runtime versions if they matter:>
+`<Runtime versions if they matter:>`
 
 ```bash
 # Example: Node 20 via nvm, Python 3.12 via uv, etc.
@@ -30,14 +30,14 @@ sudo apt-get install -y <packages-you-actually-installed>
 
 ## Setup
 
-<One-time setup after clone: install deps, configure, apply any
-patches (feature-gate overrides, config stubs) with the exact command.>
+`<One-time setup after clone: install deps, configure, apply any
+patches (feature-gate overrides, config stubs) with the exact command.>`
 
 ```bash
 <commands>
 ```
 
-<Env vars - required vs optional, with sensible defaults:>
+`<Env vars - required vs optional, with sensible defaults:>`
 
 ```bash
 export FOO_API_KEY=...   # required - get from <where>
@@ -46,7 +46,7 @@ export BAR_MODE=dev      # optional - default is prod
 
 ## Build
 
-<Skip if no separate build step. Otherwise the exact command:>
+`<Skip if no separate build step. Otherwise the exact command:>`
 
 ```bash
 <command>
@@ -63,9 +63,9 @@ that one-liner goes here.>
 <launch-the-driver-or-smoke-script>
 ```
 
-<For REPL-style drivers, show the tmux wrapping. Poll for a ready marker
+`<For REPL-style drivers, show the tmux wrapping. Poll for a ready marker
 between send-keys and capture-pane - faster than a fixed sleep and fails
-loudly instead of capturing a half-rendered screen:>
+loudly instead of capturing a half-rendered screen:>`
 
 ```bash
 tmux new-session -d -s app -x 200 -y 50
@@ -75,20 +75,20 @@ tmux send-keys -t app '<first driver command>' Enter
 tmux capture-pane -t app -p
 ```
 
-<Where artifacts land (screenshots, logs) - absolute paths:>
+`<Where artifacts land (screenshots, logs) - absolute paths:>`
 
 Screenshots -> `/tmp/shots/`. Logs -> `/tmp/<app>.log`.
 
-<If the driver has commands, a table:>
+`<If the driver has commands, a table:>`
 
 | command | what it does |
 |---|---|
-| `<cmd>` | <description> |
+| `<cmd>` | `<description>` |
 
 ## Run (human path)
 
-<If meaningfully different from the agent path. Brief - agents won't
-use this, humans can figure it out.>
+`<If meaningfully different from the agent path. Brief - agents won't
+use this, humans can figure it out.>`
 
 ```bash
 <command>   # -> <what happens>. <how to stop>.
@@ -100,31 +100,31 @@ use this, humans can figure it out.>
 <command>
 ```
 
-<Expected result - "N suites pass", or specific known-flaky tests.>
+`<Expected result - "N suites pass", or specific known-flaky tests.>`
 
 ---
 
-<Optional sections below - include only if relevant and only with
-content you actually hit, not generic advice.>
+`<Optional sections below - include only if relevant and only with
+content you actually hit, not generic advice.>`
 
 ## Gotchas
 
-<Non-obvious traps. The things that look like they should work but
-don't, with the workaround. If this section is generic, delete it.>
+`<Non-obvious traps. The things that look like they should work but
+don't, with the workaround. If this section is generic, delete it.>`
 
-- **<specific thing>** - <why it breaks> -> <what to do instead>
+- **`<specific thing>`** - `<why it breaks>` -> `<what to do instead>`
 
 ## Troubleshooting
 
-<Symptom -> fix. Only errors you actually encountered.>
+`<Symptom ->` fix. Only errors you actually encountered.>
 
-- **<exact error message or symptom>**: <cause>. <fix>.
+- **`<exact error message or symptom>`**: `<cause>`. `<fix>`.
 
 <---
 
 NOTE ON THE FRONTMATTER ABOVE:
 - Replace <unit-name> in both `name:` and `description:`. The `name:`
-  becomes the slash command (/run-<unit-name>) and must match the
+  becomes the slash command (`/run-<unit-name>`) and must match the
   directory name.
 - The `description:` is what Claude scans to decide whether to load this
   skill automatically. Keep the verbs - "start," "run," "build," "test,"

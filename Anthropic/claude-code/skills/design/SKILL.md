@@ -2,6 +2,7 @@
 name: design
 description: "Create a design canvas - a multi-artboard visual design published as an Artifact that runs Claude Design's canvas editor (an early preview of Claude Design inside Claude Code). You DRAFT the design as .dc.html artboards laid out on one pan/zoom canvas; where saving is enabled for the user's account they refine every element visually (click-to-select, a properties panel, inline text editing, undo/redo) and Save publishes a new version for everyone, otherwise they get a view-and-export (PNG/PDF) preview of your draft. Good for UI mockups and screen flows, landing pages, marketing and social graphics, and print pieces - posters, flyers, brochures as single-page artboards; memos and reports as one flowing artboard. Use when someone wants a design, mockup, wireframe, UI or screen design, landing page, poster, flyer, brochure, banner, card, one-pager, or any visual layout they would rather tweak by hand than in code. Only for CREATING or re-seeding a canvas; an existing one is edited in its published Artifact."
 argument-hint: "[what to design]"
+disable-model-invocation: true
 ---
 
 # Create a design canvas
@@ -188,8 +189,9 @@ Everything lives in the one payload file:
    result suggests - this deliberately overrides the tool's "omit to
    keep the current version" default. Every publish also passes the
    seeded file as `file_path` (there is no inline-content parameter),
-   a one-line `description`, and a `favicon` of one or two emoji -
-   required on republishes too, so pass the same one every time.
+   a one-line `description` and, on the first publish only, an
+   `icon`: one short generic word for the tab icon (say layout or
+   palette), never a product or brand name and never an emoji.
    - **First publish.** Load the `artifact-capabilities` skill and
      read its roster for THIS user - ONLY to learn which capability
      names they have (ignore its versions and authoring guidance).
@@ -233,8 +235,8 @@ Everything lives in the one payload file:
      export PNG/PDF only); roster unreachable -> say you could not
      confirm yet that saving is enabled. Never ship a stand-in for the
      save path.
-   - **Republish** of the same file this session: pass `contract` and
-     the same `favicon` again, omit `capabilities` (omission keeps the
+   - **Republish** of the same file this session: pass `contract`
+     again, omit `icon` and `capabilities` (omission keeps the
      stored declaration; `{}` clears it) - EXCEPT once, on the first
      republish after a roster-blind publish: load the roster again and,
      if it answers, declare by the first-publish rule (a passed

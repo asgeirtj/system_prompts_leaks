@@ -1,6 +1,7 @@
 ---
 name: debug
 description: Enable debug logging for this session and help diagnose issues
+disable-model-invocation: true
 ---
 
 # Debug Skill

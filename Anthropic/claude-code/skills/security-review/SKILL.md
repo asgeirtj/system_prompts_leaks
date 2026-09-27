@@ -115,7 +115,7 @@ For example:
 
 * Severity: High
 * Description: User input from `username` parameter is directly interpolated into HTML without escaping, allowing reflected XSS attacks
-* Exploit Scenario: Attacker crafts URL like /bar?q=<script>alert(document.cookie)</script> to execute JavaScript in victim's browser, enabling session hijacking or data theft
+* Exploit Scenario: Attacker crafts URL like /bar?q=`<script>`alert(document.cookie)`</script>` to execute JavaScript in victim's browser, enabling session hijacking or data theft
 * Recommendation: Use Flask's escape() function or Jinja2 templates with auto-escaping enabled for all user inputs rendered in HTML
 
 SEVERITY GUIDELINES:

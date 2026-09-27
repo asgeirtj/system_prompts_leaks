@@ -2,6 +2,7 @@
 name: batch
 description: Research and plan a large-scale change, then execute it in parallel across 5–30 isolated worktree agents that each open a PR.
 when_to_use: Use when the user wants to make a sweeping, mechanical change across many files (migrations, refactors, bulk renames) that can be decomposed into independent parallel units.
+disable-model-invocation: true
 ---
 
 # Batch: Parallel Work Orchestration
@@ -71,8 +72,8 @@ After launching all workers, render an initial status table:
 
 | # | Unit | Status | PR |
 |---|------|--------|----|
-| 1 | <title> | running | — |
-| 2 | <title> | running | — |
+| 1 | `<title>` | running | — |
+| 2 | `<title>` | running | — |
 
 As background-agent completion notifications arrive, parse the `PR: <url>` line from each agent's result and re-render the table with updated status (`done` / `failed`) and PR links. Keep a brief failure note for any agent that did not produce a PR.
 

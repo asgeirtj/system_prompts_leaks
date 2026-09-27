@@ -186,7 +186,7 @@ Then tell the user what you're about to run - *"N cases × R reps on `<model>`, 
 
 Then **show the math** - the formula is what makes the assumption inspectable:
 
-> Pilot: M cases, median ~Xin / ~Xout tokens (range Xlo-Xhi). At <model> prices ($A/MTok in, $B/MTok out, cache-read 0.1×): ~ $C/case (range $Clo-$Chi). Full run = N cases × R reps × $C ~ **$Y** (range $Ylo-$Yhi), ~Z minutes.
+> Pilot: M cases, median ~Xin / ~Xout tokens (range Xlo-Xhi). At `<model>` prices ($A/MTok in, $B/MTok out, cache-read 0.1×): ~ $C/case (range $Clo-$Chi). Full run = N cases × R reps × $C ~ **$Y** (range $Ylo-$Yhi), ~Z minutes.
 
 Ask whether that's acceptable. If it isn't, offer the levers: switch the judge to a cheaper model, cache more aggressively, or **trim to the discriminating cases** - from the pilot, rank cases by signal (cross-rep score variance, distance from median, judge disagreement) and keep the top K; cases that always pass or always fail tell you nothing round-to-round. If you trim, the loop runs on those K every round and you run the **full** set once on baseline and once on the winner at the end to confirm - those are two different populations, so don't mix them in the same comparison. **The case count and rep count in the formula you got approved are what you run** - re-present if either changes. After the full run completes, replace the projected cost with the measured one wherever you wrote it down.
 

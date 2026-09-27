@@ -42,3 +42,12 @@ Anthropic dates each entry to the model's release day. Continuous page monitorin
 - **Claude Sonnet 5** — nothing published 83+ days after release
 
 Entries older than the monitoring have unknown actual publication dates.
+
+## Claude's constitution
+
+Anthropic's published constitution, the document describing Claude's values and character. Not a system prompt, archived here as an official publication.
+
+| Version | Published | File |
+|---------|-----------|------|
+| v2 | January 20, 2026 | [claude-constitution-v2.md](claude-constitution/2026-01-20-claude-constitution-v2.md) |
+| v1 | May 9, 2023 | [claude-constitution-v1.md](claude-constitution/2023-05-09-claude-constitution-v1.md) |

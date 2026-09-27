@@ -33,6 +33,8 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **GPT-6-Sol Codex** | September 27, 2026 | [GPT-6-Sol Codex system prompt](OpenAI/Codex/gpt-6-sol.md) |
+| **GPT-6-Luna Codex** | September 27, 2026 | [GPT-6-Luna Codex system prompt](OpenAI/Codex/gpt-6-luna.md) |
 | **Claude Code Desktop (Fable 5.1)** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |
 | **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 System Prompt](Anthropic/claude-opus-5.5.md) |
 | **Claude Code (Opus 5.5)** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
@@ -57,8 +59,6 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 | **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
 | **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/claude-code/claude-code-sonnet-5.md)  |
 | **OpenCode · Pi · CommandCode** | July 16, 2026 | [OpenCode system prompt](OpenCode/opencode.md) · [Pi system prompt](Pi/instructions.md) · [CommandCode CLI system prompt](Misc/commandcode-cli.md) |
-| **Kimi K2.6** | July 14, 2026 | [Kimi K2.6 system prompt](Kimi/kimi-2.6.md) |
-| **Perplexity Deep Research** | July 14, 2026 | [Perplexity Deep Research system prompt](Perplexity/deep-research.md) |
 
 
 ---
@@ -135,6 +135,7 @@ The full verbatim System Prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **GPT-6 Codex** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
 | **Codex GPT-5.6** | [**Codex GPT-5.6 system prompt (Terra/Luna)**](OpenAI/Codex/gpt-5.6.md) · [Sol](OpenAI/Codex/gpt-5.6-sol.md) |
 | **Codex GPT-5.5** | [Codex GPT-5.5 system prompt](OpenAI/Codex/gpt-5.5.md) · [Full prompt](OpenAI/Codex/codex-full.md) · [Friendly](OpenAI/Codex/personality_friendly_gpt-5.5.md) · [Pragmatic](OpenAI/Codex/personality_pragmatic_gpt-5.5.md) |
 | Codex GPT-5.4 | [Codex GPT-5.4 system prompt](OpenAI/Codex/gpt-5.4.md) · [Mini](OpenAI/Codex/gpt-5.4-mini.md) |

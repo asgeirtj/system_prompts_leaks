@@ -33,6 +33,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
 | **GPT-6-Sol Codex** | September 27, 2026 | [GPT-6-Sol Codex system prompt](OpenAI/Codex/gpt-6-sol.md) |
 | **GPT-6-Luna Codex** | September 27, 2026 | [GPT-6-Luna Codex system prompt](OpenAI/Codex/gpt-6-luna.md) |
 | **Fable 5.1 Claude Code Desktop** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |

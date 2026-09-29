@@ -33,6 +33,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
 | **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
 | **GPT-6-Sol Codex** | September 27, 2026 | [GPT-6-Sol Codex system prompt](OpenAI/Codex/gpt-6-sol.md) |
@@ -59,7 +60,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
 | **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
-| **Claude Code (new models)** | July 16, 2026 | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) · [Sonnet 5](Anthropic/claude-code/claude-code-sonnet-5.md) |
 
 ---
 ![Anthropic](https://shieldcn.dev/badge/Anthropic-D97757.svg?logo=anthropic&logoColor=fff&variant=secondary&mode=light)
@@ -137,6 +137,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **GPT-6.1 Codex** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **GPT-6 Codex** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
 | GPT-5.6 Codex | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) |
 | GPT-5.5 Codex | [Codex GPT-5.5 system prompt](OpenAI/Codex/gpt-5.5.md) · [Full prompt](OpenAI/Codex/codex-full.md) · [Friendly](OpenAI/Codex/personality_friendly_gpt-5.5.md) · [Pragmatic](OpenAI/Codex/personality_pragmatic_gpt-5.5.md) |

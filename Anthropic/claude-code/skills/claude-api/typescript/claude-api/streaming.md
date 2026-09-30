@@ -4,7 +4,7 @@
 
 ```typescript
 const stream = client.messages.stream({
-  model: "claude-opus-5",
+  model: "claude-opus-5-5",
   max_tokens: 64000,
   messages: [{ role: "user", content: "Write a story" }],
 });
@@ -23,13 +23,13 @@ for await (const event of stream) {
 
 ## Handling Different Content Types
 
-> **Fable 5 / Claude Opus 5 / Opus 4.8 / Opus 4.7 / Opus 4.6:** Use `thinking: {type: "adaptive"}`. On Claude Opus 5 adaptive is also what you get by omitting `thinking` entirely. On older models, use `thinking: {type: "enabled", budget_tokens: N}` instead.
+> **Fable 5 / Claude Opus 5.5 / Claude Opus 5 / Opus 4.8 / Opus 4.7 / Opus 4.6:** Use `thinking: {type: "adaptive"}`. On Claude Opus 5.5 and Claude Opus 5 adaptive is also what you get by omitting `thinking` entirely (Claude Opus 5.5 accepts no other setting - `disabled` and `budget_tokens` both 400). On older models, use `thinking: {type: "enabled", budget_tokens: N}` instead.
 
 ```typescript
 const stream = client.messages.stream({
-  model: "claude-opus-5",
+  model: "claude-opus-5-5",
   max_tokens: 64000,
-  thinking: { type: "adaptive", display: "summarized" }, // display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5, Opus 4.8/4.7, and Claude Sonnet 5
+  thinking: { type: "adaptive", display: "summarized" }, // display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5.5, Claude Opus 5, Opus 4.8/4.7, Claude Sonnet 5.5, and Claude Sonnet 5
   messages: [{ role: "user", content: "Analyze this problem" }],
 });
 
@@ -85,7 +85,7 @@ const getWeather = {
 };
 
 let runner = client.beta.messages.toolRunner({
-  model: "claude-opus-5",
+  model: "claude-opus-5-5",
   max_tokens: 64000,
   tools: [getWeather],
   messages: [
@@ -160,7 +160,7 @@ With `betaZodTool` the runner validates each tool input against the Zod schema b
 
 ```typescript
 const stream = client.messages.stream({
-  model: "claude-opus-5",
+  model: "claude-opus-5-5",
   max_tokens: 64000,
   messages: [{ role: "user", content: "Hello" }],
 });

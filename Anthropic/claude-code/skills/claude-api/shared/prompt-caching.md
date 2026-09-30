@@ -36,7 +36,7 @@ When asked to add or optimize caching:
 
 Put a breakpoint on the last system text block. If there are tools, they render before system - the marker on the last system block caches tools + system together.
 
-```json
+```js
 "system": [
   {"type": "text", "text": "<large shared prompt>", "cache_control": {"type": "ephemeral"}}
 ]
@@ -46,7 +46,7 @@ Put a breakpoint on the last system text block. If there are tools, they render 
 
 Put a breakpoint on the last content block of the most-recently-appended turn. Each subsequent request reuses the entire prior conversation prefix. Earlier breakpoints remain valid read points, so hits accrue incrementally as the conversation grows.
 
-```json
+```js
 // Last content block of the last user turn
 messages[-1].content[-1].cache_control = {"type": "ephemeral"}
 ```
@@ -55,7 +55,7 @@ messages[-1].content[-1].cache_control = {"type": "ephemeral"}
 
 Many requests share a large fixed preamble (few-shot examples, retrieved docs, instructions) but differ in the final question. Put the breakpoint at the end of the **shared** portion, not at the end of the whole prompt - otherwise every request writes a distinct cache entry and nothing is ever read.
 
-```json
+```js
 "messages": [{"role": "user", "content": [
   {"type": "text", "text": "<shared context>", "cache_control": {"type": "ephemeral"}},
   {"type": "text", "text": "<varying question>"}  // no marker - differs every time
@@ -64,9 +64,9 @@ Many requests share a large fixed preamble (few-shot examples, retrieved docs, i
 
 ### Mid-conversation system messages
 
-**Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, and Claude Mythos 5.1; no beta header. Not available on Claude Sonnet 5** - use top-level `system` there. (Sources conflict on Claude Sonnet 5: the model config marks it supported, but every canonical docs page omits it. Treat it as unsupported and catch the 400.) When an operator instruction arrives mid-conversation - a mode switch, updated context, dynamically injected state - send it as `{"role": "system", "content": "..."}` appended to `messages[]`, rather than editing top-level `system`. Editing top-level `system` changes the prefix ahead of the entire conversation history, so every cached turn is re-processed uncached; a `role: "system"` message sits after the history and leaves the cached prefix intact.
+**Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, Claude Mythos 5.1, and Claude Sonnet 5.5; no beta header. Not available on Claude Sonnet 5** - use top-level `system` there. (Sources conflict on Claude Sonnet 5: the model config marks it supported, but every canonical docs page omits it. Treat it as unsupported and catch the 400.) When an operator instruction arrives mid-conversation - a mode switch, updated context, dynamically injected state - send it as `{"role": "system", "content": "..."}` appended to `messages[]`, rather than editing top-level `system`. Editing top-level `system` changes the prefix ahead of the entire conversation history, so every cached turn is re-processed uncached; a `role: "system"` message sits after the history and leaves the cached prefix intact.
 
-```json
+```js
 // Top-level system stays byte-identical; new instruction goes after the cached history
 "system": [{"type": "text", "text": "<stable core>", "cache_control": {"type": "ephemeral"}}],
 "messages": [
@@ -80,7 +80,7 @@ This is also the prompt-injection-safe replacement for embedding operator instru
 
 Must follow a `role: "user"` message (or an `assistant` message ending in server-tool use), and must be either the last entry in `messages` or be followed by an `assistant` turn; cannot be `messages[0]` - use top-level `system` for the initial prompt. Content is text-only. Unsupported models return a 400 (`BadRequestError`: `role 'system' is not supported on this model`); catch that error and fall back to putting the instruction in a user-turn `<system-reminder>` block.
 
-**Per-turn reminders in a tool loop: turn-scoped messages, never deleted.** A reminder injected into history and removed on the next request is a history edit - the cache misses from that point and, on Claude Fable 5.1 and Claude Opus 5.5, every later thinking block is invalidated. Instead give the `role: "system"` message `clear_at: "next_user_message"` (beta `mid-conversation-system-clear-at-2026-08-21`; same models and platforms as mid-conversation system messages): it renders for one turn, then stays in the transcript cleared - costing no input tokens, not cache-eligible (`cache_control` on it is a 400; put the breakpoint on the preceding user turn), and still part of the prefix. Append a fresh copy after each `tool_result` message and leave earlier copies in place; without the beta, a `text` block after the `tool_result` blocks in the same user message, earlier copies kept. Separately, per-message effort (beta `mid-conversation-output-config-2026-07-01`; Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5, Claude Opus 5.5; Claude API and Google Cloud): a `role: "system"` message with `content: []` and `output_config: {effort: ...}` changes effort from the next user turn on **without** the messages-cache invalidation that a top-level `effort` change causes, and is exempt from the placement rules (it can sit anywhere) - see the Invalidation hierarchy below and `shared/model-migration.md` -> Migrating to Claude Fable 5.1 from Claude Fable 5 -> New API features.
+**Per-turn reminders in a tool loop: turn-scoped messages, never deleted.** A reminder injected into history and removed on the next request is a history edit - the cache misses from that point and, on Claude Fable 5.1, Claude Opus 5.5, and Claude Sonnet 5.5, every later thinking block is invalidated. Instead give the `role: "system"` message `clear_at: "next_user_message"` (beta `mid-conversation-system-clear-at-2026-08-21`; same models and platforms as mid-conversation system messages): it renders for one turn, then stays in the transcript cleared - costing no input tokens, not cache-eligible (`cache_control` on it is a 400; put the breakpoint on the preceding user turn), and still part of the prefix. Append a fresh copy after each `tool_result` message and leave earlier copies in place; without the beta, a `text` block after the `tool_result` blocks in the same user message, earlier copies kept. Separately, per-message effort (beta `mid-conversation-output-config-2026-07-01`; Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5, Claude Opus 5.5, and Claude Sonnet 5.5 with thinking on; Claude API and Google Cloud): a `role: "system"` message with `content: []` and `output_config: {effort: ...}` changes effort from the next user turn on **without** the messages-cache invalidation that a top-level `effort` change causes, and is exempt from the placement rules (it can sit anywhere) - see the Invalidation hierarchy below and `shared/model-migration.md` -> Migrating to Claude Fable 5.1 from Claude Fable 5 -> New API features.
 
 ### Prompts that change from the beginning every time
 
@@ -119,7 +119,7 @@ Fix by moving the dynamic piece after the last breakpoint, making it determinist
 
 ## API reference
 
-```json
+```js
 "cache_control": {"type": "ephemeral"}              // 5-minute TTL (default)
 "cache_control": {"type": "ephemeral", "ttl": "1h"} // 1-hour TTL
 ```
@@ -132,7 +132,7 @@ Fix by moving the dynamic piece after the last breakpoint, making it determinist
 
 | Model | Minimum |
 |---|---:|
-| Claude Opus 5, Claude Fable 5, Claude Mythos 5, Claude Fable 5.1, Claude Mythos 5.1 | 512 tokens |
+| Claude Opus 5.5, Claude Opus 5, Claude Fable 5, Claude Mythos 5, Claude Fable 5.1, Claude Mythos 5.1, Claude Sonnet 5.5 (check the prompt caching docs before relying on its value) | 512 tokens |
 | Opus 4.8, Claude Sonnet 5, Sonnet 4.6, Sonnet 4.5, Opus 4.1, Opus 4, Sonnet 4 | 1024 tokens |
 | Opus 4.7, Mythos Preview, Haiku 3.5 | 2048 tokens |
 | Opus 4.6, Opus 4.5, Haiku 4.5 | 4096 tokens |
@@ -229,11 +229,11 @@ Implication: you can change `tool_choice` per-request without losing the tools+s
 
 | Top-level change that invalidates | Cache-preserving form | Available on |
 |---|---|---|
-| Tool definitions (add/remove) | `tool_addition` / `tool_removal` blocks - see `shared/tool-use-concepts.md` § Mid-conversation tool changes | Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, Claude Mythos 5.1 (not Claude Sonnet 5), behind `mid-conversation-tool-changes-2026-07-01` |
-| System prompt content | A `{"role": "system", "content": "..."}` message - see § Mid-conversation system messages above | Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, Claude Mythos 5.1 - **already available today**, no beta header |
+| Tool definitions (add/remove) | `tool_addition` / `tool_removal` blocks - see `shared/tool-use-concepts.md` § Mid-conversation tool changes | Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, Claude Mythos 5.1, Claude Sonnet 5.5 (not Claude Sonnet 5), behind `mid-conversation-tool-changes-2026-07-01` |
+| System prompt content | A `{"role": "system", "content": "..."}` message - see § Mid-conversation system messages above | Claude Opus 5, Claude Opus 5.5, Claude Opus 4.8, Claude Fable 5, Claude Fable 5.1, Claude Mythos 5, Claude Mythos 5.1 - **already available today** (Claude Sonnet 5.5 at launch), no beta header |
 | Per-turn reminder (inject, then delete next request) | A turn-scoped `clear_at: "next_user_message"` system message, left in the transcript - see § Mid-conversation system messages above (without the beta: a text block after the `tool_result` blocks, earlier copies kept) | Same models as mid-conversation system messages, behind `mid-conversation-system-clear-at-2026-08-21` |
-| `effort` change | A `{"role": "system", "content": [], "output_config": {"effort": ...}}` message - see `shared/model-migration.md` -> Migrating to Claude Fable 5.1 from Claude Fable 5 | Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5.5, Claude Opus 5, behind `mid-conversation-output-config-2026-07-01` |
-| Dropped thinking blocks (a Claude Fable 5.1 / Claude Mythos 5.1 / Claude Opus 5.5 block replayed to a model that can't read it - only Claude Fable 5.1 / Claude Mythos 5.1 on the Claude API read Claude Opus 5.5's - or a history-editing-check `drop_block`) | None - the API drops the block on that request and the messages cache changes from its position onward; tools and system caches are intact. Blocks the receiving model can read, passed back unchanged, keep the cache intact | - |
+| `effort` change | A `{"role": "system", "content": [], "output_config": {"effort": ...}}` message - see `shared/model-migration.md` -> Migrating to Claude Fable 5.1 from Claude Fable 5 | Claude Fable 5.1, Claude Mythos 5.1, Claude Opus 5.5, Claude Opus 5, Claude Sonnet 5.5 (thinking on only), behind `mid-conversation-output-config-2026-07-01` |
+| Dropped thinking blocks (a Claude Fable 5.1 / Claude Mythos 5.1 / Claude Opus 5.5 / Claude Sonnet 5.5 block replayed to a model that can't read it - only Claude Fable 5.1 / Claude Mythos 5.1 on the Claude API read Claude Opus 5.5's, and no other model reads Claude Sonnet 5.5's - or a history-editing-check `drop_block`) | None - the API drops the block on that request and the messages cache changes from its position onward; tools and system caches are intact. Blocks the receiving model can read, passed back unchanged, keep the cache intact | - |
 
 Model switch has no escape hatch: caches are model-scoped. Keep the main loop on one model and spawn a subagent for cheaper sub-tasks (see `agent-design.md` § Caching for Agents).
 
@@ -274,7 +274,7 @@ To eliminate the cache-miss latency on the *first* real request, send a **`max_t
 
 ```python
 client.messages.create(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     max_tokens=0,
     # Example values - send the same thinking and effort settings as your real traffic (see below)
     thinking={"type": "adaptive"},

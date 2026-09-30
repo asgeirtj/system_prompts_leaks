@@ -24,7 +24,7 @@ Their description does the interview's work. Draft the agent config from it and 
 - **Skills** - **suggest** prebuilt `xlsx`/`docx`/`pptx`/`pdf` when the job produces those artifacts; custom by `skill_id` (max 20 total per agent, prebuilt + custom combined).
 - **Outcome - the default kickoff for any job with a deliverable.** If the job produces something checkable (an artifact, a report, a PR, a dataset), draft a starter rubric from the description - explicit, independently gradeable criteria: not "a good report" but "a CSV with a numeric `price` column per SKU" - and propose it inline with the config; the harness grades and iterates against it (`shared/managed-agents-outcomes.md`). The user not having a rubric is not a reason to skip this - drafting one is your job; mark it as a starter to tune. Fall back to a conversational kickoff only when the job is genuinely interactive (a chat surface, human-in-the-loop steering).
 - **On-hand resources** - repos on disk (`github_repository`: URL, optional `mount_path`/`checkout`; token comes in §4), files to seed (Files API upload -> `{type: "file", file_id, mount_path}`; read-only), if the job references them.
-- **Model** - default `claude-opus-5`; `claude-fable-5-1` for the hardest long-horizon work (`shared/model-migration.md` -> Migrating to Claude Fable 5.1).
+- **Model** - default `claude-opus-5-5`; `claude-fable-5-1` for the hardest long-horizon work (`shared/model-migration.md` -> Migrating to Claude Fable 5.1).
 
 > Important: **PR creation needs the GitHub MCP server too** - a `github_repository` mount is filesystem-only. Edit in the mount -> push branch via `bash` -> open the PR via the MCP `create_pull_request` tool.
 
@@ -59,8 +59,8 @@ Go straight from the last answer to the code - no preamble, no lecture about set
 
 1. `agents/<name>.md` - YAML frontmatter (`name`, `model`, `tools`, `mcp_servers`, `skills`) with the system prompt as the Markdown body - and `environments/<name>.yaml`. Reusing an existing environment (§3)? Write no environment file (it would create a second one), leave it out of the commands below, and use the existing `env_...` ID wherever an environment is named (Block 2, a deployment file's `environment_id`).
 2. ```sh
-   ant apply --dry-run -v agents/`<name>`.md environments/`<name>`.yaml   # prints the full plan, every field; changes nothing
-   ant apply agents/`<name>`.md environments/`<name>`.yaml                # asks, then creates; run it again after any edit to update
+   ant apply --dry-run -v agents/<name>.md environments/<name>.yaml   # prints the full plan, every field; changes nothing
+   ant apply agents/<name>.md environments/<name>.yaml                # asks, then creates; run it again after any edit to update
    ```
    Name the files you just wrote - never `.` or a directory, which is walked and also creates whatever else in the repo looks like a resource (a Claude Code plugin's `agents/*.md` and `skills/*/SKILL.md`, files the user never read). Without a terminal (a coding agent's shell) the second command prints the plan and exits; it applies only with `--yes`, which is the user's approval, not yours: show them the dry-run plan and add it only once they say go ahead. If the plan would create or change anything you did not write, or a file you did not write sits at a path you need, stop and ask; never add `--force` or `--prune` on your own.
 3. Keep `claude-lock.json` beside the files (commit both if this is a repo) - it holds the IDs, and without it the next `ant apply` creates duplicates. Copy the IDs Block 2 needs (agent, environment; scheduled shape: the deployment) into the app's own config or env vars once - `resources["./agents/<name>.md"].id` and so on, keyed by the path the plan printed - so the running app does not depend on the lockfile.
@@ -77,7 +77,7 @@ SDK fallback if the user asks - and **required on Claude Platform on AWS**, wher
 
 1. Load `agent_id` + `env_id` from config/env (where Block 1 put them)
 2. `sessions.create(agent=AGENT_ID, environment_id=ENV_ID, resources=[...], vault_ids=[...])`, then print the Console URL so the user can watch live: `https://platform.claude.com/workspaces/default/sessions/{session.id}` (swap `default` for their workspace slug)
-3. **Smoke-test when the job depends on MCP servers, credentials, or locked-down hosts** - those failures don't surface at `sessions.create()`, only on first use. One cheap probe turn ("Confirm you can reach <service> and list 1-2 items; don't start the task"), verify, then send the real kickoff. Skip when there are no external dependencies.
+3. **Smoke-test when the job depends on MCP servers, credentials, or locked-down hosts** - those failures don't surface at `sessions.create()`, only on first use. One cheap probe turn ("Confirm you can reach `<service>` and list 1-2 items; don't start the task"), verify, then send the real kickoff. Skip when there are no external dependencies.
 4. Open stream -> send the §4 kickoff -> loop with the terminal gate from §4.
 
 > Warning: **Never emit `agents.create()` and `sessions.create()` in the same unguarded block** - that teaches creating a new agent per run, the #1 anti-pattern. Single-script requests: wrap creation in `if not os.getenv("AGENT_ID"):`.

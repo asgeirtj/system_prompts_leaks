@@ -110,7 +110,7 @@ Key fields returned by the API:
 const agent = await client.beta.agents.create(
   {
     name: "Coding Assistant",
-    model: "claude-opus-5",
+    model: "claude-opus-5-5",
     system: "You are a helpful coding agent.",
     tools: [{ type: "agent_toolset_20260401"}],
   },
@@ -245,15 +245,15 @@ The agent is a **persistent resource**, not a per-run parameter. The intended pa
 
 ### Effort on the agent model
 
-Pass `model` as an object to set the effort level: `{"id": "claude-opus-5", "effort": "high"}`. `effort` accepts a level string (`low`, `medium`, `high`, `xhigh`, `max`) or an object such as `{"type": "high"}`. The create/update response echoes it in object form and fills in omitted `model` fields with their defaults.
+Pass `model` as an object to set the effort level: `{"id": "claude-opus-5-5", "effort": "high"}`. `effort` accepts a level string (`low`, `medium`, `high`, `xhigh`, `max`) or an object such as `{"type": "high"}`. The create/update response echoes it in object form and fills in omitted `model` fields with their defaults.
 
 > Warning: **A per-session `model` override replaces the agent's `model` object in full, so the agent's own `effort` isn't carried over.** To run the session at a specific effort level, set `effort` inside the override's `model` object. A level the model doesn't support returns a 400 error, and a `model` override without `effort` runs at that model's default effort level.
 
-The same object form carries `speed` for fast mode: `{"id": "claude-opus-5", "speed": "fast"}`.
+The same object form carries `speed` for fast mode: `{"id": "claude-opus-5-5", "speed": "fast"}`.
 
 ### Pinning inference geography (`inference_geo`)
 
-The `model` object also takes `inference_geo` to pin the geography that serves the agent's model requests: `{"id": "claude-opus-5", "inference_geo": "us"}`. Accepts `"us"` or `"global"` - and unlike the Messages API, where `inference_geo` is a top-level request parameter, here it is always nested inside `model`, never top-level. When unset, each model request follows the workspace's default inference geo at the time it's served.
+The `model` object also takes `inference_geo` to pin the geography that serves the agent's model requests: `{"id": "claude-opus-5-5", "inference_geo": "us"}`. Accepts `"us"` or `"global"` - and unlike the Messages API, where `inference_geo` is a top-level request parameter, here it is always nested inside `model`, never top-level. When unset, each model request follows the workspace's default inference geo at the time it's served.
 
 - **Validated at every stage:** the pin is checked against the workspace's `allowed_inference_geos` when the agent is saved, when a session is created from it, and on every turn the session serves. If the workspace allowlist later narrows so the pin is no longer allowed, new sessions can't be created from the agent and **running sessions refuse further turns** - pins are never grandfathered (workspaces rely on them for compliance).
 - Setting `inference_geo` on a model that doesn't support geographic inference pinning returns a 400.
@@ -324,7 +324,7 @@ session = client.beta.sessions.create(
     agent={
         "type": "agent_with_overrides",
         "id": agent.id,
-        "model": "claude-opus-5",   # replace the agent's model for this session
+        "model": "claude-opus-5-5",   # replace the agent's model for this session
         "system": None,           # clear the system prompt for this session
     },
     environment_id=environment_id,

@@ -60,7 +60,7 @@ curl https://api.anthropic.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "anthropic-beta: oauth-2025-04-20" \
   -H "content-type: application/json" \
-  -d '{"model": "claude-opus-5", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello"}]}'
+  -d '{"model": "claude-opus-5-5", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello"}]}'
 
 # .env format - sets ANTHROPIC_AUTH_TOKEN (and ANTHROPIC_BASE_URL if the profile has one).
 # Output is bare KEY=value (no `export`), so use `set -a` to auto-export for child processes:
@@ -82,7 +82,7 @@ Beta resources (agents, sessions, environments, deployments, skills, vaults, mem
 
 ```sh
 ant models list
-ant messages create --model claude-opus-5 --max-tokens 1024 --message '{role: user, content: "Hello"}'
+ant messages create --model claude-opus-5-5 --max-tokens 1024 --message '{role: user, content: "Hello"}'
 ant beta:agents retrieve --agent-id agent_01...
 ant beta:sessions:events list --session-id session_01...
 ```
@@ -112,7 +112,7 @@ ant beta:agents list --transform '{id,name,model}' --format jsonl
 **Extract a scalar for shell use:** pair `--transform` with `-r` (`--raw-output` - prints strings unquoted, jq-style):
 
 ```sh
-AGENT_ID=$(ant beta:agents create --name "My Agent" --model '{id: claude-sonnet-5}' \
+AGENT_ID=$(ant beta:agents create --name "My Agent" --model '{id: claude-sonnet-5-5}' \
   --transform id -r)
 ```
 
@@ -123,7 +123,7 @@ AGENT_ID=$(ant beta:agents create --name "My Agent" --model '{id: claude-sonnet-
 ```sh
 ant beta:agents create \
   --name "Research Agent" \
-  --model '{id: claude-opus-5}' \
+  --model '{id: claude-opus-5-5}' \
   --tool '{type: agent_toolset_20260401}' \
   --tool '{type: custom, name: search_docs, input_schema: {type: object, properties: {query: {type: string}}}}'
 ```
@@ -133,7 +133,7 @@ ant beta:agents create \
 ```sh
 ant beta:agents create <<'YAML'
 name: Research Agent
-model: claude-opus-5
+model: claude-opus-5-5
 system: |
   You are a research assistant. Cite sources for every claim.
 tools:
@@ -144,9 +144,9 @@ YAML
 **`@file` references** - inline a file's contents into any string-valued field. Inside structured flag values, quote the path. Binary files are auto-base64'd; force with `@file://` (text) or `@data://` (base64). Escape a literal leading `@` as `\@`.
 
 ```sh
-ant beta:agents create --name "Researcher" --model '{id: claude-sonnet-5}' --system @./prompts/researcher.txt
+ant beta:agents create --name "Researcher" --model '{id: claude-sonnet-5-5}' --system @./prompts/researcher.txt
 
-ant messages create --model claude-opus-5 --max-tokens 1024 \
+ant messages create --model claude-opus-5-5 --max-tokens 1024 \
   --message '{role: user, content: [
     {type: document, source: {type: base64, media_type: application/pdf, data: "@./scan.pdf"}},
     {type: text, text: "Extract the text from this scanned document."}
@@ -173,7 +173,7 @@ claude-lock.json              # written by ant apply - commit it
 ---
 # agents/summarizer.md
 name: Summarizer
-model: claude-sonnet-5
+model: claude-sonnet-5-5
 tools:
   - type: agent_toolset_20260401
 ---

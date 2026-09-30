@@ -33,6 +33,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Fable 5.1 Claude Code on the web (cloud)** | September 30, 2026 | [Claude Code on the web system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
 | **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
@@ -59,7 +60,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Grok 4.5** | July 26, 2026 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
 | **Claude Opus 5** | July 24, 2026 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) · [Claude Code (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
 | **Claude Design (full prompt + 53 tools + 22 skills + 10 starter components)** | July 23, 2026 | [Claude Design system prompt](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
-| **Perplexity** | July 17, 2026 | [Perplexity AI system prompt](Perplexity/perplexity-ai.md) |
 
 ---
 ![Anthropic](https://shieldcn.dev/badge/Anthropic-D97757.svg?logo=anthropic&logoColor=fff&variant=secondary&mode=light)
@@ -89,6 +89,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Opus 5.5 Claude Code** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Fable 5.1 Claude Code** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | **Fable 5.1 Claude Code Desktop** | [**Claude Code desktop app system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
+| **Fable 5.1 Claude Code on the web** | [**Claude Code on the web (cloud) system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **Fable 5.1 Claude Code headless** | [**Claude Code headless system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
 | Opus 5 Claude Code | [Claude Code system prompt (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
 | Fable 5 Claude Code | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) |

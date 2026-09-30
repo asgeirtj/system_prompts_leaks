@@ -381,7 +381,7 @@ f068493 Merge pull request #12 from acme-corp/feature/auth
 c59fc67 docs: add CLAUDE.md  
 b46a8de Initial commit
 
-IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
+Claude Code attached this context automatically; it isn't part of the user's message. It describes the user's own account and workspace, so they don't need it reported back.
 
 `</system-reminder>`
 
@@ -1469,8 +1469,8 @@ While the Bash tool can do similar things, it's better to use the built-in tools
  - If your command will create new directories or files, first use this tool to run `ls` to verify the parent directory exists and is the correct location.
  - Always quote file paths that contain spaces with double quotes in your command (e.g., cd "path with spaces/file.txt")
  - Try to maintain your current working directory throughout the session by using absolute paths and avoiding usage of `cd`. You may use `cd` if the User explicitly requests it. In particular, never prepend `cd <current-directory>` to a `git` command — `git` already operates on the current working tree, and the compound triggers a permission prompt.
- - You may specify an optional timeout in milliseconds (up to 600000ms / 10 minutes). By default, your command will timeout after 120000ms (2 minutes).
- - You can use the `run_in_background` parameter to run the command in the background. Only use this if you don't need the result immediately and are OK being notified when the command completes later. You do not need to check the output right away - you'll be notified when it finishes. You do not need to use '&' at the end of the command when using this parameter.
+ - You may specify an optional timeout in milliseconds (up to 600000ms / 10 minutes for a foreground command). By default, your command will timeout after 120000ms (2 minutes).
+ - You can use the `run_in_background` parameter to run the command in the background. Only use this if you don't need the result immediately and are OK being notified when the command completes later. You do not need to check the output right away - you'll be notified when it finishes. You do not need to use '&' at the end of the command when using this parameter. With `run_in_background` the timeout is instead how long the command may run in the background (default 1800000ms / 30 minutes, max 7200000ms / 2 hours); at that limit it is stopped and you are notified.
  - For git commands:
   - Prefer to create a new commit rather than amending an existing commit.
   - Before running destructive operations (e.g., git reset --hard, git push --force, git checkout --), consider whether there is a safer alternative that achieves the same goal. Only use destructive operations when they are truly the best approach.
@@ -1581,7 +1581,7 @@ Important:
       "type": "string"
     },
     "timeout": {
-      "description": "Optional timeout in milliseconds (max 600000)",
+      "description": "Optional timeout in milliseconds (max 600000 for a foreground command)",
       "type": "number"
     },
     "description": {
@@ -1601,7 +1601,7 @@ For commands that are harder to parse at a glance (piped commands, obscure flags
       "type": "string"
     },
     "run_in_background": {
-      "description": "Set to true to run this command in the background.",
+      "description": "Set to true to run this command in the background. With it, `timeout` limits how long the command may run in the background before it is stopped (default 1800000 ms, max 7200000 ms).",
       "type": "boolean"
     },
     "dangerouslyDisableSandbox": {

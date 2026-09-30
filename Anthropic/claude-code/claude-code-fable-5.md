@@ -211,7 +211,7 @@ f068493 Merge pull request #12 from acme-corp/feature/auth
 c59fc67 docs: add CLAUDE.md  
 b46a8de Initial commit
 
-IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.
+Claude Code attached this context automatically; it isn't part of the user's message. It describes the user's own account and workspace, so they don't need it reported back.
 
 `</system-reminder>`
 
@@ -1223,8 +1223,8 @@ Executes a bash command and returns its output.
 - Working directory persists between calls, but prefer absolute paths — `cd` in a compound command can trigger a permission prompt. Shell state (env vars, functions) does not persist; the shell is initialized from the user's profile.
 - IMPORTANT: Avoid using this tool to run `cat`, `head`, `tail`, `sed`, `awk`, or `echo` commands, unless explicitly instructed or after you have verified that a dedicated tool cannot accomplish your task. Instead, use the appropriate dedicated tool as this will provide a much better experience for the user.
 - Command output is displayed to you, not reliably to the user.
-- `timeout` is in milliseconds: default 120000, max 600000.
-- `run_in_background` runs the command detached: it keeps running across turns and re-invokes you when it exits. No `&` needed. Foreground `sleep` is blocked; use Monitor with an until-loop to wait on a condition.
+- `timeout` is in milliseconds: default 120000, max 600000 for a foreground command.
+- `run_in_background` runs the command detached: it keeps running across turns and re-invokes you when it exits. With it, `timeout` is how long the command may run in the background (default 1800000, max 7200000); at that limit it is stopped and you are re-invoked. No `&` needed. Foreground `sleep` is blocked; use Monitor with an until-loop to wait on a condition.
 
 ### Git
 - Interactive flags (`-i`, e.g. `git rebase -i`, `git add -i`) are not supported in this environment.
@@ -1242,7 +1242,7 @@ Executes a bash command and returns its output.
       "type": "string"
     },
     "timeout": {
-      "description": "Optional timeout in milliseconds (max 600000)",
+      "description": "Optional timeout in milliseconds (max 600000 for a foreground command)",
       "type": "number"
     },
     "description": {
@@ -1262,7 +1262,7 @@ For commands that are harder to parse at a glance (piped commands, obscure flags
       "type": "string"
     },
     "run_in_background": {
-      "description": "Set to true to run this command in the background.",
+      "description": "Set to true to run this command in the background. With it, `timeout` limits how long the command may run in the background before it is stopped (default 1800000 ms, max 7200000 ms).",
       "type": "boolean"
     },
     "dangerouslyDisableSandbox": {

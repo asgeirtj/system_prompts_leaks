@@ -40,6 +40,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
 | **Fable 5.1 Claude Code on the web (cloud)** | September 30, 2026 | [Claude Code on the web system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
@@ -49,9 +50,8 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Fable 5.1 Claude Code Desktop** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |
 | **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 system prompt](Anthropic/claude-opus-5.5.md) |
 | **Opus 5.5 Claude Code** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
-| **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7.md) |
+| **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7-cli.md) |
 | **Claude Projects** | September 21, 2026 | [Claude Projects - Thread Claude system prompt](Anthropic/claude-projects-thread-claude.md) |
-| **Claude Code Advisor tool** | September 15, 2026 | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
 
 ---
 ![Anthropic](https://shieldcn.dev/badge/Anthropic-D97757.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtNS45MiAxNS4zbDMuOTQtMi4ybC4wNi0uMmwtLjA2LS4xaC0uMkw5IDEyLjc2bC0yLjI0LS4wNmwtMS45Ni0uMWwtMS45LS4xbC0uNDgtLjFsLS40Mi0uNmwuMDQtLjNsLjQtLjI2bC41OC4wNGwxLjI2LjFsMS45LjEybDEuMzguMDhsMi4wNC4yNGguMzJsLjA0LS4xNGwtLjEtLjA4bC0uMDgtLjA4TDcuOCAxMC4yTDUuNjggOC44bC0xLjEyLS44MmwtLjYtLjRsLS4zLS40bC0uMTItLjg0bC41NC0uNmwuNzQuMDZsLjE4LjA0bC43NC41OGwxLjYgMS4yMkw5LjQgOS4ybC4zLjI0bC4xMi0uMDhsLjAyLS4wNmwtLjE0LS4yMkw4LjYgN0w3LjQgNC45MmwtLjU0LS44NmwtLjE0LS41MmMtLjA2LS4yLS4wOC0uNC0uMDgtLjZsLjYtLjg0bC4zNi0uMWwuODQuMTJsLjMyLjI4bC41MiAxLjJsLjgyIDEuODZsMS4zIDIuNTJsLjQuNzZsLjIuNjhsLjA2LjJoLjE0di0uMWwuMS0xLjQ0bC4yLTEuNzRsLjItMi4yNGwuMDYtLjY0bC4zMi0uNzZsLjYtLjRsLjUyLjIybC40LjU4bC0uMDYuMzZMMTQuMzIgNWwtLjUyIDIuNDJsLS4zIDEuNjRoLjE4bC4yLS4yMmwuODItMS4wOGwxLjM4LTEuNzJsLjYtLjdsLjcyLS43NGwuNDYtLjM2aC44NmwuNjIuOTRsLS4yOC45OGwtLjg4IDEuMTJsLS43NC45NGwtMS4wNiAxLjQybC0uNjQgMS4xNGwuMDYuMDhoLjE0bDIuNC0uNTJsMS4yOC0uMjJsMS41Mi0uMjZsLjcuMzJsLjA4LjMybC0uMjguNjhsLTEuNjQuNGwtMS45Mi40bC0yLjg2LjY2bC0uMDQuMDJsLjA0LjA2bDEuMjguMTJsLjU2LjA0aDEuMzZsMi41Mi4ybC42Ni40bC4zOC41NGwtLjA2LjRsLTEuMDIuNTJsLTEuMzYtLjMybC0zLjItLjc2bC0xLjA4LS4yNmgtLjE2di4wOGwuOTIuOWwxLjY2IDEuNWwyLjEyIDEuOTRsLjEuNDhsLS4yNi40bC0uMjgtLjA0bC0xLjg0LTEuNGwtLjcyLS42bC0xLjYtMS4zNmgtLjF2LjE0bC4zNi41NGwxLjk2IDIuOTRsLjEuOWwtLjE0LjI4bC0uNTIuMmwtLjU0LS4xMmwtMS4xNi0xLjZsLTEuMi0xLjhsLS45NC0xLjY0bC0uMS4wOGwtLjU4IDYuMDRsLS4yNi4zbC0uNi4yNGwtLjUtLjRsLS4yOC0uNmwuMjgtMS4yNGwuMzItMS42bC4yNi0xLjI4bC4yNC0xLjU4bC4xNC0uNTJ2LS4wNGgtLjE0bC0xLjIgMS42NmwtMS44IDIuNDZsLTEuNDQgMS41MmwtLjM0LjE0bC0uNi0uM2wuMDYtLjU2bC4zMi0uNDZsMi0yLjU2bDEuMi0xLjU4bC44LS45MmwtLjAyLS4xaC0uMDZsLTUuMjggMy40NGwtLjk0LjEybC0uNC0uNGwuMDQtLjZsLjItLjJsMS42LTEuMXoiLz48L3N2Zz4%3D&logoColor=fff&variant=secondary&mode=light)
@@ -201,7 +201,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
-| **Grok 4.7** | [**Grok 4.7 system prompt** (Grok CLI)](xAI/grok-4.7.md) |
+| **Grok 4.7** | [**Grok 4.7 system prompt** (grok.com)](xAI/grok-4.7.md) · [Grok CLI](xAI/grok-4.7-cli.md) |
 | Grok 4.6 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | Grok 4.5 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
 | Grok Build | [Grok Build system prompt (CLI agent)](xAI/grok-build.md) |

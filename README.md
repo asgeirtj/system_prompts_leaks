@@ -287,12 +287,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 |---------|--------|
 | GLM | [GLM serves no system prompt — verified & documented](GLM/README.md) |
 
-## OpenCode system prompt
-
-| Product | Prompt |
-|---------|--------|
-| OpenCode | [OpenCode system prompt](OpenCode/opencode.md) · [May 2026 capture](Misc/opencode.md) |
-
 ## Pi system prompt
 
 | Product | Prompt |

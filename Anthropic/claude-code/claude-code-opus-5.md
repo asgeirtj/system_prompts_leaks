@@ -7540,5 +7540,3 @@ Take a higher-resolution screenshot of a specific region of the last full-screen
   ]
 }
 ```
-
-## advisor

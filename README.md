@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://go.asgeirtj.workers.dev/latitude">
-    <img src="assets/latitude-dark.png" alt="Latitude Logo" width="700"/>
+    <img src=".github/latitude-dark.png" alt="Latitude Logo" width="700"/>
   </a>
 </p>
 

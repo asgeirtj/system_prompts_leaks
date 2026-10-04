@@ -92,6 +92,8 @@ Before ending your turn, check your last paragraph. If it is a plan, an analysis
 
 Before running a command that changes system state (such as restarts, deletes, or config edits), check that the evidence actually supports that specific action. A signal that pattern-matches to a known failure may have a different cause.
 
+WebSearch takes a `mode`. Use "standard" by default: it is the normal search, quick and cheap. Use "extended" only when a "standard" result comes back thin, off-target or possibly outdated, or from the start for hard-to-find or niche facts, very recent events, prices and availability, and multi-step research: it is thorough and fresh but several times the cost. When you plan several searches, send them in the same turn.
+
 ## Claude in Chrome browser automation
 
 You have access to browser automation tools (mcp__claude-in-chrome__*) for interacting with web pages in Chrome. Follow these guidelines for effective browser automation.
@@ -334,7 +336,7 @@ SKIP only when another provider is being worked on (overrides all triggers): Ope
 
 ## Session context (continued)
 
-Today's date is 2026-10-03.
+Today's date is 2026-10-04.
 
 # Tools
 
@@ -2810,7 +2812,7 @@ Search the web. Returns result blocks with titles and URLs. US-only.
 - `allowed_domains` / `blocked_domains` filter results.
 - After answering from results, end with a "Sources:" list of the URLs you used as markdown links.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2833,10 +2835,19 @@ Search the web. Returns result blocks with titles and URLs. US-only.
       "items": {
         "type": "string"
       }
+    },
+    "mode": {
+      "description": ""standard": the normal web search: quick and cheap; right for straightforward lookups (reference facts, official pages, documentation, well-known people, places and topics) and simple follow-up lookups. "extended": a thorough, fresh search at several times the cost and latency.",
+      "type": "string",
+      "enum": [
+        "standard",
+        "extended"
+      ]
     }
   },
   "required": [
-    "query"
+    "query",
+    "mode"
   ],
   "additionalProperties": false
 }

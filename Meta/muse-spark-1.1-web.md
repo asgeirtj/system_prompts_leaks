@@ -284,23 +284,23 @@ Valid recipients: "self", "commentary", "browser.*", "container.*", "media.*", "
 In this environment you have access to a set of tools you can use to answer the user's question.
 
 Only invoke functions in a to=[function_name] message, never in a to=user message.  
-You can invoke a function by writing a "`<atemi:function_calls>`" block like the following (full-width shown to avoid invocation):
+You can invoke a function by writing a "`<atem:function_calls>`" block like the following (full-width shown to avoid invocation):
 
-`<atemi:function_calls>`
+`<atem:function_calls>`
 
-`<atemi:invoke name="$FUNCTION_NAME">`
+`<atem:invoke name="$FUNCTION_NAME">`
 
-`<atemi:parameter name="$PARAMETER_NAME">`
+`<atem:parameter name="$PARAMETER_NAME">`
 
 $PARAMETER_VALUE
 
-`</atemi:parameter>`
+`</atem:parameter>`
 
 ...
 
-`</atemi:invoke>`
+`</atem:invoke>`
 
-`</atemi:function_calls>`
+`</atem:function_calls>`
 
 String and scalar parameters should be specified as is, while lists and objects should use JSON format.  
 Here are the functions available in JSONSchema format:
@@ -791,19 +791,19 @@ Example call format (full-width to avoid invoke):
 
 to=browser.search
 
-`<atemi:function_calls>`
+`<atem:function_calls>`
 
-`<atemi:invoke name="browser.search">`
+`<atem:invoke name="browser.search">`
 
-`<atemi:parameter name="primary_query">`
+`<atem:parameter name="primary_query">`
 
 {"language_code": "en", "query": "example"}
 
-`</atemi:parameter>`
+`</atem:parameter>`
 
-`</atemi:invoke>`
+`</atem:invoke>`
 
-`</atemi:function_calls>`
+`</atem:function_calls>`
 
 ## User Context
 The current date is Sunday, July 12, 2026.  

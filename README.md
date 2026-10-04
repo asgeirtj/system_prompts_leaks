@@ -40,6 +40,8 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
+| **Meta Muse agent (VM files)** | October 3, 2026 | [Muse agent system prompt](Meta/muse-agent/workspace/system/system_prompt.md) · [all VM files](Meta/muse-agent/) |
 | **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
 | **Fable 5.1 Claude Code on the web (cloud)** | September 30, 2026 | [Claude Code on the web system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
@@ -50,8 +52,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Fable 5.1 Claude Code Desktop** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |
 | **Claude Opus 5.5** | September 22, 2026 | [Claude Opus 5.5 system prompt](Anthropic/claude-opus-5.5.md) |
 | **Opus 5.5 Claude Code** | September 22, 2026 | [Claude Code system prompt (Opus 5.5)](Anthropic/claude-code/claude-code-opus-5.5.md) |
-| **Grok 4.7** | September 21, 2026 | [Grok 4.7 system prompt (Grok CLI)](xAI/grok-4.7-cli.md) |
-| **Claude Projects** | September 21, 2026 | [Claude Projects - Thread Claude system prompt](Anthropic/claude-projects-thread-claude.md) |
 
 ---
 ![Anthropic](https://shieldcn.dev/badge/Anthropic-D97757.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtNS45MiAxNS4zbDMuOTQtMi4ybC4wNi0uMmwtLjA2LS4xaC0uMkw5IDEyLjc2bC0yLjI0LS4wNmwtMS45Ni0uMWwtMS45LS4xbC0uNDgtLjFsLS40Mi0uNmwuMDQtLjNsLjQtLjI2bC41OC4wNGwxLjI2LjFsMS45LjEybDEuMzguMDhsMi4wNC4yNGguMzJsLjA0LS4xNGwtLjEtLjA4bC0uMDgtLjA4TDcuOCAxMC4yTDUuNjggOC44bC0xLjEyLS44MmwtLjYtLjRsLS4zLS40bC0uMTItLjg0bC41NC0uNmwuNzQuMDZsLjE4LjA0bC43NC41OGwxLjYgMS4yMkw5LjQgOS4ybC4zLjI0bC4xMi0uMDhsLjAyLS4wNmwtLjE0LS4yMkw4LjYgN0w3LjQgNC45MmwtLjU0LS44NmwtLjE0LS41MmMtLjA2LS4yLS4wOC0uNC0uMDgtLjZsLjYtLjg0bC4zNi0uMWwuODQuMTJsLjMyLjI4bC41MiAxLjJsLjgyIDEuODZsMS4zIDIuNTJsLjQuNzZsLjIuNjhsLjA2LjJoLjE0di0uMWwuMS0xLjQ0bC4yLTEuNzRsLjItMi4yNGwuMDYtLjY0bC4zMi0uNzZsLjYtLjRsLjUyLjIybC40LjU4bC0uMDYuMzZMMTQuMzIgNWwtLjUyIDIuNDJsLS4zIDEuNjRoLjE4bC4yLS4yMmwuODItMS4wOGwxLjM4LTEuNzJsLjYtLjdsLjcyLS43NGwuNDYtLjM2aC44NmwuNjIuOTRsLS4yOC45OGwtLjg4IDEuMTJsLS43NC45NGwtMS4wNiAxLjQybC0uNjQgMS4xNGwuMDYuMDhoLjE0bDIuNC0uNTJsMS4yOC0uMjJsMS41Mi0uMjZsLjcuMzJsLjA4LjMybC0uMjguNjhsLTEuNjQuNGwtMS45Mi40bC0yLjg2LjY2bC0uMDQuMDJsLjA0LjA2bDEuMjguMTJsLjU2LjA0aDEuMzZsMi41Mi4ybC42Ni40bC4zOC41NGwtLjA2LjRsLTEuMDIuNTJsLTEuMzYtLjMybC0zLjItLjc2bC0xLjA4LS4yNmgtLjE2di4wOGwuOTIuOWwxLjY2IDEuNWwyLjEyIDEuOTRsLjEuNDhsLS4yNi40bC0uMjgtLjA0bC0xLjg0LTEuNGwtLjcyLS42bC0xLjYtMS4zNmgtLjF2LjE0bC4zNi41NGwxLjk2IDIuOTRsLjEuOWwtLjE0LjI4bC0uNTIuMmwtLjU0LS4xMmwtMS4xNi0xLjZsLTEuMi0xLjhsLS45NC0xLjY0bC0uMS4wOGwtLjU4IDYuMDRsLS4yNi4zbC0uNi4yNGwtLjUtLjRsLS4yOC0uNmwuMjgtMS4yNGwuMzItMS42bC4yNi0xLjI4bC4yNC0xLjU4bC4xNC0uNTJ2LS4wNGgtLjE0bC0xLjIgMS42NmwtMS44IDIuNDZsLTEuNDQgMS41MmwtLjM0LjE0bC0uNi0uM2wuMDYtLjU2bC4zMi0uNDZsMi0yLjU2bDEuMi0xLjU4bC44LS45MmwtLjAyLS4xaC0uMDZsLTUuMjggMy40NGwtLjk0LjEybC0uNC0uNGwuMDQtLjZsLjItLjJsMS42LTEuMXoiLz48L3N2Zz4%3D&logoColor=fff&variant=secondary&mode=light)
@@ -229,8 +229,9 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
-| **Muse Code** | [**Muse Code system prompt** (Muse Spark 1.2)](Meta/muse-code.md) |
-| Meta AI (meta.ai) | [Muse Spark 1.1 system prompt](Meta/muse-spark-1.1.md) · [Muse Spark](Meta/muse-spark.md) |
+| **Muse agent** | [**Muse agent system prompt** (Muse Spark 1.3, VM)](Meta/muse-agent/workspace/system/system_prompt.md) · [home dir, docs, templates](Meta/muse-agent/) · [89 skills](Meta/muse-agent/skills/) |
+| **Muse Code** | [**Muse Code system prompt** (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
+| Meta AI (meta.ai) | [Muse Spark 1.1 system prompt](Meta/muse-spark-1.1-web.md) · [Muse Spark](Meta/muse-spark-1.0-web.md) |
 
 ![Perplexity](https://shieldcn.dev/badge/Perplexity-1FB8CD.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtNS43MzUgMmw1LjY5NSA1LjI0N1YyLjAxMmgxLjEwOXY1LjI1OUwxOC4yNTkgMnY1Ljk4M2gyLjM0OXY4LjYyOWgtMi4zNDJ2NS4zMjdsLTUuNzI3LTUuMDMydjUuMDloLTEuMTFWMTYuOTlMNS43NDIgMjJ2LTUuMzg4SDMuMzkzdi04LjYzaDIuMzQyem00Ljg2IDcuMDc4SDQuNXY2LjQzOWgxLjI0di0yLjAzMXpNNi44NSAxMy45NzJ2NS41ODVsNC41OC00LjAzNFY5Ljgxem01LjcyIDEuNDk3bDQuNTg4IDQuMDN2LTIuODg3aC0uMDA2di0yLjY0NmwtNC41ODItNC4xNnptNS42OTYuMDQ4SDE5LjV2LTYuNDRoLTYuMDQ3bDQuODE0IDQuMzYzem0tMS4xMTUtNy41MzRWNC41MTlsLTMuNzYgMy40NjR6bS02LjU0OCAwbC0zLjc2LTMuNDY0djMuNDY0eiIvPjwvc3ZnPg%3D%3D&logoColor=fff&variant=secondary&mode=light)
 

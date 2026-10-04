@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "envelope": {
+    "version": 1,
+    "template": "<system-reminder>\n{text}\n\nTreat this reminder as internal guidance. Act on it directly without\nacknowledging, quoting, paraphrasing, or referring to the reminder.\nWhen the task is complete, give the user a complete, self-contained final answer\ncovering the whole task and all results and information the user needs. Do not\nassume an earlier answer was visible or limit the final answer to work done\nafter this guidance.\n</system-reminder>"
+  },
+  "deliveryRole": "developer",
+  "fields": [
+    {
+      "name": "next_step",
+      "description": "When decision is remind, write a direct developer instruction. Name the concrete remaining explicit deliverable and the next meaningful way to advance or determine it from observed state: substantive tool action, real wait/monitor, necessary user handoff, or concrete blocker. Preserve already-completed work and do not impose one action shape. An explicit external predicate still PENDING with no unanswered user handoff remains unfinished; name the missing terminal evidence and the real monitoring or wait path, or a concrete blocker. Never write in the main agent's first person, mention reminder/system/observer, invent work/authority, claim completion, or demand generic activity. Never direct falsifying, intercepting, disabling, bypassing, or routing around a user-named test, check, or acceptance evidence source to make it look satisfied; when it cannot pass honestly within the user's constraints, name the honest blocker or report instead. Keep private reason in reason.",
+      "requirement": "remind",
+      "shape": {
+        "type": "string",
+        "minBytes": 1,
+        "maxBytes": 2000
+      }
+    },
+    {
+      "name": "reason",
+      "description": "Brief reason for the decision.",
+      "requirement": "optional",
+      "shape": {
+        "type": "string",
+        "minBytes": 0,
+        "maxBytes": 2000
+      }
+    }
+  ],
+  "bodyTemplate": {
+    "text": "{normalized_next_step}",
+    "slots": [
+      {
+        "name": "normalized_next_step",
+        "source": {
+          "validator": "goal.normalized_next_step"
+        },
+        "escape": "xml"
+      }
+    ],
+    "maxBytes": 65536
+  },
+  "validators": [
+    {
+      "name": "goal",
+      "id": "goal_next_step",
+      "version": 2,
+      "inputs": {
+        "next_step": {
+          "field": "next_step"
+        }
+      },
+      "outputs": {
+        "normalized_next_step": "string",
+        "used_fallback": "boolean"
+      }
+    }
+  ],
+  "proposal": {
+    "remind": {
+      "body": {
+        "renderedBody": true
+      },
+      "kind": {
+        "literal": "goal"
+      },
+      "subject": {
+        "literal": "goal"
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "visibleForSteps": {
+        "literal": 20
+      },
+      "rejection": {
+        "literal": null
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "skillEvidence": {
+        "literal": null
+      }
+    },
+    "none": {
+      "body": {
+        "literal": ""
+      },
+      "kind": {
+        "literal": "goal"
+      },
+      "subject": {
+        "literal": "goal"
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "visibleForSteps": {
+        "literal": 20
+      },
+      "rejection": {
+        "literal": "no_reminder"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "skillEvidence": {
+        "literal": null
+      }
+    },
+    "invalidPayload": {
+      "body": {
+        "literal": "Invalid submit_reminder_decision payload."
+      },
+      "kind": {
+        "literal": "goal"
+      },
+      "subject": {
+        "literal": "goal"
+      },
+      "reason": {
+        "inputError": true
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "visibleForSteps": {
+        "literal": 20
+      },
+      "rejection": {
+        "literal": "invalid_payload"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "skillEvidence": {
+        "literal": null
+      }
+    },
+    "roundEnded": {
+      "body": {
+        "literal": ""
+      },
+      "kind": {
+        "literal": "goal"
+      },
+      "subject": {
+        "literal": "goal"
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "visibleForSteps": {
+        "literal": 20
+      },
+      "rejection": {
+        "literal": "round_ended"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "skillEvidence": {
+        "literal": null
+      }
+    },
+    "syntheticFailure": {
+      "body": {
+        "literal": ""
+      },
+      "kind": {
+        "literal": "goal"
+      },
+      "subject": {
+        "literal": "goal"
+      },
+      "reason": {
+        "literal": "synthetic_failure"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "visibleForSteps": {
+        "literal": 20
+      },
+      "rejection": {
+        "literal": "invalid_payload"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "skillEvidence": {
+        "literal": null
+      }
+    },
+    "validatorRejections": {}
+  },
+  "lifecycle": {
+    "seenKey": "ordinary",
+    "eotProgressGate": "requireNewToolProgress",
+    "failureFallback": "none",
+    "installBudget": "finiteRequired"
+  },
+  "limits": {
+    "declarationBytes": 65536,
+    "customFields": 64,
+    "fieldNameBytes": 64,
+    "descriptionBytes": 1024,
+    "objectDepth": 4,
+    "objectFields": 32,
+    "arrayItems": 64,
+    "submittedJsonBytes": 262144,
+    "scalarStringBytes": 65536,
+    "templateBytes": 16384,
+    "slots": 64,
+    "renderedBodyBytes": 65536,
+    "memoryAdmissionReads": 64,
+    "memoryAdmissionLinesPerRead": 2000,
+    "memoryAdmissionExaminedBytesPerRead": 100000,
+    "memoryAdmissionReturnedBytesPerRead": 100000,
+    "memoryAdmissionExaminedBytesPerDecision": 6400000,
+    "memoryAdmissionReturnedBytesPerDecision": 6400000
+  }
+}

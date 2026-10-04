@@ -89,7 +89,7 @@ When you use a pronoun for someone — the user or anyone else you mention — a
 
 ## auto memory
 
-You have a persistent, file-based memory system at `/Users/asgeirtj/.claude/projects/<project>/memory/`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence).
+You have a persistent, file-based memory system at `/Users/asgeirtj/.claude/projects/-Users-asgeirtj-code-acme-app/memory/`. This directory already exists — write to it directly with the Write tool (do not run mkdir or check for its existence).
 
 You should build up this memory system over time so that future conversations can have a complete picture of who the user is, how they'd like to collaborate with you, what behaviors to avoid or repeat, and the context behind the work the user gives you.
 
@@ -233,8 +233,6 @@ When the conversation grows long, some or all of the current context is summariz
 
 When you have enough information to act, act. Do not re-derive facts already established in the conversation, re-litigate a decision the user has already made, or narrate options you will not pursue. If you are weighing a choice, give a recommendation, not an exhaustive survey
 
-WebSearch takes a `mode`. Use "standard" by default: it is the normal search, quick and cheap. Use "extended" only when a "standard" result comes back thin, off-target or possibly outdated, or from the start for hard-to-find or niche facts, very recent events, prices and availability, and multi-step research: it is thorough and fresh but several times the cost. When you plan several searches, send them in the same turn.
-
 ## Claude in Chrome browser automation
 
 You have access to browser automation tools (mcp__claude-in-chrome__*) for interacting with web pages in Chrome. Follow these guidelines for effective browser automation.
@@ -295,7 +293,7 @@ You have been invoked in the following environment:
  - Platform: darwin
  - Shell: zsh
  - OS Version: Darwin 27.2.0
- - Scratchpad directory: `/private/tmp/claude-501/<project>/<session-id>/scratchpad` — always use it for temporary files (intermediate results, scripts, outputs that don't belong in the project) instead of `/tmp` or other system temp directories; it is session-specific, isolated from the project, and can generally be used without permission prompts. Only use `/tmp` if the user explicitly asks.
+ - Scratchpad directory: `/private/tmp/claude-501/-Users-asgeirtj-code-acme-app/0a3f920a-75e2-4130-a1ae-f0f81418ad2b/scratchpad` — always use it for temporary files (intermediate results, scripts, outputs that don't belong in the project) instead of `/tmp` or other system temp directories; it is session-specific, isolated from the project, and can generally be used without permission prompts. Only use `/tmp` if the user explicitly asks.
 
 `</system-reminder>`
 
@@ -346,7 +344,7 @@ Contents of `/Users/asgeirtj/code/acme-app/CLAUDE.md` (project instructions, che
 - Tests live next to source: `foo.ts` -> `foo.test.ts`
 - All API routes return `{ data, error }` shape
 
-Contents of `/Users/asgeirtj/.claude/projects/<project>/memory/MEMORY.md` (user's auto-memory, persists across conversations):
+Contents of `/Users/asgeirtj/.claude/projects/-Users-asgeirtj-code-acme-app/memory/MEMORY.md` (user's auto-memory, persists across conversations):
 
 ### Memory Index
 
@@ -1016,7 +1014,7 @@ To start from a type, Claude publishes with its `type_url`, a `title` and no fil
         },
         {
           "type": "string",
-          "pattern": "^(0|[1-9]\d{0,3})\.(0|[1-9]\d{0,4})\.(0|[1-9]\d{0,5})$"
+          "pattern": '^(0|[1-9]\d{0,3})\.(0|[1-9]\d{0,4})\.(0|[1-9]\d{0,5})$'
         }
       ]
     }
@@ -1139,11 +1137,11 @@ The artifact itself is published and read with the `Artifact` tool; this tool is
           "collection": {
             "type": "string",
             "maxLength": 1000,
-            "pattern": "^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}(?:\/(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}){0,14}$"
+            "pattern": '^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}(?:\/(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}){0,14}$'
           },
           "doc_id": {
             "type": "string",
-            "pattern": "^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}$"
+            "pattern": '^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}$'
           },
           "data": {
             "type": "object",
@@ -1173,7 +1171,7 @@ The artifact itself is published and read with the `Artifact` tool; this tool is
       "description": "Database collection path: an odd number (1-15) of "/"-separated segments (letters, digits, _ - . ~ : @ + per segment). Paths alternate collection/document, so "boards/b1/columns" is a collection and, with `doc_id` "c2", names the document "boards/b1/columns/c2". Per-user data: "data/users/<id>" (3 segments) is the collection holding that user's documents, "data/users/<id>/decks" is one document in it, and "data/users/<id>/decks/cards" a collection under that; "me" as the <id> means the current user. Required for every action except 'batch' and 'profiles'.",
       "type": "string",
       "maxLength": 1000,
-      "pattern": "^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}(?:\/(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}){0,14}$"
+      "pattern": '^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}(?:\/(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}){0,14}$'
     },
     "ids": {
       "description": "action 'profiles' only: the people to name, 1-64 ids exactly as a document or live event showed them ("u_" plus 22 characters).",
@@ -1187,7 +1185,7 @@ The artifact itself is published and read with the `Artifact` tool; this tool is
     "doc_id": {
       "description": "Document id (one path segment). Required for action 'get', 'set', 'update', 'str_replace' and 'delete'; not accepted with 'list' or 'query'.",
       "type": "string",
-      "pattern": "^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}$"
+      "pattern": '^(?!\.\.?(?:\/|$))[A-Za-z0-9_\-.~:@+]{1,200}$'
     },
     "query": {
       "description": "Options for action 'list' and 'query': `limit` (1-1000, default 100) and `cursor` (from a prior result's `next_cursor`) page through a collection; `where` clauses ([field, operator, value] triples) and `order_by` filter and order a 'query' only. A query with `order_by` is a single page: it returns at most `limit` documents in that order and never a `next_cursor`, so pass the `limit` you mean (up to 1000), or drop `order_by` and page with `cursor` to read a whole collection.",
@@ -1696,7 +1694,7 @@ Returns a job ID you can pass to CronDelete.
 
 Cancel a cron job previously scheduled with CronCreate. Removes it from the in-memory session store.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -1717,7 +1715,7 @@ Cancel a cron job previously scheduled with CronCreate. Removes it from the in-m
 
 List all cron jobs scheduled via CronCreate in this session.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -1986,7 +1984,7 @@ Usage:
 - The edit will FAIL if `old_string` is not unique in the file. Either provide a larger string with more surrounding context to make it unique or use `replace_all` to change every instance of `old_string`.
 - Use `replace_all` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2107,7 +2105,7 @@ User: "What files handle routing?"
 - Users appreciate being consulted before significant changes are made to their codebase
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2297,7 +2295,7 @@ If called outside an EnterWorktree session, the tool is a **no-op**: it reports 
 
 Lists agents you can SendMessage to — in-process subagents you spawned, the teammates on your team, other local Claude sessions on this machine, your Claude sessions running in the cloud (when this session has cloud access; a cloud session receives your message but cannot message any session back yet — do not ask it to reply, read its answer in its own transcript), and (when Remote Control is connected here) your account's other sessions — Remote Control sessions on other machines and cloud sessions, each row labeled by kind. Names are the address: send with `SendMessage({to: "<name>", message: "..."})`, copying the name exactly as a row prints it. Append a row's ` [ref]` only when the bare name is not enough — two rows share it, or an error asks you to disambiguate.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2399,7 +2397,7 @@ Prefer this over `command: 'websocat wss://…'` — it avoids the extra process
 
 When an event lands that the user would want to act on now — an error appeared, the status they were waiting on flipped — send a PushNotification. Not every event is worth a push; the ones that change what they'd do next are.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2458,7 +2456,7 @@ Usage:
 - `cell_id` is the `id` attribute shown in the Read tool's `<cell id="...">` output. It is required for `replace` and `delete`.
 - `edit_mode` defaults to `replace`. Use `insert` to add a new cell after the cell with the given `cell_id` (or at the beginning of the notebook if `cell_id` is omitted) — `cell_type` is required when inserting. Use `delete` to remove the cell.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2511,7 +2509,7 @@ Keep the message under 200 characters, one line, no markdown. Lead with what the
 
 When the user is actively at the terminal, your output already reaches them — a notification on top of it would be a duplicate, so the tool skips it and says so. A "not sent" result is expected and only ever about this one notification: it was redundant, turned off, or had nowhere to go.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2622,12 +2620,12 @@ To debug a routine, use list_runs then get_run_log instead of fetching claude.ai
     "trigger_id": {
       "description": "Required for get, update, run, and list_runs",
       "type": "string",
-      "pattern": "^[\w-]+$"
+      "pattern": '^[\w-]+$'
     },
     "session_id": {
       "description": "Required for get_run_log: a run session id (cse_… or session_…, from list_runs)",
       "type": "string",
-      "pattern": "^[\w-]+$"
+      "pattern": '^[\w-]+$'
     },
     "cursor": {
       "description": "next_cursor from a previous list_runs or get_run_log page",
@@ -2766,7 +2764,7 @@ Don't think in cache windows — think about what you're actually waiting for.
 One short sentence on what you chose and why. Goes to telemetry and is shown back to the user. "watching CI run" beats "waiting." The user reads this to understand what you're doing without having to predict your cadence in advance — make it specific.
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -2919,7 +2917,7 @@ Your plain text output is NOT visible to other agents — to communicate, you MU
 
 Use `ListAgents` to discover targets. Every row leads with the agent's `name [ref]` — the name IS the address; there is no separate address syntax.
 
-```js
+```yaml
 {"to": "worker", "message": "check if tests pass over there"}
 {"to": "worker [3fa9c1]", "message": "you, specifically"}
 ```
@@ -2945,7 +2943,7 @@ Permission boundaries are per-session: NEVER ask a peer to perform an action tha
           "pattern": "^[^\n\r]*$"
         },
         {
-          "pattern": "^[\s\S]{0,300}$"
+          "pattern": '^[\s\S]{0,300}$'
         }
       ]
     },
@@ -2984,7 +2982,7 @@ A skill is a packaged set of instructions the user or project has set up for a p
 Only names from the listing (or that the user typed explicitly) are valid. Built-in CLI commands (`/help`, `/clear`, …) aren't skills. If a `<command-name>` block is already present this turn, the skill is loaded — follow it directly rather than calling again.
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3107,7 +3105,7 @@ Returns full task details:
 - Use TaskList to see all tasks in summary form.
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3148,7 +3146,7 @@ Returns a summary of each task:
 Use TaskGet with a specific task ID to view full details including description and comments.
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3168,7 +3166,7 @@ Use TaskGet with a specific task ID to view full details including description a
 - Use this tool when you need to terminate a long-running task
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3397,7 +3395,7 @@ Usage notes:
   - For GitHub URLs, prefer using the gh CLI via Bash instead (e.g., gh pr view, gh issue view, gh api).
 
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3473,19 +3471,10 @@ IMPORTANT - Use the correct year in search queries:
       "items": {
         "type": "string"
       }
-    },
-    "mode": {
-      "description": ""standard": the normal web search: quick and cheap; right for straightforward lookups (reference facts, official pages, documentation, well-known people, places and topics) and simple follow-up lookups. "extended": a thorough, fresh search at several times the cost and latency.",
-      "type": "string",
-      "enum": [
-        "standard",
-        "extended"
-      ]
     }
   },
   "required": [
-    "query",
-    "mode"
+    "query"
   ],
   "additionalProperties": false
 }
@@ -3531,7 +3520,7 @@ Before writing a script, load the `workflow-authoring` skill — the workflow au
 
 This session has the default workflow size guideline: medium — keep workflows under 10 agents. This is a guideline, not a hard limit — follow it unless the user's prompt calls for a different scale. The user can raise or remove it with "Dynamic workflow size" in /config.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3581,7 +3570,7 @@ Usage:
 - NEVER create documentation files (*.md) or README files unless explicitly requested by the User.
 - Only use emojis if the user explicitly requests it. Avoid writing emojis to files unless asked.
 
-```json
+```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
@@ -3607,7 +3596,7 @@ Usage:
 
 Create a doc, or apply several operations to one doc atomically.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3645,7 +3634,7 @@ Create a doc, or apply several operations to one doc atomically.
 
 Create one object in a doc: a tab, its contents, a comment, an upload record.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3711,7 +3700,7 @@ Create one object in a doc: a tab, its contents, a comment, an upload record.
 
 Delete one object from a doc: a tab, its contents, a comment, an upload record. A doc keeps at least one tab (deleting its last refuses `last_tab`): to start over, rewrite that tab's contents with `update`, never delete and recreate the tab.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3784,7 +3773,7 @@ Delete one object from a doc: a tab, its contents, a comment, an upload record. 
 
 Export one tab inline as base64: pdf, docx, html, text, markdown or notion (Notion-flavored markdown, what notion-create-pages takes). To just keep the file in the doc's files, create a blob {from: {object: "file", id}, format} instead (no large result).
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3845,7 +3834,7 @@ Export one tab inline as base64: pdf, docx, html, text, markdown or notion (Noti
 
 Docs guides: topic.instructions repeats the server instructions. Read it only if your client dropped them. Also topic.`<name>`, refusal.`<code>`. After a doc's birth → ["topic.index"].
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3861,7 +3850,7 @@ Docs guides: topic.instructions repeats the server instructions. Read it only if
 
 List a tab's or a doc's comment history (threads, replies, resolves).
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3907,7 +3896,7 @@ List a tab's or a doc's comment history (threads, replies, resolves).
 
 Read a doc (lists its tabs), a tab's contents, or a comment. A claude.ai/[code/]artifact/[`<title>`-]`<id>` link → `ref {"object":"project","id":"<id>"}` first; reads inside it take `container {"kind":"project","id":"<id>"}`.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -3976,7 +3965,7 @@ Read a doc (lists its tabs), a tab's contents, or a comment. A claude.ai/[code/]
 
 Edit a tab's contents, rename a doc or tab, or change a stored value.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4062,7 +4051,7 @@ Use `apply_sensitive_message_label` when applying Trash or Spam to exactly 1 mes
 To find the message ID, use tools like `search_threads` or `get_thread`. To find the draft message ID, use tools like `list_drafts`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4104,7 +4093,7 @@ Use `apply_sensitive_thread_label` when applying Trash or Spam to exactly 1 thre
 To find the thread ID, use the `search_threads` tool first.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4237,7 +4226,7 @@ Supports creating nested labels (sub-labels) using a forward slash (e.g., 'Proje
 By default, parent labels will be automatically created if they do not exist.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4366,7 +4355,7 @@ By default, parent labels will be automatically created if they do not exist.
 
 Deletes a draft email in the authenticated user's Gmail account using its draft ID.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4386,7 +4375,7 @@ Deletes a draft email in the authenticated user's Gmail account using its draft 
 
 Deletes a label in the authenticated user's Gmail account.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4461,7 +4450,7 @@ Retrieves a specific draft email from the authenticated user's Gmail account by 
 The optional `messageFormat` parameter controls the format of the draft returned. Use `MINIMAL` to return snippet and key headers, `METADATA_ONLY` to exclude snippet, subject, and body, `FULL_CONTENT` for the complete draft, or `RAW` for the raw MIME message content.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4509,7 +4498,7 @@ Example user prompts are: "Get the full text of message ID 18f123456789abcd.", "
 The optional `messageFormat` parameter controls the format of the message returned. By default (or with `FULL_CONTENT`), it returns the full content of the message. We recommend using `PLAIN_TEXT`, which returns the plain text body without the HTML body. Use `MINIMAL` to include only subject and snippet (excluding body). Use `METADATA_ONLY` to include only basic metadata (message ID, thread ID, viewUrl, labels, timestamp, and size estimate).
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4554,7 +4543,7 @@ Note: This tool does not support retrieving drafts. Any draft messages within a 
 The optional `messageFormat` parameter controls the format of the messages returned. By default (or with `FULL_CONTENT`), it returns the full content of messages. We recommend using `PLAIN_TEXT`, which returns the plain text body without the HTML body. Use `MINIMAL` to include only subject and snippet (excluding body). Use `METADATA_ONLY` to include only basic metadata (message ID, thread ID, viewUrl, labels, timestamp, and size estimate).
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4598,7 +4587,7 @@ To find the message ID, use tools like `search_threads` or `get_thread`. If unsu
 To move a specific message to Trash or mark it as Spam, please use the `trash_message` or `mark_message_spam` tool instead.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4631,7 +4620,7 @@ If unsure of the thread ID, use the `search_threads` tool first.
 If unsure of a user label's ID, use the `list_labels` tool first to discover available labels and their IDs. To move a thread to Trash or mark it as Spam, please use the `trash_thread` or `mark_thread_spam` tool instead.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4666,7 +4655,7 @@ The `view` parameter controls which fields are populated in the response. By def
 Note: An empty JSON object `{}` represents zero matching items, not an error.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4709,7 +4698,7 @@ Lists all labels available in the authenticated user's Gmail account. Use this t
 Note: An empty JSON object `{}` represents zero matching items, not an error.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -4724,7 +4713,7 @@ Marks a specific message as Spam in the authenticated user's Gmail account.
 To find the message ID, use tools like `search_threads` or `get_thread`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4747,7 +4736,7 @@ Marks an entire thread as Spam in the authenticated user's Gmail account. This o
 Use `mark_thread_spam` when marking a thread as spam, even if it currently contains only 1 message. Marking spam at the thread level ensures all current messages in the thread are marked as Spam. If unsure of the thread ID, use the `search_threads` tool first.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -4982,7 +4971,7 @@ Use `trash_message` when targeting a specific message within a thread. To trash 
 To find the message ID, use tools like `search_threads` or `get_thread`. To find the draft message ID, use tools like `list_drafts`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5005,7 +4994,7 @@ Moves an entire thread to the Trash in the authenticated user's Gmail account. T
 Use `trash_thread` when trashing a thread, even if it currently contains only 1 message. Trashing at the thread level ensures all current messages in the thread are moved to Trash. If unsure of the thread ID, use the `search_threads` tool first.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5025,7 +5014,7 @@ Use `trash_thread` when trashing a thread, even if it currently contains only 1 
 
 Removes one or more labels from a specific message in the authenticated user's Gmail account. To find the message ID, use tools like `search_threads` or `get_thread`. If unsure of a user label's ID, use the `list_labels` tool first to discover available labels and their IDs.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5053,7 +5042,7 @@ Removes one or more labels from a specific message in the authenticated user's G
 
 Removes labels from an entire thread in the authenticated user's Gmail account. If unsure of the thread ID, use the `search_threads` tool first. If unsure of a user label's ID, use the `list_labels` tool first.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5084,7 +5073,7 @@ Unmarks a specific message as Spam in the authenticated user's Gmail account.
 To find the message ID, use tools like `search_threads` or `get_thread`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5107,7 +5096,7 @@ Unmarks an entire thread as Spam in the authenticated user's Gmail account.
 If unsure of the thread ID, use the `search_threads` tool first.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5130,7 +5119,7 @@ Removes a specific message from the Trash in the authenticated user's Gmail acco
 To find the message ID, use tools like `search_threads` or `get_thread`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5153,7 +5142,7 @@ Removes an entire thread from the Trash in the authenticated user's Gmail accoun
 If unsure of the thread ID, use the `search_threads` tool first.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5270,7 +5259,7 @@ Returns a Draft object with the `id`, `threadId`, and `viewUrl` fields populated
 Modifies an existing label's name and color in the user's Gmail account.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5402,7 +5391,7 @@ Atomically adds and/or removes labels from a specific message in the authenticat
 Requires at least one of `addLabelIds` or `removeLabelIds` to be provided. Moving an email between labels can be accomplished in a single call by specifying the target label in `addLabelIds` and the current label in `removeLabelIds`.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5773,7 +5762,7 @@ Creates an event on the given calendar.
 
 Deletes an event on the given calendar.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5813,7 +5802,7 @@ Deletes an event on the given calendar.
 
 Returns a single event on the given calendar.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5837,7 +5826,7 @@ Returns a single event on the given calendar.
 
 Returns the calendars this user has access to (their calendar list). Use this tool to resolve calendar identifying data (for example, 'my family calendar') into its corresponding `calendar_id` (email identifier)
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5859,7 +5848,7 @@ Returns the calendars this user has access to (their calendar list). Use this to
 
 Returns events on the given calendar matching all specified constraints. Time constraints should not be specified unless requested by the user. For open-ended keyword or topic-based searches on the primary calendar, the search_events tool must be used instead.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5938,7 +5927,7 @@ Returns events on the given calendar matching all specified constraints. Time co
 
 Responds to an event on a calendar.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -5987,7 +5976,7 @@ Responds to an event on a calendar.
 
 Searches events on the user's primary calendar using semantic search.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6087,7 +6076,7 @@ Suggests time periods across one or more calendars.
 
 Updates an event on the given calendar.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6350,7 +6339,7 @@ If the title is not specified, the copy title will be 'Copy of {original title}'
 If the parent folder is not specified, the copy will be created in the same folder as the original file, unless the requesting user does not have write access to that folder, in which case the copy will be created in the user's root folder.Returns the newly created File object upon successful copying.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6397,7 +6386,7 @@ By default, supported content will be converted to Google first-party mime types
 To disable conversions for first-party mime types, set `disableConversionToGoogleType` to true.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6454,7 +6443,7 @@ If the file is not found, try using other tools like `search_files` to find the 
 If the user wants a natural language representation of their Drive content, use the `read_file_content` tool (`read_file_content` should be smaller and easier to parse).
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6487,7 +6476,7 @@ Context window token management can be tuned via `snippetVerbosity` (default is 
 If the file is not found, try using other tools like `search_files` to find the file the user is requesting.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6530,7 +6519,7 @@ If the file is not found, try using other tools like `search_files` to find the 
 Call this tool to list the permissions of a Drive File.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6561,7 +6550,7 @@ Supported sort orders are:
 The default page size is 10. Utilize `next_page_token` to paginate through the results.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6636,7 +6625,7 @@ Supported Mime Types:
 If the file is not found, try using other tools like `search_files` to find the file the user is requesting using keywords.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6689,7 +6678,7 @@ Examples:
 Use `next_page_token` to paginate. An empty response means no more results.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6740,7 +6729,7 @@ Call this tool to share a Google Drive file with a user or group.
 If the user or group already has permission to the file, this tool will update their permission level to match the role in this request, if the new role is higher than their current role.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6772,7 +6761,7 @@ Moves a Google Drive file to the user's trash.
 It does not permanently delete the file.Returns an empty response upon successful completion.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -6796,7 +6785,7 @@ If the file is not found, try using other tools like `search_files` to find the 
 For moving files, use `search_files` to identify the destination parent id.
 
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7090,7 +7079,7 @@ Set values in form elements using element reference ID from the read_page tool. 
 
 Extract raw text content from the page, prioritizing article content. Ideal for reading articles, blog posts, or other text-heavy pages. Returns plain text without HTML formatting. If you don't have a valid tab ID, use tabs_context_mcp first to get available tabs.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7109,7 +7098,7 @@ Extract raw text content from the page, prioritizing article content. Ideal for 
 
 Manage GIF recording and export for browser automation sessions. Control when to start/stop recording browser actions (clicks, scrolls, navigation), then export as an animated GIF with visual overlays (click indicators, action labels, progress bar, watermark). All operations are scoped to the tab's group. When starting recording, take a screenshot immediately after to capture the initial state as the first frame. When stopping recording, take a screenshot immediately before to capture the final state as the last frame. For export, either provide 'coordinate' to drag/drop upload to a page element, or set 'download: true' to download the GIF.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7177,7 +7166,7 @@ Manage GIF recording and export for browser automation sessions. Control when to
 
 Execute JavaScript code in the context of the current page. The code runs in the page's context and can interact with the DOM, window object, and page variables. Returns the result of the last expression or any thrown errors. If you don't have a valid tab ID, use tabs_context_mcp first to get available tabs.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7206,7 +7195,7 @@ Execute JavaScript code in the context of the current page. The code runs in the
 
 List all Chrome browsers (extension instances) currently connected to this account. Returns each browser's deviceId, display name, OS platform, isLocal (its OS matches this computer's, a weak hint), when known onThisComputer (it is, or recently was, running on this computer), and inUse on the browser this session's actions go to when that is settled. When the user needs to choose a browser, use this to present the choices before select_browser. You do not need to call this before using the browser: when one browser is connected, or one was already chosen for this session, browser tools just work. Only if a browser tool reports that several browsers are connected and none is selected, or the user asks to change browsers, ask with the AskUserQuestion tool: one option per connected browser, the ones on this computer first (display name as the label, deviceId in parentheses), plus a final option labeled exactly: "Open a confirmation screen in every connected Chrome extension and let me select the right one there." Then call select_browser with the chosen deviceId, or switch_browser for the final option. Never pick one yourself.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -7241,7 +7230,7 @@ Navigate to a URL, or go forward/back in browser history. tabId may be omitted f
 
 Read browser console messages (console.log, console.error, console.warn, etc.) from a specific tab. Useful for debugging JavaScript errors, viewing application logs, or understanding what's happening in the browser console. Returns console messages from the current domain only. If you don't have a valid tab ID, use tabs_context_mcp first to get available tabs. IMPORTANT: Always provide a pattern to filter messages - without a pattern, you may get too many irrelevant messages.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7276,7 +7265,7 @@ Read browser console messages (console.log, console.error, console.warn, etc.) f
 
 Read HTTP network requests (XHR, Fetch, documents, images, etc.) from a specific tab. Useful for debugging API calls, monitoring network activity, or understanding what requests a page is making. Returns all network requests made by the current page, including cross-origin requests. Requests are automatically cleared when the page navigates to a different domain. If you don't have a valid tab ID, use tabs_context_mcp first to get available tabs.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7346,7 +7335,7 @@ Get an accessibility tree representation of elements on the page. By default ret
 
 Resize the current browser window to specified dimensions. Useful for testing responsive designs or setting up specific screen sizes. If you don't have a valid tab ID, use tabs_context_mcp first to get available tabs.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7375,7 +7364,7 @@ Resize the current browser window to specified dimensions. Useful for testing re
 
 Select a specific Chrome browser by deviceId for browser automation, without broadcasting a pairing request. Use this after list_connected_browsers when the user has chosen one from the list.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7394,7 +7383,7 @@ Select a specific Chrome browser by deviceId for browser automation, without bro
 
 Execute a shortcut or workflow by running it in a new sidepanel window using the current tab (shortcuts and workflows are interchangeable). Use shortcuts_list first to see available shortcuts. This starts the execution and returns immediately - it does not wait for completion.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7421,7 +7410,7 @@ Execute a shortcut or workflow by running it in a new sidepanel window using the
 
 List all available shortcuts and workflows (shortcuts and workflows are interchangeable). Returns shortcuts with their commands, descriptions, and whether they are workflows. Use shortcuts_execute to run a shortcut or workflow.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7440,7 +7429,7 @@ List all available shortcuts and workflows (shortcuts and workflows are intercha
 
 Send a connection request to every Chrome browser with the extension installed and wait (up to 2 minutes) for the user to click 'Connect' in the one they want to use. The user can name the browser when they connect. Use this when the user wants to pick the browser themselves from inside Chrome rather than choosing from a list; otherwise prefer select_browser with a known deviceId.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -7452,7 +7441,7 @@ Send a connection request to every Chrome browser with the extension installed a
 
 Close a tab in the MCP tab group by its ID. Use to clean up tabs you're done with. Only tabs in this session's group are closable; call tabs_context_mcp first to get valid IDs. If you close the group's last tab, Chrome auto-removes the group — the next tabs_context_mcp with createIfEmpty starts fresh.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7471,7 +7460,7 @@ Close a tab in the MCP tab group by its ID. Use to clean up tabs you're done wit
 
 Get context information about the current MCP tab group. Returns all tab IDs inside the group if it exists. CRITICAL: You must get the context at least once before using other browser automation tools so you know what tabs exist. Each new conversation should create its own new tab (using tabs_create_mcp) rather than reusing existing tabs, unless the user explicitly asks to use an existing tab.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7488,7 +7477,7 @@ Get context information about the current MCP tab group. Returns all tab IDs ins
 
 Creates a new empty tab in the MCP tab group. CRITICAL: You must get the context using tabs_context_mcp at least once before using other browser automation tools so you know what tabs exist. Tabs you create are yours to clean up: close each one with tabs_close_mcp as soon as you no longer need it, and close any that remain before finishing your task. Leave a tab open only if the user asked to see it or wants it kept open.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -7649,7 +7638,7 @@ Execute a sequence of actions in ONE tool call. Each individual tool call requir
 
 Get the current mouse cursor position. Returns image-pixel coordinates relative to the most recent screenshot, or logical points if no screenshot has been taken.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -7782,7 +7771,7 @@ Left-click at the given coordinates. The frontmost application must be in the se
 
 Press, move to target, and release. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7819,7 +7808,7 @@ Press, move to target, and release. The frontmost application must be in the ses
 
 Press the left mouse button at the current cursor position and leave it held. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing. Use mouse_move first to position the cursor. Call left_mouse_up to release. Errors if the button is already held.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7836,7 +7825,7 @@ Press the left mouse button at the current cursor position and leave it held. Th
 
 Release the left mouse button at the current cursor position. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing. Pairs with left_mouse_down. Safe to call even if the button is not currently held.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7853,7 +7842,7 @@ Release the left mouse button at the current cursor position. The frontmost appl
 
 List the applications currently in the session allowlist, plus the active grant flags and coordinate mode. No side effects.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -7897,7 +7886,7 @@ Middle-click (scroll-wheel click) at the given coordinates. The frontmost applic
 
 Move the mouse cursor without clicking. Useful for triggering hover states. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -7940,7 +7929,7 @@ Launch an application (or ensure it's running). In background app mode, the laun
 
 Read the current clipboard contents as text. Requires the `clipboardRead` grant.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -8026,7 +8015,7 @@ Right-click at the given coordinates. Opens a context menu in most applications.
 
 Take a screenshot of the primary display. Applications not in the session allowlist are excluded at the compositor level — only granted apps and the desktop are visible. Returns an error if the allowlist is empty. The returned image is what subsequent click coordinates are relative to.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {},
@@ -8038,7 +8027,7 @@ Take a screenshot of the primary display. Applications not in the session allowl
 
 Scroll at the given coordinates. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -8131,7 +8120,7 @@ Triple-click at the given coordinates. Selects a line in most text editors. The 
 
 Type text into whatever currently has keyboard focus. The frontmost application must be in the session allowlist at the time of this call, or this tool returns an error and does nothing. Newlines are supported. For keyboard shortcuts use `key` instead.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -8154,7 +8143,7 @@ Type text into whatever currently has keyboard focus. The frontmost application 
 
 Wait for a specified duration.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -8173,7 +8162,7 @@ Wait for a specified duration.
 
 Write text to the clipboard. Requires the `clipboardWrite` grant.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {
@@ -8191,7 +8180,7 @@ Write text to the clipboard. Requires the `clipboardWrite` grant.
 
 Take a higher-resolution screenshot of a specific region of the last full-screen screenshot. Use this liberally to inspect small text, button labels, or fine UI details that are hard to read in the downsampled full-screen image. IMPORTANT: Coordinates in subsequent click calls always refer to the full-screen screenshot, never the zoomed image. This tool is read-only for inspecting detail.
 
-```json
+```yaml
 {
   "type": "object",
   "properties": {

@@ -1,3 +1,12 @@
+| Effort setting | `Reasoning strength` value |
+|---|---|
+| minimal | 8 |
+| low | 32 |
+| medium | 128 |
+| high | 256 |
+| xhigh | 512 |
+| max | 512 |
+
 Knowledge cutoff: 2026-01-04.  
 Today in UTC is Sunday, October 04, 2026.  
 Reasoning strength: 256.

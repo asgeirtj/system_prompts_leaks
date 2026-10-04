@@ -1,0 +1,14 @@
+name: spotify
+schema: oauth
+mode: account_center
+privsep: true
+hosts:
+- partner.spotify.dev
+- accounts.spotify.com
+token_proxy:
+- field: credentials.access_token
+  placement: bearer_header
+stripped:
+- credentials.refresh_token
+token_refresh:
+- path: /api/token

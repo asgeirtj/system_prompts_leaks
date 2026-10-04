@@ -1,0 +1,98 @@
+version: 1
+connector: dropbox
+category: business
+display_name: Dropbox
+description: Find, organize, and share your work
+icon: dropbox
+request_quota:
+  mode: shadow
+  workers: [dropbox]
+  queries_per_minute: 60
+  burst: 10
+cli:
+  binary: dropbox
+  skill: dropbox
+  service: dropbox
+declarable_scopes:
+  - account_info.read
+  - file_requests.read
+  - file_requests.write
+  - files.content.read
+  - files.content.write
+  - files.metadata.read
+  - sharing.read
+  - sharing.write
+actions:
+  read:
+    default: allow
+    label: Read Dropbox files and account information
+    methods:
+      content.read:
+        label: Search and read files, folders, and account information
+        approval_phrase: search and read content in Dropbox
+        requires_scopes: &read_access
+          - >-
+            account_info.read file_requests.read files.content.read
+            files.metadata.read sharing.read
+      files.download:
+        default: ask
+        label: Download files
+        approval_phrase: download files from Dropbox
+        requires_scopes: *read_access
+      sharing.read:
+        label: Read shared links
+        approval_phrase: read shared links in Dropbox
+        requires_scopes: *read_access
+      file_requests.read:
+        label: Read file requests
+        approval_phrase: read file requests in Dropbox
+        requires_scopes: *read_access
+  write:
+    default: ask
+    label: Create or change Dropbox content
+    methods:
+      content.manage:
+        label: Create and organize content
+        approval_phrase: create or organize content in Dropbox
+        requires_scopes: &full_access
+          - >-
+            account_info.read file_requests.read file_requests.write
+            files.content.read files.content.write files.metadata.read
+            sharing.read sharing.write
+      content.delete:
+        label: Delete content
+        approval_phrase: delete content from Dropbox
+        requires_scopes: *full_access
+      sharing.manage:
+        label: Share content and manage links
+        approval_phrase: share content or manage links in Dropbox
+        requires_scopes: *full_access
+      file_requests.manage:
+        label: Create and manage file requests
+        approval_phrase: create or manage file requests in Dropbox
+        requires_scopes: *full_access
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: content.read
+  create-file: content.manage
+  # The CLI classifies every documented Dropbox tool at runtime. Unknown or
+  # newly advertised tools remain unavailable until reviewed.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Dropbox"
+      text: "Muse will access things like file content, metadata, and shared links."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Dropbox. To learn more, view their [terms](https://www.dropbox.com/terms) and [privacy policy](https://www.dropbox.com/en/privacy)."

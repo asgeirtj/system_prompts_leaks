@@ -1,0 +1,94 @@
+version: 1
+connector: slack
+category: business
+display_name: Slack
+description: Manage messages in your workspaces
+icon: slack
+request_quota:
+  mode: shadow
+  workers: [slack]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: slack
+  skill: slack
+  service: slack
+# Slack's fixed Marketplace consent requests the complete provider-documented
+# scope set. This connector does not use progressive OAuth grants.
+declarable_scopes: []
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      catalog.read:
+        label: Inspect reviewed Slack capabilities
+        approval_phrase: inspect reviewed Slack capabilities
+      search.read:
+        label: Search Slack
+        approval_phrase: search Slack
+      channels.read:
+        label: Read channels and members
+        approval_phrase: read channels and members in Slack
+      users.read:
+        label: Read user profiles
+        approval_phrase: read user profiles in Slack
+      messages.read:
+        label: Read messages and threads
+        approval_phrase: read messages and threads in Slack
+      canvases.read:
+        label: Read canvases
+        approval_phrase: read canvases in Slack
+      emoji.read:
+        label: Search custom emoji
+        approval_phrase: search custom emoji in Slack
+      reactions.read:
+        label: Read message reactions
+        approval_phrase: read message reactions in Slack
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      messages.send:
+        label: Send messages
+        approval_phrase: send this message in Slack
+      messages.schedule:
+        label: Schedule messages
+        approval_phrase: schedule this message in Slack
+      drafts.create:
+        label: Create message drafts
+        approval_phrase: create this message draft in Slack
+      reactions.add:
+        label: Add reactions
+        approval_phrase: add this reaction in Slack
+      conversations.create:
+        label: Create conversations
+        approval_phrase: create this conversation in Slack
+      canvases.create:
+        label: Create canvases
+        approval_phrase: create this canvas in Slack
+      canvases.update:
+        label: Update canvases
+        approval_phrase: update this canvas in Slack
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: null
+  list-tools: catalog.read
+  # Each reviewed provider tool selects its own permission at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Slack"
+      text: "Muse will access things like channels, messages, threads, files and member profiles."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Slack. To learn more, view their [terms](https://slack.com/terms-of-service/user) and [privacy policy](https://slack.com/trust/privacy/privacy-policy)."

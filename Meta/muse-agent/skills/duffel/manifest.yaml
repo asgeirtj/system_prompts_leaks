@@ -1,0 +1,27 @@
+version: 1
+connector: duffel
+display_name: Duffel Flight Booking
+description: Search, validate, book, review, and cancel flights through Duffel.
+actions:
+  read:
+    default: allow
+    label: Read Duffel flight data
+    methods:
+      flight.read:
+        label: Read seat choices, bookings, and cancellation details
+      flight.quote:
+        label: Search, compare, and validate flight offers
+  write:
+    default: ask
+    label: Create or change Duffel flight bookings
+    methods:
+      booking.cancel:
+        label: Cancel a flight booking
+cli_subcommands:
+  - search
+  - seat-options
+  - validate-booking
+  - book
+  - booking-status
+  - cancellation-quote
+  - cancel-booking

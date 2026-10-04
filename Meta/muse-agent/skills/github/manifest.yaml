@@ -1,0 +1,58 @@
+version: 1
+connector: github
+category: business
+display_name: GitHub
+description: Manage repositories, issues and pull requests
+icon: github
+request_quota:
+  mode: shadow
+  workers: [github]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: github
+  skill: github
+  service: github
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    response_guard: verification_codes
+    methods:
+      mcp.read:
+        label: Read GitHub repository content
+  write:
+    default: ask
+    label: Write permissions
+    response_guard: verification_codes
+    methods:
+      mcp.write:
+        label: Change GitHub repository content
+        approval_phrase: perform this action on your GitHub account
+commands:
+  status: null
+  install-url: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: null
+  list-tools: mcp.read
+  # Read calls are limited to a local, reviewed allowlist. GitHub's live
+  # catalogue supplies names and schemas, never the permission decision.
+  call-read-tool: mcp.read
+  # New, unknown, and mutating tools intentionally remain on the write-capable
+  # path so a provider catalogue change cannot silently widen access.
+  call-tool: mcp.write
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with GitHub"
+      text: "Muse will access things like repositories, issues, pull requests, and comments."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with GitHub. To learn more, view their [terms](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service) and [privacy policy](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)."

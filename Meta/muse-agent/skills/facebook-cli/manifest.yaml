@@ -1,0 +1,100 @@
+version: 1
+connector: facebook_cli
+category: social
+display_name: Facebook
+description: Get highlights from friends, groups, Marketplace listings and more.
+# Valid CLI subcommand paths, consumed by jarvis runtime-event logging to enrich
+# tool-variant telemetry (e.g. `facebook-cli/marketplace/search`). Source of
+# truth for this list; the `subcommand_paths_match_manifest` test in the
+# facebook-cli crate keeps it in lockstep with the clap subcommand tree.
+#
+# The list tracks the `prod` build flavor in Cargo.toml, which is what ships.
+# Commands that exist in source but are gated out of `prod` do not belong here:
+# a path the shipped binary cannot run is a phantom telemetry variant that can
+# never fire, and it makes a zero row read as "unused" when it means "absent".
+#
+# Connector lifecycle commands are intentionally excluded: status is surfaced by
+# the daemon, and connect-url / disconnect-url are credential-free URL helpers
+# handled by the binary entrypoint before clap parsing.
+cli_subcommands:
+  - "me"
+  - "me friends"
+  - "post read"
+  - "pages list"
+  - "pages access"
+  - "pages account-insights"
+  - "pages posts list"
+  - "pages posts get"
+  - "pages drafts create"
+  - "pages drafts show"
+  - "pages drafts publish"
+  - "pages drafts edit"
+  - "pages drafts delete"
+  - "pages posts create"
+  - "pages posts reschedule"
+  - "pages posts cancel-schedule"
+  - "link-sharing decode-url"
+  - "post comments read"
+  - "post reactions read"
+  - "profile info"
+  - "timeline fetch"
+  - "story feed"
+  - "marketplace search"
+  - "marketplace saved"
+  - "marketplace seller-info"
+  - "marketplace my-listings"
+  - "marketplace listing details"
+  - "marketplace listing delete"
+  - "marketplace listing publish"
+  - "marketplace listing create"
+  - "marketplace listing edit"
+  - "groups details"
+  - "groups search"
+  - "groups posts"
+  - "feed newsfeed"
+  - "feed friends"
+  - "events search"
+  - "events details"
+  - "saved list"
+  - "saved add"
+  - "saved remove"
+  - "saved collections list"
+  - "saved collections create"
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      pages.read:
+        label: Read posts and analytics from your Pages
+        approval_phrase: read posts and analytics from your Facebook Pages
+        response_guard: verification_codes
+      facebook.search:
+        label: Search
+        approval_phrase: search Facebook
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      pages.posts.write:
+        require_fresh_approval: true
+        label: Draft, publish, or schedule page posts
+        approval_phrase: create, edit, schedule, publish, and delete posts and drafts on your Facebook Pages
+      marketplace.listing.draft:
+        label: Create draft Marketplace listings
+        approval_phrase: save this Marketplace listing as a draft on Facebook
+      marketplace.listing.publish:
+        require_fresh_approval: true
+        label: Publish Marketplace listings
+        approval_phrase: publish this Marketplace listing on Facebook
+      marketplace.listing.update:
+        require_fresh_approval: true
+        label: Update Marketplace listings
+        approval_phrase: update this Marketplace listing on Facebook
+      marketplace.listing.delete:
+        require_fresh_approval: true
+        label: Delete Marketplace listings
+        approval_phrase: delete this Marketplace listing from Facebook
+      saved.write:
+        default: allow
+        label: Save items

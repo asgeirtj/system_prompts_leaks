@@ -1,0 +1,44 @@
+version: 1
+connector: outlook_contacts
+category: productivity
+display_name: Outlook Contacts
+description: Search and manage your contacts and address book
+request_quota:
+  mode: enforce
+  workers:
+    - outlook-contacts
+  queries_per_minute: 600
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      contacts.list:
+        label: Access contacts
+        approval_phrase: access contacts in Outlook Contacts
+  write:
+    default: allow
+    label: Write and delete permissions
+    methods:
+      contacts.create:
+        label: Create contacts
+      contacts.update:
+        label: Edit contacts
+      contacts.delete:
+        label: Delete contacts
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Outlook Contacts"
+      text: "Muse will access things like names and contact info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Outlook Contacts. To learn more, view their [terms](https://www.microsoft.com/servicesagreement) and [privacy policy](https://privacy.microsoft.com/privacystatement)."

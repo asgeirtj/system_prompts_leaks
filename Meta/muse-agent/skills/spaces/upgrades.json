@@ -1,0 +1,467 @@
+{
+  "currentVersion": 24,
+  "versionField": "platformVersion",
+  "upgrades": [
+    {
+      "version": 1,
+      "id": "2026-05-18-space-version-baseline",
+      "title": "Managed platform baseline",
+      "runtime": "typescript",
+      "summary": "Marks the initial managed TypeScript web artifact platform baseline. This baseline does not require source changes by itself.",
+      "applicability": "Any TypeScript web artifact.",
+      "instructions": [
+        "No baseline-specific source changes are required."
+      ],
+      "verification": [
+        "No baseline-specific verification is required."
+      ]
+    },
+    {
+      "version": 2,
+      "id": "2026-05-19-direct-inference-complete-api",
+      "title": "Direct inference completion API",
+      "runtime": "typescript",
+      "summary": "The TypeScript SDK replaced the old task-style ctx.inference methods with ctx.inference.complete(...) for bounded model-only work.",
+      "applicability": "TypeScript web artifacts whose server action code calls old ctx.inference methods: run, submit, poll, consume, cancel, or listTasks.",
+      "instructions": [
+        "Inspect server action code for ctx.inference.run, ctx.inference.submit, ctx.inference.poll, ctx.inference.consume, ctx.inference.cancel, and ctx.inference.listTasks.",
+        "For bounded model-only work such as extraction, classification, summarization, formatting, or JSON generation, replace old calls with ctx.inference.complete(prompt, options). Use the jsonSchema option when structured JSON is required.",
+        "For agentic work that needs tools, web search, research, or multi-step investigation, use ctx.agent.send(...) instead of ctx.inference.complete(...).",
+        "If the web artifact does not use the old ctx.inference task API, no source changes are required for this upgrade."
+      ],
+      "verification": [
+        "No server action code calls ctx.inference.run, submit, poll, consume, cancel, or listTasks.",
+        "The TypeScript web artifact build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 3,
+      "id": "2026-05-19-hatch-space-root-wrapper",
+      "title": "Muse web artifact root wrapper",
+      "runtime": "typescript",
+      "summary": "TypeScript web artifacts need the Muse root wrapper so SDK-owned layout styles can apply safe-area padding, viewport sizing, and hosting chrome offsets.",
+      "applicability": "TypeScript web artifacts whose client/src/main.tsx does not render a wrapper element with both className=\"hatch-space-root\" and data-hatch-space-root around the app content.",
+      "instructions": [
+        "Update client/src/main.tsx so the rendered app content is wrapped by an element with className=\"hatch-space-root\" and the data-hatch-space-root attribute.",
+        "For the common template shape, the render call should look like: createRoot(rootEl).render(<StrictMode><div className=\"hatch-space-root\" data-hatch-space-root><App /></div></StrictMode>);",
+        "Preserve existing providers and StrictMode when present, but do not add TanStack Query or QueryClientProvider as part of this upgrade.",
+        "Do not rewrite the user's App component or visual design just to apply this wrapper."
+      ],
+      "verification": [
+        "client/src/main.tsx contains a rendered element with both className=\"hatch-space-root\" and data-hatch-space-root.",
+        "The TypeScript web artifact build succeeds and the app still renders."
+      ]
+    },
+    {
+      "version": 4,
+      "id": "2026-05-19-shared-query-client-and-sdk-build",
+      "title": "Shared QueryClient and SDK-owned client build",
+      "runtime": "typescript",
+      "summary": "TypeScript web artifacts now use the SDK's shared TanStack Query client and SDK-owned client bundler configuration.",
+      "applicability": "Any TypeScript web artifact. Source changes are needed when package.json lacks @tanstack/react-query, client/src/main.tsx lacks QueryClientProvider wired to spaceQueryClient, client code constructs its own QueryClient, or client/build.mjs still uses the old scaffold-owned Bun.build configuration.",
+      "instructions": [
+        "Ensure package.json dependencies include @tanstack/react-query. Use version 5.100.10 unless the web artifact already has a newer compatible v5 version.",
+        "Update client/src/main.tsx to import spaceQueryClient from @hatch/space-sdk/client and QueryClientProvider from @tanstack/react-query.",
+        "For the common template shape, the imports should include: import { spaceQueryClient } from \"@hatch/space-sdk/client\"; import { QueryClientProvider } from \"@tanstack/react-query\";",
+        "For the common template shape, the render call should look like: createRoot(rootEl).render(<StrictMode><QueryClientProvider client={spaceQueryClient}><div className=\"hatch-space-root\" data-hatch-space-root><App /></div></QueryClientProvider></StrictMode>);",
+        "Replace any value import of QueryClient from @tanstack/react-query and any new QueryClient(...) construction in client code with the SDK's shared spaceQueryClient. Import only the hooks/components needed from @tanstack/react-query, such as useQuery, useMutation, useQueryClient, and QueryClientProvider.",
+        "If client/build.mjs still contains the scaffold-owned Bun.build setup, replace it with the SDK build shim: import { buildClient } from @hatch/space-sdk/build and await buildClient(). Preserve intentional custom build behavior only when it is clearly needed.",
+        "If this upgrade changes package.json or client/build.mjs, make the corresponding dependency and lockfile updates needed for the web artifact to build."
+      ],
+      "verification": [
+        "package.json includes @tanstack/react-query when the web artifact imports it or uses QueryClientProvider.",
+        "client/src/main.tsx uses QueryClientProvider with spaceQueryClient and still preserves the Muse root wrapper.",
+        "Client code does not value-import QueryClient from @tanstack/react-query and does not construct new QueryClient(...).",
+        "client/build.mjs uses the SDK buildClient shim unless the web artifact intentionally needs custom build behavior.",
+        "The TypeScript web artifact build succeeds."
+      ]
+    },
+    {
+      "version": 5,
+      "id": "2026-05-20-cross-client-query-invalidation",
+      "title": "Cross-client React Query invalidation",
+      "runtime": "typescript",
+      "summary": "Server actions can now call ctx.invalidateQueries(...) to notify all connected clients to refetch data after database writes. This keeps every browser in sync when data changes from mutations, background agents, or cron jobs.",
+      "applicability": "TypeScript web artifacts with server actions that INSERT, UPDATE, or DELETE user-visible data that is read by client useQuery calls. Also applies to follow-up actions that persist results from background agents (ctx.agent.send) or cron jobs. Not applicable to read-only web artifacts or actions that don't change cached data.",
+      "instructions": [
+        "Inspect server/src/actions.ts for write operations: db.insert(), db.update(), db.delete(), or follow-up actions that save background-agent/cron results to the database.",
+        "After each write completes successfully (after await), call ctx.invalidateQueries() with no arguments. This asks every connected client for this web artifact to refetch its React Query data.",
+        "Call invalidateQueries after the database write succeeds and before returning the response. Do not call it in read-only actions, validation failures, error handlers, or before await completes.",
+        "Preserve existing client-side queryClient.invalidateQueries(...) calls in mutation onSuccess handlers. Client-side invalidation updates the initiating browser immediately; server-side ctx.invalidateQueries() syncs all other connected clients.",
+        "If the web artifact has no mutating actions, or if no useQuery caches read the written data, no changes are needed."
+      ],
+      "verification": [
+        "Every write action that changes user-visible data calls ctx.invalidateQueries() after the successful write.",
+        "Read-only actions and error paths do not call invalidateQueries.",
+        "Client-side mutation onSuccess invalidation is preserved where present.",
+        "The TypeScript web artifact build succeeds."
+      ]
+    },
+    {
+      "version": 6,
+      "id": "2026-05-21-inference-complete-zod-schema",
+      "title": "ctx.inference.complete now requires a Zod schema",
+      "runtime": "typescript",
+      "summary": "The TypeScript SDK's ctx.inference.complete signature is now `complete<T extends z.ZodType>(prompt, { schema: T, ... }): Promise<z.infer<T>>`. The deprecated `jsonSchema` option and the no-schema text overload have been removed. The returned value is the already-parsed, typed shape; JSON.parse and `as` casts on the result are bugs (they produced silent `summary: null` rows in production).",
+      "applicability": "TypeScript web artifacts whose server action code calls ctx.inference.complete in any of the legacy shapes: `complete(prompt)` (text only), `complete(prompt, { jsonSchema: ... })` (raw JSON Schema), or any call where the result is then JSON.parsed or cast.",
+      "instructions": [
+        "Make sure `z` is imported from `@hatch/space-sdk` in the file (already standard for actions.ts).",
+        "For each `ctx.inference.complete` call that previously used `jsonSchema: { type: 'object', properties: {...}, required: [...] }`, replace the JSON-Schema literal with an equivalent Zod schema built from `z.object({...})`. Map field types: string→z.string(), number→z.number(), boolean→z.boolean(), arrays→z.array(...), enums→z.enum([...]) or z.union([z.literal(...), ...]), optional fields→.optional() or .nullable() as appropriate. Pass it as `schema: z.object({...})`.",
+        "For each `ctx.inference.complete(prompt)` call that previously relied on the no-options text overload, pass `{ schema: z.string() }` and use the returned string directly.",
+        "Delete any `JSON.parse(result)` or `JSON.parse(result) as T` that immediately follows the inference call. The return value is already a parsed, typed object — use its fields directly (e.g. `result.bullets.join(' • ')`).",
+        "Remove any `as { ... }` cast applied to the inference return; the generic now infers the type from the schema.",
+        "If the action wants to recover from schema mismatches, import `InferenceSchemaError` from `@hatch/space-sdk` and check it with `InferenceSchemaError.is(e)` inside the catch, NOT `e instanceof InferenceSchemaError`. The worker and the user actions.js are separate bundles with separate class identities, so `instanceof` would always return false for cross-bundle errors. Otherwise let the error propagate — silent fallbacks that wrote `null` for failed summaries hid production bugs.",
+        "If the action stored the (now-unused) raw JSON Schema literal in a separate constant, remove it."
+      ],
+      "verification": [
+        "`grep -n 'jsonSchema' server/src/actions.ts` returns no matches.",
+        "`grep -n 'JSON.parse' server/src/actions.ts` returns no matches on or within 5 lines of `ctx.inference.complete`.",
+        "Every `ctx.inference.complete(...)` call passes `schema:` as an option.",
+        "`bun x tsc --noEmit -p server/tsconfig.json` passes cleanly.",
+        "The web artifact build succeeds end-to-end (`web_artifact_build` reports success)."
+      ]
+    },
+    {
+      "version": 7,
+      "id": "2026-05-22-tailwindcss-safe-area",
+      "title": "tailwindcss-safe-area + top text protection",
+      "runtime": "typescript",
+      "summary": "TypeScript web artifacts now bundle the tailwindcss-safe-area plugin, and every web artifact must handle safe areas (especially top text protection) per the Safe Areas guidance.",
+      "applicability": "Any TypeScript web artifact whose package.json does not include tailwindcss-safe-area, whose client/src/theme.css does not @import \"tailwindcss-safe-area\", or whose UI does not yet follow the Safe Areas guidance.",
+      "instructions": [
+        "Add \"tailwindcss-safe-area\": \"1.3.0\" to devDependencies in package.json (peer-depends on tailwindcss ^4.0.0, which the template already pins).",
+        "In client/src/theme.css, add `@import \"tailwindcss-safe-area\";` on the line immediately after `@import \"tailwindcss\";`. Use @import, not @plugin — the package ships as a v4 CSS plugin.",
+        "Audit the web artifact against the Safe Areas guidance and apply whatever it requires that the web artifact doesn't already do. In particular: every web artifact must have top text protection (one of the two approved approaches); fixed/sticky bottom bars need pb-safe; landscape-edge elements need pl-safe/pr-safe."
+      ],
+      "verification": [
+        "package.json devDependencies includes tailwindcss-safe-area at 1.3.0 or a newer compatible version.",
+        "client/src/theme.css contains `@import \"tailwindcss-safe-area\";` after the tailwindcss import.",
+        "The web artifact follows the Safe Areas guidance.",
+        "The TypeScript web artifact build succeeds."
+      ]
+    },
+    {
+      "version": 8,
+      "id": "2026-05-27-viewport-fit-cover",
+      "title": "Viewport meta viewport-fit=cover",
+      "runtime": "typescript",
+      "summary": "The scaffold's viewport meta tag now includes viewport-fit=cover, which is required for safe-area insets to resolve properly on devices that have them. Without it, the `--twsa-*` safe-area variables stay at zero and the tailwindcss-safe-area utilities collapse to zero height.",
+      "applicability": "TypeScript web artifacts whose client/index.html viewport meta tag does not include viewport-fit=cover.",
+      "instructions": [
+        "Update the viewport meta tag in client/index.html so its content attribute includes viewport-fit=cover. For the common shape, change `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />` to `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\" />`.",
+        "Preserve any other directives the web artifact already has in its viewport content attribute (e.g. user-scalable, maximum-scale)."
+      ],
+      "verification": [
+        "client/index.html viewport meta tag content attribute includes viewport-fit=cover.",
+        "The TypeScript web artifact build succeeds."
+      ]
+    },
+    {
+      "version": 9,
+      "id": "2026-05-26-safe-area-top-scrim-component",
+      "title": "SDK SafeAreaTopScrim component",
+      "runtime": "typescript",
+      "summary": "The TypeScript SDK now exposes SafeAreaTopScrim from @hatch/space-sdk/client so web artifacts can use SDK-owned top safe-area geometry instead of hand-coded scrim CSS.",
+      "applicability": "TypeScript web artifacts that use a hand-coded fixed top safe-area scrim/protection layer instead of a fixed/sticky top header.",
+      "instructions": [
+        "If the web artifact already uses a fixed or sticky top header that extends into the top inset with fixed top-0, pt-safe, an opaque background, and a high z-index, no change is required.",
+        "If the web artifact uses both a qualifying fixed/sticky top header and a standalone SafeAreaTopScrim/raw top scrim, remove the standalone scrim and keep the header as the single top text protection approach.",
+        "If the web artifact has a raw fixed top text protection div/scrim, import SafeAreaTopScrim from @hatch/space-sdk/client and replace the raw div with <SafeAreaTopScrim backgroundColor=\"var(--bg)\" /> or an equivalent variant/backgroundColor choice.",
+        "Use variant=\"blur\" for translucent/photo designs and variant=\"solid\" for flat designs when the default gradient does not fit the existing aesthetic.",
+        "Do not preserve or recreate hand-coded height, mask, fixed positioning, or pointer-events values for this scrim; the component owns those layout and interaction details. Preserve visual intent through backgroundColor, zIndex, className, or non-layout style values."
+      ],
+      "verification": [
+        "Client code imports SafeAreaTopScrim from @hatch/space-sdk/client when it needs a standalone top protection layer.",
+        "Client code does not render SafeAreaTopScrim when a qualifying fixed/sticky top header already provides top text protection.",
+        "Client code does not contain a raw top safe-area scrim with hand-coded --twsa-safe-area-inset-top height/mask geometry unless it is part of an intentional fixed/sticky top header.",
+        "The TypeScript web artifact build succeeds and the app still renders correctly on desktop and mobile."
+      ]
+    },
+    {
+      "version": 10,
+      "id": "2026-06-11-sdk-file-base64-helpers",
+      "title": "SDK chunk-safe base64 file-encoding helpers",
+      "runtime": "typescript",
+      "summary": "@hatch/space-sdk/client now exports fileToBase64 and bytesToBase64 for encoding browser file uploads. Hand-rolled btoa(String.fromCharCode(...new Uint8Array(buf))) throws RangeError: Maximum call stack size exceeded on multi-megabyte files such as phone photos.",
+      "applicability": "TypeScript web artifacts whose client code base64-encodes binary data (file uploads, camera capture, image payloads for inference-backed actions).",
+      "instructions": [
+        "Search client source for btoa(, String.fromCharCode(, and FileReader-based base64 encoding of uploaded files.",
+        "Replace hand-rolled encodes of a File/Blob with fileToBase64 from @hatch/space-sdk/client; it resolves to { dataBase64, mimeType } ready to pass through an action request.",
+        "Replace hand-rolled encodes of raw Uint8Array bytes with bytesToBase64 from @hatch/space-sdk/client.",
+        "If the web artifact does not base64-encode binary data in client code, no source changes are required."
+      ],
+      "verification": [
+        "No client code spreads a Uint8Array into String.fromCharCode for base64 encoding.",
+        "If the web artifact accepts image or file uploads, uploading a multi-megabyte file succeeds without a client-side RangeError.",
+        "The TypeScript web artifact build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 11,
+      "id": "2026-06-24-sdk-conservative-query-defaults",
+      "title": "SDK disciplined QueryClient retry/backoff defaults",
+      "runtime": "typescript",
+      "summary": "spaceQueryClient now sets disciplined TanStack Query defaults instead of React Query stock defaults (retry: 3 immediate, staleTime: 0, refetchOnWindowFocus: true). Backpressure (429/503) and transient server/network errors are retried with EXPONENTIAL BACKOFF + FULL JITTER (actionRetryDelay), honoring the server's Retry-After as a floor, bounded to MAX_ACTION_RETRIES; permanent 4xx (400/401/403/404/422) are never retried; staleTime is 30s and refetchOnWindowFocus is off. The amplifier was un-jittered IMMEDIATE retries (stock retry:3) under a saturated worker pool — the cure is jittered backoff, not giving up (giving up just pushes retries to an uncontrolled refetch layer). Non-OK action responses throw a typed SpaceActionError carrying the HTTP status and parsed Retry-After (retryAfterMs).",
+      "applicability": "Any TypeScript Space. The change lives entirely in the SDK singleton; no per-Space source edit is required, but a Space must be rebuilt against the updated SDK to adopt it.",
+      "instructions": [
+        "No source changes are required. Rebuilding the Space against the updated @hatch/space-sdk adopts the disciplined retry/backoff defaults automatically.",
+        "If the Space deliberately relies on aggressive refetch-on-window-focus or staleTime: 0 for a specific query, set those options explicitly on that useQuery call rather than depending on the shared client defaults.",
+        "If the Space catches action errors by string-matching the message, prefer catching SpaceActionError and inspecting its status (and retryAfterMs).",
+        "If the Space sets a custom retry predicate on a useQuery/useMutation (overriding the shared client default), it MUST defer to shouldRetryAction from @hatch/space-sdk/client for the SpaceActionError case (never retries permanent 4xx; bounds backpressure/transient retries) AND set retryDelay to actionRetryDelay so retries keep exponential backoff + jitter. A custom predicate that retries immediately (no backoff/jitter) re-opens the storm the SDK default closes."
+      ],
+      "verification": [
+        "The TypeScript Space build/typecheck succeeds.",
+        "Per-query overrides (if any) still compile against the typed useQuery options.",
+        "Any custom retry predicate refuses permanent 4xx and bounds backpressure/transient retries, and any custom retryDelay applies exponential backoff + jitter (honoring Retry-After)."
+      ]
+    },
+    {
+      "version": 12,
+      "id": "2026-06-24-inference-model-option-removed",
+      "title": "ctx.inference.complete model option removed",
+      "runtime": "typescript",
+      "summary": "The `model` option on ctx.inference.complete() has been removed. Space inference always runs on the managed Space model (the VM's configured model); a Space can no longer select an arbitrary model. The `system` and `schema` options are unchanged. Older Spaces that passed `model` keep working (the field is ignored), but the option no longer typechecks.",
+      "applicability": "TypeScript Spaces whose server action code passes a `model` argument to ctx.inference.complete().",
+      "instructions": [
+        "Search server action source for ctx.inference.complete( calls that pass a model field in the options object.",
+        "Remove the model field from those options objects; keep schema, system, timeout_secs, and images.",
+        "If the Space does not pass model to ctx.inference.complete(), no source changes are required."
+      ],
+      "verification": [
+        "No ctx.inference.complete() call passes a model option.",
+        "The TypeScript Space build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 13,
+      "id": "2026-06-29-sdk-space-unavailable-latch",
+      "title": "SDK deleted-space action latch",
+      "runtime": "typescript",
+      "summary": "The TypeScript SDK now recognizes the managed Space action error code space_unavailable. When a stale client calls actions for a Space whose source no longer exists, the SDK cancels local queries, notifies the Muse host once, and blocks further action POSTs from that iframe runtime.",
+      "applicability": "Any TypeScript Space that uses createActionClient from @hatch/space-sdk/client. No source edit is required, but a Space must be rebuilt against the updated SDK to adopt the stale-deleted-space latch.",
+      "instructions": [
+        "No source changes are required for Spaces that use createActionClient from @hatch/space-sdk/client.",
+        "Rebuild the Space against the updated @hatch/space-sdk so the client bundle includes the space_unavailable latch.",
+        "If the Space bypasses createActionClient with a custom fetch wrapper for /actions, migrate it back to createActionClient or explicitly handle HTTP 404 error.code === \"space_unavailable\" by stopping further action calls and letting the Muse host recover the Space surface."
+      ],
+      "verification": [
+        "The TypeScript Space build/typecheck succeeds.",
+        "Client code uses createActionClient from @hatch/space-sdk/client for Space actions, or a custom wrapper explicitly handles space_unavailable as a terminal deleted-space condition."
+      ]
+    },
+    {
+      "version": 14,
+      "id": "2026-07-14-viewport-user-scalable-no",
+      "title": "Viewport meta user-scalable=no to prevent iOS auto-zoom",
+      "runtime": "typescript",
+      "summary": "iOS Safari auto-zooms on input fields with font-size below 16px. Adding user-scalable=no to the viewport meta tag prevents this auto-zoom, keeping the web artifact at a stable zoom level when inputs are focused on mobile.",
+      "applicability": "TypeScript web artifacts whose client/index.html viewport meta tag does not include user-scalable=no.",
+      "instructions": [
+        "Update the viewport meta tag in client/index.html so its content attribute includes user-scalable=no. For the common shape, change `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\" />` to `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no\" />`.",
+        "Preserve any other directives the web artifact already has in its viewport content attribute (e.g. viewport-fit, maximum-scale)."
+      ],
+      "verification": [
+        "client/index.html viewport meta tag content attribute includes user-scalable=no.",
+        "The TypeScript web artifact build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 15,
+      "id": "2026-07-18-single-client-javascript-bundle",
+      "title": "Single JavaScript client bundle",
+      "runtime": "typescript",
+      "summary": "The managed client build now also produces the hermetic CVM artifact required for confidential rendering. That artifact requires the staged client to contain exactly one JavaScript bundle; custom build scripts that emit multiple entry or split chunks must use a single-bundle configuration.",
+      "applicability": "TypeScript web artifacts whose client/build.mjs uses a custom Bun.build or another custom bundler instead of the @hatch/space-sdk/build buildClient shim, especially configurations with multiple entrypoints, code splitting, or other settings that can emit more than one .js or .mjs file.",
+      "instructions": [
+        "Inspect client/build.mjs. If it already only imports buildClient from @hatch/space-sdk/build and awaits buildClient(), no source change is required.",
+        "Prefer replacing a custom client bundler invocation with import { buildClient } from \"@hatch/space-sdk/build\" and await buildClient(). Preserve intentional pre-build or post-build steps that are unrelated to bundling.",
+        "If the custom bundler is genuinely required, configure it with exactly one client entrypoint and code splitting disabled so the staged client contains exactly one .js or .mjs bundle. Preserve asset handling and production-mode behavior.",
+        "Do not delete unrelated custom build behavior merely to apply this upgrade. If that behavior cannot coexist with a single JavaScript bundle, report the build as blocked instead of advancing platformVersion."
+      ],
+      "verification": [
+        "The staged client output contains exactly one .js or .mjs bundle.",
+        "The full TypeScript web artifact build succeeds, including the required CVM client build.",
+        "The web artifact still renders and any preserved custom pre-build or post-build behavior still works."
+      ]
+    },
+    {
+      "version": 16,
+      "id": "2026-08-08-cloudflare-tool-action-authority",
+      "title": "Cloudflare tool callbacks preserve action authority",
+      "runtime": "typescript",
+      "summary": "The managed Cloudflare action runtime now forwards both the action invocation id and action name on ctx.tool search callbacks. The VM uses those signed fields to authorize confidential-VM Perplexity searches without granting the daemon direct CAGI access.",
+      "applicability": "Any TypeScript Space. The fix lives in the managed Cloudflare worker runtime; no per-Space source edit is required, but a Space must be rebuilt to adopt it.",
+      "instructions": [
+        "No source changes are required.",
+        "Rebuild the Space against the updated managed runtime so its Cloudflare worker forwards actionName together with actionInvocationId. A successful build automatically redeploys an active Cloudflare share; do not publish or republish it separately."
+      ],
+      "verification": [
+        "The full TypeScript web artifact build succeeds.",
+        "The build uses the current managed Cloudflare worker runtime; no source or share-state change is needed for this upgrade."
+      ]
+    },
+    {
+      "version": 17,
+      "id": "2026-08-11-drizzle-orm-0-45-2-sql-injection-fix",
+      "title": "drizzle-orm 0.45.2 SQL-identifier escaping security fix",
+      "runtime": "typescript",
+      "summary": "drizzle-orm versions below 0.45.2 improperly escape SQL identifiers (CVE-2026-39356), allowing SQL injection through identifier positions such as table, column, or alias names. Spaces pin drizzle-orm in their own package.json and bundle the installed copy from node_modules, so existing Spaces keep the vulnerable version until the pin is bumped AND dependencies are explicitly reinstalled.",
+      "applicability": "TypeScript Spaces whose installed drizzle-orm is below 0.45.2. Check node_modules/drizzle-orm/package.json in the web artifact root, not only the package.json pin (the template previously pinned 0.44.4).",
+      "instructions": [
+        "In package.json, change the drizzle-orm dependency pin to \"0.45.2\" (or a newer version). If a range like \"^0.44\" is used, change it to \"^0.45\".",
+        "Run `bun install` in the web artifact root after editing the pin. This step is REQUIRED: the managed build does not install dependencies and bun auto-install is disabled (bunfig.toml sets install.auto = \"disable\"), so without an explicit install the build keeps bundling the previously installed vulnerable copy from node_modules while package.json claims 0.45.2.",
+        "Rebuild the Space. The standard template usage (drizzle-orm/libsql driver, the migrator, and query-builder operators) has no API changes across this bump.",
+        "Do not rewrite queries or schema code as part of this upgrade; it is a dependency bump plus reinstall only.",
+        "If the install cannot complete, report the Space's previous platform version instead of advancing to this one, so the upgrade is offered again on a later edit; never claim this version while node_modules still holds a drizzle-orm below 0.45.2."
+      ],
+      "verification": [
+        "node_modules/drizzle-orm/package.json in the web artifact root reports version 0.45.2 or newer (verify the installed copy, not only the manifest).",
+        "bun.lock resolves drizzle-orm to 0.45.2 or newer and package.json carries the updated pin.",
+        "The TypeScript Space build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 18,
+      "id": "2026-08-12-inference-output-contract-prompts",
+      "title": "Inference prompts separate task semantics from output contracts",
+      "runtime": "typescript",
+      "summary": "The managed ctx.inference.complete runtime now carries the Zod-derived output contract separately from the task prompt. Prompts should describe only the model task instead of also asking for JSON, copying the schema shape, or prescribing code fences.",
+      "applicability": "TypeScript Spaces whose ctx.inference.complete prompt text includes transport-only instructions such as return JSON, return only JSON, match this schema, use these exact JSON keys, or wrap the result in a JSON code fence. No source edit is required when the prompt already describes only the semantic task.",
+      "instructions": [
+        "Inspect every ctx.inference.complete prompt and remove instructions whose only purpose is JSON serialization, schema compliance, exact key spelling, or code-fence formatting.",
+        "Preserve the actual task requirements, source material, tone, and the semantic meaning of every result field. Put types, enums, lengths, and structural constraints in the required Zod schema instead.",
+        "When a field name alone does not communicate its semantic meaning, add a concise .describe(...) to that field's Zod schema rather than duplicating the entire output shape in the prompt.",
+        "For schema: z.string(), ask directly for the transformation or generation result without adding return-only-JSON or quoted-string instructions.",
+        "Do not change action request or response shapes as part of this upgrade."
+      ],
+      "verification": [
+        "No ctx.inference.complete prompt asks the model to encode its result as JSON, asks for a JSON code fence, or duplicates the Zod schema solely as an output-format instruction.",
+        "Every ctx.inference.complete call still passes a Zod schema and consumes the already-parsed typed result without JSON.parse or an as cast.",
+        "The TypeScript Space build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 19,
+      "id": "2026-08-14-recharts-pinned-in-scaffold",
+      "title": "Recharts is the house charting library and ships pinned in the scaffold",
+      "runtime": "typescript",
+      "summary": "The TypeScript scaffold's package.json now pins recharts, so a Space that plots data imports it instead of hand-authoring SVG, pulling a charting library from a CDN, or rendering to canvas. Hand-computed scales, hand-authored legends and hand-positioned tooltips are the three things that most often ship wrong, and the library owns all three.",
+      "applicability": "TypeScript Spaces that render a chart with hand-authored SVG, a CDN-loaded charting library, a canvas-based library (Chart.js, uPlot, ECharts' default renderer), or styled divs standing in for marks. No edit is required for a Space that renders no charts or already uses Recharts.",
+      "instructions": [
+        "Add \"recharts\": \"2.15.3\" to the Space's package.json dependencies, matching the scaffold's pinned version rather than a range.",
+        "Replace the hand-rolled chart with the Recharts equivalent, letting XAxis/YAxis derive the scale from the data, Legend take its entries and colours from the series, and Tooltip own its positioning. Delete the hand-computed scale, hand-authored legend and hand-positioned tooltip code it replaces.",
+        "Recharts auto-scales, so set the domain to start at zero yourself for bar and area charts.",
+        "Keep the chart bound to the data file the Space already reads. Do not restate the dataset as literals while porting the chart.",
+        "Remove any CDN script or link tag that existed only to load the previous charting library."
+      ],
+      "verification": [
+        "package.json pins recharts at the scaffold's version and the Space builds with bun install.",
+        "No chart is drawn with hand-authored SVG marks, a canvas renderer, or styled divs, and no CDN tag loads a charting library.",
+        "Bar and area charts start at zero, and every plotted series appears in the legend with the colour the renderer uses.",
+        "Chart values still come from the Space's existing data source, not from literals added during the port."
+      ]
+    },
+    {
+      "version": 20,
+      "id": "2026-08-25-model-selected-vertical-series",
+      "title": "Managed vertical callers select upstream series",
+      "runtime": "typescript",
+      "summary": "Managed vertical selectors now choose the real upstream series in both web-artifact runtimes: weather hourly_hours caps the hourly forecast, and finance interval 1m selects one-minute candles.",
+      "applicability": "TypeScript web artifacts that call ctx.tool.weather with an hourly horizon or ctx.tool.finance_ticker with an interval.",
+      "instructions": [
+        "When the user requests a specific hourly weather horizon, pass hourly_hours with that count, up to 48. Omission preserves the existing maximum of 48 when hourly data is available.",
+        "For a current-day or current-session chart, request interval: 1m.",
+        "Keep interval: 30m for intentionally coarser multi-day intraday charts. The 1m and 30m series are independently populated upstream; do not assume that 30m is derived from 1m.",
+        "Choose the interval explicitly from the user's requested time range. Do not automatically retry, aggregate, or switch intervals.",
+        "If the web artifact exposes a weather-horizon or finance-interval picker, pass the selected value without changing unrelated action or response shapes."
+      ],
+      "verification": [
+        "Weather actions requesting N hourly points return at most N from the upstream hourly series in both runtimes.",
+        "Current-day/current-session finance actions request interval: 1m, while coarser multi-day intraday actions request interval: 30m.",
+        "A fixture whose 1m series contains current-session points and whose 30m series ends at the prior trading day renders the current-session line from 1m only.",
+        "The web artifact does not silently switch or aggregate finance intervals.",
+        "The TypeScript web-artifact build and typecheck succeed."
+      ]
+    },
+    {
+      "version": 21,
+      "id": "2026-08-18-native-scheduled-artifact-actions",
+      "title": "Scheduled artifact actions bypass the cron agent wrapper",
+      "runtime": "typescript",
+      "summary": "An artifact-owned cron whose whole job is invoking one published action can now declare a typed space_action execution target. The scheduler invokes that action directly, without spending an agent turn on artifact.invoke_action or a second agent turn resolving the cron result. Any ctx.agent.spawnTask inside the action remains the real scheduled agent work.",
+      "applicability": "TypeScript web artifacts with managedCronJobs entries whose cron body does nothing except invoke one declared artifact action. Leave schedules that need open-ended cron-agent reasoning or a user-facing response on the ordinary agent path.",
+      "instructions": [
+        "For each applicable managed cron, identify the exact published action and the object arguments its current body passes.",
+        "Update that cron with execution.kind set to space_action, execution.slug set to the artifact's slug, execution.action set to the published action name, and execution.args set to the same object arguments. Keep the existing internal owner value unchanged.",
+        "Keep a concise body that describes the refresh for failure handoff and run history; do not leave action selection only in prose.",
+        "Do not convert a cron whose body performs reasoning, chooses among actions, or prepares a user-facing response."
+      ],
+      "verification": [
+        "cron.view shows execution.kind=space_action, the execution slug matching the artifact owner, and the intended action and object args for every converted job.",
+        "The action is present in the published artifact action list and accepts the configured arguments.",
+        "Running the cron once updates the artifact's durable data or accepts its expected ctx.agent.spawnTask without a scheduler cron worker calling artifact.invoke_action.",
+        "The TypeScript web artifact build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 22,
+      "id": "2026-09-22-no-url-state-in-artifacts",
+      "title": "Artifact state does not live in the URL",
+      "runtime": "typescript",
+      "summary": "A web artifact renders inside an opaque-origin sandboxed iframe that has no navigable URL of its own, so the browser rejects a history.pushState or history.replaceState call that carries a URL. The runtime now ignores the URL argument instead of letting the SecurityError escape and blank the page, and warns once on the console. The state argument still works. What no longer works is the URL itself: it never changes, so anything an artifact encoded there is not readable back and does not survive a reload.",
+      "applicability": "TypeScript web artifacts that call history.pushState or history.replaceState with a URL, read identity or view state out of location.search, location.hash, or location.pathname, or use a client-side router configured for browser history or hash history.",
+      "instructions": [
+        "Find every history.pushState and history.replaceState call and every read of location.search, location.hash, or location.pathname.",
+        "If the token only stands in for the artifact itself, so the artifact keeps a SINGLE record: drop the token and read and write that one record through a server action. A published artifact already has one identity; a second one in the URL adds nothing and cannot survive this render mode.",
+        "If the token SELECTS one of several records the artifact keeps (one of many lists, boards, or documents): keep every record. Hold the current selection in component state, and load both the list of records and the selected record through server actions. Do not merge records together and do not leave existing rows unreachable from the UI.",
+        "For transient view state such as the selected tab, filter, or open row: hold it in ordinary component state.",
+        "For state that genuinely must outlive a reload: persist it with a server action and load it on mount.",
+        "If a client-side router is in use, switch it to its in-memory history mode (for example MemoryRouter or createMemoryRouter). Do not use browser history OR hash history: the runtime ignores every URL handed to history.pushState/replaceState, and a modern hash router routes through those same calls, so its URL never changes either. Assigning location.hash directly is untouched by the runtime, but do not build navigation on it here: the artifact has no address a visitor can return to."
+      ],
+      "verification": [
+        "No source calls history.pushState or history.replaceState with a URL argument.",
+        "No source reads identity or view state from location.search, location.hash, or location.pathname, and no router is configured for browser or hash history.",
+        "Reloading the published artifact shows the same PERSISTED data. Transient view state such as the selected tab or filter may reset to its default; that is the intended outcome of holding it in component state.",
+        "If the artifact keeps a single record, opening the published artifact in a second browser session shows that record without a token in the address. If it keeps several, every record that existed before the upgrade is still reachable from the UI.",
+        "The TypeScript web artifact build/typecheck succeeds."
+      ]
+    },
+    {
+      "version": 23,
+      "id": "2026-09-25-local-action-viewer",
+      "title": "Authenticated local action viewers",
+      "runtime": "typescript",
+      "summary": "Authenticated local HTTP actions now receive ctx.viewer with source local, userId, ownerUserId, and isOwner. Cloudflare viewers carry source cloudflare and retain their share and token fields.",
+      "applicability": "TypeScript artifacts that read ctx.viewer or use the Viewer type. Existing checks that only read isOwner need no source change.",
+      "instructions": [
+        "Limit this upgrade to adapting identity-field reads to the Viewer union. Preserve existing action authorization guards and which callers they admit or reject; do not add, tighten, or loosen guards as part of this upgrade.",
+        "When ctx.viewer is present, narrow on ctx.viewer.source before reading identity fields: local uses userId and ownerUserId; cloudflare uses viewerFbid, ownerFbid, shareId, and token metadata. Never manufacture share or token values for local calls.",
+        "artifact.invoke_action, post_submit_action, managed crons with execution.kind=space_action, and web_artifacts.audit run without ctx.viewer, as do peer and notary-only callers. Missing viewer is not proof of ownership. Never fabricate a viewer, add an owner fallback, or create an unguarded write action to make these calls pass. If adapting identity fields exposes a conflict between required callers and owner-only access, report that authorization conflict in verification_notes rather than changing permissions."
+      ],
+      "verification": [
+        "Source review confirms that authorization guards are unchanged and source-specific identity fields are read only after narrowing ctx.viewer.source.",
+        "The artifact builds and typechecks with the updated viewer union.",
+        "Use available sandbox checks for changed identity-field handling. artifact.invoke_action and web_artifacts.audit have no viewer, so rejection by an existing strict owner-only guard is expected; do not change the guard to pass verification.",
+        "The edit builder cannot perform authenticated owner or nonowner browser checks. Record those paths as unverified in verification_notes. This capability limit alone does not block completing v23 after source review, build/typecheck, and the available sandbox checks; do not claim an owner save or reopen was verified."
+      ]
+    },
+    {
+      "version": 24,
+      "id": "2026-09-17-shared-state-lifecycle",
+      "title": "Authenticated shared state",
+      "runtime": "typescript",
+      "summary": "Rebuild stateful artifacts for authenticated sharing, safe action retries, and data-preserving updates and unshare.",
+      "applicability": "TypeScript web artifacts with server actions.",
+      "instructions": [
+        "Use the SDK action client. Show saved state only after a successful response; preserve entered values on errors.",
+        "Shared viewers use one database and blob store. Enforce private-row access in server actions, never using a client-supplied identity. Preserve existing authorization guards. For an authenticated ctx.viewer, use a stable server-derived owner key when isOwner is true; otherwise narrow on source and use the matching userId (local) or viewerFbid (cloudflare). Missing ctx.viewer is not proof of ownership: agent, audit, peer and scheduled calls can lack a viewer. Never fabricate a viewer or add an owner fallback. Use the same identity keys for reads and writes before sharing, while shared, and after unsharing. Await all writes before returning.",
+        "Keep inference, tool, agent, and privileged operations owner-only. Give other viewers a clear explanation when a feature requires the owner.",
+        "Rebuild using web_artifacts.build to regenerate the managed Cloudflare worker and client SDK. Do not deploy an old worker bundle."
+      ],
+      "verification": [
+        "A signed-in guest can use intended collaborative actions and cannot read or change another viewer’s private data.",
+        "Save, reload, validation failure, and an unavailable backend have honest, recoverable UI states."
+      ]
+    }
+  ]
+}

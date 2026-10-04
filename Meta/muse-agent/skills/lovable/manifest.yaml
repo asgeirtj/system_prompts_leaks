@@ -1,0 +1,131 @@
+version: 1
+connector: lovable
+category: business
+display_name: Lovable
+description: Build, edit and deploy apps with AI
+icon: lovable
+request_quota:
+  mode: shadow
+  workers: [lovable]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: lovable
+  skill: lovable
+  service: lovable
+declarable_scopes: &all_scopes
+  - offline
+  - projects:read
+  - projects:write
+  - workspaces:read
+  - workspaces:write
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      workspaces.read:
+        label: Read workspaces
+        approval_phrase: read workspaces in Lovable
+        requires_scopes: &read_access
+          - offline projects:read workspaces:read
+      projects.read:
+        label: Read projects and messages
+        approval_phrase: read projects in Lovable
+        requires_scopes: *read_access
+      workspace_knowledge.read:
+        label: Read workspace knowledge and skills
+        approval_phrase: read workspace knowledge and skills in Lovable
+        requires_scopes: *read_access
+      project_knowledge.read:
+        label: Read project knowledge
+        approval_phrase: read project knowledge in Lovable
+        requires_scopes: *read_access
+      code.read:
+        label: Read project code and edits
+        approval_phrase: read project code in Lovable
+        requires_scopes: *read_access
+      database.read:
+        label: Read database status
+        approval_phrase: read database status in Lovable
+        requires_scopes: *read_access
+      connectors.read:
+        label: Read connectors
+        approval_phrase: read connector information in Lovable
+        requires_scopes: *read_access
+      analytics.read:
+        label: Read project analytics
+        approval_phrase: read project analytics in Lovable
+        requires_scopes: *read_access
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      projects.create:
+        label: Create or remix projects
+        approval_phrase: create or remix projects in Lovable
+        requires_scopes: &write_access
+          - offline projects:read projects:write workspaces:read workspaces:write
+      projects.edit:
+        label: Edit projects
+        approval_phrase: edit projects in Lovable
+        requires_scopes: *write_access
+      projects.publish:
+        label: Publish projects
+        approval_phrase: publish projects from Lovable
+        requires_scopes: *write_access
+      project_sharing.manage:
+        label: Change project visibility
+        approval_phrase: change project visibility in Lovable
+        requires_scopes: *write_access
+      workspace_sharing.manage:
+        label: Change folder visibility
+        approval_phrase: change folder visibility in Lovable
+        requires_scopes: *write_access
+      workspace_knowledge.manage:
+        label: Change workspace knowledge and skills
+        approval_phrase: change workspace knowledge and skills in Lovable
+        requires_scopes: *write_access
+      project_knowledge.manage:
+        label: Change project knowledge
+        approval_phrase: change project knowledge in Lovable
+        requires_scopes: *write_access
+      workspace_knowledge.delete:
+        label: Delete workspace skills
+        approval_phrase: delete workspace skills from Lovable
+        requires_scopes: *write_access
+      database.manage:
+        label: Enable project databases
+        approval_phrase: enable project databases in Lovable
+        requires_scopes: *write_access
+      database.query:
+        label: Run database queries
+        approval_phrase: run database queries in Lovable
+        requires_scopes: *write_access
+      connectors.manage:
+        label: Add or remove connectors
+        approval_phrase: add or remove connectors in Lovable
+        requires_scopes: *write_access
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: workspaces.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Lovable"
+      text: "Muse will access things like projects, prompts, source code, files and deployment status."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "The first connection requests read-only access. You can add write access in Settings when you want Muse to change Lovable projects or workspaces; those actions still require approval."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Lovable. To learn more, view their [terms](https://lovable.dev/terms) and [privacy policy](https://lovable.dev/privacy)."

@@ -1,0 +1,247 @@
+version: 1
+connector: vercel
+category: business
+display_name: Vercel
+description: Manage deployments for websites and web apps
+icon: vercel
+request_quota:
+  mode: shadow
+  workers: [vercel]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: vercel
+  skill: vercel
+  service: vercel
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      access_groups.read:
+        label: Read access groups
+        approval_phrase: read access groups in Vercel
+      agent_runs.read:
+        label: Read agent runs
+        approval_phrase: read agent runs in Vercel
+      ai_gateway.read:
+        label: Read AI Gateway configuration
+        approval_phrase: read AI Gateway configuration in Vercel
+      analytics.read:
+        label: Read web analytics
+        approval_phrase: read web analytics in Vercel
+      billing.read:
+        label: Read billing information
+        approval_phrase: read billing information in Vercel
+      caching.read:
+        label: Read cache and artifact status
+        approval_phrase: read cache and artifact status in Vercel
+      checks.read:
+        label: Read checks
+        approval_phrase: read checks in Vercel
+      deployment_files.read:
+        default: ask
+        label: Read deployment file contents
+        approval_phrase: read deployment file contents from Vercel
+      deployments.read:
+        label: Read deployments
+        approval_phrase: read deployments in Vercel
+      documentation.read:
+        label: Search Vercel documentation
+        approval_phrase: search Vercel documentation
+      domains.read:
+        label: Read domains, certificates, and prices
+        approval_phrase: read domains, certificates, and prices in Vercel
+      drains.read:
+        label: Read drains
+        approval_phrase: read drains in Vercel
+      environments.read:
+        label: Read environment metadata
+        approval_phrase: read environment metadata in Vercel
+      feature_flags.read:
+        label: Read feature flags
+        approval_phrase: read feature flags in Vercel
+      firewall.read:
+        label: Read firewall configuration
+        approval_phrase: read firewall configuration in Vercel
+      global_config.read:
+        label: Read Global Config
+        approval_phrase: read Global Config in Vercel
+      integrations.read:
+        label: Read integrations and repositories
+        approval_phrase: read integrations and repositories in Vercel
+      key_management.read:
+        label: Read key-management configuration
+        approval_phrase: read key-management configuration in Vercel
+      microfrontends.read:
+        label: Read microfrontend configuration
+        approval_phrase: read microfrontend configuration in Vercel
+      networking.read:
+        label: Read network configuration
+        approval_phrase: read network configuration in Vercel
+      observability.read:
+        label: Read logs, traces, and observability data
+        approval_phrase: read logs, traces, and observability data in Vercel
+      projects.read:
+        label: Read teams and projects
+        approval_phrase: read teams and projects in Vercel
+      rolling_releases.read:
+        label: Read rolling releases
+        approval_phrase: read rolling releases in Vercel
+      routing.read:
+        label: Read routes, redirects, and aliases
+        approval_phrase: read routes, redirects, and aliases in Vercel
+      sandbox_files.read:
+        default: ask
+        label: Read sandbox file contents
+        approval_phrase: read sandbox file contents from Vercel
+      sandboxes.read:
+        label: Read sandboxes and sessions
+        approval_phrase: read sandboxes and sessions in Vercel
+      secrets.read:
+        default: ask
+        label: Read decrypted secrets and tokens
+        approval_phrase: read decrypted secrets and tokens from Vercel
+      storage.read:
+        label: Read storage configuration
+        approval_phrase: read storage configuration in Vercel
+      teams.read:
+        label: Read teams and users
+        approval_phrase: read teams and users in Vercel
+      toolbar.read:
+        label: Read toolbar threads
+        approval_phrase: read toolbar threads in Vercel
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      caching.manage:
+        label: Change caches and artifacts
+        approval_phrase: change caches or artifacts in Vercel
+      certificates.manage:
+        label: Manage certificates
+        approval_phrase: issue or upload certificates in Vercel
+      checks.manage:
+        label: Create or update checks
+        approval_phrase: create or update checks in Vercel
+      cli.execute:
+        default: ask
+        label: Run Vercel CLI commands
+        approval_phrase: run a delegated Vercel CLI command
+      credentials.create:
+        label: Create credentials and API keys
+        approval_phrase: create credentials or API keys in Vercel
+      credentials.exchange:
+        label: Exchange authentication credentials
+        approval_phrase: exchange authentication credentials in Vercel
+      deployments.cancel:
+        label: Cancel deployments
+        approval_phrase: cancel a deployment in Vercel
+      deployments.publish:
+        label: Deploy to Vercel
+        approval_phrase: publish a deployment to Vercel
+      dns.manage:
+        label: Change DNS records
+        approval_phrase: change DNS records in Vercel
+      domains.manage:
+        label: Add or transfer domains
+        approval_phrase: add or transfer domains in Vercel
+      drains.manage:
+        label: Manage drains
+        approval_phrase: create, test, or update drains in Vercel
+      environments.manage:
+        label: Change environment variables
+        approval_phrase: create or change environment variables in Vercel
+      feature_flags.manage:
+        label: Manage feature flags
+        approval_phrase: create or change feature flags in Vercel
+      firewall.manage:
+        label: Change firewall configuration
+        approval_phrase: change firewall configuration in Vercel
+      global_config.manage:
+        label: Change Global Config
+        approval_phrase: change Global Config in Vercel
+      key_management.manage:
+        label: Manage signing keys and issuers
+        approval_phrase: create, activate, revoke, or update signing keys and issuers in Vercel
+      key_management.sign:
+        label: Sign messages or tokens
+        approval_phrase: sign a message or token with a Vercel-managed key
+      networking.manage:
+        label: Change network configuration
+        approval_phrase: create or change network configuration in Vercel
+      projects.create:
+        label: Create projects
+        approval_phrase: create a project in Vercel
+      projects.import:
+        label: Import designs
+        approval_phrase: import designs into Vercel
+      projects.manage:
+        label: Pause or unpause projects
+        approval_phrase: pause or unpause projects in Vercel
+      projects.transfer:
+        label: Accept project transfers
+        approval_phrase: accept a project transfer in Vercel
+      projects.update:
+        default: ask
+        label: Change project settings
+        approval_phrase: change project settings in Vercel
+      protected_content.fetch:
+        label: Fetch protected Vercel content
+        approval_phrase: fetch protected content from Vercel
+      purchases.execute:
+        label: Make purchases
+        approval_phrase: make a purchase through Vercel
+      rolling_releases.manage:
+        label: Manage rolling releases
+        approval_phrase: start, promote, roll back, or change a rolling release in Vercel
+      routing.manage:
+        label: Change routes, redirects, and aliases
+        approval_phrase: change routes, redirects, or aliases in Vercel
+      sandboxes.create:
+        label: Create sandboxes
+        approval_phrase: create a sandbox in Vercel
+      sandboxes.execute:
+        label: Run sandbox commands
+        approval_phrase: run or stop a command in a Vercel sandbox
+      sandboxes.manage:
+        label: Change sandboxes and sessions
+        approval_phrase: change a sandbox or session in Vercel
+      security.manage:
+        label: Change deployment protection
+        approval_phrase: change deployment protection in Vercel
+      security.share:
+        label: Create protected-deployment access links
+        approval_phrase: create an access link for a protected Vercel deployment
+      storage.manage:
+        label: Create storage resources
+        approval_phrase: create storage resources in Vercel
+      teams.join:
+        label: Join teams
+        approval_phrase: join a team in Vercel
+      toolbar.manage:
+        label: Reply to or change toolbar threads
+        approval_phrase: reply to or change toolbar threads in Vercel
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: projects.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Vercel"
+      text: "Muse will access things like projects, deployments, Git repository info and domains."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Vercel. To learn more, view their [terms](https://vercel.com/legal/terms) and [privacy policy](https://vercel.com/legal/privacy-policy)."

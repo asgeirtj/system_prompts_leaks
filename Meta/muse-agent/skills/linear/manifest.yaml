@@ -1,0 +1,100 @@
+version: 1
+connector: linear
+category: business
+display_name: Linear
+description: Plan, build and manage projects
+icon: linear
+request_quota:
+  mode: shadow
+  workers: [linear]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: linear
+  skill: linear
+  service: linear
+declarable_scopes: &all_scopes
+  - read
+  - write
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      workspace.read:
+        label: Read workspace metadata
+        approval_phrase: read workspace metadata in Linear
+        requires_scopes: &read_access
+          - read
+      issues.read:
+        label: Read issues and comments
+        approval_phrase: read issues and comments in Linear
+        requires_scopes: *read_access
+      projects.read:
+        label: Read projects
+        approval_phrase: read projects in Linear
+        requires_scopes: *read_access
+      documents.read:
+        label: Read documents and documentation
+        approval_phrase: read documents in Linear
+        requires_scopes: *read_access
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      issues.create:
+        label: Create issues
+        approval_phrase: create issues in Linear
+        requires_scopes: &write_access
+          - read write
+      issues.manage:
+        label: Update issues
+        approval_phrase: update issues in Linear
+        requires_scopes: *write_access
+      projects.create:
+        label: Create projects
+        approval_phrase: create projects in Linear
+        requires_scopes: *write_access
+      projects.manage:
+        label: Update projects
+        approval_phrase: update projects in Linear
+        requires_scopes: *write_access
+      comments.create:
+        label: Post comments
+        approval_phrase: post comments in Linear
+        requires_scopes: *write_access
+      comments.manage:
+        label: Update comments
+        approval_phrase: update comments in Linear
+        requires_scopes: *write_access
+      labels.create:
+        label: Create issue labels
+        approval_phrase: create issue labels in Linear
+        requires_scopes: *write_access
+      labels.manage:
+        label: Update issue labels
+        approval_phrase: update issue labels in Linear
+        requires_scopes: *write_access
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: workspace.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Linear"
+      text: "Muse will access things like projects, issues, comments and member info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "The first connection requests read-only access. You can add write access in Settings when you want Muse to create or update Linear work; those actions still require approval."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Linear. To learn more, view their [terms](https://linear.app/terms) and [privacy policy](https://linear.app/privacy)."

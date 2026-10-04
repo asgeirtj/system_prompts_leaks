@@ -1,0 +1,64 @@
+version: 1
+connector: google_tasks
+category: productivity
+display_name: Google Tasks
+description: Manage and track your to-do lists and tasks
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_tasks
+  service: tasks
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      tasks.list:
+        label: Access tasks and lists
+        approval_phrase: access tasks and lists in Google Tasks
+  write:
+    default: allow
+    label: Write and delete permissions
+    methods:
+      tasks.create:
+        label: Create and edit tasks and lists
+        approval_phrase: create and edit tasks and lists in Google Tasks
+      tasks.delete:
+        label: Delete tasks and lists
+        approval_phrase: delete tasks and lists in Google Tasks
+commands:
+  status: null
+  disconnect: null
+  task_lists.list: tasks.list
+  task_lists.get: tasks.list
+  tasks.get: tasks.list
+  task_lists.create: tasks.create
+  task_lists.insert: tasks.create
+  task_lists.patch: tasks.create
+  task_lists.update: tasks.create
+  task_lists.delete: tasks.delete
+  tasks.insert: tasks.create
+  tasks.patch: tasks.create
+  tasks.update: tasks.create
+  tasks.move: tasks.create
+  tasks.clear: tasks.delete
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Tasks"
+      text: "Muse will access things like task descriptions, attachments and metadata."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Tasks. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

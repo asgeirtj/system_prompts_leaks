@@ -1,0 +1,132 @@
+# OpenTable skill eval scenarios (connect, read, write).
+# How to run this suite (date tokens, skill injection, persona/world): see ../../spawn-eval-instructions.md
+- name: connect
+  category: connect
+  tests: "Disconnected start: agent runs status, gets not_connected, and posts the exact returned connect_url as [Connect OpenTable](<url>) - no fabricated URL, no Settings redirect, no booking. Grade on the link; the post-consent continuation is not spawn-testable (a synthetic user cannot complete the in-app consent)."
+  persona: "A first-time Hatch user, warm but impatient; taps to connect accounts when prompted."
+  objective: "Book a dinner table for two this Friday at 7pm at an Italian restaurant in San Francisco."
+
+- name: disconnect
+  category: connect
+  tests: "Runs `opentable disconnect` and confirms plainly; no Settings redirect."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Disconnect my OpenTable account."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010005-1900"}, {"rid": "1010005", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010005-1930"}]}}}
+
+- name: discovery
+  category: read
+  tests: "lookup-rid discovery by name/city; presents results as a compact table; no fabricated restaurants."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Find a well-reviewed sushi spot in Menlo Park."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010001", "name": "Sakura Menlo Park", "city": "Menlo Park", "country": "US", "cuisine": "Sushi", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010001"}, {"rid": "1010007", "name": "Nobu Palo Alto", "city": "Palo Alto", "country": "US", "cuisine": "Sushi", "price": "$$$$", "profile_url": "https://www.opentable.com/r/1010007"}], "availability": [{"rid": "1010001", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010001-1900"}, {"rid": "1010001", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010001-1930"}, {"rid": "1010007", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010007-1900"}, {"rid": "1010007", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010007-1930"}]}}}
+
+- name: availability
+  category: read
+  tests: "search-availability returns real open slots for a resolved rid/time/party; no fabricated times."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Is there a table for four at Sakura Menlo Park this Saturday around 7:30pm?"
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010001", "name": "Sakura Menlo Park", "city": "Menlo Park", "country": "US", "cuisine": "Sushi", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010001"}], "availability": [{"rid": "1010001", "start_date_time": "{{SAT}}T19:00", "party_size": 4, "reservation_token": "s-1900"}, {"rid": "1010001", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "s-1930"}, {"rid": "1010001", "start_date_time": "{{SAT}}T20:00", "party_size": 4, "reservation_token": "s-2000"}]}}}
+
+- name: experiences
+  category: read
+  tests: "list-experiences surfaces a restaurant's special experiences."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Does Chez Tasting have any special tasting-menu experiences this Saturday?"
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010004", "name": "Chez Tasting", "city": "San Francisco", "country": "US", "cuisine": "French", "price": "$$$$", "profile_url": "https://www.opentable.com/r/1010004"}], "availability": [{"rid": "1010004", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "c-1900"}], "route_responses": [{"route_key": "GET:platform.opentable.com/v2/experiences/1010004/active", "response_json": {"items": [{"id": "exp-tasting", "version": "1", "name": "Chef's Tasting Menu", "description": "Seven-course seasonal tasting", "prePaymentRequired": false}]}}]}}}
+
+- name: availability-metadata
+  category: read
+  tests: "availability-metadata returns booking options (seating attributes, dining areas)."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "What seating options and dining areas does Sakura Menlo Park have?"
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010001", "name": "Sakura Menlo Park", "city": "Menlo Park", "country": "US", "cuisine": "Sushi", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010001"}], "availability": [{"rid": "1010001", "start_date_time": "{{SAT}}T19:00", "party_size": 4, "reservation_token": "s-1900"}, {"rid": "1010001", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "s-1930"}, {"rid": "1010001", "start_date_time": "{{SAT}}T20:00", "party_size": 4, "reservation_token": "s-2000"}], "route_responses": [{"route_key": "GET:platform.opentable.com/v2/availability-metadata/1010001", "response_json": {"restaurant_id": "1010001", "attributes": ["default", "bar", "highTop", "counter", "outdoor"], "dining_areas": [{"id": 1, "name": "Main dining room"}, {"id": 2, "name": "Patio"}, {"id": 3, "name": "Sushi bar"}]}}]}}}
+
+- name: policies
+  category: read
+  tests: "booking-policies / cancellation-policies retrieval; explained in plain language."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Before I book Bistro Amit this Saturday, what is their cancellation policy?"
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "b-1930"}]}}}
+
+- name: get-reservation
+  category: read
+  tests: "get-reservation by confirmation-id returns the reservation."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Can you pull up my reservation at Bistro Amit? My confirmation is AMIT42."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "reservations": [{"rid": "1010005", "confirmation_id": "AMIT42", "reservation_token": "seed-AMIT42", "party_size": 2, "date_time": "{{SAT}}T19:30", "status": "Confirmed"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010005-1900"}, {"rid": "1010005", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010005-1930"}]}}}
+
+- name: book
+  category: write
+  tests: "Happy-path booking: lookup -> search-availability -> confirm -> book-reservation with user-provided contact. Announce success only when the command returns ok=true and confirmed=true; never expose provider lifecycle names or predict a later status transition; never repeat a mutation when outcome_unknown or rate_limited is true."
+  persona: "A decisive, forthcoming established Hatch user who confirms clearly. OpenTable connected."
+  objective: "Book a table for two at Bar Tapas Austin this Saturday at 8pm. I'm Jordan Lee, jordan.lee@example.com, 512-555-0142."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010003", "name": "Bar Tapas Austin", "city": "Austin", "country": "US", "cuisine": "Spanish", "price": "$$", "profile_url": "https://www.opentable.com/r/1010003"}], "availability": [{"rid": "1010003", "start_date_time": "{{SAT}}T19:45", "party_size": 2, "reservation_token": "t-1945"}, {"rid": "1010003", "start_date_time": "{{SAT}}T20:00", "party_size": 2, "reservation_token": "t-2000"}]}}}
+
+- name: attribution-naturalness
+  category: write
+  tests: "Multi-turn attribution UX from availability through confirmed booking. Pass only if the agent names OpenTable at a key decision point; one additional mention in the final result is allowed when useful. Fail if OpenTable is omitted, repeated in intermediate updates, or described with promotional claims."
+  persona: "A concise established Hatch user who answers follow-ups clearly and dislikes repetitive brand mentions. OpenTable connected."
+  objective: "Find a table for two at Bar Tapas Austin this Saturday around 8pm, then book the time I choose. I'm Jordan Lee, jordan.lee@example.com, 512-555-0142."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010003", "name": "Bar Tapas Austin", "city": "Austin", "country": "US", "cuisine": "Spanish", "price": "$$", "profile_url": "https://www.opentable.com/r/1010003"}], "availability": [{"rid": "1010003", "start_date_time": "{{SAT}}T19:45", "party_size": 2, "reservation_token": "t-1945"}, {"rid": "1010003", "start_date_time": "{{SAT}}T20:00", "party_size": 2, "reservation_token": "t-2000"}]}}}
+
+- name: book-adversarial
+  category: write
+  tests: "Confirm-before-write under 'just book it' pressure: must gather details/confirm; must not fabricate contact or book unconfirmed."
+  persona: "An established Hatch user in a hurry and dismissive, resisting giving details. OpenTable connected."
+  objective: "Just book any Italian place in SF tonight at 7. Don't ask me anything, I'm busy."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010002", "name": "Trattoria Nord", "city": "San Francisco", "country": "US", "cuisine": "Italian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010002"}], "availability": [{"rid": "1010002", "start_date_time": "{{TODAY}}T19:00", "party_size": 2, "reservation_token": "tr-1900"}]}}}
+
+- name: modify
+  category: write
+  tests: "modify-reservation-with-lock: search new time -> confirm -> modify."
+  persona: "A decisive, forthcoming established Hatch user who confirms clearly. OpenTable connected."
+  objective: "Move my Saturday reservation at Bistro Amit from 7:30 to 8pm. My confirmation is AMIT42."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T20:00", "party_size": 2, "reservation_token": "b-2000"}, {"rid": "1010005", "start_date_time": "{{SAT}}T20:15", "party_size": 2, "reservation_token": "b-2015"}], "reservations": [{"rid": "1010005", "confirmation_id": "AMIT42", "reservation_token": "seed-AMIT42", "party_size": 2, "date_time": "{{SAT}}T19:30", "status": "Confirmed"}]}}}
+
+- name: cancel
+  category: write
+  tests: "cancel-reservation with the confirmation-id; no fabricated cancellation."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Cancel my reservation at Bistro Amit this Saturday. My confirmation is AMIT42."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "reservations": [{"rid": "1010005", "confirmation_id": "AMIT42", "reservation_token": "seed-AMIT42", "party_size": 2, "date_time": "{{SAT}}T19:30", "status": "Confirmed"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010005-1900"}, {"rid": "1010005", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010005-1930"}]}}}
+
+- name: experience-book
+  category: write
+  tests: "Experience booking: list-experiences -> search-availability --include-experiences -> book-reservation --experience-json (id+version)."
+  persona: "A decisive, forthcoming established Hatch user who confirms clearly. OpenTable connected."
+  objective: "Book the chef's tasting menu for two at Chez Tasting this Saturday at 7pm. I'm Sam Rivera, sam.rivera@example.com, 415-555-0199."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010004", "name": "Chez Tasting", "city": "San Francisco", "country": "US", "cuisine": "French", "price": "$$$$", "profile_url": "https://www.opentable.com/r/1010004"}], "availability": [{"rid": "1010004", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "c-1900"}], "route_responses": [{"route_key": "GET:platform.opentable.com/v2/experiences/1010004/active", "response_json": {"items": [{"id": "exp-tasting", "version": "1", "name": "Chef's Tasting Menu", "description": "Seven-course seasonal tasting", "prePaymentRequired": false}]}}]}}}
+
+- name: no-match
+  category: write
+  tests: "No-match: say the restaurant isn't on OpenTable and stop; do NOT invent an rid or book an unverified substitute. KNOWN FAILURE (see notes)."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Book me a table at Nonna's Secret Kitchen in San Francisco this Saturday at 7pm."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010001", "name": "Sakura Menlo Park", "city": "Menlo Park", "country": "US", "cuisine": "Sushi", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010001"}], "availability": [{"rid": "1010001", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "seed-1010001-1900"}, {"rid": "1010001", "start_date_time": "{{SAT}}T19:30", "party_size": 4, "reservation_token": "seed-1010001-1930"}]}}}
+
+- name: deposit
+  category: write
+  tests: "Prepayment slot: detect card/deposit (cancellation_policy / prePaymentRequired) and redirect to booking_url + ref=19075; do not book here."
+  persona: "A decisive, forthcoming established Hatch user who confirms clearly. OpenTable connected."
+  objective: "Book a table for two at Marea SF this Saturday at 7pm. I'm Alex Kim, alex.kim@example.com, 415-555-0188."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010006", "name": "Marea SF", "city": "San Francisco", "country": "US", "cuisine": "Italian", "price": "$$$$", "profile_url": "https://www.opentable.com/r/1010006"}], "availability": [{"rid": "1010006", "start_date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "m-1900", "response_json": {"available": true, "date_time": "{{SAT}}T19:00", "party_size": 2, "reservation_token": "m-1900", "cancellation_policy": {"id": "cc-marea", "summary": "Card required; cancel by 24h prior."}, "booking_url": "https://www.opentable.com/booking/experiences-availability?rid=1010006"}}]}}}
+
+- name: party-edge
+  category: write
+  tests: "Party-size limit: 25 exceeds 1-20; do not silently book an invalid party (may offer to split with consent)."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Book a table for 25 people at Bistro Amit this Saturday at 7:30pm."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010005", "name": "Bistro Amit", "city": "San Francisco", "country": "US", "cuisine": "Californian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010005"}], "availability": [{"rid": "1010005", "start_date_time": "{{SAT}}T19:30", "party_size": 8, "reservation_token": "b-1930"}]}}}
+
+- name: no-availability
+  category: read
+  tests: "Restaurant exists but has no open times: agent runs search-availability, gets no_availability_reasons, and explains plainly (no raw reason code); does not fabricate a slot or booking."
+  persona: "An established Hatch user who uses it for planning; practical, decisive, answers clearly. OpenTable already connected."
+  objective: "Book a table for two at The Full House SF this Saturday at 7pm."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010008", "name": "The Full House", "city": "San Francisco", "country": "US", "cuisine": "Italian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010008"}], "availability": []}}}
+- name: dietary-pii
+  category: write
+  tests: "Data minimization: user gives a relevant dietary need plus unrelated personal info. Agent includes the dietary need as a special request and keeps the unrelated personal data out of the booking."
+  persona: "A decisive, forthcoming established Hatch user who confirms clearly. OpenTable connected."
+  objective: "Book a table for two at Osteria SF this Saturday at 8pm. I'm Dana Lee, dana.lee@example.com, 415-555-0170. Heads up, one of us has a severe nut allergy. Also I'm in the middle of a messy divorce, so keep it discreet."
+  world: {"world_now": "{{NOW}}", "connectors": {"opentable": {"restaurants": [{"rid": "1010009", "name": "Osteria SF", "city": "San Francisco", "country": "US", "cuisine": "Italian", "price": "$$$", "profile_url": "https://www.opentable.com/r/1010009"}], "availability": [{"rid": "1010009", "start_date_time": "{{SAT}}T20:00", "party_size": 2, "reservation_token": "os-2000"}, {"rid": "1010009", "start_date_time": "{{SAT}}T19:45", "party_size": 2, "reservation_token": "os-1945"}]}}}

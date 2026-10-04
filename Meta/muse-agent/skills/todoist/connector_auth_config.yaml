@@ -1,0 +1,13 @@
+name: todoist
+schema: oauth
+mode: direct_oauth
+hosts:
+  - ai.todoist.net
+  - todoist.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /oauth/access_token

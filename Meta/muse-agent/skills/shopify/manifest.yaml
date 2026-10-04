@@ -1,0 +1,86 @@
+version: 1
+connector: shopify
+category: business
+display_name: Shopify
+description: Manage your store’s products, orders and customers
+icon: shopify
+request_quota:
+  mode: shadow
+  workers: [shopify]
+  queries_per_minute: 60
+  burst: 10
+cli:
+  binary: shopify
+  skill: shopify
+  service: shopify
+actions:
+  read:
+    default: allow
+    label: Read Shopify documentation, store planning suggestions, and store data
+    methods:
+      documentation.read:
+        label: Search Shopify documentation and validate GraphQL operations
+        approval_phrase: search Shopify documentation and validate GraphQL operations
+        response_guard: verification_codes
+      planning.read:
+        label: Read sample catalogs, business names, available domains, and storefront previews
+        approval_phrase: read Shopify store planning suggestions and storefront previews
+        response_guard: verification_codes
+      catalog.read:
+        label: Read products, collections, inventory, and store details
+        approval_phrase: read catalog and inventory data in your Shopify store
+        response_guard: verification_codes
+      orders.read:
+        label: Read orders and customers
+        approval_phrase: read orders and customers in your Shopify store
+        response_guard: verification_codes
+      admin.read:
+        label: Read analytics and other Shopify Admin data
+        approval_phrase: read analytics or other Shopify Admin data
+        response_guard: verification_codes
+  write:
+    default: ask
+    label: Create or change Shopify store data
+    methods:
+      catalog.manage:
+        label: Create and update products, collections, and inventory
+        approval_phrase: change catalog or inventory data in your Shopify store
+      catalog.import:
+        label: Import and publish sample products and collections
+        approval_phrase: import and publish sample products and collections in your Shopify store
+      discounts.manage:
+        label: Create discounts
+        approval_phrase: create discounts in your Shopify store
+      store.switch:
+        label: Switch the connected store
+        approval_phrase: switch the connected Shopify store
+      storefront.claim:
+        label: Confirm a storefront preview selection and reset the store connection
+        approval_phrase: confirm your Shopify storefront preview selection and reset the store connection
+      admin.manage:
+        label: Change other Shopify Admin data with GraphQL
+        approval_phrase: change other Shopify Admin data with GraphQL
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: null
+  list-tools: documentation.read
+  # The CLI classifies every reviewed Shopify tool at runtime. Unknown or
+  # newly advertised tools remain unavailable until explicitly mapped.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Shopify"
+      text: "Muse will access things like products, orders, customers, discounts and store content."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Shopify. To learn more, view their [terms](https://www.shopify.com/legal/terms) and [privacy policy](https://www.shopify.com/legal/privacy/merchants)."
+    - "Public documentation and store planning tools work before sign-in; store tools use your connected Shopify identity. You can disconnect at any time in Settings."

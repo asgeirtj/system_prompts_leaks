@@ -1,0 +1,8 @@
+{
+  "runtime": "typescript",
+  "platformVersion": 24,
+  "entry": "client/dist/index.html",
+  "name": __SPACE_NAME_JSON__,
+  "slug": __SPACE_SLUG_JSON__,
+  "managedCronJobs": []
+}

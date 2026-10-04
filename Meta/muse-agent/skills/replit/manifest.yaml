@@ -1,0 +1,69 @@
+version: 1
+connector: replit
+category: business
+display_name: Replit
+description: Build, update and publish apps with AI
+icon: replit
+request_quota:
+  mode: shadow
+  workers: [replit]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: replit
+  skill: replit
+  service: replit
+declarable_scopes: &all_scopes
+  - apps:read
+  - apps:write
+  - offline_access
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      apps.read:
+        label: Find and inspect apps
+        approval_phrase: read apps in Replit
+        requires_scopes: &read_access
+          - apps:read offline_access
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      apps.create:
+        label: Create apps
+        approval_phrase: create apps in Replit
+        requires_scopes: &write_access
+          - apps:read apps:write offline_access
+      apps.edit:
+        label: Edit apps
+        approval_phrase: edit apps in Replit
+        requires_scopes: *write_access
+      apps.publish:
+        label: Publish apps
+        approval_phrase: publish apps from Replit
+        requires_scopes: *write_access
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: apps.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Replit"
+      text: "Muse will access things like apps, prompts and publishing status."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "The first connection requests read-only access. You can add write access in Settings when you want Muse to create, edit, or publish Replit apps; those actions still require approval."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Replit. To learn more, view their [terms](https://replit.com/terms-of-service) and [privacy policy](https://replit.com/privacy-policy)."

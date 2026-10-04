@@ -1,0 +1,58 @@
+version: 1
+connector: instagram
+category: social
+display_name: Instagram
+description: Catch up on friends and the creators you love
+request_quota:
+  mode: shadow
+  workers:
+    - instagram-cli
+    - instagram-messages-cli
+  queries_per_minute: 600
+  burst: 100
+# The `account-insights` command is keyed to interactions.read but returns the
+# account-level insight metrics "Access analytics" (analytics.read) governs, so
+# interactions.read is an account-insights DATA CLASS emitter. While analytics
+# is deny/ask, Sentinel attaches an exclusion constraint and the trusted worker
+# refuses the account-insights command; other interaction reads (followers,
+# comments, likes) carry no insight metrics and proceed.
+data_classes:
+  account_insights:
+    governed_by: analytics.read
+    emitted_by:
+      - interactions.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      content.read:
+        label: Access content
+        approval_phrase: access content on Instagram
+      interactions.read:
+        label: Access followers, comments, likes, and insights
+        approval_phrase: access your followers, comments, likes, and insights on Instagram
+      analytics.read:
+        label: Access analytics
+        approval_phrase: access Instagram analytics
+      algorithm.read:
+        label: Access your algorithm
+        approval_phrase: access your Instagram algorithm
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      profile.edit:
+        label: Edit your profile
+        approval_phrase: edit your Instagram profile
+      algorithm.update:
+        default: allow
+        label: Edit your algorithm
+        approval_phrase: update your Instagram algorithm
+      content.post:
+        label: Post content
+        approval_phrase: post this content to Instagram
+      saved.write:
+        default: allow
+        label: Manage saved posts
+        approval_phrase: manage your saved posts on Instagram

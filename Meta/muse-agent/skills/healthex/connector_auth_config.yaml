@@ -1,0 +1,12 @@
+name: healthex
+schema: oauth
+mode: direct_oauth
+hosts:
+- api.healthex.io
+token_proxy:
+- field: credentials.access_token
+  placement: bearer_header
+stripped:
+- credentials.refresh_token
+token_refresh:
+- path: /oauth/token

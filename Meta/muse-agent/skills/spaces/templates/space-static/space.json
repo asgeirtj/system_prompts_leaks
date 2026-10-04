@@ -1,0 +1,8 @@
+{
+  "runtime": "static",
+  "platformVersion": 15,
+  "entry": "index.html",
+  "name": __SPACE_NAME_JSON__,
+  "slug": __SPACE_SLUG_JSON__,
+  "managedCronJobs": []
+}

@@ -1,0 +1,50 @@
+version: 1
+connector: plaid
+category: productivity
+display_name: Finances (Plaid)
+description: Securely connect to institutions to access financial data
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      accounts.read:
+        default: allow
+        label: View account details
+        approval_phrase: view account details in Finances (Plaid)
+      transactions.read:
+        label: View transactions and recurring activity
+        approval_phrase: view transactions and recurring activity in Finances (Plaid)
+      investments.read:
+        label: View investments and investment activity
+        approval_phrase: view investments and investment activity in Finances (Plaid)
+      liabilities.read:
+        label: View loans and liabilities
+        approval_phrase: view loans and liabilities in Finances (Plaid)
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: null
+  accounts: accounts.read
+  transactions-get: transactions.read
+  transactions-sync: transactions.read
+  investments-holdings: investments.read
+  investments-transactions: investments.read
+  liabilities: liabilities.read
+  transactions-recurring: transactions.read
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Plaid"
+      text: "Muse will access things like account name, financial institution, balances and transactions. Muse cannot access your full account or routing numbers."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Plaid. To learn more, view their [terms](https://plaid.com/legal/) and [privacy policy](https://plaid.com/legal/#end-user-privacy-policy)."

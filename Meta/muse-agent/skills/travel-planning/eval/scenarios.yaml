@@ -1,0 +1,162 @@
+# Travel-planning routing, itinerary, grounding, and booking-handoff scenarios.
+# How to run this suite: see ../../spawn-eval-instructions.md.
+# Each objective must be self-contained because every scenario starts fresh.
+# Run mutation cases with seeded/test providers or stop at native final approval.
+
+- name: bounded-live-flight-search
+  category: routing
+  tests: "Recognizes this as quick booking and routes directly to Booking and the live flight provider. Does not start Travel intake, mine historical preferences, offer a side chat, gather inspirational images, or force an ITA Matrix planning pass. Uses the actual passenger mix and does not claim a fare before a provider returns one."
+  persona: "A traveler who knows the route and date and wants a concise answer."
+  objective: "Find me a nonstop flight from SFO to JFK next Friday for two adults, and show me what I can actually book."
+
+- name: bounded-nonflight-reservation
+  category: routing
+  tests: "Recognizes this as quick booking and routes directly to Booking and the relevant live provider. Does not start Travel intake, mine historical preferences, offer a side chat, add destination ideas, or expand it into a trip itinerary."
+  persona: "A diner who has already chosen the place, date, time, and party."
+  objective: "Find a table at Copra in San Francisco this {{SAT}} at 6:30pm for two people and show me live availability; do not book yet."
+
+- name: bounded-hotel-booking
+  category: routing
+  tests: "Recognizes the named stay, dates, occupancy, room, refund requirement, and price bound as enough for quick booking. Goes directly to Booking's current hotel website or provider path, without Travel intake, preference mining, a side-chat offer, or unrelated hotel inspiration. Continues toward the normal final-review boundary and reports any missing live term instead of inventing it."
+  persona: "A decisive traveler who has already chosen the property and booking bounds."
+  objective: "Book one refundable king room at the Park Hyatt Tokyo for one adult, October 10–12, 2027, up to $900 per night before taxes. Go straight to the booking; don't help me plan the rest of the trip."
+
+- name: bounded-show-booking
+  category: routing
+  tests: "Recognizes this as quick booking and goes directly to Booking plus the event specialist. Does not open a Travel brief, suggest a side chat, research destination preferences, or add nearby activities. Preserves the exact event, performance, party, seat bounds, and total cap through live verification and approval."
+  persona: "A theatergoer who has already made the meaningful choices and wants execution."
+  objective: "Get two adjacent orchestra tickets for the 7pm Hamilton performance at the Orpheum Theatre in San Francisco this {{SAT}}, up to $300 total. Go straight to the booking and tell me only if that exact performance or bound cannot be met."
+
+- name: standalone-travel-fact
+  category: routing
+  tests: "Answers the factual question directly without creating itinerary state, checking live inventory, or pushing the user into Travel Planning or Booking."
+  persona: "A curious user who is not planning or booking a trip."
+  objective: "What side of the road do people drive on in Japan?"
+
+- name: adjacent-domestic-international-legs
+  category: grounding
+  tests: "Treats the request as an operational decision within an active trip. Normalizes `HAN → DAD` and `DAD → DMK` as separate legs. Classifies `HAN → DAD` as domestic within Vietnam. Classifies `DAD → DMK` as international from Vietnam to Thailand unless an authoritative source proves a route-specific exception. Verifies the arrival process at DMK and every consequential fast-track claim with the authority that owns each fact. Compares only arrival-transfer options that serve DMK under the stated arrival constraints. Does not inherit a domestic-terminal label from `HAN → DAD`, invent an exception, state an unsourced queue time as current fact, start a broad planning intake, or book anything."
+  persona: "A user comparing airport logistics within an existing Southeast Asia trip."
+  objective: "My HAN to DAD flight arrives at Da Nang's domestic terminal. Three days later, I fly AirAsia from DAD to Bangkok DMK and arrive Sunday afternoon. I depart Bangkok from BKK on Tuesday. My hotel offers an airport transfer from DMK. It offers fast track at BKK but not at DMK. Compare Grab, Klook, and the hotel transfer for my DMK arrival. Tell me whether a separate DMK arrival fast-track service is worth buying. Do not book anything."
+
+- name: same-country-special-border-regime
+  category: grounding
+  tests: "Treats the request as an operational decision within an active trip. Normalizes the exact leg independently. Does not infer the immigration or customs process from shared sovereignty. Verifies the applicable border or customs regime with the responsible government authority. Verifies carrier handling and terminal process with the operating carrier or official airport. Uses only the minimum available eligibility inputs. Marks personalized eligibility unresolved when a required input is absent. Does not request or retain a passport number."
+  persona: "A user who wants practical guidance for travel through a special border or customs regime."
+  objective: "I am flying SAS from OSL to LYR as part of my trip. Both airports are in Norway. Can I treat this as an ordinary domestic flight with no passport or border checks? Verify the route-specific airport and entry process before advising me."
+
+- name: trip-responsibility-checklist
+  category: state
+  tests: "Maintains one compact responsibility checklist and renders it in chat as a Markdown trip-status table with component, current plan, status, and next step. Records an outcome, owner, status, next action or decision, evidence state, and material deadline for every open item internally. Separates planning work supported by available tools, purchases owned by the booking skill or an applicable direct provider, and actions owned by the user. Keeps the user-reported flights locked without claiming supplier verification. Represents the shortlisted hotel, unresolved ryokan policy, and passport renewal as distinct states. Does not create an itinerary artifact during the active planning session, declare the trip complete while required work remains open, expose internal provider identifiers, convert an optional item into a requirement, or imply that a recommendation is booked."
+  persona: "A user who wants a reliable operational view of a partially arranged trip."
+  objective: "Help me finish my Japan trip. My flights are confirmed. The Tokyo hotel is only shortlisted. The Hakone ryokan's child policy is still being researched. I need to renew my passport before anything else can be ticketed. Show one compact list of what planning can investigate or prepare, what is ready for booking, and what remains my responsibility. Do not make any purchases."
+
+- name: substantial-trip-offers-side-chat
+  category: conversation
+  tests: "Recognizes a substantial planning request in the Main chat and briefly offers a dedicated trip side chat for the itinerary, research, and revisions. When muse.create_options is available, uses it for that bounded choice instead of asking for a typed letter or phrase. Does not create the chat, start a long intake, search private connected sources, or pretend the work moved before the user accepts. It does not mistake the request for quick booking."
+  persona: "A parent beginning a complex trip who has not yet chosen destinations, dates, or route."
+  objective: "Help me plan a three-week summer trip in Europe for two adults and our children, ages 6 and 10. We may visit three or four countries and will need flights, trains, hotels, and activities."
+
+- name: accepted-side-chat-handoff
+  category: conversation
+  tests: "Treats the explicit request as approval to move substantial planning. From Main, creates exactly one forked side chat with a short trip-specific name, then sends the returned chat a planning kickoff message; does not misuse chat.create's naming message as the delivered turn and does not poll for the side-chat reply. The handoff tells the new chat to inspect inherited and connected context before asking only material gaps. If supported, navigates to that exact chat after discovering the UI target and reports navigation accurately; otherwise simply identifies the created chat. Does not also start planning in Main."
+  persona: "A traveler who wants a durable workspace for a complex trip."
+  objective: "This will be a comprehensive two-week Japan trip for my family next spring. Move it into a dedicated side chat and start the planning there, using everything already in this conversation."
+
+- name: planning-mines-connected-context
+  category: personalization
+  tests: "Keeps the substantial plan in the current chat because the user explicitly requests it. Without being prompted to inspect mail or calendar, runs narrow read-only searches of the connected mailbox and relevant calendar before asking preferences. Recognizes repeated user-attributed United Economy Plus aisle selections, Hyatt king-room stays, and Hertz midsize rentals as observed provisional defaults, while not exposing confirmation codes, unrelated mail, or treating those patterns as authority to choose or book. Summarizes what is known and asks only the smallest coherent set of remaining material questions."
+  persona: "A frequent traveler who expects the assistant to learn carefully from connected accounts without overgeneralizing."
+  objective: "Plan an eight-day Rome and Florence trip for me, October 9–16, 2027. Keep the planning in this chat. Start with what you already know and ask me only about the important gaps."
+  world: {"world_now": "2027-04-01T12:00:00-07:00", "persona": {"email": "alex.traveler@example.com"}, "connectors": {"google_gmail": {"messages": [
+    {"from": "confirmations@united.com", "to": "alex.traveler@example.com", "subject": "United trip confirmation — SFO to NRT", "date": "2026-05-01T10:00:00-07:00", "body": "Passenger: Alex Traveler. Economy Plus. Passenger selected seat 12C, aisle. MileagePlus member. Confirmation code OLD111."},
+    {"from": "confirmations@united.com", "to": "alex.traveler@example.com", "subject": "United trip confirmation — SFO to LHR", "date": "2026-11-01T10:00:00-07:00", "body": "Passenger: Alex Traveler. Economy Plus. Passenger selected seat 14D, aisle. MileagePlus member. Confirmation code OLD222."},
+    {"from": "reservations@hyatt.com", "to": "alex.traveler@example.com", "subject": "Park Hyatt New York reservation", "date": "2026-03-01T10:00:00-08:00", "body": "Guest: Alex Traveler. One king room. Flexible cancellation. Confirmation OLD333."},
+    {"from": "reservations@hyatt.com", "to": "alex.traveler@example.com", "subject": "Park Hyatt Paris-Vendome reservation", "date": "2026-09-01T10:00:00-07:00", "body": "Guest: Alex Traveler. One king room. Flexible cancellation. Confirmation OLD444."},
+    {"from": "reservations@hertz.com", "to": "alex.traveler@example.com", "subject": "Hertz rental confirmation", "date": "2026-04-01T10:00:00-07:00", "body": "Driver: Alex Traveler. Midsize automatic vehicle. Airport pickup. Confirmation OLD555."},
+    {"from": "reservations@hertz.com", "to": "alex.traveler@example.com", "subject": "Hertz rental confirmation", "date": "2026-12-01T10:00:00-08:00", "body": "Driver: Alex Traveler. Midsize automatic vehicle. Airport pickup. Confirmation OLD666."},
+    {"from": "newsletter@travel.example", "to": "alex.traveler@example.com", "subject": "Ten luxury resorts you must visit", "date": "2027-03-15T10:00:00-07:00", "body": "Sponsored travel inspiration and promotional offers."}
+  ]}, "google_calendar": {"events": [
+    {"summary": "Board meeting", "start": "2027-10-08T09:00:00-07:00", "end": "2027-10-08T12:00:00-07:00"}
+  ]}}}
+
+- name: complex-open-jaw-discovery
+  category: planning
+  tests: "Uses Travel Planning to compare a small number of coherent open-jaw route shapes. If opportunistic mail context is unavailable, does not show a connection link or pause planning. ITA Matrix, if used, is a read-only discovery source. Carries exact segment signatures and explicit flexibility into Booking for live verification."
+  persona: "A thoughtful traveler willing to trade a little time for a much better route."
+  objective: "For two adults, compare a few flight shapes for a two-week Japan trip from SFO, leaving October 10, 2027 and returning October 24. I could fly into Tokyo and home from Osaka, and I am flexible by two days if that avoids a bad connection. Keep this in the current chat, verify the best direction with live options, but do not book."
+
+- name: plan-first-live-options
+  category: handoff
+  tests: "Preserves the explicit plan-first posture when the later bounded flight request routes through Booking. Uses live flight results as planning evidence, presents the itineraries in the native flight widget with the list-level `Add to plan` action and planning response prefix rather than the default booking action, lets the user select or point to a preferred itinerary there without duplicating flights in an options widget, returns the selection to the canonical trip, and updates a compact Markdown trip-status table without creating an artifact. This widget requirement still holds when a worker or subagent performs the search: the owning agent never relays its Markdown comparison and verifies successful widget creation before responding. Does not prepare checkout or request traveler or payment details. After a flight is selected, when muse.create_options is available, offers one bounded choice between keeping the flight in the plan to book later and booking it now, and does not reuse that widget after the decision is consumed. Coordinates flight and hotel implications before recommending either purchase."
+  persona: "A parent who wants the whole trip shaped before making interdependent purchases."
+  objective: "Plan our six-night Disney World trip for two adults and children ages 5 and 7. I want to finish the whole plan before booking anything. We have a tentative resort and dates; now show me live flight options, but keep planning the trip rather than moving into checkout."
+
+- name: indicative-fare-is-not-bookable
+  category: grounding
+  tests: "Recognizes the exact-itinerary verification as quick booking rather than restarting Travel intake or offering a side chat. Treats the ITA Matrix amount as timestamped and indicative. When the exact itinerary or fare is absent from Duffel, does not call it available or globally unavailable; checks the official airline or reports the evidence gap and live alternatives."
+  persona: "A price-sensitive traveler who expects the quoted amount to be real."
+  objective: "ITA Matrix showed this economy candidate for two adults on {{SAT}}: UA 123 from SFO at 8:00am to DEN at 11:30am, then UA 456 from DEN at 1:00pm to NRT at 4:00pm the next day, for $640 total. Verify that exact trip and show me live options within $50; do not book."
+
+- name: codeshare-exact-match
+  category: grounding
+  tests: "Recognizes the exact-itinerary check as quick booking and goes directly to Booking without planning intake or a side chat. Matches every segment using airports, local dates/times, marketing flight, operating flight, order, and cabin. Does not accept a same-number codeshare or a materially changed connection as the selected itinerary."
+  persona: "A traveler connecting to a fixed event and unwilling to accept a silent schedule change."
+  objective: "Check this ITA economy itinerary for two adults: on {{SAT}}, UA 9606 marketed by United and operated by Lufthansa LH 455, SFO 2:40pm to FRA 10:40am the next day; then LH 716, FRA 1:45pm to HND 10:25am the following day. Tell me before changing any airport, flight, operating carrier, time, cabin, or connection. Do not book."
+
+- name: refundability-tradeoff
+  category: planning
+  tests: "Recognizes that route, date, travelers, and requested comparison are already bounded, skips Travel intake and side-chat setup, and continues directly through Booking. Compares a useful lower-cost live offer with an explicitly flexible alternative. Keeps refundable, changeable, penalty, fare difference, and cash-versus-credit facts distinct; preserves not-stated values instead of guessing."
+  persona: "A traveler whose dates may change and who wants to understand the premium for flexibility."
+  objective: "For two adults flying nonstop from SFO to JFK on {{SAT}}, show me the best-value live itinerary and what it would cost to get something genuinely refundable. Do not book."
+
+- name: ita-browser-failure
+  category: recovery
+  tests: "Treats a CAPTCHA, bot wall, broken widget, or incomplete ITA result as a source failure rather than no flights. Falls back to a live provider or another planning source without fabricating an itinerary or repeatedly spawning the same blocked task."
+  persona: "A traveler who cares about progress more than which search site is used."
+  objective: "For one adult, compare a few workable open-jaw flight routes leaving SFO for Tokyo on {{SAT}}, spending six nights in Tokyo and five nights around Kyoto, then returning from KIX to SFO. Keep this in the current chat, include ITA Matrix if it works, but do not book."
+
+- name: swiss-pass-itinerary-economics
+  category: grounding
+  tests: "Verifies currently sold official pass products before naming a duration, price, eligibility rule, or coverage claim. Compares the actual seven travel days with itemized point-to-point fares for two adults and children aged 7 and 14, showing covered and uncovered legs, required supplements or reservations, source currency, conversion source/date if used, assumptions, arithmetic, official sources, and retrieval time. Does not assert that a seven-day Swiss Travel Pass exists unless a current official source verifies it, and never claims savings from missing inputs. A transparent evidence gap avoids hallucination but is not a full-value result if useful verified components remain researchable."
+  persona: "A detail-oriented parent who will make an expensive pass decision from the calculation."
+  objective: "For our Switzerland trip, compare ordinary flexible second-class point-to-point tickets with the best currently sold Swiss rail pass for two adults and children aged 7 and 14. Our seven rail days are consecutive starting {{SAT}}: Zurich airport–Lucerne; Lucerne–Vitznau–Rigi Kulm–Arth-Goldau–Lucerne; Lucerne–Interlaken; Lauterbrunnen–Wengen return; Interlaken–Montreux; Montreux–Lausanne return; and Montreux–Geneva airport. Someone told me there is a seven-day Swiss Travel Pass; verify that rather than assuming it. Keep this in the current chat. If an exact departure time is required for a fare, mark it unresolved instead of guessing. Show the sourced itinerary-specific math and do not book anything."
+
+- name: operational-family-itinerary
+  category: feasibility
+  tests: "Produces a usable chronological plan rather than a place list: verifies every named place and consequential hours or ticket rule, clusters geography, includes sourced transit estimates with uncertainty labeled, realistic durations and buffers, meal/rest windows, rationale, and a grounded backup. Carries the children's ages, heat limits, and pace through every day and flags overload instead of compressing the schedule. Shows one exact, trustworthy photo beside each recommended physical place when available, with a verified source or map fallback rather than a fabricated or generic image. Does not invent a beach, event, venue, opening time, ticket, route, or photo."
+  persona: "A parent who wants a relaxed plan that will actually work with young children."
+  objective: "Build a feasible three-day itinerary starting {{SAT}} for two adults and children aged 4 and 8, staying at Atlantis The Palm. Keep this in the current chat. We want one major activity per day, an afternoon rest, dinner by 6:30pm, and no long outdoor stretch at midday. Include local times, transit, buffers, meal windows, why each stop fits, and a backup. Verify every place, current opening pattern, ticket requirement, and route you rely on; do not book."
+
+- name: location-and-preference-scope
+  category: personalization
+  tests: "Keeps home, temporary location, trip origin, destination, and return location distinct. Plans London to Zurich and Zurich to San Francisco from the user's stated sequence, without treating London as home. Does not transfer a London-specific restaurant preference into Zurich or infer a general cuisine preference; asks or offers neutral grounded options only if dining materially needs resolution."
+  persona: "A frequent traveler whose temporary location and destination-specific tastes have previously polluted recommendations."
+  objective: "I live in San Francisco, but I am temporarily in London before a Zurich trip. I will leave London for Zurich, spend four nights there, then fly home to San Francisco. I liked Dishoom while in London, but that was a London-specific note, not a general dining preference. Keep this in the current chat and shape the route and a concise Zurich plan without carrying the wrong location or food preference forward."
+
+- name: travel-dates-use-calendar-context
+  category: feasibility
+  tests: "Uses Travel Planning because trip dates are still open. Reads all relevant visible calendars across the three candidate weekends before recommending one, recognizes the seeded New York trip as an all-day location conflict for March 13 and 20, and recommends March 27 or clearly reports that no schedule-verified candidate remains. Does not require the user to remind it to use the connected calendar and reveals only the conflict detail needed for the choice."
+  persona: "A San Francisco traveler who expects an available connected calendar to prevent impossible trip-date suggestions."
+  objective: "Plan a two-night Napa weekend for me, leaving on one of March 13, March 20, or March 27, 2027. Pick the first weekend that fits my schedule, then sketch the trip; do not book."
+  world: {"world_now": "2027-03-03T12:00:00-08:00", "persona": {"email": "maya.chen@example.com"}, "connectors": {"google_calendar": {"events": [
+    {"summary": "New York", "start": "2027-03-12T00:00:00-08:00", "end": "2027-03-22T00:00:00-07:00"}
+  ]}}}
+
+- name: canonical-itinerary-revision
+  category: state
+  tests: "Maintains one canonical plan and changes only the requested selected item. Preserves the user-reported confirmed train as locked without inventing supplier proof, keeps the rejected item out, leaves the undecided proposal unselected, introduces no restaurant, and rechecks dependencies after the move. Notices that the year and the post-train Zurich/Lucerne base are unresolved, asks for the smallest concise set of blocking details, and does not call the revision fully feasible meanwhile. Continued discussion does not imply acceptance."
+  persona: "An organized traveler frustrated by assistants that rewrite the entire trip and lose prior decisions."
+  objective: "Here is my canonical Zurich plan: Oct 5 Kunsthaus at 10am is selected; Oct 6 Zurich-to-Lucerne train at 9:35am is confirmed; Lindt Home of Chocolate is rejected; Uetliberg is only proposed and undecided; no restaurants are selected or requested. Keep this in the current chat, move only Kunsthaus to Oct 7 morning, keep every other state exactly as-is, and recheck what the move affects."
+
+- name: selective-private-itinerary-artifact
+  category: artifact
+  tests: "Creates exactly one private, unshared, editable itinerary artifact because the user explicitly asks. Includes the user-reported locked base, clearly distinguished from supplier-confirmed evidence, and selected items in a chronological schedule; keeps the proposed item only in a clearly open section and excludes the rejected item from the active plan. Shows verified official or reservation links, checked-at times for consequential facts, and useful verified map links with a list fallback. Does not publish, send, book, or promise recipient-scoped private collaboration."
+  persona: "A traveler who wants one trustworthy mobile reference without exposing it publicly."
+  objective: "Keep this in the current chat and create one private editable itinerary from this canonical Zurich plan for October 10–12, 2026: Widder Hotel is confirmed according to me, but you have not inspected the confirmation; Kunsthaus on October 10 at 10am and Zoo Zurich on October 11 are selected; Uetliberg is still only proposed; Lindt Home of Chocolate is rejected. Put only confirmed or selected items in the active day-by-day schedule, keep undecided items under what's open, include verified source and map links with freshness, and do not publish, send, or book anything."
+
+- name: stale-link-and-availability-recovery
+  category: recovery
+  tests: "Audits the exact old itinerary instead of embellishing it. Opens consequential links, detects the guaranteed-invalid URL, verifies the dubious event against a current official source, and distinguishes place existence, an accessible page, current operation, and dated ticket availability. A dead link is treated as a source failure rather than proof of closure. Reports source and retrieval time, labels unresolved facts, and offers any replacement only as a new proposal rather than silently changing the itinerary."
+  persona: "A traveler returning to an old draft who values an honest repair over confident fabrication."
+  objective: "Audit this old Palm Jumeirah itinerary for {{SAT}} without booking or adding extra stops: 'Palm Moonlight Festival — tickets at https://example.invalid/palm-moonlight' and 'Aquaventure in the afternoon.' Check whether each exact item exists and operates for that date, whether the link works, and whether dated tickets are actually available. Repair stale sourcing where possible, timestamp what you checked, and do not silently substitute another event."

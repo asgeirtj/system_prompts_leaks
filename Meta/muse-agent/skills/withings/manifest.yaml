@@ -1,0 +1,49 @@
+version: 1
+connector: withings
+category: health
+display_name: Withings
+description: Track weight, blood pressure, sleep and overall fitness metrics
+request_quota:
+  mode: enforce
+  workers:
+    - withings
+  queries_per_minute: 90
+  burst: 20
+# The healthkit-shape `query --category daily-metrics` is keyed to
+# activity.read but internally merges getmeas body metrics — weight, blood
+# pressure, heart rate, SpO2 — the data "Read measurements and heart data"
+# (measures.read) governs, so activity.read is a body-measures DATA CLASS
+# emitter. While measures.read is deny/ask, Sentinel attaches an exclusion
+# constraint and the trusted worker skips the measures fan-out, returning
+# activity rows only.
+data_classes:
+  body_measures:
+    governed_by: measures.read
+    emitted_by:
+      - activity.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      measures.read:
+        label: Read measurements and heart data
+      activity.read:
+        label: Read activity, sleep and workouts
+      device.read:
+        label: Read devices
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Withings"
+      text: "Muse will access things like fitness metrics, body measurements and activity data."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. Learn more in our [Privacy Policy](https://www.facebook.com/privacy/policy/) and [Health Policy](https://www.facebook.com/privacy/policies/health/)."
+    - "Muse will exchange info with Withings. To learn more, view their [terms](https://www.withings.com/legal/terms-of-use) and [privacy policy](https://www.withings.com/legal/privacy-policy)."

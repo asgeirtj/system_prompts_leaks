@@ -1,0 +1,83 @@
+# Compatibility-only manifest for Jarvis revisions that still embed the
+# historical Save to Spotify connector. The consolidated Jarvis rollout stops
+# loading this file and migrates these keys to the `spotify` connector.
+version: 1
+connector: save-to-spotify
+display_name: Save to Spotify
+icon: spotify
+description: Publish and manage your shows and episodes
+
+actions:
+  content_read:
+    default: allow
+    label: Read Spotify shows and episodes
+    methods:
+      shows.read:
+        label: List shows and show details
+        approval_phrase: have read access to Spotify
+      episodes.read:
+        label: List episodes and check episode status
+        approval_phrase: have read access to Spotify
+      timeline.read:
+        label: Read episode timeline items
+        approval_phrase: have read access to Spotify
+  content_write:
+    default: ask
+    label: Create and publish shows and episodes
+    methods:
+      shows.write:
+        label: Create a show
+        approval_phrase: publish and manage content on Spotify
+      episodes.write:
+        label: Upload and publish an episode
+        approval_phrase: publish and manage content on Spotify
+      timeline.write:
+        label: Set episode timeline items
+        approval_phrase: publish and manage content on Spotify
+  content_delete:
+    default: allow
+    label: Delete shows, episodes, and timelines
+    methods:
+      shows.delete:
+        label: Delete a show and its episodes
+        approval_phrase: publish and manage content on Spotify
+      episodes.delete:
+        label: Delete an episode
+        approval_phrase: publish and manage content on Spotify
+      timeline.delete:
+        label: Delete episode timeline items
+        approval_phrase: publish and manage content on Spotify
+
+# Frozen historical subcommand mapping for the retired connector. The current
+# wrapper authorizes against the consolidated `spotify` manifest instead.
+commands:
+  upload: episodes.write
+  "shows create": shows.write
+  "shows delete": shows.delete
+  "shows get": shows.read
+  shows: shows.read
+  "episodes create": episodes.write
+  "episodes delete": episodes.delete
+  "episodes status": episodes.read
+  episodes: episodes.read
+  "timeline set": timeline.write
+  "timeline get": timeline.read
+  "timeline delete": timeline.delete
+  list: shows.read
+  # The shared Spotify connector owns auth. The wrapper does not expose auth,
+  # update, or token commands.
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Save to Spotify"
+      text: "Muse will access things like your shows, episodes and episode chapters."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - "Muse will exchange info with Spotify. To learn more, view their [terms](https://www.spotify.com/legal/end-user-agreement/) and [privacy policy](https://www.spotify.com/legal/privacy-policy/)."

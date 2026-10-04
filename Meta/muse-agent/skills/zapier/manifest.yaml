@@ -1,0 +1,80 @@
+version: 1
+connector: zapier
+category: business
+display_name: Zapier
+description: Automate workflows across your apps
+icon: zapier
+request_quota:
+  mode: shadow
+  workers: [zapier]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: zapier
+  skill: zapier
+  service: zapier
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      actions.read:
+        label: Find and inspect actions
+        approval_phrase: inspect available actions in Zapier
+      connections.read:
+        label: Read connections
+        approval_phrase: read connections in Zapier
+      configuration.read:
+        label: Open Zapier configuration
+        approval_phrase: open Zapier configuration
+      skills.read:
+        label: Read Zapier skills
+        approval_phrase: read skills in Zapier
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      actions.execute_read:
+        label: Run Zapier-labeled read actions
+        approval_phrase: run a Zapier-labeled read action
+      actions.configure:
+        label: Configure actions
+        approval_phrase: configure actions in Zapier
+      actions.execute:
+        label: Run actions that make changes
+        approval_phrase: run an action that makes changes through Zapier
+      connections.manage:
+        label: Manage connections
+        approval_phrase: manage connections in Zapier
+      skills.manage:
+        label: Create or update skills
+        approval_phrase: create or update skills in Zapier
+      skills.delete:
+        label: Delete skills
+        approval_phrase: delete skills from Zapier
+      feedback.send:
+        label: Send feedback
+        approval_phrase: send feedback to Zapier
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: actions.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Zapier"
+      text: "Muse will access things like Zaps, connected apps and workflow history."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Zapier. To learn more, view their [terms](https://zapier.com/legal) and [privacy policy](https://zapier.com/privacy)."

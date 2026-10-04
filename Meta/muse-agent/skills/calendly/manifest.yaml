@@ -1,0 +1,41 @@
+version: 1
+connector: calendly
+category: productivity
+display_name: Calendly
+description: View and manage calendar events and scheduling
+request_quota:
+  mode: enforce
+  workers:
+    - calendly
+  queries_per_minute: 300
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      access.read:
+        label: Read access
+        approval_phrase: have read access to Calendly
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      api.write:
+        label: Manage scheduling or account data
+        approval_phrase: manage scheduling or account data in Calendly
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Calendly"
+      text: "Muse will access things like calendars and events."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Calendly. To learn more, view their [terms](https://calendly.com/terms) and [privacy policy](https://calendly.com/legal/privacy-notice)."

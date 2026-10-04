@@ -1,0 +1,14 @@
+name: withings
+schema: oauth
+mode: account_center
+privsep: true
+hosts:
+- wbsapi.withings.net
+- account.withings.com
+token_proxy:
+- field: credentials.access_token
+  placement: bearer_header
+stripped:
+- credentials.refresh_token
+token_refresh:
+- path: /v2/oauth2

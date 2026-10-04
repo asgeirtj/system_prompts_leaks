@@ -1,0 +1,16 @@
+name: philips_hue
+schema: oauth
+mode: account_center
+privsep: true
+hosts:
+- api.meethue.com
+token_proxy:
+- field: credentials.access_token
+  placement: bearer_header
+- field: application_key
+  placement:
+    custom_header: hue-application-key
+stripped:
+- credentials.refresh_token
+token_refresh:
+- path: /v2/oauth2/token

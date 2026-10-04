@@ -1,0 +1,56 @@
+version: 1
+connector: evernote
+category: productivity
+display_name: Evernote
+description: Capture, organize and search your notes
+icon: evernote
+request_quota:
+  mode: shadow
+  workers: [evernote]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: evernote
+  skill: evernote
+  service: evernote
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      library.read:
+        label: Read notebooks and tags
+        approval_phrase: read notebooks and tags in Evernote
+      notes.read:
+        label: Search and read notes
+        approval_phrase: search and read notes in Evernote
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      notes.create:
+        label: Create notes
+        approval_phrase: create notes in Evernote
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: library.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Evernote"
+      text: "Muse will access things like notes, notebooks, tags and attachments."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Evernote. To learn more, view their [terms](https://evernote.com/legal/tos.php) and [privacy policy](https://evernote.com/privacy)."

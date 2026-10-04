@@ -1,0 +1,52 @@
+version: 1
+connector: zoom
+category: business
+display_name: Zoom
+description: Schedule meetings and review recordings and transcripts
+icon: zoom
+request_quota:
+  mode: shadow
+  workers: [zoom]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: zoom
+  skill: zoom
+  service: zoom
+actions:
+  read:
+    default: allow
+    label: Inspect Zoom's MCP capabilities
+    methods:
+      mcp.read:
+        label: Inspect Zoom's MCP capabilities
+        approval_phrase: inspect available Zoom actions
+  write:
+    default: ask
+    label: Use a Zoom MCP tool
+    methods:
+      mcp.call:
+        label: Read or change information through Zoom
+        approval_phrase: perform this action through Zoom
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: mcp.read
+  call-tool: mcp.call
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Zoom"
+      text: "Muse will access things like meetings, participants, recordings, transcripts and summaries."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Zoom. To learn more, view their [terms](https://www.zoom.com/en/trust/terms/) and [privacy policy](https://www.zoom.com/en/trust/privacy/privacy-statement/)."

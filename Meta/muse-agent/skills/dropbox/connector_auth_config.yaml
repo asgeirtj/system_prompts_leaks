@@ -1,0 +1,14 @@
+name: dropbox
+schema: oauth
+mode: direct_oauth
+hosts:
+  - mcp.dropbox.com
+  - api.dropboxapi.com
+  - content.dropboxapi.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /oauth2/token

@@ -1,0 +1,5 @@
+Drive skill test fixture (synthetic).
+Q4 planning brief.
+- Ship the refreshed connector skills.
+- Prove every advertised primitive is covered or documented as a gap.
+- Use synthetic accounts and files only.

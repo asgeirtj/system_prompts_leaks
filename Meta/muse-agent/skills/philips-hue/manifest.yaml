@@ -1,0 +1,45 @@
+version: 1
+connector: philips_hue
+display_name: Philips Hue
+description: Control smart lights, set scenes and automate your lighting
+request_quota:
+  mode: enforce
+  workers:
+    - philips-hue
+  queries_per_minute: 300
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      lights.list:
+        label: Access lights, rooms, zones, and scenes
+        approval_phrase: access lights, rooms, zones, and scenes in Philips Hue
+      devices.list:
+        label: Access devices, sensors, buttons, and device state
+        approval_phrase: access devices, sensors, buttons, and device state in Philips Hue
+  write:
+    default: allow
+    label: Write and delete permissions
+    methods:
+      light.control:
+        label: Control lights and groups
+        approval_phrase: control lights and groups in Philips Hue
+      scene.activate:
+        label: Activate scenes
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Philips Hue"
+      text: "Muse will access things like lights, rooms, scenes and brightness."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - "Muse will exchange info with Philips Hue. To learn more, view their [terms](https://www.philips-hue.com/en-us/support/legal/terms-of-use) and [privacy policy](https://www.signify.com/global/privacy/legal-information/privacy-notice)."

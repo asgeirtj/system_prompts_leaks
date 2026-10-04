@@ -1,0 +1,12 @@
+name: zapier
+schema: oauth
+mode: direct_oauth
+hosts:
+  - mcp.zapier.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /api/v1/oauth/token

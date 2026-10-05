@@ -123,6 +123,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | ChatGPT 4.5 | [ChatGPT 4.5 system prompt](OpenAI/chatgpt-4.5.md) |
 | ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/chatgpt-4o-deprecation-preparedness-prompt.md) |
 | Voice modes | [ChatGPT advanced voice mode system prompt](OpenAI/gpt-4o-advanced-voice-mode.md) · [Legacy voice mode](OpenAI/gpt-4o-legacy-voice-mode.md) |
+| ChatGPT dot | [Voice initialization and coordination prompt fragment](OpenAI/chatgpt-dot-voice-coordination.md) |
 | Personalities | [ChatGPT personality instructions](OpenAI/chatgpt-personality-instructions.md) |
 | Memory | [ChatGPT advanced memory system prompt](OpenAI/tool-advanced-memory.md) |
 

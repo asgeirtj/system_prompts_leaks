@@ -1,6 +1,6 @@
 # ChatGPT dot — voice initialization and coordination prompt fragment
 
-Source: Text obtained by the contributor in the ChatGPT app after a voice call with their dot on October 5, 2026 (Australia/Sydney). The contributor reported the model as "6 Astra Medium".
+Source: Text obtained by the contributor in the ChatGPT app after a voice call with their dot on October 5, 2026 (Australia/Sydney). The contributor reported the model as GPT-6 Astra with Medium reasoning effort.
 
 This appears to contain voice-child initialization instructions and a connecting-state coordination event. It is a captured prompt fragment; its message role, authenticity, and completeness have not been independently verified. The empty call and thread IDs are present in the supplied text.
 

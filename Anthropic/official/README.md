@@ -4,6 +4,7 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 
 | Model | Model release date | Archived prompt versions |
 |-------|--------------------|--------------------------|
+| **Claude Haiku 5.5** | October 7, 2026 | [October 7, 2026](2026-10-07-claude-haiku-5.5.md) |
 | **Claude Sonnet 5.5** | September 28, 2026 | [September 28, 2026](2026-09-28-claude-sonnet-5.5.md) |
 | **Claude Opus 5.5** | September 22, 2026 | [September 22, 2026](2026-09-22-claude-opus-5.5.md) |
 | **Claude Fable 5.1** | September 1, 2026 | [September 1, 2026](2026-09-01-claude-fable-5.1.md) |
@@ -37,6 +38,7 @@ Anthropic dates each entry to the model's release day. Continuous page monitorin
 - **Claude Opus 5.5** — entry labeled September 22, 2026; published September 22, 2026 (same day)
 - **Claude Sonnet 5** — entry labeled June 30, 2026; actually published September 28, 2026 (90 days after release)
 - **Claude Sonnet 5.5** — entry labeled September 28, 2026; published September 28, 2026 (same day)
+- **Claude Haiku 5.5** — entry labeled October 7, 2026; published October 7, 2026 (same day)
 
 Entries older than the monitoring have unknown actual publication dates.
 

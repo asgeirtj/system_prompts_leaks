@@ -40,6 +40,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
 | **ChatGPT Dots** | October 5, 2026 | [Dreamer system prompt](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [all prompts](OpenAI/dots/) · [skills](OpenAI/dots/skills/) |
 | **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
@@ -51,7 +52,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
 | **GPT-6-Sol Codex** | September 27, 2026 | [GPT-6-Sol Codex system prompt](OpenAI/Codex/gpt-6-sol.md) |
 | **GPT-6-Luna Codex** | September 27, 2026 | [GPT-6-Luna Codex system prompt](OpenAI/Codex/gpt-6-luna.md) |
-| **Fable 5.1 Claude Code Desktop** | September 27, 2026 | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) |
 
 ---
 ![Anthropic](https://shieldcn.dev/badge/Anthropic-D97757.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IndoaXRlIiBkPSJtNS45MiAxNS4zbDMuOTQtMi4ybC4wNi0uMmwtLjA2LS4xaC0uMkw5IDEyLjc2bC0yLjI0LS4wNmwtMS45Ni0uMWwtMS45LS4xbC0uNDgtLjFsLS40Mi0uNmwuMDQtLjNsLjQtLjI2bC41OC4wNGwxLjI2LjFsMS45LjEybDEuMzguMDhsMi4wNC4yNGguMzJsLjA0LS4xNGwtLjEtLjA4bC0uMDgtLjA4TDcuOCAxMC4yTDUuNjggOC44bC0xLjEyLS44MmwtLjYtLjRsLS4zLS40bC0uMTItLjg0bC41NC0uNmwuNzQuMDZsLjE4LjA0bC43NC41OGwxLjYgMS4yMkw5LjQgOS4ybC4zLjI0bC4xMi0uMDhsLjAyLS4wNmwtLjE0LS4yMkw4LjYgN0w3LjQgNC45MmwtLjU0LS44NmwtLjE0LS41MmMtLjA2LS4yLS4wOC0uNC0uMDgtLjZsLjYtLjg0bC4zNi0uMWwuODQuMTJsLjMyLjI4bC41MiAxLjJsLjgyIDEuODZsMS4zIDIuNTJsLjQuNzZsLjIuNjhsLjA2LjJoLjE0di0uMWwuMS0xLjQ0bC4yLTEuNzRsLjItMi4yNGwuMDYtLjY0bC4zMi0uNzZsLjYtLjRsLjUyLjIybC40LjU4bC0uMDYuMzZMMTQuMzIgNWwtLjUyIDIuNDJsLS4zIDEuNjRoLjE4bC4yLS4yMmwuODItMS4wOGwxLjM4LTEuNzJsLjYtLjdsLjcyLS43NGwuNDYtLjM2aC44NmwuNjIuOTRsLS4yOC45OGwtLjg4IDEuMTJsLS43NC45NGwtMS4wNiAxLjQybC0uNjQgMS4xNGwuMDYuMDhoLjE0bDIuNC0uNTJsMS4yOC0uMjJsMS41Mi0uMjZsLjcuMzJsLjA4LjMybC0uMjguNjhsLTEuNjQuNGwtMS45Mi40bC0yLjg2LjY2bC0uMDQuMDJsLjA0LjA2bDEuMjguMTJsLjU2LjA0aDEuMzZsMi41Mi4ybC42Ni40bC4zOC41NGwtLjA2LjRsLTEuMDIuNTJsLTEuMzYtLjMybC0zLjItLjc2bC0xLjA4LS4yNmgtLjE2di4wOGwuOTIuOWwxLjY2IDEuNWwyLjEyIDEuOTRsLjEuNDhsLS4yNi40bC0uMjgtLjA0bC0xLjg0LTEuNGwtLjcyLS42bC0xLjYtMS4zNmgtLjF2LjE0bC4zNi41NGwxLjk2IDIuOTRsLjEuOWwtLjE0LjI4bC0uNTIuMmwtLjU0LS4xMmwtMS4xNi0xLjZsLTEuMi0xLjhsLS45NC0xLjY0bC0uMS4wOGwtLjU4IDYuMDRsLS4yNi4zbC0uNi4yNGwtLjUtLjRsLS4yOC0uNmwuMjgtMS4yNGwuMzItMS42bC4yNi0xLjI4bC4yNC0xLjU4bC4xNC0uNTJ2LS4wNGgtLjE0bC0xLjIgMS42NmwtMS44IDIuNDZsLTEuNDQgMS41MmwtLjM0LjE0bC0uNi0uM2wuMDYtLjU2bC4zMi0uNDZsMi0yLjU2bDEuMi0xLjU4bC44LS45MmwtLjAyLS4xaC0uMDZsLTUuMjggMy40NGwtLjk0LjEybC0uNC0uNGwuMDQtLjZsLjItLjJsMS42LTEuMXoiLz48L3N2Zz4%3D&logoColor=fff&variant=secondary&mode=light)
@@ -62,6 +62,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **Claude Haiku 5.5** | [**Claude Haiku 5.5 system prompt**](Anthropic/claude-haiku-5.5.md) |
 | **Claude Sonnet 5.5** | [**Claude Sonnet 5.5 system prompt**](Anthropic/claude-sonnet-5.5.md) |
 | **Claude Opus 5.5** | [**Claude Opus 5.5 system prompt**](Anthropic/claude-opus-5.5.md) |
 | **Claude Fable 5.1** | [**Claude Fable 5.1 system prompt**](Anthropic/claude-fable-5.1.md) |

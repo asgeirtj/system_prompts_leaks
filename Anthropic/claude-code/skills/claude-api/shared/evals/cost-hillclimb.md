@@ -4,7 +4,7 @@ Guidance for running an eval-driven search whose central goal is **reducing cost
 equal-or-better quality) for a Claude-powered app - typically during a migration from an
 older model and prompt to a current one. This is the procedure the hillclimb loop
 (`eval-hillclimb.md`) follows when the user's Step 1 goal is cost; it assumes there is an
-eval to measure quality against. Without one, use `shared/cost-optimization.md` instead - 
+eval to measure quality against. Without one, use `shared/cost-optimization.md` instead -
 the no-eval checklist (caching -> input trim -> agent-loop hygiene -> output -> batch -> effort ->
 model last). The lever order differs on purpose: with an eval you can *detect* that a
 stronger model at lower effort is the cheaper cell, so the model × effort walk comes early
@@ -202,8 +202,9 @@ There the walk stops, pruning without running it the mid tier's high cell, which
 actual program paid real money to learn was priced above the incumbent. (That program's winner read -46% vs the same model's high setting and -43% vs the
 old-model baseline on fresh-run means, where the single cheapest selection pass read
 -50%/-48% on the same comparisons: report the fresh-run means, never the favorable
-end of a spread. Both arms billed on an internal page-counted route; on public
-breakpoint billing the reductions run a few points smaller - ~-40% on the baseline
+end of a spread. Both arms were costed from the eval harness's own token ledger; with
+both arms re-priced the way the API bills cached tokens (exact token counts from the
+cache breakpoints), the reductions run a few points smaller - ~-40% on the baseline
 comparison - and the arms compare like-for-like either way.) The frontier-hard case is also the cautionary half: the winner's
 pre-registered confirm FAILED its stability clause - the identical configuration drew
 11 of 20 on the selection pass and then 11, 6, and 11 across the three fresh confirm
@@ -233,12 +234,12 @@ you, in one bounded probe.
   will be cheaper than walk cost by the cache rate; either warm each cell or
   annotate the readings. Keep effort fixed within any session whose cost is being
   measured, or cache invalidation noise lands in the effort arm's numbers.
-- **State the billing basis per cell.** Eval-harness billing routes can differ from
-  what an API customer pays - some internal routes count cache in fixed-size pages
-  where the public API bills exact tokens from breakpoints - and the same run can
-  differ materially in reported cost across routes. Check which route the ledger
-  rides before quoting absolute costs; ratios between cells on the same route are
-  more robust than absolutes.
+- **State the billing basis per cell.** An eval harness's cost ledger can differ from
+  what an API customer pays - a harness may count cache reads and writes differently
+  from how the API bills them (exact token counts from the cache breakpoints) - and
+  the same run can differ materially in reported cost across accountings. Check how
+  the ledger prices cache reads and writes before quoting absolute costs; ratios
+  between cells on the same basis are more robust than absolutes.
 
 *Declare a quality probe, or the ceiling goes unmeasured.* By construction the walk
 never fires the expensive corner, so a migration that passes early never learns what
@@ -247,7 +248,7 @@ is, once - run the top-right cell, or the above-grid frontier tier at low, as ON
 declared quality-reference cell outside the cost walk, marked as such in the plan.
 Skippable on tight budgets.
 
-*When entering from the bottom is defensible.* Two cases. (1) Steady-state tuning - 
+*When entering from the bottom is defensible.* Two cases. (1) Steady-state tuning -
 already on a current-generation model with a tuned prompt, just trimming: sweep
 effort downward from where you are, but ALWAYS add the single next-tier-up-at-low
 probe. The blind spot it closes: a bottom-up sweep that finds quality fine and cost
@@ -364,12 +365,12 @@ headline.
   it can exclude whole configurations with zero eval runs.
 - **Register cost in the objective.** An optimizer optimizes exactly what is
   registered: a quality-only climb raised cost per deliverable by 75% in one measured
-  search. If the goal is cost-subject-to-quality, the gates above ARE the objective - 
+  search. If the goal is cost-subject-to-quality, the gates above ARE the objective -
   write them into the plan sign-off.
 - **One lever per round, frozen arm.** Move exactly one axis per round so wins and
   regressions are attributable.
 - **Make the optimizer predict before it measures.** Require, in each round's
-  proposal, a point estimate and an 80% interval for every cell - on score AND cost - 
+  proposal, a point estimate and an 80% interval for every cell - on score AND cost -
   plus named falsifiers ("if X happens, the lever is dead; say so"). Compare outcomes
   to intervals after each round, and shift and widen the next round's intervals after
   misses. This turns every round into a correction of the optimizer's own predictions: in
@@ -428,7 +429,7 @@ headline.
 - **Prompt rounds:** wins come in rounds 1-2; stop when two consecutive variants fail
   to beat the incumbent beyond the noise band; cap at ~3-4 rounds per model.
 - **Effort:** savings saturate stepwise (each step down saves less while variance
-  grows). Stop inside the noise band. Remember lowered effort doesn't fail fixed cases - 
+  grows). Stop inside the noise band. Remember lowered effort doesn't fail fixed cases -
   failures MOVE between runs ("shallower thinking fails wherever the margin is thin"),
   so effort-cut decisions need aggregate non-inferiority over multiple runs, never
   per-case reads.

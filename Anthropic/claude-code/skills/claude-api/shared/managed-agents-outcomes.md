@@ -10,7 +10,7 @@ The SDK sets the `managed-agents-2026-04-01` beta header automatically on all `c
 
 ## The `user.define_outcome` event
 
-Outcomes are not a field on `sessions.create()`. You create a normal session, then send a `user.define_outcome` event. The agent starts working on receipt - **do not also send a `user.message`** to kick it off.
+Outcomes are not a field on `sessions.create()`. You create a normal session, then send a `user.define_outcome` event. The agent starts working on receipt - **do not also send a `user.message`** to kick it off. (One exception: an outcome worded generally, such as "answers the user's question", needs the question itself. Send the `user.message` first and the outcome second, in one `initial_events` array.)
 
 You can collapse both calls into one by passing a single `user.define_outcome` in the session's `initial_events` array - same event, same rules, one round trip (see `shared/managed-agents-core.md` -> Seeding a session with `initial_events`). More than one `user.define_outcome` in that array, or one without a `rubric`, rejects the whole create with a 400.
 
@@ -101,7 +101,7 @@ for ev in session.outcome_evaluations:
 ## Interaction rules & pitfalls
 
 - **One outcome at a time.** Chain by sending the next `user.define_outcome` only after the previous one's terminal `span.outcome_evaluation_end` (`satisfied` / `max_iterations_reached` / `failed` / `interrupted`). The session retains history across chained outcomes.
-- **Steering is allowed but optional.** You *may* send `user.message` events mid-outcome to nudge direction, but the agent already knows to keep working until terminal - don't send "keep going" prompts. (Exception: a session paused at its budget (`stop_reason: budget_reached`) accepts only settle events - a steering `user.message`, or a chained `user.define_outcome`, is a 400 there; see `shared/managed-agents-events.md` § Reaching a session budget.)
+- **Steering is allowed but optional.** You *may* send `user.message` events mid-outcome to nudge direction, but the agent already knows to keep working until terminal - don't send "keep going" prompts. (Exceptions: a session waiting on you (`stop_reason: requires_action`) or paused at its budget (`budget_reached`) accepts only settle events - a steering `user.message`, or a chained `user.define_outcome`, is a 400 there; see `shared/managed-agents-events.md` § Reaching a session budget.)
 - **`user.interrupt` pauses the current outcome** - it marks `result: "interrupted"` and leaves the session `idle`, ready for a new outcome or conversational turn. (Exception: sent while paused at the session budget, the interrupt is accepted and ignored and the outcome stays active - see `shared/managed-agents-events.md` § Reaching a session budget.)
 - **After terminal, the session is reusable** - continue conversationally or define a new outcome.
 - **Outcome != session-create field.** Don't put `outcome`, `rubric`, or `description` on `sessions.create()` - outcomes are always sent as a `user.define_outcome` event.

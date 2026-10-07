@@ -1,4 +1,5 @@
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
 
 /* BEGIN USAGE */
 // Android.jsx — Simplified Android (Material 3) device frame
@@ -155,7 +156,9 @@ function AndroidDevice({
   title, large = false, keyboard = false,
 }) {
   return (
-    <div style={{
+    // data-om-starter: inert presence marker — Claude Design's starter-usage
+    // probe reads it; it renders nothing. Keep it on this root element.
+    <div data-om-starter="android-frame" style={{
       width, height, borderRadius: 18, overflow: 'hidden',
       background: dark ? '#1d1b20' : MD_C.surface,
       border: `8px solid ${MD_C.frameBorder}`,

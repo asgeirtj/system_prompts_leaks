@@ -1,4 +1,5 @@
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
 
 /* BEGIN USAGE */
 // MacOS.jsx — Simplified macOS Tahoe (Liquid Glass) window
@@ -175,7 +176,9 @@ function MacWindow({
   sidebar, children,
 }) {
   return (
-    <div style={{
+    // data-om-starter: inert presence marker — Claude Design's starter-usage
+    // probe reads it; it renders nothing. Keep it on this root element.
+    <div data-om-starter="macos-window" style={{
       width, height, borderRadius: 26, overflow: 'hidden',
       background: '#fff',
       boxShadow: '0 0 0 1px rgba(0,0,0,0.23), 0 16px 48px rgba(0,0,0,0.35)',

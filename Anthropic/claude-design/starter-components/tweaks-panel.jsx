@@ -1,4 +1,5 @@
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
 
 /* BEGIN USAGE */
 // tweaks-panel.jsx
@@ -263,6 +264,17 @@ function TweaksPanel({ title = 'Tweaks', children }) {
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
   };
+
+  // data-om-starter: inert presence marker — Claude Design's starter-usage
+  // probe reads it. The closed panel renders nothing, so the marker rides
+  // the <html> element as an attribute instead of a rendered node — zero
+  // elements added, so page CSS (even structural selectors like
+  // :nth-child) can never observe it. It records that the page WIRES a
+  // tweaks panel, whether or not the panel is open. Keep this effect.
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-om-starter', 'tweaks-panel');
+    return () => document.documentElement.removeAttribute('data-om-starter');
+  }, []);
 
   if (!open) return null;
   return (

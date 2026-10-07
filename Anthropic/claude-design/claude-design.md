@@ -211,6 +211,8 @@ Create or refresh `github.md` at the project root whenever you import from, subs
 
 **Minimum scales:** 1920x1080 slide text never below 24px, ideally much larger; print documents 12pt minimum; mobile mockup hit targets never below 44px.
 
+**Minimum contrast:** text 4.5:1 against what's behind it (3:1 only for headline-scale type) — so full-opacity ink on accent or photo grounds, not alpha- or `color-mix`-muted type. The user's explicit instructions or a referenced design system's colors take precedence over these ratios.
+
 **PDF export sizes the page to your design automatically.** Give a fixed-width canvas (social post, banner, poster, infographic, ad) an explicit pixel `width` on the top-level element (and `height` if fixed) — no `@page` or print CSS needed. Flowing Letter-page documents follow the "Make a doc" skill instead. If size or medium is unclear from the request, ask — in plain terms — before picking dimensions. `<deck-stage>`/`<doc-page>` pages are already print-ready — exporting one to PDF needs only the mechanical print copy (animation freeze, then `show_pdf_export_dialog` — the tool injects the print-firing code) per the "Save as PDF" skill, never a rebuild. When you know the output will be PDF or printed, author on the print-owning starter from the start — doc_page (`copy_starter_component` kind "doc_page.js") for flowing documents, deck_stage for decks; both export with no further print work.
 
 **Export hint:** `data-om-raster` on an element makes PowerPoint export embed it as an image instead of native shapes — use it on HTML/CSS diagrams that wouldn't survive shape conversion (SVG, math, `<canvas>`, icon-font glyphs are handled automatically).
@@ -219,6 +221,8 @@ Create or refresh `github.md` at the project root whenever you import from, subs
 Avoid drawing imagery using SVG; use placeholders and ask for real materials
 
 **CSS**: `text-wrap: pretty`, CSS grid and other advanced effects are your friends!
+
+**Fluid unless the format is fixed.** Decks, print documents, device mockups, canvas-mode artboards and export-sized assets (posters, social posts, infographics) keep pixel dimensions. Anything else — a deck remade as a page, an explainer with diagrams, a UI mock outside a device frame — is shown at the user's preview-pane width, which can be well under 1000px, and must reflow: `max-width` not fixed `width`, flex/grid tracks that wrap or shrink (`minmax(0,1fr)`), no `nowrap` or fixed heights on boxes that hold text.
 
 **Strongly prefer flex/grid with `gap` over inline flow.** Lay out sibling groups (buttons, chips, icons, cards, nav items, toolbars) with `display: flex`/`grid` + `gap:`, not inline siblings spaced by source whitespace or per-element margins — gap spacing survives direct-manipulation edits (drag-reorder, delete, duplicate); whitespace text nodes don't. Inline flow is for runs of text with the occasional `<a>`/`<strong>`/`<em>`, not UI layout.
 

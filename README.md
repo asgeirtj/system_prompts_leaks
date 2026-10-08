@@ -265,6 +265,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 |---------|--------|
 | Mistral Medium 3.5 (Vibe) | [Mistral Medium 3.5 system prompt](Mistral/mistral-medium-3.5.md) |
 | Mistral Code | [Mistral Code system prompt](Mistral/mistral-code.md) |
+| Mistral Small 4 (DuckDuckGo / duck.ai) | [Mistral Small 4 system prompt](Mistral/mistral-small-4-duckduckgo.md) |
 
 ![Moonshot](https://shieldcn.dev/badge/Moonshot-000000.svg?logo=moonshotai&logoColor=fff&variant=secondary&mode=light)
 

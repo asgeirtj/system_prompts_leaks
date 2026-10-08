@@ -169,7 +169,7 @@ Every Docs edit points at a position, so the model of positions matters more tha
 - **Indexes are UTF-16 code units** counted from the start of a tab's body, which starts at index 1. A character outside the Basic Multilingual Plane, such as 🙂, counts as 2, and an emoji built from several characters counts as more: 👍🏽 (👍 plus a skin tone) is 4. Docs refuses an insert inside an emoji with "The insertion index cannot be within a grapheme cluster", and a delete through the middle of 🙂 with "Invalid deletion range". Every paragraph ends with a newline that occupies one index.
 - **Every insert or delete shifts everything after it.** Requests in one `update_doc` call run in order, so an index computed from the read is only valid for the first request that touches that region. Order the requests from the highest index to the lowest, and no request moves a position a later request relies on.
 - **Indexes go stale after any write.** Never reuse indexes from a read taken before your last write. Read again, then compute.
-- **Guard every index-based write with the revision.** Pass the `revisionId` from your read as `writeControl.requiredRevisionId`. If someone edited the doc in between, the whole batch is rejected with a 400 instead of landing in the wrong place. On that error, read again and recompute. Do not retry without the guard.
+- **Guard every batch with the revision, unless it is only `replaceAllText`.** Pass the `revisionId` from a read taken after your last write as `writeControl.requiredRevisionId`. If someone edited the doc in between, the whole batch is rejected with a 400 instead of landing in the wrong place. On that error, read again and recompute. Do not retry without the guard.
 - **Tabs are separate index spaces.** A doc can have several tabs, and child tabs under them. Every `location` and `range` takes a `tabId`; without it, the request applies to the first tab, which is a silent failure when the user meant another one. A pasted URL like `.../edit?tab=t.abc123` names the tab: `t.abc123` is the `tabId`. `replaceAllText` is the opposite: without `tabsCriteria` it changes every tab, child tabs included, and naming a parent tab in `tabsCriteria` does not include its child tabs.
 - **Pending suggestions are in the index space.** `read_doc` returns suggested insertions and deletions inline, as text runs that carry `suggestedInsertionIds` or `suggestedDeletionIds`, and they occupy real indexes. Don't treat a suggested deletion as live text, and don't insert inside one.
 - **The body's final newline can't be deleted.** To append, insert at the last element's `endIndex - 1`.
@@ -225,7 +225,7 @@ outline and find print the `revisionId` and the tab ID; fill-table puts the `rev
 
 ## Edit recipes
 
-Each recipe is one `update_doc` call. Add `tabId` to every `location` and `range` when the doc has more than one tab, and add `writeControl: {"requiredRevisionId": ...}` to any call that uses indexes. Put real newlines in inserted text, not an escaped `\n`.
+Each recipe is one `update_doc` call. Add `tabId` to every `location` and `range` when the doc has more than one tab, and add `writeControl: {"requiredRevisionId": ...}` to every call except one made only of `replaceAllText` requests. Put real newlines in inserted text, not an escaped `\n`.
 
 **Change a word or phrase.** `replaceAllText` needs no read and no indexes:
 
@@ -265,7 +265,7 @@ To fill a table that already exists, a cell's text goes at its first paragraph's
 
 **Suggest instead of edit.** Add `"writeMode": "SUGGEST"` to `writeControl`, and the same requests land as tracked suggestions that the doc's owner can accept or reject. Use it when the user asks for suggestions, redlines, tracked changes, or a review, or when the doc belongs to someone else and the user wants to propose rather than change. You can't accept or reject suggestions through the API, so tell the user they're waiting in the doc. Before you tell them, read the doc again with `read_doc` and run `outline`: inserted and deleted text should show as `[+...]` or `[-...]` (outline doesn't show suggested formatting changes). If new text shows as plain text, or deleted text is gone instead of showing as `[-...]`, the change was made directly; say so, and don't call it a suggestion. Suggested deletions stay in the index space until someone resolves them; see "How a doc is addressed". The connector has answered this mode with "Unsupported WriteControl mode". If it does, make no direct edits in its place: tell the user suggestions aren't available, and offer to list the proposed changes in your reply or to edit directly.
 
-```json
+```yaml
 {"documentId": "...", "requests": [...],
  "writeControl": {"writeMode": "SUGGEST", "requiredRevisionId": "..."}}
 ```

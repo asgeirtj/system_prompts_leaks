@@ -7,6 +7,8 @@ export const register: Register = on => {
     PROTECTED.test(e.file_path)
       ? { deny: `${$.plugin.name}: ${e.file_path} is protected here.` }
       : next(e),
+  ).catch(($, e, next) =>
+    next.called ? next(e) : { deny: `${$.plugin.name}: its guard failed.` },
   )
 
   on('tool.call', { tool: 'Bash' }, async ($, e, next) => {

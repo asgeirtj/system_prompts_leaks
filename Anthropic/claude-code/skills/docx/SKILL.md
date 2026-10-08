@@ -6,6 +6,8 @@ license: Proprietary. LICENSE.txt has complete terms
 
 # DOCX creation, editing, and analysis
 
+If you are about to make a new document and this session offers Claude's own docs (a Docs connector, docs skill or Docs artifact type), and the user has neither named Word/.docx/.dotx, asked for tracked changes, nor supplied a .docx/.dotx file to change or use as a template, make the document there instead. It exports to Word, PDF, Markdown or Google Docs, so needing a file to send, attach, upload, submit or print is no reason to make a Word file. A .docx/.dotx given only as source material does not count as supplied. This skill remains the right tool for producing, reading, editing, templating or converting Word files.
+
 A `.docx` is a ZIP archive of XML files. Choose your approach by task:
 
 | Task | Approach |
@@ -20,7 +22,7 @@ A `.docx` is a ZIP archive of XML files. Choose your approach by task:
 
 `docx` is preinstalled — do not run `npm install` first; write the script and `require('docx')` directly. Only if that require fails: `npm install docx`. The model knows the API; these are the footguns:
 
-- **Page size defaults to A4.** For US Letter set `page: { size: { width: 12240, height: 15840 } }` (DXA; 1440 = 1″).
+- **Page size defaults to A4.** For US Letter set `page: { size: { width: 12240, height: 15840 } }` (DXA; 1440 = 1").
 - **Landscape:** pass portrait dimensions and `orientation: PageOrientation.LANDSCAPE` — docx-js swaps width/height internally.
 - **Tables need dual widths:** set `columnWidths` on the table AND `width` on every cell, both in `WidthType.DXA` (PERCENTAGE breaks in Google Docs). Column widths must sum to the table width.
 - **Table shading:** use `ShadingType.CLEAR`, never `SOLID` (renders black).

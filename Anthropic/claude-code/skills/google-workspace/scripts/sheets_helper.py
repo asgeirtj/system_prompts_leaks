@@ -317,7 +317,7 @@ def cmd_format(args):
         print(f"WARNING: ignored top-level key(s) that FORMAT SPEC does not define: {', '.join(unknown)}; "
               "see 'sheets_helper.py --help'", file=sys.stderr)
     if args.revision:
-        print("WARNING: Sheets has no revision guard, so --revision is ignored and no writeControl is added",
+        print("WARNING: --revision is ignored; this skill sends Sheets writes without writeControl, so none was added",
               file=sys.stderr)
     ids = sheet_ids_from_meta(args.meta)
     out = {"requests": format_requests(spec, ids, args.sheet_id)}
@@ -378,8 +378,8 @@ def main():
     p.add_argument("spec")
     p.add_argument("--sheet-id", type=int)
     p.add_argument("--meta")
-    # Sheets has no revision guard; --revision is accepted so callers that pass it don't fail,
-    # then ignored with a warning.
+    # The skill sends Sheets writes without writeControl (see SKILL.md), so format never adds one;
+    # --revision is accepted so callers that pass it don't fail, then ignored with a warning.
     p.add_argument("--revision", help=argparse.SUPPRESS)
     p.set_defaults(func=cmd_format)
     p = sub.add_parser("cells")

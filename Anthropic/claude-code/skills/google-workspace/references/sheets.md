@@ -233,7 +233,7 @@ Add `--errors-only` to list only the error cells. Add `sheets.data.rowData.value
 
 ## Batch updates: structure, formatting, charts
 
-`update_spreadsheet` sends raw `spreadsheets.batchUpdate` requests. The reads in this file return no `revisionId`, so send these requests without `writeControl`, and read again right before a write that depends on positions.
+`update_spreadsheet` sends raw `spreadsheets.batchUpdate` requests. `get_spreadsheet` returns a `revisionId` even with a field mask, but don't send it: send these requests without `writeControl`, and read again right before a write that depends on positions.
 
 - **Field masks inside requests have the same rule:** comma-separated full paths, no parentheses. `"fields": "userEnteredFormat.numberFormat,userEnteredFormat.textFormat.foregroundColor"` works; `"userEnteredFormat(numberFormat,textFormat)"` is rejected.
 - **Colors are `red`, `green`, `blue` from 0 to 1**, not hex.

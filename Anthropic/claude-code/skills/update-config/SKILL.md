@@ -55,12 +55,12 @@ When the user's request is ambiguous, use AskUserQuestion to clarify:
 
 When adding to permission arrays or hook arrays, **merge with existing**, don't replace:
 
-**WRONG** (replaces existing permissions):  
+**WRONG** (replaces existing permissions):
 ```json
 { "permissions": { "allow": ["Bash(npm *)"] } }
 ```
 
-**RIGHT** (preserves existing + adds new):  
+**RIGHT** (preserves existing + adds new):
 ```yaml
 {
   "permissions": {
@@ -211,18 +211,18 @@ Hooks run commands at specific points in Claude Code's lifecycle.
 
 ### Hook Types
 
-**1. Command Hook** - Runs a shell command:  
+**1. Command Hook** - Runs a shell command:
 ```json
 { "type": "command", "command": "prettier --write $FILE", "timeout": 30 }
 ```
 
-**2. Prompt Hook** - Evaluates a condition with LLM:  
+**2. Prompt Hook** - Evaluates a condition with LLM:
 ```json
 { "type": "prompt", "prompt": "Is this safe? $ARGUMENTS" }
 ```
 Only available for tool events: PreToolUse, PostToolUse, PermissionRequest.
 
-**3. Agent Hook** - Runs an agent with tools:  
+**3. Agent Hook** - Runs an agent with tools:
 ```json
 { "type": "agent", "prompt": "Verify tests pass: $ARGUMENTS" }
 ```
@@ -272,7 +272,7 @@ Hooks can return JSON to control behavior:
 
 ### Common Patterns
 
-**Auto-format after writes:**  
+**Auto-format after writes:**
 ```json
 {
   "hooks": {
@@ -287,7 +287,7 @@ Hooks can return JSON to control behavior:
 }
 ```
 
-**Log all bash commands:**  
+**Log all bash commands:**
 ```json
 {
   "hooks": {
@@ -304,13 +304,13 @@ Hooks can return JSON to control behavior:
 
 **Stop hook that displays message to user:**
 
-Command must output JSON with `systemMessage` field:  
+Command must output JSON with `systemMessage` field:
 ```bash
 # Example command that outputs: {"systemMessage": "Session complete!"}
 echo '{"systemMessage": "Session complete!"}'
 ```
 
-**Run tests after code changes:**  
+**Run tests after code changes:**
 ```json
 {
   "hooks": {
@@ -373,7 +373,7 @@ User: "Format my code after Claude writes it"
 1. **Clarify**: Which formatter? (prettier, gofmt, etc.)
 2. **Read**: `.claude/settings.json` (or create if missing)
 3. **Merge**: Add to existing hooks, don't replace
-4. **Result**:  
+4. **Result**:
 ```json
 {
   "hooks": {
@@ -402,7 +402,7 @@ User: "Set DEBUG=true"
 
 1. **Decide**: User settings (global) or project settings?
 2. **Read**: Target file
-3. **Merge**: Add to env object  
+3. **Merge**: Add to env object
 ```json
 { "env": { "DEBUG": "true" } }
 ```
@@ -985,6 +985,14 @@ If a hook isn't running:
                         "type": "number",
                         "exclusiveMinimum": 0
                       },
+                      "onFailure": {
+                        "description": "What a failure of this hook does: it could not start (a missing script or plugin directory), timed out, exited with a code other than 0 or 2, or printed JSON that is invalid or fails validation. 'continue' (default): the failure is reported and the action goes ahead. 'block': the failure counts as exit code 2, so the action the event guards (a tool call, a permission request, a prompt) is blocked. Ignored for async hooks and on Stop, SubagentStop, TaskCompleted and TeammateIdle.",
+                        "type": "string",
+                        "enum": [
+                          "continue",
+                          "block"
+                        ]
+                      },
                       "statusMessage": {
                         "description": "Custom status message to display in spinner while hook runs",
                         "type": "string"
@@ -1110,6 +1118,14 @@ If a hook isn't running:
                         "description": "Timeout in seconds for this specific request",
                         "type": "number",
                         "exclusiveMinimum": 0
+                      },
+                      "onFailure": {
+                        "description": "What a failure of this hook does: it could not start (a missing script or plugin directory), timed out, exited with a code other than 0 or 2, or printed JSON that is invalid or fails validation. 'continue' (default): the failure is reported and the action goes ahead. 'block': the failure counts as exit code 2, so the action the event guards (a tool call, a permission request, a prompt) is blocked. Ignored for async hooks and on Stop, SubagentStop, TaskCompleted and TeammateIdle.",
+                        "type": "string",
+                        "enum": [
+                          "continue",
+                          "block"
+                        ]
                       },
                       "headers": {
                         "description": "Additional headers to include in the request. Values may reference environment variables using $VAR_NAME or ${VAR_NAME} syntax (e.g., "Authorization": "Bearer $MY_TOKEN"). Only variables listed in allowedEnvVars will be interpolated.",
@@ -4172,7 +4188,7 @@ If a hook isn't running:
       ]
     },
     "forceLoginGatewayUrl": {
-      "description": "Cloud gateway URL to pre-fill and auto-connect to during login, alongside forceLoginMethod: "gateway". Honored only from admin-controlled managed settings (MDM / managed-settings.json / policy helper); ignored in user, project, and remote-delivered settings.",
+      "description": "Cloud gateway URL to pre-fill during login, alongside forceLoginMethod: "gateway". Honored from admin-controlled managed settings (MDM / managed-settings.json / policy helper) and, on a machine with none of those, from your own user settings; ignored in project, local, flag, and remote-delivered settings.",
       "type": "string",
       "minLength": 1
     },

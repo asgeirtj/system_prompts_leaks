@@ -5,7 +5,6 @@ description: |-
 when_to_use: |-
   When the user wants to set up a recurring task, poll for status, or run something repeatedly on an interval (e.g. "check the deploy every 5 minutes", "keep running /babysit-prs"). Do NOT invoke for one-off tasks.
 ---
-
 # /loop — schedule a recurring or self-paced prompt
 
 Parse the input below into `[interval] <prompt…>` and schedule it.
@@ -68,7 +67,7 @@ Then:
 The user wants you to self-pace. Decide what makes the next iteration worth running — a passage of time, or an observable event.
 
 1. **Run the parsed prompt now.** If it's a slash command, invoke it via the Skill tool; otherwise act on it directly.
-2. **If the next run is gated on an event** (CI finishing, a log line matching, a file changing, a PR comment) and no Monitor is already running for it: arm one now with `timeout_ms: 1800000`. Its events arrive as `<task-notification>` messages and wake this loop immediately — you do not wait for the ScheduleWakeup deadline. A monitor expires after at most 30 minutes and tells you; on later iterations call TaskList first and re-arm only if no monitor for it is still running.
+2. **If the next run is gated on an event** (CI finishing, a log line matching, a file changing, a PR comment) and no Monitor is already running for it: arm one now with `timeout_ms: 600000`. Its events arrive as `<task-notification>` messages and wake this loop immediately — you do not wait for the ScheduleWakeup deadline. A monitor expires after at most 10 minutes and tells you; on later iterations call TaskList first and re-arm only if no monitor for it is still running.
 3. **Briefly confirm**: that you're self-pacing, whether a Monitor is the primary wake signal, that you ran the task now, and what fallback delay you're about to pick. This must be ordinary visible response text — the user cannot see your thinking/reasoning, so an update written only there is invisible to them. Write it immediately BEFORE calling ScheduleWakeup — on this model the turn ends as soon as that tool returns, so an update after the call never goes out.
 4. **Then, as the last action of this turn, decide whether the loop continues.** If the task needs another iteration, call ScheduleWakeup with:
    - `delaySeconds`: with a Monitor armed this is the **fallback heartbeat** — how long to wait if no event fires (lean 1200–1800s; idle ticks more frequent than the task needs are pure overhead). Without a Monitor this is the cadence — pick based on what you observed. Read the tool's own description for cache-aware delay guidance.
@@ -77,7 +76,7 @@ The user wants you to self-pace. Decide what makes the next iteration worth runn
    - `noop`: `true` if this tick changed nothing ("still waiting", "quiet hold"); `false` if it did something worth keeping. Consecutive `noop: true` ticks collapse in the terminal.  
    If it doesn't need another iteration, stop instead (step 6) — re-arming is a per-turn choice, not a default.
 5. **If you were woken by a `<task-notification>`** rather than this prompt: handle the event in the context of the loop task, then make the same decision. If the loop should continue, write the same brief update as visible text, then call ScheduleWakeup again with the same `prompt` and the same 1200–1800s `delaySeconds` from the schedule step above (the Monitor remains the wake signal; the new wakeup is only the fallback heartbeat). If the event means the work is finished, stop (step 6).
-6. **To stop the loop** — the task is complete, further iterations can't make progress, or the user asked you to stop — call ScheduleWakeup with `stop: true` (no other fields) and TaskStop any Monitor you armed (use TaskList to find the task ID if it is no longer in context). Then write the loop's outcome for the user as ordinary visible response text — a stopped loop has no next tick to surface it. Stopping is the loop's normal ending — the user can restart it anytime with /loop. Before you stop, send a one-line outcome via PushNotification — the user may be away and waiting to hear it's done. Skip this if you're stopping because the user just told you to; they're already here.
+6. **To stop the loop** — the task is complete, further iterations can't make progress, or the user asked you to stop — call ScheduleWakeup with `stop: true` (no other fields) and TaskStop any Monitor you armed (use TaskList to find the task ID if it is no longer in context). Then write the loop's outcome for the user as ordinary visible response text — a stopped loop has no next tick to surface it. Stopping is the loop's normal ending — the user can restart it anytime with /loop.
 
 ## Input
 

@@ -27,6 +27,13 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 
 <a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+<a href="https://www.star-history.com/asgeirtj/system_prompts_leaks">
+ <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&theme=dark" />
+  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
+  <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
+ </picture>
+</a>
 
 **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
 
@@ -322,6 +329,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Brave Search | [Brave Search system prompt](Misc/brave-search.md) |
 | Character AI | [Character AI system prompt](Misc/character-ai.md) |
 | Confer | [Confer system prompt](Misc/confer.md) |
+| Duck.ai | [Duck.ai system prompt](Misc/duck-ai.md) |
 | Fellou Browser | [Fellou browser system prompt](Misc/fellou-browser.md) |
 | Gizmo AI | [Gizmo AI system prompt](Misc/gizmo-ai.md) |
 | Hermes | [Hermes system prompt](Misc/hermes.md) |
@@ -351,12 +359,3 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
  </picture>
 </a>
 
-<p align="center">
-<a href="https://www.star-history.com/asgeirtj/system_prompts_leaks">
- <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
-  <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
- </picture>
-</a>
-</p>

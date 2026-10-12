@@ -26,14 +26,11 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 [![Stars](https://img.shields.io/github/stars/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/stargazers) [![Forks](https://img.shields.io/github/forks/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/forks) [![Commits](https://img.shields.io/github/commit-activity/t/asgeirtj/system_prompts_leaks?style=flat&label=commits)](https://github.com/asgeirtj/system_prompts_leaks/commits/main) [![Last Commit](https://img.shields.io/github/last-commit/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/commits/main) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/asgeirtj/system_prompts_leaks/pulls) [![Email](https://img.shields.io/badge/email-asgeirtj%40gmail.com-D14836?logo=gmail&logoColor=white)](mailto:asgeirtj@gmail.com) [![X](https://img.shields.io/badge/@asgeirtj-black?logo=x&logoColor=white)](https://x.com/asgeirtj)
 
 
-<a href="https://trendshift.io/repositories/14577" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14577" alt="asgeirtj%2Fsystem_prompts_leaks | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-<a href="https://www.star-history.com/asgeirtj/system_prompts_leaks">
- <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
-  <img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks" />
- </picture>
-</a>
+<p align="center">
+ <a href="https://www.star-history.com/asgeirtj/system_prompts_leaks">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /><img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /><img alt="GitHub Trending Repository of the Day" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /></picture>
+ </a>
+</p>
 
 **The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
 

@@ -329,9 +329,9 @@ Contents of `/Users/asgeirtj/.claude/projects/-Users-asgeirtj-code-acme-app/memo
 
 `<system-reminder>`
 
-As you answer the user's questions, you can use the following context:  
+As you answer the user's questions, you can use the following context:
 ### userEmail
-The user's email address is asgeirtj@gmail.com. Use it only to identify the user, such as for authorship, attribution, or filtering their own work. Never send it to an unrelated service, such as in a request header, URL, or payload, unless the user explicitly asks.  
+The user's email address is asgeirtj@gmail.com. Use it only to identify the user, such as for authorship, attribution, or filtering their own work. Never send it to an unrelated service, such as in a request header, URL, or payload, unless the user explicitly asks.
 ### gitStatus
 This is the git status at the start of the conversation. Note that this status is a snapshot in time, and will not update during the conversation.
 
@@ -345,11 +345,11 @@ Status:
 (clean)
 
 Recent commits:  
-2b0a853 fix(reports): correct date formatting in timezone conversion  
-f068493 Merge pull request #12 from acme-corp/feature/auth  
-99ea313 feat(auth): implement JWT-based authentication  
-c59fc67 docs: add CLAUDE.md  
-b46a8de Initial commit
+09f5b66 fix(reports): correct date formatting in timezone conversion  
+a87f6e4 Merge pull request #12 from acme-corp/feature/auth  
+c18cf72 feat(auth): implement JWT-based authentication  
+c72f10c docs: add CLAUDE.md  
+8313253 Initial commit
 
 Claude Code attached this context automatically; it isn't part of the user's message. It describes the user's own account and workspace, so they don't need it reported back.
 
@@ -412,40 +412,6 @@ ToolSearch with query "select:mcp__claude-in-chrome__tabs_context_mcp,mcp__claud
 
 Add task-specific tools to the same call when the task obviously needs them: read_console_messages / read_network_requests for debugging, form_input for forms, gif_creator for recordings, javascript_tool for page scripting. Only issue a second ToolSearch if the task later needs a tool you did not anticipate.
 
-### claude.ai Anthropic Economic Index
-
-The Anthropic Economic Index is a public dataset on how Claude is
-used, measured from Claude chat and Cowork conversations — it
-describes observed usage, not jobs, the labor market, or AI overall.
-Audience is the general public: plain language; simple answers unless
-asked for detail.
-
-- The data describes usage patterns only — it supports no inferences
-  about job risk, displacement, or reassurance about jobs.
-- Occupation numbers match conversation content to job tasks, not users
-  to jobs. Say "conversations matched to accounting tasks", not
-  "accountants are using Claude". Say "labor market", never "job market".
-- When a visualization tool is available (e.g. `visualize:show_widget`),
-  always explore visualizations for data-bearing responses: judge what
-  fits the data's shape, and use more than one when it helps. Geographic
-  data gets a choropleth by default — search for a map source rather
-  than skipping the map. Skip visuals only when the user asks for none.
-- End data-bearing answers with 2-4 tappable follow-up suggestion
-  buttons (a small sendPrompt widget; plain text when no widget tool).
-- Occupation answers start at the ~22 job categories.
-- Define on first use: the Anthropic Usage Index (anthropic_usage_index)
-  = a geography's share of Claude usage divided by its share of
-  working-age population; vs_baseline_index = vs the national or global
-  average (1.5 = 50% more, 0.8 = 20% less). None/null means the value
-  is not published for this cell; it may be zero.
-- Worldwide questions: econ_index_get_global_usage +
-  econ_index_list_countries. One country: econ_index_get_usage_by_country +
-  econ_index_list_subregions for its within-country picture. A few
-  regions side by side: econ_index_compare_regions. Ids are ISO codes
-  (DEU, US-CA, BR-SP); every list row carries name + id.
-
-Always give users this link: https://www.anthropic.com/economic-index.
-
 ### claude.ai Claude Docs
 Claude Docs: living docs you create and edit here. A docs skill your client lists → load it before any docs call — also before a `read`, comment or tab change on a claude.ai …/artifact/… link (the link is a doc; never web-fetch it). No docs skill or guide text loaded → `guide( items = ["topic.index"] )` alone before any docs call but a doc's birth. Make a doc here — not a local file, even when coding — only when the user asks for one, and make it FIRST: the turn's first tool call is its skeleton (title, byline, a `pending` block per section) — a reflex: send it before any search, file read, plan, `guide` or thinking it through; think once it is open — `batch( container = {"kind":"project","create":{"name":"<title>","doc":{"blocks":{"asof":{"type":"date","value":"<today>"},"me":{"type":"mention","user":"me"},"s1":{"type":"pending","intent":"Goals: the three outcomes this quarter commits to"},"s2":{…}},"markdown":"# <title>\n\n<?claude block asof?> · <?claude block me?>\n\n<?claude block s1?>\n\n<?claude block s2?>"}}}, batch = [] )` (`<?claude block k?>` ↔ `blocks.k`); its ack links the doc → `open` it with your Artifact tool (none → start your next message with the link, once); they're likely watching it fill — keep them posted in a short line naming what you're on (outline up; now `<topic>`); findings go in the doc, not chat; then `guide( items = ["topic.index"] )`, research, and fill each section: `replace` its pending id with `## <heading>` + body; end with one line + the link, never the document. Summoned by a doc comment (turn headed `[Artifact comment sent to Claude]`, `;thread=<root id>`): answer ONLY with a doc comment under that root (`create` an utterance, parent `<root id>`) — no artifact/platform comment tool: that relay thread is resolved and never reaches the doc; an edit asked there → `update` with `answering: "<root id>"`.
 
@@ -505,6 +471,10 @@ SKIP only when another provider is being worked on (overrides all triggers): Ope
 - [plugin-authoring](skills/plugin-authoring/SKILL.md): Make a mod: a change to Claude's own interface or behaviour, such as a live pane or panel, a band above the prompt, a status line, a toast, a slash command, or a hook on tool calls or prompts. Use to make, change or debug a mod or its hooks module.
 - [init](skills/init/SKILL.md): Initialize a new CLAUDE.md file with codebase documentation
 - [security-review](skills/security-review/SKILL.md): Complete a security review of the pending changes on the current branch
+- [anthropic-skills:built-in-browser](skills/built-in-browser/SKILL.md): Read this skill before the first step that uses the built-in browser, the browser pane inside the Claude desktop app (also called the in-app browser, the browser pane, Claude's browser, or "your own browser"), whose tools are named mcp__Claude_Browser__* when the session runs in the desktop app and mcp__remote-devices__Claude_Browser__* when a cloud session is linked to the person's computer; before those tools are turned on there may be a single enable__mcp__remote-devices__Claude_Browser tool instead. It covers the pane's persistent sign-ins, tabs and preview_start, reading pages as text, site approvals, what the pane cannot open, and what to do when it cannot be reached. It is not for Claude in Chrome (mcp__claude-in-chrome__* tools), which has its own skill, and it does not decide which browser to use.
+- [anthropic-skills:chrome-browser](skills/chrome-browser/SKILL.md): Read this skill before the first step that uses Claude in Chrome, the browser extension whose tools are named mcp__claude-in-chrome__* (also called Chrome, the browser extension, or the external browser) and which acts in the person's real Chrome with their own sign-ins; before those tools are turned on there may be a single enable__mcp__claude-in-chrome tool instead. It covers loading the tools in one ToolSearch call, checking the person's open tabs and working in a new tab, site permissions, GIF recordings, console logs, dialogs to avoid, and when to stop and ask. It is not for the built-in browser (mcp__Claude_Browser__* or mcp__remote-devices__Claude_Browser__* tools), which has its own skill, and it does not decide which browser to use.
+- [anthropic-skills:computer-use](skills/computer-use/SKILL.md): Read this skill before the first step of any request to do something in an app on the person's own computer (Notes, Finder, System Settings, any desktop app), to look at their screen, or for "computer use". Computer use (desktop control) lets Claude take screenshots of the person's desktop and control it with clicks, typing and scrolling through the Claude desktop app; its tools are named mcp__computer-use__* when the session runs in the desktop app and mcp__remote-devices__computer_* when a cloud session is linked to the person's computer; before computer use is turned on for a conversation there may be no such tools, only an enable__mcp__remote-devices__computer tool, which turns it on. It covers turning it on, picking the right tool, the access flow, and the safety rules for tiered apps, links and financial actions. It is not for websites, which go through Claude in Chrome or the built-in browser and their own skills.
+- [anthropic-skills:deep-research](skills/anthropic-skills/deep-research/SKILL.md): Use this skill when the user's prompt requires (1) researching a topic across multiple sources, comparing options or alternatives, analyzing trends or history, understanding markets or industries, or reviewing literature or studies and (2) synthesizing that research into a comprehensive, narrative report. If you're planning to search the web or internal knowledge bases, consider using this skill. This skill coordinates research subagents, so use it only when you have a tool for spawning subagents (the Agent or Task tool); otherwise, research the question directly.
 - [anthropic-skills:docs](skills/docs/SKILL.md): docs (editable docs people share and comment on; the default for any document, named as a doc or not: a document, report, proposal, resume, cover letter, letter, contract, policy, form, template, worksheet, essay, handbook, guide, how-to, cheat sheet, SOP or other writing to keep, share, collaborate on, send, submit, print or sign; a doc exports to Word, PDF, Markdown or Google Docs, so needing a file to send, attach, upload, submit or print is no reason to pick Word, and a file nobody asked for is a doc, not Word; a plan, comparison, summary or notes asked in chat stays in chat; a pasted claude.ai artifact link may be a doc: check with docs tools first; Word or another file format named, tracked changes wanted, or a .docx to change or use as a template → that format's skill): making one → if no docs-connector instructions are in context, call its `guide` (topic.instructions) first; then create the doc (headings only, no body) before any search, file read or plan, even with files attached.
 - [anthropic-skills:docx](skills/docx/SKILL.md): Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx) or Word templates (.dotx). Triggers include: any mention of Microsoft Word Documents, such as 'Word doc', 'word document', '.docx', '.dotx', 'microsoft doc'. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a deliverable as a Word or .docx file (to download, email or print), use this skill. However, if they ask for a document, page, report, memo, or notes WITHOUT naming a file format and the session offers Claude's own dedicated document or page skill or connector, use that instead, even if they will email or print it. Do NOT use for PDFs, spreadsheets, Google Docs, or coding unrelated to document generation.
 - [anthropic-skills:google-workspace](skills/google-workspace/SKILL.md): Read this before the first Google Drive, Docs, Sheets or Slides connector call whenever the task creates or changes a Google file. Use this skill whenever the user wants to create or change a Google Doc, Sheet or Slides file in their Google Drive. Triggers include: a request that names Google Docs, Sheets, Slides or Drive and asks to make, edit, format, copy or rename a file; a docs.google.com link with a request to change that file, even a one-line fix or suggested edits; and any follow-up change to a Google file from earlier in the chat, even "change it" or "add a tab". Includes helper scripts for document positions, cell ranges and slide layout. However, if the user asks for a doc, deck or spreadsheet without naming Google, or gives a Google file only as source material for something new, use Claude's own output type instead. Do NOT use for read-only questions about a Google file, or for Word, Excel, PowerPoint or PDF files.
@@ -527,7 +497,7 @@ Before any command that could discard uncommitted work — `git checkout`/`resto
 
 `<system-reminder>`
 
-Today's date is 2026-10-09.
+Today's date is 2026-10-13.
 
 `</system-reminder>`
 
@@ -1570,7 +1540,7 @@ Important notes:
 - IMPORTANT: Never use git commands with the -i flag (like git rebase -i or git add -i) since they require interactive input which is not supported.
 - IMPORTANT: Do not use --no-edit with git rebase commands, as the --no-edit flag is not a valid option for git rebase.
 - If there are no changes to commit (i.e., no untracked files and no modifications), do not create an empty commit
-- In order to ensure good formatting, ALWAYS pass the commit message via a HEREDOC, a la this example:  
+- In order to ensure good formatting, ALWAYS pass the commit message via a HEREDOC, a la this example:
 ```xml
 <example>
 git commit -m "$(cat <<'EOF'
@@ -1596,7 +1566,7 @@ IMPORTANT: When the user asks you to create a pull request, follow these steps c
 3. Run the following commands in parallel:
    - Create new branch if needed
    - Push to remote with -u flag if needed
-   - Create PR using gh pr create with the format below. Use a HEREDOC to pass the body to ensure correct formatting. End the body with the attribution lines given in the conversation's system-reminder, when one is present.  
+   - Create PR using gh pr create with the format below. Use a HEREDOC to pass the body to ensure correct formatting. End the body with the attribution lines given in the conversation's system-reminder, when one is present.
 ```xml
 <example>
 gh pr create --title "the pr title" --body "$(cat <<'EOF'
@@ -2491,8 +2461,6 @@ Each text frame becomes one notification (multiline frames stay as one event). B
 
 Prefer this over `command: 'websocat wss://…'` — it avoids the extra process and line-buffering pitfalls. Use bash when you need to transform or filter frames with shell tools before they become events.
 
-When an event lands that the user would want to act on now — an error appeared, the status they were waiting on flipped — send a PushNotification. Not every event is worth a push; the ones that change what they'd do next are.
-
 ```yaml
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -2670,6 +2638,10 @@ Usage:
     "pages": {
       "description": "Page range for PDF files (e.g., "1-5", "3", "10-20"). Only applicable to PDF files. Maximum 20 pages per request.",
       "type": "string"
+    },
+    "allow_large": {
+      "description": "Set to true to read a text file, or a line range of one, that is over the usual size limits, up to what still fits in your context. Only use this when you genuinely need all of it or the user asked for the whole file; otherwise read it in parts with offset and limit, or search it.",
+      "type": "boolean"
     }
   },
   "required": [
@@ -3236,8 +3208,8 @@ CRITICAL REQUIREMENT - You MUST follow this:
 [Your answer here]
 
 Sources:
-    - [Source Title 1](https://example.com/1)
-    - [Source Title 2](https://example.com/2)
+    - `[Source Title 1](https://example.com/1)`
+    - `[Source Title 2](https://example.com/2)`
 
 Usage notes:
   - Domain filtering is supported to include or block specific websites
@@ -3304,7 +3276,7 @@ For any other task — even one that would clearly benefit from parallelism — 
 
 Every script must begin with `export const meta = {...}`: a PURE LITERAL (no variables, calls or interpolation) giving the workflow's `name`, a one-line `description` (shown in the permission dialog) and optionally `phases` — one `{ title, detail? }` per phase() call, titles matched exactly. Pass the script inline via `script` — do not Write it to a file first, and do not also set the tool's `name` input (that selects a saved workflow); it is plain JavaScript, not TypeScript.
 
-The canonical multi-stage pattern — pipeline by default, each dimension verifies as soon as its review completes:  
+The canonical multi-stage pattern — pipeline by default, each dimension verifies as soon as its review completes:
   ```js
   export const meta = {
     name: 'review-changes',
@@ -3397,427 +3369,6 @@ Usage:
     "file_path",
     "content"
   ],
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_compare_regions
-
-Side-by-side headline comparison of 2-8 regions from one cohort.
-
-Returns each region's usage index, augmentation/automation split,
-work/personal/coursework split, top job categories, most common
-request topics, and top work tasks, plus the shared baseline (the
-world for countries; the country for its subregions). Regions
-publish different work-task subsets — compare tasks by name, not
-rank position. Compare countries with countries,
-or subregions of one country — indexes are normalized within one
-cohort and never compare across cohorts, and subregion usage shares
-are likewise calculated within the parent country.
-For region profiles beyond the headline, use the detail tools; for
-a full ranking, the list tools.
-
-When a visualization tool is available, always build comparative
-visualizations — show each region relative to the others and the
-shared baseline: heatmaps, diverging bar charts, bubble charts,
-and grouped or stacked bars all fit side-by-side data; go beyond
-a single bar chart or choropleth, and more than one visualization
-is fine.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {
-    "region_codes": {
-      "description": "2-8 region codes from one cohort: country codes (DEU, USA, BRA) or subregion codes of one country (US-CA, US-TX) — the region_code values the list tools serve.",
-      "items": {
-        "type": "string"
-      },
-      "maxItems": 8,
-      "minItems": 2,
-      "type": "array"
-    }
-  },
-  "required": [
-    "region_codes"
-  ],
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_get_dataset_overview
-
-Anthropic Economic Index overview: coverage, releases, definitions.
-
-Call this once at the start of an exploration. Returns the latest
-data period and snapshot timestamp, dataset metadata (license,
-publisher, landing page), temporal_coverage — the published period
-span; the served numbers are a snapshot of the latest period, not a
-trend — geography and occupation coverage counts, the worldwide
-headline split, and a definitions glossary to reuse when presenting
-numbers to non-experts. country_count counts only countries with a
-published Anthropic Usage Index, the same cohort
-econ_index_list_countries / econ_index_get_usage_by_country cover.
-
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {},
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_get_global_usage
-
-Global Claude usage, occupational task breakdowns, and common request topics.
-
-How people use Claude overall including occupational task
-breakdowns and common request topics — the Anthropic Economic Index
-worldwide profile. Returns the augmentation/automation and
-work/personal/coursework splits, the classifier-estimated task-time
-comparison (hours working alone vs minutes with Claude — normalize
-the units before charting), top job categories, top request topics,
-and artifact types. Topic-share questions — how often people ask
-about money, health, investing, travel, and the like — are answered
-by top_request_topics, and the worldwide work-task ranking
-(econ_index_list_top_work_tasks) carries the task-level detail
-behind the same questions.
-
-Whenever the question warrants a country breakdown, call
-econ_index_list_countries and lead with the world choropleth (its
-rows carry iso_numeric for a code join), with this profile's splits
-as compact metric badges above the map; then visualize the job
-categories.
-
-When a visualization tool is available, always explore
-visualizations: consider the data's shape — how many series,
-whether values carry a baseline comparison, whether anything is
-geographic — try the available options and judge which fits best;
-more than one visualization is fine. Geographic data gets a
-choropleth by default.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {},
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_get_occupation_usage
-
-Occupations and job categories ranked by Claude usage of their tasks.
-
-A bare call returns category_shares — every job category with its
-share of global usage. Lead with those ~22 categories — one ranked
-series of shares — and visualize them, narrating only the top few.
-Pass query to
-drill down: a category name lists its occupations, an occupation
-name returns that occupation, and any other word matches occupation
-names. When no slice exists for the exact profession asked, quote
-the closest published figure with its scope named ('software
-developers', 'Legal as a whole') — never present broader numbers as
-the requested slice. Tasks in the gap between task_count and
-published_task_count are not published; their values may be zero. Global
-scope only — for one state or country use
-econ_index_get_usage_by_subregion / econ_index_get_usage_by_country.
-Answers questions like 'which jobs and careers use AI the most?'.
-Frame results as "AI is used for tasks commonly done by
-[occupation]", never "[occupation]s are using AI" — the people in
-these conversations are often not members of that occupation.
-
-When a visualization tool is available, always explore
-visualizations: consider the data's shape — how many series,
-whether values carry a baseline comparison, whether anything is
-geographic — try the available options and judge which fits best;
-more than one visualization is fine. Geographic data gets a
-choropleth by default.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {
-    "query": {
-      "anyOf": [
-        {
-          "maxLength": 200,
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "A job-category name ('Computer and Mathematical'), an exact occupation name ('Software Developers'), or a word from an occupation name ('nurse'). Case-insensitive. Omit for the job-category overview."
-    },
-    "include_tasks": {
-      "default": false,
-      "description": "Also return each occupation's per-task collaboration breakdown (adds up to ~90 KB). Off by default — the occupation-level summary answers most questions.",
-      "type": "boolean"
-    }
-  },
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_get_usage_by_country
-
-Full Claude-usage profile for one country.
-
-Returns the usage index and rank, the augmentation/automation and
-work/personal/coursework splits, top-10 job categories, most
-frequent request topics, work tasks, and artifact types. The key
-shares carry the global average alongside (baseline_pct,
-vs_baseline_index), and the baseline block carries the global
-headline figures for side-by-side display. Pass include_tasks /
-include_requests for the full occupation-task and request-topic
-hierarchies (each node carries its 0-100 share of the country's
-usage). Only countries with published usage are covered.
-
-Open with the headline numbers against the global average. For any
-single-country question, follow up with econ_index_list_subregions
-for the within-country picture — coverage varies and an empty
-result says so; where rows exist, lead with the subregion
-choropleth. Then visualize the job categories, then a brief mention
-of topics, then artifact types.
-
-When a visualization tool is available, always explore
-visualizations: consider the data's shape — how many series,
-whether values carry a baseline comparison, whether anything is
-geographic — try the available options and judge which fits best;
-more than one visualization is fine. Geographic data gets a
-choropleth by default.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {
-    "country_code": {
-      "description": "ISO-3166 alpha-3 code, e.g. USA, GBR, DEU — the region_code of a row from econ_index_list_countries",
-      "maxLength": 32,
-      "type": "string"
-    },
-    "include_tasks": {
-      "default": false,
-      "description": "Also return `task_breakdown`: the job category → occupation → work-task hierarchy for this country as flat node/parent rows (adds roughly 60 KB).",
-      "type": "boolean"
-    },
-    "include_requests": {
-      "default": false,
-      "description": "Also return `topic_breakdown`: the request-topic hierarchy for this country as flat node/parent rows (adds roughly 50 KB).",
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "country_code"
-  ],
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_get_usage_by_subregion
-
-Full Claude-usage profile for one subregion (state, province, prefecture).
-
-Covers US states and, where published, other countries' subregions
-(BR-SP, JP-13, ...). Returns the usage rank within the country, the
-augmentation/automation and work/personal/coursework splits, top-10
-job categories, most frequent request topics, work tasks, and
-artifact types. The key shares carry the country average alongside
-(baseline_pct, vs_baseline_index), and the baseline block carries
-the country's headline figures for side-by-side display. US states
-also carry the Anthropic Usage Index; other subregions have no
-published index — present their standing by rank and share, never a
-made-up index. Pass include_tasks / include_requests for the full
-occupation-task and request-topic hierarchies (each node carries its
-0-100 share of the subregion's usage). Empty lists mean not
-published — never invent entries.
-
-Open with the headline numbers against the country average, then
-visualize the job categories, then the most frequent topics, then
-artifact types.
-
-When a visualization tool is available, always explore
-visualizations: consider the data's shape — how many series,
-whether values carry a baseline comparison, whether anything is
-geographic — try the available options and judge which fits best;
-more than one visualization is fine. Geographic data gets a
-choropleth by default.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {
-    "subregion_code": {
-      "description": "ISO 3166-2 subregion code, e.g. US-CA, BR-SP, JP-13; a bare 2-letter code means a US state (CA = US-CA) — the region_code of a row from econ_index_list_subregions",
-      "maxLength": 32,
-      "type": "string"
-    },
-    "include_tasks": {
-      "default": false,
-      "description": "Also return `task_breakdown`: the job category → occupation → work-task hierarchy for this state as flat node/parent rows (adds roughly 60 KB).",
-      "type": "boolean"
-    },
-    "include_requests": {
-      "default": false,
-      "description": "Also return `topic_breakdown`: the request-topic hierarchy for this state as flat node/parent rows (adds roughly 50 KB).",
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "subregion_code"
-  ],
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_list_countries
-
-Every country with a published Anthropic Usage Index, ranked by it.
-
-Each row carries the index and rank, the augmentation/automation and
-work/personal/coursework splits, the top-5 job categories, top
-artifact types, and its top-5 request topics with shares — enough
-for a choropleth with tooltips and a click-through panel from this
-single call.
-iso_numeric matches the feature ids of a world topojson (world-atlas
-countries-110m): join the map on codes, not country names. For one
-country's top-10 categories and full hierarchies, use
-econ_index_get_usage_by_country.
-
-Lead with a world choropleth colored by anthropic_usage_index; give
-tooltips the index plus the top job categories or the use-case split.
-Follow with the top job categories — a country ranking
-complements the map rather than replacing it. To compare countries,
-compare profiles (each one's categories and topics vs the global
-average: baseline_pct, vs_baseline_index), not just usage volume.
-
-When a visualization tool is available, always visualize: this
-data is geographic, so lead with a choropleth of a numeric field
-— the usage index or a split share; a map of each region's top
-topic or category comes out near-uniform, because the same
-entries lead nearly everywhere — when no map source for these
-regions is bundled or known, search for one before any non-map
-fallback; more than one visualization is fine.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {},
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_list_subregions
-
-One country's subregions ranked by Claude usage.
-
-Defaults to the USA: all 50 states plus Washington, D.C., ranked by
-the Anthropic Usage Index. Other countries' subregions have no
-published index — rows rank by usage_share_pct, each subregion's
-share of the country's observed usage; that is volume, not
-engagement relative to population size, and map colors should say
-so. Each row carries the use-case splits, top-5 job categories, top
-artifact types, and its top-5 request topics with shares — enough
-for a choropleth with tooltips and a click-through panel from this
-single call. For
-one subregion's top-10 categories and full hierarchies, use
-econ_index_get_usage_by_subregion.
-
-For US states, join a us-atlas states topojson by state name
-(Washington, D.C. is 'District of Columbia' there) and color by
-anthropic_usage_index; elsewhere search for a suitable topojson when
-none is at hand and color by usage_share_pct. To compare
-subregions, compare profiles (each one's categories and topics vs
-the national average: baseline_pct, vs_baseline_index), not just
-usage volume.
-
-When a visualization tool is available, always visualize: this
-data is geographic, so lead with a choropleth of a numeric field
-— the usage index or a split share; a map of each region's top
-topic or category comes out near-uniform, because the same
-entries lead nearly everywhere — when no map source for these
-regions is bundled or known, search for one before any non-map
-fallback; more than one visualization is fine.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {
-    "country_code": {
-      "default": "USA",
-      "description": "ISO 3166-1 country code, alpha-2 or alpha-3 (US/USA, BR/BRA). Default USA. Coverage varies by country; an empty result means no published subregions there.",
-      "maxLength": 3,
-      "type": "string"
-    }
-  },
-  "additionalProperties": false
-}
-```
-
-## mcp__claude_ai_Anthropic_Economic_Index__econ_index_list_top_work_tasks
-
-Top work tasks worldwide: what people use Claude for the most, by task.
-
-Returns the top 50 work tasks, ranked by their 0-100 share of
-global sampled conversations. Task descriptions come from O*NET,
-the US government's catalog of each occupation's tasks, in plain
-English, and are matched from conversation content. For the
-breakdown within one occupation, use
-econ_index_get_occupation_usage. Answers questions like 'what do
-people in different careers actually use Claude for?'. Task wording
-is specific enough that questions about one kind of request —
-financial advice, resume help, lesson planning — often match tasks
-here directly.
-
-When a visualization tool is available, always explore
-visualizations: consider the data's shape — how many series,
-whether values carry a baseline comparison, whether anything is
-geographic — try the available options and judge which fits best;
-more than one visualization is fine. Geographic data gets a
-choropleth by default.
-Figures are derived from anonymized, aggregated conversation
-content and cannot be tied to individual users. They describe
-observed Claude usage by task and are not evidence about employment
-or job automation.
-
-```yaml
-{
-  "type": "object",
-  "properties": {},
   "additionalProperties": false
 }
 ```
@@ -4632,6 +4183,13 @@ Returns a Message object with the `id`, `threadId`, and `labelIds` fields popula
 {
   "type": "object",
   "properties": {
+    "attachments": {
+      "description": "Optional. New attachments to include in the forwarded email, in addition to any attachments already present on the original message. The combined size of attachments in the message cannot exceed 25MB. If you need to send files larger than 25MB, upload the file to Drive first and then insert the Drive link into `forward_text` or `html_body`.",
+      "items": {
+        "$ref": "#/$defs/Attachment"
+      },
+      "type": "array"
+    },
     "bcc": {
       "description": "Optional. The blind carbon copy recipients of the email. Each string MUST be a valid plain email address (e.g., "user@example.com").",
       "items": {
@@ -4669,6 +4227,39 @@ Returns a Message object with the `id`, `threadId`, and `labelIds` fields popula
   "required": [
     "messageId"
   ],
+  "$defs": {
+    "Attachment": {
+      "description": "Represents an attachment to be included in an email.",
+      "properties": {
+        "content": {
+          "description": "Required. The base64-encoded content of the attachment.",
+          "format": "byte",
+          "type": "string"
+        },
+        "filename": {
+          "description": "Optional. The name of the file to be attached, e.g. "invoice.pdf". For inline attachments, this is used for Content-ID generation. For regular attachments, `filename` is used to specify the filename to email clients. If not provided, the attachment may be received with no name.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Optional. Output only. When present, contains the ID of an external attachment that can be retrieved in a separate `GetMessageAttachment` request.",
+          "readOnly": true,
+          "type": "string"
+        },
+        "inline": {
+          "description": "Optional. If true, this attachment is handled as inline. An inline attachment is a content that is intended to be displayed within the body of an HTML email, as opposed to being listed as a separate file for download. If false or absent, defaults to false, and it's treated as a regular attachment.",
+          "type": "boolean"
+        },
+        "mimeType": {
+          "description": "Optional. The field representing a content or media type must use IANA MIME type, https://www.iana.org/assignments/media-types/media-types.xhtml. If not provided, defaults to "application/octet-stream".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "type": "object"
+    }
+  },
   "description": "Request message for Forward RPC."
 }
 ```
@@ -4994,6 +4585,13 @@ Returns a Message object with the `id`, `threadId`, and `labelIds` fields popula
 {
   "type": "object",
   "properties": {
+    "attachments": {
+      "description": "Optional. The attachments to include in the email reply. The combined size of attachments in the message cannot exceed 25MB. If you need to send files larger than 25MB, upload the file to Drive first and then insert the Drive link into `body` or `html_body`.",
+      "items": {
+        "$ref": "#/$defs/Attachment"
+      },
+      "type": "array"
+    },
     "bcc": {
       "description": "Optional. The blind carbon copy recipients of the email reply. Each string MUST be a valid plain email address (e.g., "user@example.com").",
       "items": {
@@ -5035,6 +4633,39 @@ Returns a Message object with the `id`, `threadId`, and `labelIds` fields popula
   "required": [
     "messageId"
   ],
+  "$defs": {
+    "Attachment": {
+      "description": "Represents an attachment to be included in an email.",
+      "properties": {
+        "content": {
+          "description": "Required. The base64-encoded content of the attachment.",
+          "format": "byte",
+          "type": "string"
+        },
+        "filename": {
+          "description": "Optional. The name of the file to be attached, e.g. "invoice.pdf". For inline attachments, this is used for Content-ID generation. For regular attachments, `filename` is used to specify the filename to email clients. If not provided, the attachment may be received with no name.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Optional. Output only. When present, contains the ID of an external attachment that can be retrieved in a separate `GetMessageAttachment` request.",
+          "readOnly": true,
+          "type": "string"
+        },
+        "inline": {
+          "description": "Optional. If true, this attachment is handled as inline. An inline attachment is a content that is intended to be displayed within the body of an HTML email, as opposed to being listed as a separate file for download. If false or absent, defaults to false, and it's treated as a regular attachment.",
+          "type": "boolean"
+        },
+        "mimeType": {
+          "description": "Optional. The field representing a content or media type must use IANA MIME type, https://www.iana.org/assignments/media-types/media-types.xhtml. If not provided, defaults to "application/octet-stream".",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "type": "object"
+    }
+  },
   "description": "Request message for Reply RPC."
 }
 ```
@@ -5068,7 +4699,7 @@ Note: An empty JSON object `{}` represents zero matching items, not an error.
       "type": "string"
     },
     "query": {
-      "description": "Optional. A query string to filter the threads. Natural language queries must be pre-converted into Gmail syntax queries to use this tool. If omitted, all threads (excluding spam and trash by default) are listed. Supported Operators by Category: Sender & Recipient: - `from:` — Sent from a specific person. - `to:` — Sent to a specific person. - `cc:` — Specific people in Cc. - `bcc:` — Specific people in Bcc. - `deliveredto:` — Delivered to a specific address. - `list:` — From a specific mailing list. Time & Date: - `after:YYYY/MM/DD` / `newer:YYYY/MM/DD` — Received after a date. - `before:YYYY/MM/DD` / `older:YYYY/MM/DD` — Received before a date. - `older_than:` — Older than a duration (for example, `1y`, `2d`). - `newer_than:` — Newer than a duration. Content: - `subject:` — Words in the subject line. - `has:` — Has specific content types (attachment, drive, youtube, document). - `filename:` — Attachment with a specific name or type. - `""` — Search for an exact word or phrase. (for example, `"holiday"`, `"holiday vacation"`). Note: Double quotes enforce strict contiguous phrase matching. For topic, discussion, or keyword queries, prefer unquoted keywords (e.g. `partner advertising` instead of `"partner advertising"`). - `+` — Match a word exactly. (for example, `+holiday`, `+unicorn`) - `rfc822msgid:` — Specific message ID header. - `AROUND ` — Find words near each other (for example, `holiday AROUND 10 vacation`). Labels & Categories: - `label:` — Under a specific label. The tool accepts label IDs, not display names. Use the `list_labels` tool to get the ID. - `category:` — In a category (primary, social, promotions, updates, forums, reservations, purchases). - `in:` — Search in specific labels (archive, snoozed, trash, sent, inbox). For example, `in:trash`, `in:inbox`. Archived and sent messages are included by default; use `-in:archive` and `-in:sent` to exclude them. Drafts are explicitly excluded by default by the tool. Use `in:inbox` to restrict search to the inbox only. - `has:userlabels` — Has any user labels. - `has:nouserlabels` — Does not have any user labels. - `has:*-star` — Specific star colors (if enabled, for example, `has:yellow-star`). - `in:draft` — Search in drafts. -in:draft means exclude drafts from the search results. - `in:sent` — Search in sent messages. - `in:anywhere` — Search in all folders (including spam and trash). Status: - `is:` — Search by status (important, starred, unread, read, muted). Size: - `size:` — Specific size in bytes. - `larger:` / `smaller:` — Larger or smaller than a size (for example, `10M` for 10 MB). Logic & Grouping: - `AND` — Match all criteria (default behavior). - `OR` or `{ }` — Match one or more criteria (for example, `from:amy OR from:david`, `{from:amy from:david}`). - `-` (minus) — Exclude criteria (for example, `-movie`). - `( )` — Group multiple search terms (for example, `subject:(dinner film)`). Examples: - `subject:OneMCP Update` - `from:user@example.com` - `to:user2@example.com AND newer_than:7d` - `project proposal has:attachment` - `is:unread -in:draft` To prevent overly strict queries, favor concise, keyword-based queries over long subject strings or full sentences. Avoid copying overly detailed subjects from the user prompt verbatim, as this often leads to search misses. Instead, extract the most unique keywords (e.g., subject:amazon \"delivery\" OR \"order\" instead of \"amazon order\"). Use boolean operators to broaden your search coverage. Use OR to search for synonyms or multiple potential senders, and use ( ) for grouping criteria. Note that whitespace between terms acts as an implicit AND.",
+      "description": "Optional. A query string to filter the threads. Natural language queries must be pre-converted into Gmail syntax queries to use this tool. If omitted, all threads (excluding spam and trash by default) are listed. Supported Operators by Category: Sender & Recipient: - `from:` — Sent from a specific person. - `to:` — Sent to a specific person. - `cc:` — Specific people in Cc. - `bcc:` — Specific people in Bcc. - `deliveredto:` — Delivered to a specific address. - `list:` — From a specific mailing list. Time & Date: - `after:YYYY/MM/DD` / `newer:YYYY/MM/DD` — Received after a date. - `before:YYYY/MM/DD` / `older:YYYY/MM/DD` — Received before a date. - `older_than:` — Older than a duration (for example, `1y`, `2d`). - `newer_than:` — Newer than a duration. Content: - `subject:` — Words in the subject line. - `has:` — Has specific content types (attachment, drive, youtube, document). - `filename:` — Attachment with a specific name or type. - `""` — Search for an exact word or phrase. (for example, `"holiday"`, `"holiday vacation"`). Note: Double quotes enforce strict contiguous phrase matching. For topic, discussion, or keyword queries, prefer unquoted keywords (e.g. `partner advertising` instead of `"partner advertising"`). - `+` — Match a word exactly. (for example, `+holiday`, `+unicorn`) - `rfc822msgid:` — Specific message ID header. - `AROUND ` — Find words near each other (for example, `holiday AROUND 10 vacation`). Labels & Categories: - `label:` — Under a specific label, matched by its display name (the `name` from `list_labels`), for example `label:wins`. Label IDs such as `Label_123` match nothing. Quote a name that contains spaces (`label:"Board Prep"`) or replace its spaces and `/` with `-` (`label:board-prep`). - `category:` — In a category (primary, social, promotions, updates, forums, reservations, purchases). - `in:` — Search in specific labels (archive, snoozed, trash, sent, inbox). For example, `in:trash`, `in:inbox`. Archived and sent messages are included by default; use `-in:archive` and `-in:sent` to exclude them. Drafts are explicitly excluded by default by the tool. Use `in:inbox` to restrict search to the inbox only. - `has:userlabels` — Has any user labels. - `has:nouserlabels` — Does not have any user labels. - `has:*-star` — Specific star colors (if enabled, for example, `has:yellow-star`). - `in:draft` — Search in drafts. -in:draft means exclude drafts from the search results. - `in:sent` — Search in sent messages. - `in:anywhere` — Search in all folders (including spam and trash). Status: - `is:` — Search by status (important, starred, unread, read, muted). Size: - `size:` — Specific size in bytes. - `larger:` / `smaller:` — Larger or smaller than a size (for example, `10M` for 10 MB). Logic & Grouping: - `AND` — Match all criteria (default behavior). - `OR` or `{ }` — Match one or more criteria (for example, `from:amy OR from:david`, `{from:amy from:david}`). - `-` (minus) — Exclude criteria (for example, `-movie`). - `( )` — Group multiple search terms (for example, `subject:(dinner film)`). Examples: - `subject:OneMCP Update` - `from:user@example.com` - `to:user2@example.com AND newer_than:7d` - `project proposal has:attachment` - `is:unread -in:draft` To prevent overly strict queries, favor concise, keyword-based queries over long subject strings or full sentences. Avoid copying overly detailed subjects from the user prompt verbatim, as this often leads to search misses. Instead, extract the most unique keywords (e.g., subject:amazon \"delivery\" OR \"order\" instead of \"amazon order\"). Use boolean operators to broaden your search coverage. Use OR to search for synonyms or multiple potential senders, and use ( ) for grouping criteria. Note that whitespace between terms acts as an implicit AND.",
       "type": "string"
     },
     "view": {
@@ -5487,7 +5118,7 @@ Returns a Draft object with the `id`, `threadId`, and `viewUrl` fields populated
 
 ## mcp__claude_ai_Gmail__update_label
 
-Modifies an existing label's name and color in the user's Gmail account.
+Modifies an existing label's name, color, and visibility settings in the user's Gmail account.
 
 
 ```yaml

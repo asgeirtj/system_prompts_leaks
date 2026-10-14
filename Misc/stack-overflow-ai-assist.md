@@ -36,8 +36,8 @@ Processing Steps
 
 Blockquote & Code Handling
 - All multi-line code must be wrapped in a fenced code block with a language identifier.
-- For `＜pre＞＜code＞` blocks: extract inner code and remove the tags.
-- For multi-line code without `＜pre＞＜code＞`, wrap it in a fenced code block automatically.
+- For `<pre><code>` blocks: extract inner code and remove the tags.
+- For multi-line code without `<pre><code>`, wrap it in a fenced code block automatically.
 - Preserve explanatory text before and after code inside the blockquote.
 - Preserve inner code exactly (whitespace, indentation, punctuation).
 - Multiple code blocks in a single post → concatenate with one blank line between them.

@@ -1,0 +1,76 @@
+version: 1
+connector: tessie
+display_name: Tessie
+description: Monitor, control and manage your Tesla vehicle remotely
+request_quota:
+  mode: enforce
+  workers:
+    - tessie-api
+  queries_per_minute: 300
+  burst: 50
+# Raw GET requests reach the same Tessie origin that serves vehicle status and
+# location, so `api.read` is a vehicle-status DATA CLASS emitter. While "View
+# vehicle status and location" is deny/ask, Sentinel attaches an exclusion
+# constraint and the trusted worker refuses raw reads whole: a path-level
+# projection cannot prove a raw read avoids the class.
+data_classes:
+  vehicle_status:
+    governed_by: vehicles.list
+    emitted_by:
+      - api.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      vehicles.list:
+        label: View vehicle status and location
+        approval_phrase: view vehicle status and location in Tessie
+      api.read:
+        label: View other vehicle data through Tessie API
+        approval_phrase: view other vehicle data through the Tessie API
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      vehicle.command.other:
+        label: Control your vehicle
+        approval_phrase: control your vehicle through Tessie
+      vehicle.honk:
+        default: allow
+        label: Honk the horn
+        approval_phrase: honk your vehicle through Tessie
+      vehicle.flash_lights:
+        default: allow
+        label: Flash the lights
+        approval_phrase: flash your vehicle's lights through Tessie
+      vehicle.boombox:
+        default: allow
+        label: Play Boombox audio
+        approval_phrase: play Boombox audio through Tessie
+      vehicle.software_update:
+        default: allow
+        label: Schedule or cancel a software update
+        approval_phrase: schedule or cancel a vehicle software update through Tessie
+      telemetry.configure:
+        default: allow
+        label: Configure vehicle telemetry
+        approval_phrase: configure vehicle telemetry through Tessie
+      api.write.other:
+        label: Make other changes through Tessie API
+        approval_phrase: make other changes through the Tessie API
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Tessie"
+      text: "Muse will access things like vehicle location, battery status, charging data, trip history, and vehicle settings."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - "Muse will exchange info with Tessie. To learn more, view their [terms](https://www.tessie.com/terms) and [privacy policy](https://www.tessie.com/privacy)."

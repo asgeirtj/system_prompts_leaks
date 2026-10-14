@@ -1,0 +1,70 @@
+version: 1
+connector: google_contacts
+category: productivity
+display_name: Google Contacts
+description: Search and manage your contacts and address book
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_contacts
+  service: people
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      people.get:
+        label: Access contacts
+        approval_phrase: access contacts in Google Contacts
+  write:
+    default: allow
+    label: Write and delete permissions
+    methods:
+      people.update_contact:
+        label: Edit contacts
+      people.delete_contact:
+        label: Delete contacts
+commands:
+  status: null
+  disconnect: null
+  contact_groups.batch_get: people.get
+  contact_groups.get: people.get
+  contact_groups.list: people.get
+  contact_groups.create: people.update_contact
+  contact_groups.delete: people.update_contact
+  contact_groups.update: people.update_contact
+  contact_groups.members.modify: people.update_contact
+  other_contacts.copy_other_contact_to_my_contacts_group: people.update_contact
+  other_contacts.list: people.get
+  other_contacts.search: people.get
+  people.create_contact: people.update_contact
+  people.batch_delete_contacts: people.delete_contact
+  people.batch_create_contacts: people.update_contact
+  people.batch_update_contacts: people.update_contact
+  people.delete_contact_photo: people.update_contact
+  people.get_batch_get: people.get
+  people.search_contacts: people.get
+  people.connections.list: people.get
+  people.list_directory_people: people.get
+  people.search_directory_people: people.get
+  people.update_contact_photo: people.update_contact
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Contacts"
+      text: "Muse will access things like names and contact info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Contacts. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

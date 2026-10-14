@@ -1,0 +1,77 @@
+version: 1
+connector: asana
+category: business
+display_name: Asana
+description: Plan and track projects and tasks
+icon: asana
+request_quota:
+  mode: shadow
+  workers: [asana]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: asana
+  skill: asana
+  service: asana
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      workspace.read:
+        label: Read workspace information
+        approval_phrase: read workspace information in Asana
+      tasks.read:
+        label: Read and search tasks
+        approval_phrase: read tasks in Asana
+      projects.read:
+        label: Read projects and status
+        approval_phrase: read projects in Asana
+      portfolios.read:
+        label: Read portfolios
+        approval_phrase: read portfolios in Asana
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      tasks.create:
+        label: Create tasks
+        approval_phrase: create tasks in Asana
+      tasks.manage:
+        label: Update tasks
+        approval_phrase: update tasks in Asana
+      tasks.delete:
+        label: Delete tasks
+        approval_phrase: delete tasks from Asana
+      projects.create:
+        label: Create projects
+        approval_phrase: create projects in Asana
+      comments.create:
+        label: Add comments
+        approval_phrase: add comments in Asana
+      status_updates.create:
+        label: Post project status updates
+        approval_phrase: post project status updates in Asana
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: workspace.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Asana"
+      text: "Muse will access things like projects, tasks, comments and team member names and emails."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Asana. To learn more, view their [terms](https://asana.com/terms) and [privacy policy](https://asana.com/terms#privacy-policy)."

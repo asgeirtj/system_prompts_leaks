@@ -1,0 +1,302 @@
+version: 1
+connector: gmail
+category: productivity
+display_name: Gmail
+description: You can give read-only or read and write access
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  # Match this OAuth project's 6,000-unit per-user minute allowance.
+  units_per_minute: 6000
+  quota_namespace: google-project-138594053405
+  method_units:
+    gmail.users.drafts.create: 10
+    gmail.users.drafts.delete: 10
+    gmail.users.drafts.get: 20
+    gmail.users.drafts.list: 5
+    gmail.users.drafts.send: 100
+    gmail.users.drafts.update: 15
+    gmail.users.getProfile: 1
+    gmail.users.history.list: 2
+    gmail.users.labels.create: 5
+    gmail.users.labels.delete: 5
+    gmail.users.labels.get: 1
+    gmail.users.labels.list: 1
+    gmail.users.labels.patch: 20
+    gmail.users.labels.update: 5
+    gmail.users.messages.attachments.get: 20
+    gmail.users.messages.batchDelete: 50
+    gmail.users.messages.batchModify: 50
+    gmail.users.messages.delete: 10
+    gmail.users.messages.get: 20
+    gmail.users.messages.import: 25
+    gmail.users.messages.insert: 25
+    gmail.users.messages.list: 5
+    gmail.users.messages.modify: 5
+    gmail.users.messages.send: 100
+    gmail.users.messages.trash: 20
+    gmail.users.messages.untrash: 5
+    gmail.users.settings.cse.identities.create: 20
+    gmail.users.settings.cse.identities.delete: 20
+    gmail.users.settings.cse.identities.get: 20
+    gmail.users.settings.cse.identities.list: 20
+    gmail.users.settings.cse.identities.patch: 20
+    gmail.users.settings.cse.keypairs.create: 20
+    gmail.users.settings.cse.keypairs.disable: 20
+    gmail.users.settings.cse.keypairs.enable: 20
+    gmail.users.settings.cse.keypairs.get: 20
+    gmail.users.settings.cse.keypairs.list: 20
+    gmail.users.settings.cse.keypairs.obliterate: 20
+    gmail.users.settings.delegates.create: 100
+    gmail.users.settings.delegates.delete: 5
+    gmail.users.settings.delegates.get: 1
+    gmail.users.settings.delegates.list: 1
+    gmail.users.settings.filters.create: 5
+    gmail.users.settings.filters.delete: 5
+    gmail.users.settings.filters.get: 1
+    gmail.users.settings.filters.list: 1
+    gmail.users.settings.forwardingAddresses.create: 100
+    gmail.users.settings.forwardingAddresses.delete: 5
+    gmail.users.settings.forwardingAddresses.get: 1
+    gmail.users.settings.forwardingAddresses.list: 1
+    gmail.users.settings.getAutoForwarding: 1
+    gmail.users.settings.getImap: 1
+    gmail.users.settings.getLanguage: 20
+    gmail.users.settings.getPop: 1
+    gmail.users.settings.getVacation: 1
+    gmail.users.settings.sendAs.create: 100
+    gmail.users.settings.sendAs.delete: 5
+    gmail.users.settings.sendAs.get: 1
+    gmail.users.settings.sendAs.list: 1
+    gmail.users.settings.sendAs.patch: 20
+    gmail.users.settings.sendAs.smimeInfo.delete: 20
+    gmail.users.settings.sendAs.smimeInfo.get: 20
+    gmail.users.settings.sendAs.smimeInfo.insert: 20
+    gmail.users.settings.sendAs.smimeInfo.list: 20
+    gmail.users.settings.sendAs.smimeInfo.setDefault: 20
+    gmail.users.settings.sendAs.update: 100
+    gmail.users.settings.sendAs.verify: 100
+    gmail.users.settings.updateAutoForwarding: 5
+    gmail.users.settings.updateImap: 5
+    gmail.users.settings.updateLanguage: 20
+    gmail.users.settings.updatePop: 100
+    gmail.users.settings.updateVacation: 5
+    gmail.users.stop: 50
+    gmail.users.threads.delete: 20
+    gmail.users.threads.get: 40
+    gmail.users.threads.list: 10
+    gmail.users.threads.modify: 10
+    gmail.users.threads.trash: 20
+    gmail.users.threads.untrash: 10
+    gmail.users.watch: 100
+cli:
+  binary: hatch_gws_cli
+  skill: gmail
+  service: gmail
+declarable_scopes:
+  - https://www.googleapis.com/auth/gmail.readonly
+  - https://www.googleapis.com/auth/gmail.compose
+  - https://www.googleapis.com/auth/gmail.modify
+  - https://www.googleapis.com/auth/gmail.settings.basic
+# Drafts are a DATA CLASS, not an API surface: a Gmail draft is an ordinary
+# message carrying the system DRAFT label, so message and thread reads return
+# full draft content even while the dedicated drafts methods are denied.
+# Declaring the class makes Sentinel attach an exclusion constraint to every
+# allowed messages read while "Access drafts" is deny/ask; the trusted
+# hatch_gws_cli worker enforces it (query rewrite on list surfaces, DRAFT
+# labelId filtering on reads) and fails closed on constraints it does not
+# implement. Aliased raw methods (users.threads.*, users.history.list,
+# users.messages.attachments.get) authorize as these two canonical keys, so
+# listing the keys covers every aliased spelling.
+data_classes:
+  drafts:
+    governed_by: users.drafts.list
+    emitted_by:
+      - users.messages.list
+      - users.messages.get
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    response_guard: verification_codes
+    methods:
+      users.messages.list:
+        label: Search emails
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+      users.messages.get:
+        label: Access emails
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+      users.labels.list:
+        label: Access labels and filters
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+      users.drafts.list:
+        label: Access drafts
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+      users.settings.read:
+        label: Access Gmail settings
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.settings.basic
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      users.messages.send:
+        label: Send emails
+        approval_phrase: send this email in Gmail
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.send
+          - https://www.googleapis.com/auth/gmail.compose
+          - https://www.googleapis.com/auth/gmail.modify
+      users.messages.unsubscribe:
+        default: ask
+        label: Unsubscribe from emails
+        approval_phrase: unsubscribe from email lists
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.readonly
+          - https://www.googleapis.com/auth/gmail.modify
+      users.drafts.create:
+        default: allow
+        label: Draft emails
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.compose
+          - https://www.googleapis.com/auth/gmail.modify
+      users.mail.read_state:
+        default: allow
+        label: Mark as read or unread
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.modify
+      users.messages.trash:
+        default: allow
+        label: Move emails to trash
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.modify
+      users.labels.manage:
+        default: allow
+        label: Manage labels
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.modify
+      users.filters.manage:
+        # Temporarily withheld from Settings and rejected by the CLI pending scope approval.
+        # Keep the key and saved permissions for re-enablement.
+        label: Manage filters
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.settings.basic
+      users.messages.import:
+        default: allow
+        label: Import emails
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.insert
+          - https://www.googleapis.com/auth/gmail.modify
+      users.settings.manage:
+        label: Manage Gmail settings
+        approval_phrase: manage settings in Gmail
+        requires_scopes:
+          - https://www.googleapis.com/auth/gmail.settings.basic
+commands:
+  status: null
+  disconnect: null
+  "+triage": users.messages.list
+  "+watch": users.messages.list
+  "+read": users.messages.get
+  "+draft": users.drafts.create
+  "+mark": users.mail.read_state
+  "+archive": users.labels.manage
+  "+trash": users.messages.trash
+  "+unsubscribe": users.messages.unsubscribe
+  "+send": users.messages.send
+  "+reply": users.messages.send
+  "+reply-all": users.messages.send
+  "+forward": users.messages.send
+  users.drafts.send: users.messages.send
+  users.stop: users.settings.manage
+  users.watch: users.settings.manage
+  users.drafts.get: users.drafts.list
+  users.drafts.update: users.drafts.create
+  users.history.list: users.messages.list
+  users.messages.batch_modify: users.labels.manage
+  users.messages.insert: users.messages.import
+  users.messages.modify: users.labels.manage
+  users.messages.untrash: users.messages.trash
+  users.messages.attachments.get: users.messages.get
+  users.get_profile: users.messages.get
+  users.labels.get: users.labels.list
+  users.labels.create: users.labels.manage
+  users.labels.delete: users.labels.manage
+  users.labels.patch: users.labels.manage
+  users.labels.update: users.labels.manage
+  users.settings.filters.get: users.labels.list
+  users.settings.filters.list: users.labels.list
+  users.settings.filters.create: users.filters.manage
+  users.settings.filters.delete: users.filters.manage
+  users.settings.get_auto_forwarding: users.settings.read
+  users.settings.get_imap: users.settings.read
+  users.settings.get_language: users.settings.read
+  users.settings.get_pop: users.settings.read
+  users.settings.get_vacation: users.settings.read
+  users.settings.update_auto_forwarding: users.settings.manage
+  users.settings.update_imap: users.settings.manage
+  users.settings.update_language: users.settings.manage
+  users.settings.update_pop: users.settings.manage
+  users.settings.update_vacation: users.settings.manage
+  users.settings.cse.identities.create: users.settings.manage
+  users.settings.cse.identities.delete: users.settings.manage
+  users.settings.cse.identities.get: users.settings.read
+  users.settings.cse.identities.list: users.settings.read
+  users.settings.cse.identities.patch: users.settings.manage
+  users.settings.cse.keypairs.create: users.settings.manage
+  users.settings.cse.keypairs.disable: users.settings.manage
+  users.settings.cse.keypairs.enable: users.settings.manage
+  users.settings.cse.keypairs.get: users.settings.read
+  users.settings.cse.keypairs.list: users.settings.read
+  users.settings.cse.keypairs.obliterate: users.settings.manage
+  users.settings.delegates.create: users.settings.manage
+  users.settings.delegates.delete: users.settings.manage
+  users.settings.delegates.get: users.settings.read
+  users.settings.delegates.list: users.settings.read
+  users.settings.forwarding_addresses.create: users.settings.manage
+  users.settings.forwarding_addresses.delete: users.settings.manage
+  users.settings.forwarding_addresses.get: users.settings.read
+  users.settings.forwarding_addresses.list: users.settings.read
+  users.settings.send_as.create: users.settings.manage
+  users.settings.send_as.delete: users.settings.manage
+  users.settings.send_as.get: users.settings.read
+  users.settings.send_as.list: users.settings.read
+  users.settings.send_as.patch: users.settings.manage
+  users.settings.send_as.update: users.settings.manage
+  users.settings.send_as.verify: users.settings.manage
+  users.settings.send_as.smime_info.delete: users.settings.manage
+  users.settings.send_as.smime_info.get: users.settings.read
+  users.settings.send_as.smime_info.insert: users.settings.manage
+  users.settings.send_as.smime_info.list: users.settings.read
+  users.settings.send_as.smime_info.set_default: users.settings.manage
+  users.threads.get: users.messages.get
+  users.threads.list: users.messages.list
+  users.threads.modify: users.labels.manage
+  users.threads.trash: users.messages.trash
+  users.threads.untrash: users.messages.trash
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Get more done with Gmail"
+      text: "Muse will access things like emails, attachments, contact info and email metadata."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Gmail. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

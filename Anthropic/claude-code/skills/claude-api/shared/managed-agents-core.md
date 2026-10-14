@@ -43,7 +43,7 @@ rescheduling -> running <-> idle -> terminated
 | `rescheduling` | Session is (re)scheduling after a retryable error has occurred, ready to be picked up by the orchestration system. |
 | `terminated` | Session has ended and is in an irreversible, unusable state - **either on completion or because of an unrecoverable error**. Terminated does not by itself mean failure; fetch the session to tell the two apart. |
 
-- Events can be sent when the session is `running` or `idle`. Messages are queued and processed in order. Exception: a session paused at its budget (`stop_reason: budget_reached`) accepts only **settle events** - events that resolve work already in progress (`user.tool_confirmation`, `user.tool_result`, `user.custom_tool_result`, `user.interrupt`) rather than starting new work - see § Session budgets.
+- Events can be sent when the session is `running` or `idle`. Messages are queued and processed in order. Exceptions: a session waiting on you (`stop_reason: requires_action`) or paused at its budget (`budget_reached`) accepts only **settle events** - events that resolve work already in progress (`user.tool_confirmation`, `user.tool_result`, `user.custom_tool_result`, `user.interrupt`) rather than starting new work - see § Session budgets.
 - The agent transitions `idle -> running` when it receives a new event, then back to `idle` when done.
 - Errors surface as `session.error` events in the stream, not as a status value.
 
@@ -110,9 +110,18 @@ Key fields returned by the API:
 const agent = await client.beta.agents.create(
   {
     name: "Coding Assistant",
-    model: "claude-opus-5",
+    model: "claude-opus-5-5",
     system: "You are a helpful coding agent.",
-    tools: [{ type: "agent_toolset_20260401"}],
+    tools: [
+      {
+        type: "agent_toolset_20260401",
+        default_config: { permission_policy: { type: "auto" } },
+        configs: [
+          { name: "web_fetch", enabled: false },
+          { name: "web_search", enabled: false },
+        ],
+      },
+    ],
   },
 );
 
@@ -241,25 +250,25 @@ The agent is a **persistent resource**, not a per-run parameter. The intended pa
 
 **Anti-pattern:** calling `agents.create()` at the top of every script run. This accumulates orphaned agent objects, pays create latency on every invocation, and defeats the versioning model. If you see `agents.create()` in a function that's called per-request or per-cron-tick, that's wrong - hoist it to one-time setup and persist the ID.
 
-> **Recommended - define agents and environments as YAML + apply via the `ant` CLI.** The split is **CLI for the control plane, SDK for the data plane**: agents and environments are relatively static resources you manage with `ant` (version-controlled YAML, applied from CI); sessions are dynamic and driven by your application through the SDK. See `shared/anthropic-cli.md` -> *Version-controlled Managed Agents resources* for the `ant beta:agents create < agent.yaml` / `update --version N` flow. The SDK `agents.create()` call shown elsewhere in this doc is the in-code equivalent - use it when you need to provision programmatically, but prefer the YAML flow for anything a human maintains.
+> **Recommended - define agents and environments as files and sync them with `ant apply`.** The split is **CLI for the control plane, SDK for the data plane**: agents and environments are relatively static resources you manage with `ant` (version-controlled files, synced by hand or from CI); sessions are dynamic and driven by your application through the SDK. See `shared/anthropic-cli.md` -> *Version-controlled Managed Agents resources* for the file layout, `claude-lock.json`, and the CI flow. The SDK `agents.create()` call shown elsewhere in this doc is the in-code equivalent - use it when you need to provision programmatically, but prefer files + `ant apply` for anything a human maintains.
 
 ### Effort on the agent model
 
-Pass `model` as an object to set the effort level: `{"id": "claude-opus-5", "effort": "high"}`. `effort` accepts a level string (`low`, `medium`, `high`, `xhigh`, `max`) or an object such as `{"type": "high"}`. The create/update response echoes it in object form and fills in omitted `model` fields with their defaults.
+Pass `model` as an object to set the effort level: `{"id": "claude-opus-5-5", "effort": "high"}`. `effort` accepts a level string (`low`, `medium`, `high`, `xhigh`, `max`) or an object such as `{"type": "high"}`. The create/update response echoes it in object form and fills in omitted `model` fields with their defaults.
 
-> Warning: **Effort is agent configuration only.** An `effort` set inside a per-session `model` override is **not applied** - the session runs at the agent's effort. To change effort you must update the agent (or point the session at a different agent). This is the one field where the override form silently does nothing rather than erroring.
+> Warning: **A per-session `model` override replaces the agent's `model` object in full, so the agent's own `effort` isn't carried over.** To run the session at a specific effort level, set `effort` inside the override's `model` object. A level the model doesn't support returns a 400 error, and a `model` override without `effort` runs at that model's default effort level.
 
-The same object form carries `speed` for fast mode: `{"id": "claude-opus-5", "speed": "fast"}`.
+The same object form carries `speed` for fast mode: `{"id": "claude-opus-5-5", "speed": "fast"}`.
 
 ### Pinning inference geography (`inference_geo`)
 
-The `model` object also takes `inference_geo` to pin the geography that serves the agent's model requests: `{"id": "claude-opus-5", "inference_geo": "us"}`. Accepts `"us"` or `"global"` - and unlike the Messages API, where `inference_geo` is a top-level request parameter, here it is always nested inside `model`, never top-level. When unset, each model request follows the workspace's default inference geo at the time it's served.
+The `model` object also takes `inference_geo` to pin the geography that serves the agent's model requests: `{"id": "claude-opus-5-5", "inference_geo": "us"}`. Accepts `"us"` or `"global"` - and unlike the Messages API, where `inference_geo` is a top-level request parameter, here it is always nested inside `model`, never top-level. When unset, each model request follows the workspace's default inference geo at the time it's served.
 
 - **Validated at every stage:** the pin is checked against the workspace's `allowed_inference_geos` when the agent is saved, when a session is created from it, and on every turn the session serves. If the workspace allowlist later narrows so the pin is no longer allowed, new sessions can't be created from the agent and **running sessions refuse further turns** - pins are never grandfathered (workspaces rely on them for compliance).
 - Setting `inference_geo` on a model that doesn't support geographic inference pinning returns a 400.
 - **Fixed for a session's lifetime** - the pin can't change mid-session. Set it on the agent, or set/clear it for one session with a `model` override at session create (see § Override agent configuration for a session).
 - **Multiagent rosters must be geo-uniform:** the coordinator's pin and every roster member's must all be the same value or all be unset - see `shared/managed-agents-multiagent.md`.
-- Unlike `effort`, an `inference_geo` inside a per-session `model` override **is applied** - and because overrides replace the `model` object in full, an override that *omits* `inference_geo` clears the agent's pin for that session.
+- Like `effort`, an `inference_geo` inside a per-session `model` override **is applied** - and because overrides replace the `model` object in full, an override that *omits* `inference_geo` clears the agent's pin for that session.
 
 ### Versioning
 
@@ -270,7 +279,7 @@ Each `POST /v1/agents/{id}` (update) creates a new immutable version - a sequent
 | `version` | Behavior | Fits |
 |---|---|---|
 | Supplied (must be >= 1) | 409 if it doesn't match the agent's current version - **even when the fields you send already equal the stored values**. Re-read and retry. | Interactive callers; the recommended default |
-| Omitted | Applies unconditionally. The most recent update silently replaces any concurrent one, with no error to either caller. | Declarative apply loops - e.g. a CI job syncing checked-in agent definitions, where the loop owns the agent |
+| Omitted | Applies unconditionally. The most recent update silently replaces any concurrent one, with no error to either caller. | Hand-rolled sync loops - e.g. a CI script pushing checked-in agent definitions with `agents.update()`, where the loop owns the agent |
 
 **Update semantics.** Omitted fields are preserved. Scalar fields (`model`, `system`, `name`, `description`) are replaced; `system` and `description` can be cleared with `null`, while `model` and `name` cannot. Array fields (`tools`, `mcp_servers`, `skills`) are replaced wholesale - `null` or `[]` clears them. **`effort` is the sole exception inside a `model` object you supply:** if the model `id` is unchanged, omitting `effort` leaves the stored level alone; if you change the `id`, an omitted `effort` resets to the new model's default. Other `model` fields are replaced along with the object - **supplying `model` without `inference_geo` clears the agent's inference geo pin.**
 
@@ -324,7 +333,7 @@ session = client.beta.sessions.create(
     agent={
         "type": "agent_with_overrides",
         "id": agent.id,
-        "model": "claude-opus-5",   # replace the agent's model for this session
+        "model": "claude-opus-5-5",   # replace the agent's model for this session
         "system": None,           # clear the system prompt for this session
     },
     environment_id=environment_id,
@@ -334,13 +343,13 @@ session = client.beta.sessions.create(
 Each overridable field follows tri-state rules:
 - **Omit** -> the session inherits the value from the referenced agent version.
 - **`null` (or `[]` for list fields)** -> the session runs with that field cleared. Applies in full to `system` and `skills`. Three exceptions: `model` is never clearable (`model: null` -> 400 `agent_model_required`); clearing `tools` returns 400 when the session's effective `skills` is non-empty (skills require the `read` tool); and clearing `mcp_servers` returns 400 when the effective `tools` still contains an `mcp_toolset` referencing one of the agent's servers - override `tools` in the same request to drop those entries, then clear `mcp_servers`.
-- **A value** -> replaces the agent's value **in full**. Overrides never merge - a `tools` override must list every tool the session should have. One exception: an `effort` level inside a `model` override is **not applied** (set it on the agent instead - see § Effort on the agent model). An `inference_geo` inside a `model` override **is** applied - and because the object is replaced in full, an override that omits it clears the agent's pin, so the session follows the workspace's default inference geo. The overridden value is validated against the workspace's `allowed_inference_geos` at session create.
+- **A value** -> replaces the agent's value **in full**. Overrides never merge - a `tools` override must list every tool the session should have. A `model` override also replaces the agent's `model` object in full: the agent's own `effort` isn't carried over, so set `effort` inside the override's `model` object to run the session at a specific effort level (a level the model doesn't support returns a 400 error, and a `model` override without `effort` runs at that model's default effort level). An `inference_geo` inside a `model` override **is** applied - and because the object is replaced in full, an override that omits it clears the agent's pin, so the session follows the workspace's default inference geo. The overridden value is validated against the workspace's `allowed_inference_geos` at session create.
 
 Overrides are session-local: they do **not** modify the agent resource or create a new agent version. The response's `agent` object reflects the post-override configuration, while its `id` and `version` still identify the base agent - so you can trace a session back to its base. In multiagent sessions, overrides apply to the coordinator and its `{type: "self"}` copies; roster agents referenced by ID always use their own as-created configuration (see `shared/managed-agents-multiagent.md`).
 
 ### Updating the agent configuration mid-session
 
-`sessions.update()` can change `agent.tools` and `agent.mcp_servers` (including permission policies and the per-tool web settings - `allowed_domains` / `blocked_domains` etc., see `shared/managed-agents-tools.md` § Web search & web fetch settings) on an **existing** session. Updated domain lists apply to the rest of the session. This is a **session-local override** - it does not create a new agent version and does not propagate back to the agent object. The provided arrays are **full replacements**; to append one tool, `GET` the session, modify, and `POST` back. The session must be `idle` - interrupt first if running. `vault_ids` is **create-only**: the update param exists in the SDK but is rejected by the API ("Not yet supported") - attach vaults when you create the session.
+`sessions.update()` can change `agent.tools` and `agent.mcp_servers` (including permission policies and the per-tool web settings - `allowed_domains` / `blocked_domains` etc., see `shared/managed-agents-tools.md` § Web search & web fetch settings) on an **existing** session. Updated domain lists apply to the rest of the session. This is a **session-local override** - it does not create a new agent version and does not propagate back to the agent object. The provided arrays are **full replacements** (keep the toolset's `default_config` and `configs`, or the policy reverts to `always_allow` and the web tools come back on); to append one tool, `GET` the session, modify, and `POST` back. The session must be `idle` - interrupt first if running. `vault_ids` is **create-only**: the update param exists in the SDK but is rejected by the API ("Not yet supported") - attach vaults when you create the session.
 
 Among the agent-configuration fields, only `tools` and `mcp_servers` can change after a session is created - to run with a `model`, `system`, or `skills` other than the agent's values, use `agent_with_overrides` at create time (above). (`title`, `metadata`, and `budget` have their own session-update paths - see § Session operations / § Session budgets.) The agent's model configuration - including its `inference_geo` pin - and its configured `system` field are fixed for the session's lifetime; you can still **append system-level context between turns** by sending a `system.message` event (see `shared/managed-agents-events.md` § Adding system context mid-session).
 
@@ -349,7 +358,14 @@ client.beta.sessions.update(
     session.id,
     agent={
         "tools": [
-            {"type": "agent_toolset_20260401"},
+            {
+                "type": "agent_toolset_20260401",
+                "default_config": {"permission_policy": {"type": "auto"}},
+                "configs": [
+                    {"name": "web_fetch", "enabled": False},
+                    {"name": "web_search", "enabled": False},
+                ],
+            },
             {"type": "mcp_toolset", "mcp_server_name": "linear"},
         ],
         "mcp_servers": [{"type": "url", "name": "linear", "url": "https://mcp.linear.app/sse"}],

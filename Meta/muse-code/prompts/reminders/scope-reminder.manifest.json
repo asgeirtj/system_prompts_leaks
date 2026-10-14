@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "name": "scope-reminder",
+  "displayName": "Scope reminder",
+  "version": "1.0.0",
+  "description": "Advisory scope-reminder plugin (specs/16590 identity; X3 dormant skeleton).",
+  "compat": { "source": "native", "manifestDir": ".muse-plugin" },
+  "capabilities": {
+    "skills": [],
+    "hooks": [],
+    "mcpServers": [],
+    "commands": [],
+    "reminders": [
+      {
+        "id": "scope-reminder",
+        "path": "reminders/scope-reminder.md",
+        "enabledDefault": false,
+        "enabledDefaultByModel": {
+          "muse-spark-1.2": true,
+          "muse-spark-1.2-internal": true
+        },
+        "tools": [],
+        "blocking": false,
+        "defaultPriority": "high",
+        "maxPriority": "high",
+        "maxChildSteps": 1000000,
+        "reasoningEffort": "medium",
+        "decision": {
+          "version": 1,
+          "envelope": {
+            "version": 1,
+            "template": "<system-reminder>\n{text}\n\nTreat this reminder as internal guidance. Act on it directly without\nacknowledging, quoting, paraphrasing, or referring to the reminder.\n</system-reminder>"
+          },
+          "deliveryRole": "developer",
+          "fields": [
+            {
+              "name": "reason",
+              "description": "Brief reason for the decision.",
+              "requirement": "optional",
+              "shape": {
+                "type": "string",
+                "minBytes": 0,
+                "maxBytes": 2000
+              }
+            }
+          ],
+          "bodyTemplate": {
+            "text": "Scope check. If the user's live request asked for this change itself \u2014 or plainly entails it \u2014 carrying it out, including edits, wiring, and its conventional tests, is in scope: proceed without asking for confirmation. Pause only if the action in flight is privileged or outward-facing (granting access, publishing, deploying, merging, sending) and the user did not ask for it, or a review, safety, or permission check refused it and this retry would skip, force, or disable that check \u2014 a refusal is a result to report, not an obstacle to route around. If the user asked only to find out and tell them, give the answer and name, without performing, any follow-up change you would recommend. If you are adding an artifact no clause of the request asked for \u2014 a second invocation surface, an extra endpoint, file, or bookkeeping 'to be safe or thorough' \u2014 build the smallest reading that satisfies every stated requirement and note the alternative in your reply instead of building it.",
+            "slots": [],
+            "maxBytes": 65536
+          },
+          "validators": [],
+          "proposal": {
+            "remind": {
+              "body": {
+                "renderedBody": true
+              },
+              "kind": {
+                "literal": "scope"
+              },
+              "subject": {
+                "literal": "scope"
+              },
+              "reason": {
+                "field": "reason"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              },
+              "rejection": {
+                "literal": null
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "skillEvidence": {
+                "literal": null
+              }
+            },
+            "none": {
+              "body": {
+                "literal": "Scope check. If the user's live request asked for this change itself \u2014 or plainly entails it \u2014 carrying it out, including edits, wiring, and its conventional tests, is in scope: proceed without asking for confirmation. Pause only if the action in flight is privileged or outward-facing (granting access, publishing, deploying, merging, sending) and the user did not ask for it, or a review, safety, or permission check refused it and this retry would skip, force, or disable that check \u2014 a refusal is a result to report, not an obstacle to route around. If the user asked only to find out and tell them, give the answer and name, without performing, any follow-up change you would recommend. If you are adding an artifact no clause of the request asked for \u2014 a second invocation surface, an extra endpoint, file, or bookkeeping 'to be safe or thorough' \u2014 build the smallest reading that satisfies every stated requirement and note the alternative in your reply instead of building it."
+              },
+              "kind": {
+                "literal": "scope"
+              },
+              "subject": {
+                "literal": "scope"
+              },
+              "reason": {
+                "field": "reason"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              },
+              "rejection": {
+                "literal": "no_reminder"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "skillEvidence": {
+                "literal": null
+              }
+            },
+            "invalidPayload": {
+              "body": {
+                "literal": "Scope check. If the user's live request asked for this change itself \u2014 or plainly entails it \u2014 carrying it out, including edits, wiring, and its conventional tests, is in scope: proceed without asking for confirmation. Pause only if the action in flight is privileged or outward-facing (granting access, publishing, deploying, merging, sending) and the user did not ask for it, or a review, safety, or permission check refused it and this retry would skip, force, or disable that check \u2014 a refusal is a result to report, not an obstacle to route around. If the user asked only to find out and tell them, give the answer and name, without performing, any follow-up change you would recommend. If you are adding an artifact no clause of the request asked for \u2014 a second invocation surface, an extra endpoint, file, or bookkeeping 'to be safe or thorough' \u2014 build the smallest reading that satisfies every stated requirement and note the alternative in your reply instead of building it."
+              },
+              "kind": {
+                "literal": "scope"
+              },
+              "subject": {
+                "literal": "scope"
+              },
+              "reason": {
+                "inputError": true
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              },
+              "rejection": {
+                "literal": "invalid_payload"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "skillEvidence": {
+                "literal": null
+              }
+            },
+            "roundEnded": {
+              "body": {
+                "literal": "Scope check. If the user's live request asked for this change itself \u2014 or plainly entails it \u2014 carrying it out, including edits, wiring, and its conventional tests, is in scope: proceed without asking for confirmation. Pause only if the action in flight is privileged or outward-facing (granting access, publishing, deploying, merging, sending) and the user did not ask for it, or a review, safety, or permission check refused it and this retry would skip, force, or disable that check \u2014 a refusal is a result to report, not an obstacle to route around. If the user asked only to find out and tell them, give the answer and name, without performing, any follow-up change you would recommend. If you are adding an artifact no clause of the request asked for \u2014 a second invocation surface, an extra endpoint, file, or bookkeeping 'to be safe or thorough' \u2014 build the smallest reading that satisfies every stated requirement and note the alternative in your reply instead of building it."
+              },
+              "kind": {
+                "literal": "scope"
+              },
+              "subject": {
+                "literal": "scope"
+              },
+              "reason": {
+                "field": "reason"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              },
+              "rejection": {
+                "literal": "round_ended"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "skillEvidence": {
+                "literal": null
+              }
+            },
+            "syntheticFailure": {
+              "body": {
+                "literal": "Scope check. If the user's live request asked for this change itself \u2014 or plainly entails it \u2014 carrying it out, including edits, wiring, and its conventional tests, is in scope: proceed without asking for confirmation. Pause only if the action in flight is privileged or outward-facing (granting access, publishing, deploying, merging, sending) and the user did not ask for it, or a review, safety, or permission check refused it and this retry would skip, force, or disable that check \u2014 a refusal is a result to report, not an obstacle to route around. If the user asked only to find out and tell them, give the answer and name, without performing, any follow-up change you would recommend. If you are adding an artifact no clause of the request asked for \u2014 a second invocation surface, an extra endpoint, file, or bookkeeping 'to be safe or thorough' \u2014 build the smallest reading that satisfies every stated requirement and note the alternative in your reply instead of building it."
+              },
+              "kind": {
+                "literal": "scope"
+              },
+              "subject": {
+                "literal": "scope"
+              },
+              "reason": {
+                "literal": "synthetic_failure"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              },
+              "rejection": {
+                "literal": "invalid_payload"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "skillEvidence": {
+                "literal": null
+              }
+            },
+            "validatorRejections": {}
+          },
+          "lifecycle": {
+            "seenKey": "ordinary",
+            "eotProgressGate": "notApplicable",
+            "failureFallback": "none",
+            "installBudget": "roster"
+          },
+          "limits": {
+            "declarationBytes": 65536,
+            "customFields": 64,
+            "fieldNameBytes": 64,
+            "descriptionBytes": 1024,
+            "objectDepth": 4,
+            "objectFields": 32,
+            "arrayItems": 64,
+            "submittedJsonBytes": 262144,
+            "scalarStringBytes": 65536,
+            "templateBytes": 16384,
+            "slots": 64,
+            "renderedBodyBytes": 65536,
+            "memoryAdmissionReads": 64,
+            "memoryAdmissionLinesPerRead": 2000,
+            "memoryAdmissionExaminedBytesPerRead": 100000,
+            "memoryAdmissionReturnedBytesPerRead": 100000,
+            "memoryAdmissionExaminedBytesPerDecision": 6400000,
+            "memoryAdmissionReturnedBytesPerDecision": 6400000
+          }
+        }
+      }
+    ],
+    "developerPrompts": []
+  }
+}

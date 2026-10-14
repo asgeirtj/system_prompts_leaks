@@ -1,0 +1,44 @@
+version: 1
+connector: function_health
+category: health
+display_name: Function Health
+description: Get health insights from lab results and clinician notes
+request_quota:
+  mode: enforce
+  workers:
+    - function-health
+  queries_per_minute: 300
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      observations.read:
+        label: Access lab biomarker observations
+      documents.read:
+        label: Access clinician notes
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: null
+  observations: observations.read
+  documents: documents.read
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Function Health"
+      text: "Muse will access things like lab biomarker observations and clinician consultation notes."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "Learn more about how we use this info in our [Privacy Policy](https://www.facebook.com/privacy/policy/) and [Health Policy](https://www.facebook.com/privacy/policies/health/)."
+    - "Muse will exchange info with Function Health. To learn more, view their [terms](https://www.functionhealth.com/terms-of-service) and [privacy policy](https://www.functionhealth.com/privacy-policy)."
+    - text: "[Meta Employee-Only] By tapping Continue, you agree to the [Research Consent Agreement](https://drive.google.com/file/d/13KBY7K-WDf1PD5NsDnjzMxMByUOigjtt/view). Your data may be accessed by the Muse team for debugging and troubleshooting purposes."
+      audience: employee

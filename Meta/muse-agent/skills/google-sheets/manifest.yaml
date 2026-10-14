@@ -1,0 +1,77 @@
+version: 1
+connector: google_sheets
+category: productivity
+display_name: Google Sheets
+description: Access and edit your spreadsheets
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_sheets
+  service: sheets
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      spreadsheets.get:
+        label: Access spreadsheets
+        approval_phrase: access spreadsheets in Google Sheets
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      spreadsheets.create:
+        default: allow
+        label: Create spreadsheets
+      spreadsheets.values.update.private:
+        default: allow
+        label: Update private spreadsheet values
+      spreadsheets.values.update.shared:
+        label: Update shared spreadsheet values
+      spreadsheets.batch_update.private:
+        default: allow
+        label: Edit private spreadsheets
+        approval_phrase: edit spreadsheets in Google Sheets
+      spreadsheets.batch_update.shared:
+        label: Edit shared spreadsheets
+        approval_phrase: edit spreadsheets in Google Sheets
+      spreadsheets.values.clear:
+        default: allow
+        label: Clear cell values
+commands:
+  status: null
+  disconnect: null
+  "+read": spreadsheets.get
+  "+append": spreadsheets.values.update.private
+  spreadsheets.developer_metadata.get: spreadsheets.get
+  spreadsheets.developer_metadata.search: spreadsheets.get
+  spreadsheets.get_by_data_filter: spreadsheets.get
+  spreadsheets.sheets.copy_to: spreadsheets.batch_update.shared
+  spreadsheets.values.batch_clear: spreadsheets.values.clear
+  spreadsheets.values.batch_clear_by_data_filter: spreadsheets.values.clear
+  spreadsheets.values.batch_get: spreadsheets.get
+  spreadsheets.values.batch_get_by_data_filter: spreadsheets.get
+  spreadsheets.values.batch_update: spreadsheets.values.update.private
+  spreadsheets.values.batch_update_by_data_filter: spreadsheets.values.update.private
+  spreadsheets.values.get: spreadsheets.get
+  spreadsheets.values.update: spreadsheets.values.update.private
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Sheets"
+      text: "Muse will access things like spreadsheet content and metadata."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Sheets. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

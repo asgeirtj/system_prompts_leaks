@@ -1,0 +1,54 @@
+version: 1
+connector: google_slides
+category: productivity
+display_name: Google Slides
+description: Create and manage presentation slides
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_slides
+  service: slides
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      presentations.get:
+        label: Access presentations
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      presentations.create:
+        default: allow
+        label: Create presentations
+      presentations.batch_update.private:
+        default: allow
+        label: Edit private presentations
+      presentations.batch_update.shared:
+        label: Edit shared presentations
+commands:
+  status: null
+  disconnect: null
+  presentations.pages.get: presentations.get
+  presentations.pages.get_thumbnail: presentations.get
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Slides"
+      text: "Muse will access things like presentation content, speaker notes, comments, images and revision history."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Slides. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

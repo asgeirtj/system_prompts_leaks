@@ -1,0 +1,80 @@
+version: 1
+connector: klaviyo
+category: business
+display_name: Klaviyo
+description: Manage your marketing lists and subscribers
+icon: klaviyo
+request_quota:
+  mode: shadow
+  workers: [klaviyo]
+  queries_per_minute: 60
+  burst: 10
+cli:
+  binary: klaviyo
+  skill: klaviyo
+  service: klaviyo
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      data.read:
+        label: Read Klaviyo data
+        approval_phrase: read marketing, audience, catalog, and account data in Klaviyo
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      content.manage:
+        label: Create and edit marketing content
+        approval_phrase: create or edit campaigns, messages, templates, forms, images, and tags in Klaviyo
+      campaigns.deliver:
+        label: Send or cancel campaigns
+        approval_phrase: send or cancel campaigns in Klaviyo
+      flows.manage:
+        label: Manage flows and automation
+        approval_phrase: create, edit, or activate flows and their actions in Klaviyo
+      audiences.manage:
+        label: Manage audiences and subscriptions
+        approval_phrase: manage profiles, lists, segments, and marketing subscriptions in Klaviyo
+      catalog.manage:
+        label: Manage catalogs and coupons
+        approval_phrase: create or update products, catalog categories, coupons, and coupon codes in Klaviyo
+      tracking.manage:
+        label: Manage tracking and integrations
+        approval_phrase: create or update events, metrics, reviews, and webhooks in Klaviyo
+  delete:
+    default: ask
+    label: Delete permissions
+    methods:
+      data.delete:
+        label: Delete Klaviyo data
+        approval_phrase: delete Klaviyo content, audience data, or configuration
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  account-details: data.read
+  list-campaigns: data.read
+  list-flows: data.read
+  list-metrics: data.read
+  list-tools: data.read
+  # The CLI classifies each allowlisted MCP tool at runtime. Keep the manifest
+  # default pessimistic so an unknown or newly added tool cannot skip approval.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Klaviyo"
+      text: "Muse will access things like lists, profiles, contact info and list membership."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Klaviyo. To learn more, view their [terms](https://www.klaviyo.com/legal/terms-of-service) and [privacy policy](https://privacy.klaviyo.com/policies/?name=klaviyo-privacy-policy)."

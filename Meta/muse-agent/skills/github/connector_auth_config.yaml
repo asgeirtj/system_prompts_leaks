@@ -1,0 +1,10 @@
+name: github
+schema: oauth
+mode: direct_oauth
+hosts:
+  - api.githubcopilot.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token

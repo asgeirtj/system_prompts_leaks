@@ -17,7 +17,7 @@ Draw as the engineer who has to live with the decision, not as a decorator: a di
 
 ## Inline SVG mechanics
 
-These mechanics apply where the page renders inline SVG natively (HTML pages); a markdown-rendered page draws its diagrams in whatever fence that lane's renderer supports, and the skill that owns the lane says which. Hand-author inline `<svg>` with native shapes (`rect`, `circle`, `line`, `polyline`, `path`) and `<text>` - no libraries, no runtime, no external images.
+These mechanics apply where the page renders inline SVG natively (HTML pages); a markdown-rendered page draws its diagrams in whatever fence that lane's renderer supports, and the skill that owns the lane says which. An artifact made from an Artifact type draws its diagrams the way the type's instructions, and the reference pages they name, say to; these mechanics apply there only where those say nothing about diagrams. Hand-author inline `<svg>` with native shapes (`rect`, `circle`, `line`, `polyline`, `path`) and `<text>` - no libraries, no runtime, no external images.
 
 - **Size by `viewBox`.** Set `viewBox="0 0 W H"` and let CSS scale it (`max-width: 100%; height: auto`); choose W and H for the content, not a preset. Wide flows read left-to-right; layered stacks read top-to-bottom.
 - **Theme with `currentColor`.** Strokes, text, and arrowheads in `currentColor` inherit the page's foreground in light and dark themes alike; reserve a literal hue for the one element that carries meaning (the option leaned toward, the hop under discussion), and make sure it reads on both grounds.

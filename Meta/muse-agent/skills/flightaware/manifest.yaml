@@ -1,0 +1,36 @@
+version: 1
+connector: flightaware
+display_name: FlightAware
+description: Query FlightAware AeroAPI through Muse's server-side broker. No FlightAware credentials live on the VM.
+actions:
+  read:
+    default: allow
+    label: Read flight data
+    methods:
+      flight.search:
+        label: Search flights
+      foresight.read:
+        label: Read Foresight predictions
+      airport.read:
+        label: Read airport metadata, delays, weather, and routes
+      airport.flights.read:
+        label: Read airport flight activity
+      operator.read:
+        label: Read operator metadata
+      operator.flights.read:
+        label: Read operator flight activity
+      history.read:
+        label: Read historical flight data
+      aircraft.read:
+        label: Read aircraft metadata
+      schedule.read:
+        label: Read scheduled flight data
+      disruption.read:
+        label: Read disruption counts
+  write:
+    default: ask
+    label: Create, update, or delete FlightAware state
+    methods:
+      flight_intent.create:
+        default: allow
+        label: Create flight intents

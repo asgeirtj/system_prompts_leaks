@@ -1,0 +1,56 @@
+# Places map-trigger regression scenarios from the August 18 dogfood review.
+# How to run this suite: see ../../spawn-eval-instructions.md.
+
+- name: basic-nearby-discovery
+  category: read
+  tests: "Uses local-search for the nearby set. If any final result has a grounded numeric place ID and coordinates, creates exactly one local_map with rich_place elements and includes its embed token; the user need not ask for a map."
+  persona: "An established Hatch user looking for a quick local recommendation; concise and practical."
+  objective: "seafood near me"
+
+- name: non-food-recreation
+  category: read
+  tests: "Treats paintball as place discovery, uses the requested radius, and creates one grounded local_map when eligible results are returned. Does not fall back to a text-only web list."
+  persona: "An established Hatch user planning an activity with friends; wants nearby options without much back-and-forth."
+  objective: "Where can I play paintball within 10 miles?"
+
+- name: place-based-program
+  category: read
+  tests: "Researches age fit when needed, grounds the final camp venues with local-search, and creates one local_map for eligible final results. Does not treat a camp as out of scope merely because it is a program."
+  persona: "A parent comparing practical local options for a child; cares about age fit and location."
+  objective: "Can you recommend sports camps nearby for a 10-year-old?"
+
+- name: subjective-place-constraint
+  category: read
+  tests: "Uses web research for the crowding claim, then grounds the final beaches with local-search and creates one local_map when place IDs and coordinates are available."
+  persona: "An established Hatch user who wants a quieter outdoor option and expects evidence rather than guesses."
+  objective: "Which beaches within 15 miles are the least crowded?"
+
+- name: dynamic-place-constraint
+  category: read
+  tests: "Uses current sources for hours and wait-time evidence, grounds the final urgent-care clinics with local-search, and creates one local_map for eligible clinics. Clearly qualifies unavailable wait-time data instead of inventing it."
+  persona: "An established Hatch user with an immediate but non-emergency medical need; wants a fast, actionable answer."
+  objective: "Which urgent care clinics near me are open right now and have less than 30 minutes wait time?"
+
+- name: single-known-place-details
+  category: read
+  tests: "Uses known-place search for the intended Apple Store, answers the hours question, and creates one local_map when that single result has a grounded place ID and coordinates. A map does not require multiple recommendations."
+  persona: "An established Hatch user about to leave home; wants a quick confirmation and location context."
+  objective: "Is the Apple Store at the mall open right now? I need to go buy a new iPhone."
+
+- name: neighborhood-comparison
+  category: read
+  tests: "Uses web research for qualitative safety and family-fit claims, grounds final named neighborhoods with local-search, and maps eligible results. Does not confuse choosing neighborhoods within a city with choosing between destination cities."
+  persona: "An established Hatch user evaluating where their family might live within their current city; thoughtful and evidence-oriented."
+  objective: "What are the most safe and family-friendly neighborhoods in my city?"
+
+- name: local-school-quality
+  category: read
+  tests: "Uses current school-quality sources, grounds the final named schools with local-search, and creates one local_map when eligible results are available. Does not answer only with generic neighborhood statistics or omit major nearby schools without explanation."
+  persona: "A parent evaluating the public-school options around their home; wants both quality context and a sense of where the schools are."
+  objective: "How good are the public schools in my neighborhood?"
+
+- name: directions-boundary
+  category: read
+  tests: "Uses the navigation capability for route, travel-time, or turn-by-turn needs rather than forcing Places. Does not create a local_map solely because the destination is a real place."
+  persona: "An established Hatch user already knows the destination and only needs route guidance."
+  objective: "Give me directions to the nearest Apple Store and tell me how long it will take."

@@ -1,0 +1,10 @@
+# Declares the tts CLI's subcommands so runtime logging populates
+# `tool_variants` (emitted as `tts/speak` / `tts/synthesize-script`).
+#
+# Not a connector: no auth, no actions. Deliberately absent from
+# SHIPPED_CONNECTOR_MANIFESTS, so Sentinel never parses it.
+version: 1
+connector: tts
+cli_subcommands:
+  - speak
+  - synthesize-script

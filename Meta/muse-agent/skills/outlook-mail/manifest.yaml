@@ -1,0 +1,68 @@
+version: 1
+connector: outlook_mail
+category: productivity
+display_name: Outlook Mail
+description: Manage and organize your inbox
+request_quota:
+  mode: enforce
+  workers:
+    - outlook-mail
+  queries_per_minute: 600
+  burst: 50
+# Graph list/search responses carry `bodyPreview` — a slice of the message
+# content "Access messages" governs — so the list method is a message-content
+# DATA CLASS emitter. While "Access messages" is deny/ask, Sentinel attaches
+# an exclusion constraint to allowed list/search calls and the trusted worker
+# strips the preview slice from every returned row.
+data_classes:
+  message_content:
+    governed_by: messages.get
+    emitted_by:
+      - messages.list
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    response_guard: verification_codes
+    methods:
+      messages.list:
+        label: Search messages
+        approval_phrase: search messages in Outlook Mail
+      messages.get:
+        label: Access messages
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      messages.send:
+        label: Send emails
+        approval_phrase: send this email in Outlook Mail
+      messages.mark_read:
+        default: allow
+        label: Mark as read or unread
+      messages.delete:
+        default: allow
+        label: Delete emails
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Outlook Mail"
+      text: "Muse will access things like message content, attachments, sender info and metadata."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Outlook Mail. To learn more, view their [terms](https://www.microsoft.com/servicesagreement) and [privacy policy](https://privacy.microsoft.com/privacystatement)."
+
+cli:
+  binary: outlook-mail
+  skill: outlook-mail
+commands:
+  list: messages.list
+  search: messages.list
+  get: messages.get

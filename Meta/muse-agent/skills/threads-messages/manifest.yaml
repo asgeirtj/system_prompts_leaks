@@ -1,0 +1,35 @@
+version: 1
+connector: threads_messages
+category: social
+display_name: Threads Messages
+description: Catch up on your Threads messages
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      messages.read:
+        label: Access messages
+        approval_phrase: access your Threads messages
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      messages.send:
+        require_fresh_approval: true
+        label: Send messages
+        approval_phrase: send this message on Threads
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Threads Messages"
+      text: "Muse will access things like messages and media."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"

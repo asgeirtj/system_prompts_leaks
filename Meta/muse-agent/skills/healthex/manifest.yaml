@@ -1,0 +1,50 @@
+version: 1
+connector: healthex
+category: health
+display_name: HealthEx
+description: Get tailored insights from your health records
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      tools.list:
+        label: List available HealthEx tools
+        approval_phrase: list available HealthEx tools
+      records.read:
+        label: Access patient health records
+commands:
+  status: null
+  setup: null
+  disconnect: null
+  authorize-url: null
+  refresh: null
+  exchange-code: null
+  mcp-list: tools.list
+  get-medications: records.read
+  get-conditions: records.read
+  get-allergies: records.read
+  get-immunizations: records.read
+  get-vitals: records.read
+  get-labs: records.read
+  get-procedures: records.read
+  get-visits: records.read
+  get-clinical-notes: records.read
+  get-health-summary: records.read
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with HealthEx"
+      text: "Muse will access things like information from visits, health conditions, medications and anything else that you choose to share."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "Learn more about how we use this info in our [Privacy Policy](https://www.facebook.com/privacy/policy/) and [Health Policy](https://www.facebook.com/privacy/policies/health/)."
+    - "Muse will exchange info with HealthEx. To learn more, view their [terms](https://www.healthex.io/terms-of-service) and [privacy policy](https://www.healthex.io/privacy-policy)."
+    - text: "[Meta-only] By tapping Connect, you agree to the [Research Consent Agreement](https://drive.google.com/file/d/13KBY7K-WDf1PD5NsDnjzMxMByUOigjtt/view). Your data may be accessed by the Muse team for debugging and troubleshooting purposes."
+      audience: employee

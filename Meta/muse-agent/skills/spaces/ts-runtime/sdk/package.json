@@ -1,0 +1,53 @@
+{
+  "name": "@hatch/space-sdk",
+  "version": "0.12.0",
+  "description": "TypeScript SDK consumed by every Muse TS web artifact — defines the action contract, ctx, and the client-side typed RPC.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "./styles.css",
+    "./dist/client.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./build": {
+      "types": "./dist/build.d.ts",
+      "import": "./dist/build.js"
+    },
+    "./styles.css": "./styles.css"
+  },
+  "files": [
+    "dist/",
+    "styles.css",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "bun-plugin-tailwind": "0.0.15",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@libsql/client": "0.14.0",
+    "@tanstack/react-query": "5.100.10",
+    "@types/bun": "latest",
+    "@types/react": "19.2.14",
+    "drizzle-orm": "0.45.2",
+    "react": "19.2.5",
+    "typescript": "5.6.3"
+  },
+  "peerDependencies": {
+    "@libsql/client": "^0.14",
+    "@tanstack/react-query": "^5",
+    "drizzle-orm": "^0.45",
+    "react": "^18 || ^19",
+    "typescript": "^5"
+  }
+}

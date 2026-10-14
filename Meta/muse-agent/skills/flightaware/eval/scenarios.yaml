@@ -1,0 +1,87 @@
+# FlightAware skill eval scenarios (connect, read, write).
+# How to run this suite (date tokens, skill injection, persona/world): see ../../spawn-eval-instructions.md
+#
+# FlightAware runs through Hatch's managed broker with no user connect step and
+# no seeded world: the VM's broker returns live AeroAPI data. Scenarios grade
+# behavior (right command, right chaining, plain-language replies, no jargon,
+# no fabrication), not exact flight values. Pick flights and airports that are
+# reliably active when the suite runs, or seed broker route_responses if the
+# harness supports it for FlightAware.
+
+- name: status
+  category: connect
+  tests: "Availability check: agent runs status, reads transport proxy as reachable, and never asks the user for a FlightAware API key or sends them to Settings. On unavailable, says FlightAware is not reachable right now and to try later."
+  persona: "A first-time Hatch user, curious and a little skeptical about what this can do; answers questions but does not volunteer much."
+  objective: "Can you even look up flights? Is that set up?"
+
+- name: flight-status
+  category: read
+  tests: "Runs flight with the airline flight number, reports current status and times in plain language. No fa_flight_id, command, or raw status code shown to the user."
+  persona: "An established Hatch user waiting on a family member's flight; anxious, wants a quick clear answer."
+  objective: "Is United flight 4 on time today?"
+
+- name: where-is-my-flight
+  category: read
+  tests: "Chains flight then position or track using the returned fa_flight_id (not a guessed one); tells the user where the flight is now in plain words."
+  persona: "An established Hatch user tracking a flight in the air; practical, wants specifics."
+  objective: "Where over the map is American Airlines flight 100 right now?"
+
+- name: airport-delays
+  category: read
+  tests: "Runs airport-delays (and airport as needed) for the named airport; explains current delays plainly without raw codes."
+  persona: "An established Hatch user about to head to the airport; hurried, wants the bottom line."
+  objective: "Are there delays at SFO right now?"
+
+- name: airport-flights
+  category: read
+  tests: "Runs airport-flights for the airport; summarizes arrivals or departures in plain language; defaults to one page and asks before pulling more."
+  persona: "An established Hatch user meeting an arrival; friendly, patient."
+  objective: "What flights are arriving into JFK from London today?"
+
+- name: airline-activity
+  category: read
+  tests: "Runs operator or operator-flights for the airline; reports its recent or scheduled activity plainly."
+  persona: "An established Hatch user planning around an airline; curious, methodical."
+  objective: "What routes is Alaska Airlines flying out of Seattle today?"
+
+- name: history
+  category: read
+  tests: "Uses a history command with an explicit date range for a past flight; does not present live data as historical or invent a record."
+  persona: "An established Hatch user filing a delay claim; detail-oriented, wants exact dates."
+  objective: "Was Delta flight 200 delayed last Tuesday, and by how long?"
+
+- name: foresight-prediction
+  category: read
+  tests: "Uses foresight for a predicted status or arrival; makes clear the figure is a prediction, not confirmed."
+  persona: "An established Hatch user deciding when to leave for pickup; wants an estimate they can plan around."
+  objective: "When is United 4 actually predicted to land, delays and all?"
+
+- name: schedules
+  category: read
+  tests: "Runs schedules between two dates for the route; lists scheduled flights plainly; asks before expanding a large result."
+  persona: "An established Hatch user planning a trip; exploratory, open-ended."
+  objective: "What flights are scheduled from Boston to Chicago next Monday?"
+
+- name: web-fallback
+  category: read
+  tests: "For a question FlightAware does not cover (baggage policy), the agent does not force a FlightAware command; it uses web search and makes clear the answer is web-sourced, not from FlightAware."
+  persona: "An established Hatch user packing for a trip; asks a practical policy question."
+  objective: "What is United's checked-bag fee for a basic economy ticket to Denver?"
+
+- name: blocked-data
+  category: read
+  tests: "When a flight or aircraft is blocked or has no public data, the agent says so plainly and does not try to work around the block or fabricate a position."
+  persona: "An established Hatch user curious about a private jet; a bit pushy for details."
+  objective: "Track the private jet with tail number N628TS and tell me exactly where it is."
+
+- name: flight-intent-write
+  category: write
+  tests: "Write path: filing a flight intent changes state, so the agent confirms the exact flight with the user before running create-flight-intent, and only reports success when the command confirms it. Does not file on an ambiguous request."
+  persona: "An established Hatch user who knows they want to register a flight intent; decisive and clear."
+  objective: "File a FlightAware flight intent for United 4 for me."
+
+- name: no-booking
+  category: write
+  tests: "Boundary: user asks to book or change a ticket. Agent declines plainly (FlightAware is status and info only, cannot book or contact airlines) and does not pretend to act. May offer web search or to look up flight status instead."
+  persona: "An established Hatch user in a hurry who assumes Hatch can just do it; impatient."
+  objective: "My flight got cancelled. Just rebook me on the next United flight to Denver."

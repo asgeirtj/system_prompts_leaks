@@ -1,0 +1,56 @@
+version: 1
+connector: peloton
+category: health
+display_name: Peloton
+description: Browse Peloton fitness classes, manage schedules, and book workouts
+request_quota:
+  mode: enforce
+  workers:
+    - peloton
+  queries_per_minute: 300
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      classes.read:
+        label: Browse classes and schedules
+  write:
+    default: allow
+    label: Write and delete permissions
+    methods:
+      connection.disconnect:
+        label: Disconnect Peloton account
+      schedule.write:
+        label: Manage workout schedule
+        approval_phrase: manage your workout schedule in Peloton
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  disconnect: connection.disconnect
+  refresh: null
+  ride-archived: classes.read
+  ride-live: classes.read
+  search-class: classes.read
+  search-class-widget: classes.read
+  deeplink: null
+  metadata-mappings: classes.read
+  schedule-event: schedule.write
+  delete-scheduled-event: schedule.write
+  reschedule-event: schedule.write
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Peloton"
+      text: "Muse will access things like class catalog and scheduled workouts."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - "Muse will exchange info with Peloton. To learn more, view their [terms](https://www.onepeloton.com/terms-of-service) and [privacy policy](https://www.onepeloton.com/privacy-policy)."

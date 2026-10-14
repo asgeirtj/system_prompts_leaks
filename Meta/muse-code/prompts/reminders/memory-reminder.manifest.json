@@ -1,0 +1,605 @@
+{
+  "schemaVersion": 1,
+  "name": "memory-reminder",
+  "displayName": "Memory reminder",
+  "version": "1.0.0",
+  "description": "Advisory memory-reminder plugin (specs/16590 identity; #21385 post-X3 extracted implementation).",
+  "compat": { "source": "native", "manifestDir": ".muse-plugin" },
+  "capabilities": {
+    "skills": [],
+    "hooks": [],
+    "mcpServers": [],
+    "commands": [],
+    "reminders": [
+      {
+        "id": "memory-reminder",
+        "path": "reminders/memory-reminder.md",
+        "enabledDefault": false,
+        "enabledDefaultByModel": {
+          "muse-spark-1.2": true,
+          "muse-spark-1.2-internal": true,
+          "muse-spark-1.3": {
+            "default": true,
+            "max": false
+          },
+          "muse-spark-1.3-contributor": {
+            "default": true,
+            "max": false
+          },
+          "muse-spark-1.3-internal": {
+            "default": true,
+            "max": false
+          }
+        },
+        "tools": [
+          "bash"
+        ],
+        "blocking": false,
+        "defaultPriority": "normal",
+        "maxPriority": "high",
+        "maxChildSteps": 1000000,
+        "reasoningEffort": "minimal",
+        "context": {
+          "conversation": {
+            "mode": "bounded",
+            "maxTokens": 4000
+          },
+          "feeds": [
+            {
+              "name": "memory_pack",
+              "kind": "host",
+              "source": "memory_pack",
+              "maxBytes": 96000,
+              "refresh": "run_start"
+            },
+            {
+              "name": "memory_read_ledger",
+              "kind": "host",
+              "source": "memory_read_ledger",
+              "maxBytes": 24000,
+              "refresh": "boundary"
+            }
+          ]
+        },
+        "decision": {
+          "deliveryRole": "developer",
+          "envelope": {
+            "template": "<system-reminder>\n{text}\n\nTreat this reminder as internal guidance. Act on it directly without\nacknowledging, quoting, paraphrasing, or referring to the reminder.\n</system-reminder>",
+            "version": 1
+          },
+          "bodyTemplate": {
+            "maxBytes": 65536,
+            "slots": [
+              {
+                "escape": "xml",
+                "name": "advisory_block",
+                "source": {
+                  "validator": "memory_body.advisory_block"
+                }
+              },
+              {
+                "escape": "xml",
+                "name": "memory_refs",
+                "source": {
+                  "validator": "memory_body.rendered_refs"
+                }
+              }
+            ],
+            "text": "Use this memory silently to guide your response. Do not mention this reminder, the memory reminder agent, system-reminder tags, or memory file paths to the user unless the user explicitly asks about memory or reminder internals.\n\n{advisory_block}Relevant memory:\n\n{memory_refs}"
+          },
+          "fields": [
+            {
+              "description": "Short lead-in shown before the selected memory excerpts.",
+              "name": "advisory_text",
+              "requirement": "optional",
+              "shape": {
+                "maxBytes": 2000,
+                "minBytes": 0,
+                "type": "string"
+              }
+            },
+            {
+              "description": "Source-backed bounded memory excerpts. Required when should_remind is true.",
+              "name": "memory_refs",
+              "requirement": "remind",
+              "shape": {
+                "items": {
+                  "fields": [
+                    {
+                      "description": "Memory scope.",
+                      "name": "scope",
+                      "requirement": "always",
+                      "shape": {
+                        "enum": [
+                          "personal",
+                          "personal_project",
+                          "project"
+                        ],
+                        "maxBytes": 32,
+                        "minBytes": 1,
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "description": "Memory path.",
+                      "name": "path",
+                      "requirement": "always",
+                      "shape": {
+                        "maxBytes": 1024,
+                        "minBytes": 1,
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "description": "First cited line.",
+                      "name": "start_line",
+                      "requirement": "always",
+                      "shape": {
+                        "maximum": 2000000,
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    },
+                    {
+                      "description": "Last cited line.",
+                      "name": "end_line",
+                      "requirement": "always",
+                      "shape": {
+                        "maximum": 2000000,
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    },
+                    {
+                      "description": "Cited memory text.",
+                      "name": "excerpt",
+                      "requirement": "always",
+                      "shape": {
+                        "maxBytes": 65536,
+                        "minBytes": 1,
+                        "type": "string"
+                      }
+                    },
+                    {
+                      "description": "Stable source citation hash.",
+                      "name": "excerpt_hash",
+                      "requirement": "always",
+                      "shape": {
+                        "maxBytes": 128,
+                        "minBytes": 1,
+                        "type": "string"
+                      }
+                    }
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 64,
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            {
+              "description": "Requested reminder priority.",
+              "name": "priority",
+              "requirement": "optional",
+              "shape": {
+                "enum": [
+                  "low",
+                  "normal",
+                  "high"
+                ],
+                "maxBytes": 6,
+                "minBytes": 3,
+                "type": "string"
+              }
+            },
+            {
+              "description": "Short reason for reminding or staying silent.",
+              "name": "reason",
+              "requirement": "always",
+              "shape": {
+                "maxBytes": 2000,
+                "minBytes": 1,
+                "type": "string"
+              }
+            },
+            {
+              "description": "Requested ephemeral visibility length in main model steps.",
+              "name": "visible_for_steps",
+              "requirement": "optional",
+              "shape": {
+                "maximum": 8,
+                "minimum": 1,
+                "type": "integer"
+              }
+            }
+          ],
+          "lifecycle": {
+            "eotProgressGate": "notApplicable",
+            "failureFallback": "none",
+            "installBudget": "roster",
+            "seenKey": "ordinary"
+          },
+          "limits": {
+            "arrayItems": 64,
+            "customFields": 64,
+            "declarationBytes": 65536,
+            "descriptionBytes": 1024,
+            "fieldNameBytes": 64,
+            "memoryAdmissionExaminedBytesPerDecision": 6400000,
+            "memoryAdmissionExaminedBytesPerRead": 100000,
+            "memoryAdmissionLinesPerRead": 2000,
+            "memoryAdmissionReads": 64,
+            "memoryAdmissionReturnedBytesPerDecision": 6400000,
+            "memoryAdmissionReturnedBytesPerRead": 100000,
+            "objectDepth": 4,
+            "objectFields": 32,
+            "renderedBodyBytes": 65536,
+            "scalarStringBytes": 65536,
+            "slots": 64,
+            "submittedJsonBytes": 262144,
+            "templateBytes": 16384
+          },
+          "proposal": {
+            "invalidPayload": {
+              "body": {
+                "literal": "Invalid submit_reminder_decision payload."
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "kind": {
+                "literal": "memory"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "reason": {
+                "inputError": true
+              },
+              "rejection": {
+                "literal": "invalid_payload"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "skillEvidence": {
+                "literal": null
+              },
+              "subject": {
+                "literal": "memory:no_remind"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              }
+            },
+            "none": {
+              "body": {
+                "literal": ""
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "kind": {
+                "literal": "memory"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "reason": {
+                "field": "reason"
+              },
+              "rejection": {
+                "literal": "no_remind"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "skillEvidence": {
+                "literal": null
+              },
+              "subject": {
+                "literal": "memory:no_remind"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              }
+            },
+            "remind": {
+              "body": {
+                "renderedBody": true
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "kind": {
+                "literal": "memory"
+              },
+              "memoryEvidence": {
+                "validator": "memory_refs.install_refs"
+              },
+              "reason": {
+                "field": "reason"
+              },
+              "rejection": {
+                "literal": null
+              },
+              "requestedPriority": {
+                "fallback": {
+                  "effective": "defaultPriority"
+                },
+                "field": "priority"
+              },
+              "skillEvidence": {
+                "literal": null
+              },
+              "subject": {
+                "validator": "memory_refs.proposal_refs"
+              },
+              "visibleForSteps": {
+                "fallback": {
+                  "literal": 1
+                },
+                "field": "visible_for_steps"
+              }
+            },
+            "roundEnded": {
+              "body": {
+                "literal": ""
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "kind": {
+                "literal": "memory"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "reason": {
+                "literal": "round_ended"
+              },
+              "rejection": {
+                "literal": "round_ended"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "skillEvidence": {
+                "literal": null
+              },
+              "subject": {
+                "literal": "memory:no_remind"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              }
+            },
+            "syntheticFailure": {
+              "body": {
+                "literal": ""
+              },
+              "effectivePriority": {
+                "effective": "clampedPriority"
+              },
+              "kind": {
+                "literal": "general"
+              },
+              "memoryEvidence": {
+                "literal": []
+              },
+              "reason": {
+                "literal": "synthetic_failure"
+              },
+              "rejection": {
+                "literal": "invalid_payload"
+              },
+              "requestedPriority": {
+                "effective": "defaultPriority"
+              },
+              "skillEvidence": {
+                "literal": null
+              },
+              "subject": {
+                "literal": "general"
+              },
+              "visibleForSteps": {
+                "literal": 1
+              }
+            },
+            "validatorRejections": {
+              "already_read_by_main_agent": {
+                "body": {
+                  "renderedBody": true
+                },
+                "effectivePriority": {
+                  "effective": "clampedPriority"
+                },
+                "kind": {
+                  "literal": "memory"
+                },
+                "memoryEvidence": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "reason": {
+                  "literal": "already_read_by_main_agent"
+                },
+                "rejection": {
+                  "literal": "already_read_by_main_agent"
+                },
+                "requestedPriority": {
+                  "fallback": {
+                    "effective": "defaultPriority"
+                  },
+                  "field": "priority"
+                },
+                "skillEvidence": {
+                  "literal": null
+                },
+                "subject": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "visibleForSteps": {
+                  "fallback": {
+                    "literal": 1
+                  },
+                  "field": "visible_for_steps"
+                }
+              },
+              "duplicate_memory_reminder": {
+                "body": {
+                  "renderedBody": true
+                },
+                "effectivePriority": {
+                  "effective": "clampedPriority"
+                },
+                "kind": {
+                  "literal": "memory"
+                },
+                "memoryEvidence": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "reason": {
+                  "literal": "duplicate_memory_reminder"
+                },
+                "rejection": {
+                  "literal": "duplicate_memory_reminder"
+                },
+                "requestedPriority": {
+                  "fallback": {
+                    "effective": "defaultPriority"
+                  },
+                  "field": "priority"
+                },
+                "skillEvidence": {
+                  "literal": null
+                },
+                "subject": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "visibleForSteps": {
+                  "fallback": {
+                    "literal": 1
+                  },
+                  "field": "visible_for_steps"
+                }
+              },
+              "invalid_memory_ref": {
+                "body": {
+                  "renderedBody": true
+                },
+                "effectivePriority": {
+                  "effective": "clampedPriority"
+                },
+                "kind": {
+                  "literal": "memory"
+                },
+                "memoryEvidence": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "reason": {
+                  "literal": "invalid_memory_ref"
+                },
+                "rejection": {
+                  "literal": "invalid_memory_ref"
+                },
+                "requestedPriority": {
+                  "fallback": {
+                    "effective": "defaultPriority"
+                  },
+                  "field": "priority"
+                },
+                "skillEvidence": {
+                  "literal": null
+                },
+                "subject": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "visibleForSteps": {
+                  "fallback": {
+                    "literal": 1
+                  },
+                  "field": "visible_for_steps"
+                }
+              },
+              "memory_ref_excerpt_mismatch": {
+                "body": {
+                  "renderedBody": true
+                },
+                "effectivePriority": {
+                  "effective": "clampedPriority"
+                },
+                "kind": {
+                  "literal": "memory"
+                },
+                "memoryEvidence": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "reason": {
+                  "literal": "memory_ref_excerpt_mismatch"
+                },
+                "rejection": {
+                  "literal": "memory_ref_excerpt_mismatch"
+                },
+                "requestedPriority": {
+                  "fallback": {
+                    "effective": "defaultPriority"
+                  },
+                  "field": "priority"
+                },
+                "skillEvidence": {
+                  "literal": null
+                },
+                "subject": {
+                  "validator": "memory_refs.proposal_refs"
+                },
+                "visibleForSteps": {
+                  "fallback": {
+                    "literal": 1
+                  },
+                  "field": "visible_for_steps"
+                }
+              }
+            }
+          },
+          "validators": [
+            {
+              "id": "memory_body",
+              "inputs": {
+                "advisory_text": {
+                  "field": "advisory_text"
+                },
+                "refs": {
+                  "field": "memory_refs"
+                }
+              },
+              "name": "memory_body",
+              "outputs": {
+                "advisory_block": "string",
+                "proposal_advisory": "string",
+                "rendered_refs": "string"
+              },
+              "version": 1
+            },
+            {
+              "id": "memory_source_refs",
+              "inputs": {
+                "refs": {
+                  "field": "memory_refs"
+                }
+              },
+              "name": "memory_refs",
+              "outputs": {
+                "install_refs": "memoryInstallEvidence",
+                "proposal_refs": "memoryEvidence"
+              },
+              "version": 1
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "developerPrompts": []
+  }
+}

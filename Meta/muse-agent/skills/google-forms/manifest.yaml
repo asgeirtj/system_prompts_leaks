@@ -1,0 +1,61 @@
+version: 1
+connector: google_forms
+category: productivity
+display_name: Google Forms
+description: Build, send and analyze form responses and survey data
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_forms
+  service: forms
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      forms.get:
+        label: Access forms
+      forms.responses.list:
+        label: Access form responses
+        approval_phrase: access form responses in Google Forms
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      forms.create:
+        default: allow
+        label: Create forms
+      forms.batch_update.private:
+        default: allow
+        label: Edit private and unpublished forms
+      forms.batch_update.shared:
+        label: Edit shared or published forms
+commands:
+  status: null
+  disconnect: null
+  forms.responses.get: forms.responses.list
+  forms.set_publish_settings: forms.batch_update.private
+  forms.watches.create: forms.create
+  forms.watches.delete: forms.create
+  forms.watches.list: forms.get
+  forms.watches.renew: forms.create
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Forms"
+      text: "Muse will access things like form questions, responses and respondent data."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Forms. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

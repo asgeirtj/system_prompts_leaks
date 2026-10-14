@@ -1,0 +1,47 @@
+version: 1
+connector: opentable
+category: social
+display_name: OpenTable
+description: Explore restaurants and book and manage reservations
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      restaurant.lookup:
+        label: Search restaurants
+        approval_phrase: search restaurants on OpenTable
+      availability.read:
+        label: View reservations
+        approval_phrase: view reservations on OpenTable
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      reservation.book:
+        label: Book reservations
+        approval_phrase: book a reservation on OpenTable
+      reservation.modify:
+        label: Modify reservations
+        approval_phrase: modify a reservation on OpenTable
+      reservation.cancel:
+        default: allow
+        label: Cancel reservations
+        approval_phrase: cancel a reservation on OpenTable
+      reservation.slot_lock.release:
+        label: Release a temporary reservation hold
+        approval_phrase: release a temporary hold on OpenTable
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with OpenTable"
+      text: "Muse will access things like reservation and restaurant info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with OpenTable. To learn more, view their [terms](https://www.opentable.com/legal/terms-and-conditions) and [privacy policy](https://www.opentable.com/legal/privacy-policy)."

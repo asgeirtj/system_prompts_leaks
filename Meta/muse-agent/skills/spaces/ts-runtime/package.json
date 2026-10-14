@@ -1,0 +1,14 @@
+{
+  "name": "@hatch/ts-runtime-build",
+  "private": true,
+  "type": "module",
+  "workspaces": ["sdk", "worker", "cvm", "cloudflare"],
+  "scripts": {
+    "build": "bun build.mjs",
+    "build:cloudflare": "bun cloudflare/build-cloudflare.mjs",
+    "test:cloudflare": "bun test cloudflare/build-cloudflare.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.6.3"
+  }
+}

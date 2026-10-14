@@ -1,0 +1,16 @@
+# Reference policy; Jarvis embeds its live copy from config/surrogation.yaml.
+# Keep the hosts aligned with the Box row in that companion repository.
+name: box
+schema: oauth
+mode: direct_oauth
+privsep: true
+hosts:
+  - api.box.com
+  - mcp.box.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /oauth2/token

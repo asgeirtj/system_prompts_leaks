@@ -1,0 +1,9 @@
+name: printify
+schema: api_key
+mode: api_key
+privsep: true
+hosts:
+- api.printify.com
+token_proxy:
+- field: credentials.access_token
+  placement: bearer_header

@@ -1,0 +1,35 @@
+version: 1
+connector: instagram_messages
+category: social
+display_name: Instagram Messages
+description: Catch up on messages and manage your inbox
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      messages.read:
+        label: Access messages
+        approval_phrase: access your Instagram messages
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      messages.send:
+        label: Send messages
+        approval_phrase: send this message on Instagram
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Instagram Messages"
+      text: "Muse will access things like messages and media."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Instagram Messages. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

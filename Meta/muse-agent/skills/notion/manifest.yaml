@@ -1,0 +1,79 @@
+version: 1
+connector: notion
+category: productivity
+display_name: Notion
+description: Collaborate and stay organized
+cli:
+  binary: notion-cli
+  skill: notion
+request_quota:
+  mode: enforce
+  workers:
+    - notion-cli
+  queries_per_minute: 180
+  burst: 50
+# The AI-search and database/meeting-notes query tools are keyed to
+# search.read but return page and database CONTENT "Access content"
+# (pages.read) governs, so search.read is a page-content DATA CLASS emitter.
+# While pages.read is deny/ask, Sentinel attaches an exclusion constraint and
+# the trusted worker refuses those content-bearing tools; plain search returns
+# titles and links and proceeds.
+data_classes:
+  page_content:
+    governed_by: pages.read
+    emitted_by:
+      - search.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      pages.read:
+        label: Access content
+        approval_phrase: read your Notion pages and files
+      search.read:
+        label: Search content
+        approval_phrase: search your Notion workspace
+      workspace.read:
+        label: Access workspace info
+        approval_phrase: read workspace info like teams, members and comments
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      pages.write:
+        label: Create and edit content
+        approval_phrase: create, edit or move pages and folders in Notion
+      comments.write:
+        label: Add comments
+        approval_phrase: post a comment in Notion
+      databases.write:
+        label: Create and edit databases
+        approval_phrase: create or change a database in Notion
+      views.write:
+        label: Change database views
+        approval_phrase: create or change a database view in Notion
+      attachments.write:
+        label: Upload files
+        approval_phrase: upload a file to Notion
+      skills.write:
+        label: Publish skills
+        approval_phrase: publish a skill to your Notion workspace
+      agents.write:
+        label: Run custom agents
+        approval_phrase: start or message a Notion Custom Agent session
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Notion"
+      text: "Muse will access things like pages, databases, comments and files."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Notion. To learn more, view their [terms](https://www.notion.so/Terms-and-Privacy-28ffdd083dc3473e9c2da6ec011b58ac) and [privacy policy](https://www.notion.so/Privacy-Policy-3468d120cf614d4c9014c09f6adc9091)."

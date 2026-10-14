@@ -1,0 +1,10 @@
+name: slack
+schema: oauth
+mode: direct_oauth
+hosts:
+  - mcp.slack.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token

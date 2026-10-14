@@ -1,0 +1,356 @@
+version: 1
+connector: ghl
+category: business
+display_name: HighLevel
+description: Manage HighLevel CRM, communications, commerce, content, and settings
+icon: gohighlevel
+cli:
+  binary: ghl
+  skill: ghl
+  service: ghl
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      crm.read:
+        label: Read CRM and calendar data
+        approval_phrase: read CRM records and calendar data in HighLevel
+      messaging.read:
+        label: Read conversations and messages
+        approval_phrase: read conversations and messages in HighLevel
+      ads.read:
+        label: Read advertising
+        approval_phrase: read advertising data in HighLevel
+      affiliates.read:
+        label: Read affiliate management
+        approval_phrase: read affiliate management data in HighLevel
+      agent_studio.read:
+        label: Read AI Agent Studio
+        approval_phrase: read AI Agent Studio data in HighLevel
+      associations.read:
+        label: Read CRM associations
+        approval_phrase: read CRM associations data in HighLevel
+      blogs.read:
+        label: Read blogs
+        approval_phrase: read blogs data in HighLevel
+      brand_boards.read:
+        label: Read brand boards
+        approval_phrase: read brand boards data in HighLevel
+      businesses.read:
+        label: Read businesses
+        approval_phrase: read businesses data in HighLevel
+      campaigns.read:
+        label: Read campaigns
+        approval_phrase: read campaigns data in HighLevel
+      chat_widget.read:
+        label: Read chat widgets
+        approval_phrase: read chat widgets data in HighLevel
+      companies.read:
+        label: Read companies
+        approval_phrase: read companies data in HighLevel
+      conversation_ai.read:
+        label: Read Conversation AI
+        approval_phrase: read Conversation AI data in HighLevel
+      courses.read:
+        label: Read courses
+        approval_phrase: read courses data in HighLevel
+      custom_fields.read:
+        label: Read custom fields
+        approval_phrase: read custom fields data in HighLevel
+      custom_menus.read:
+        label: Read custom menus
+        approval_phrase: read custom menus data in HighLevel
+      email_service.read:
+        label: Read email service configuration
+        approval_phrase: read email service configuration data in HighLevel
+      emails.read:
+        label: Read email marketing
+        approval_phrase: read email marketing data in HighLevel
+      forms.read:
+        label: Read forms
+        approval_phrase: read forms data in HighLevel
+      funnels.read:
+        label: Read funnels
+        approval_phrase: read funnels data in HighLevel
+      invoices.read:
+        label: Read invoices and estimates
+        approval_phrase: read invoices and estimates data in HighLevel
+      knowledge_base.read:
+        label: Read knowledge bases
+        approval_phrase: read knowledge bases data in HighLevel
+      links.read:
+        label: Read trigger links
+        approval_phrase: read trigger links data in HighLevel
+      subaccounts.read:
+        label: Read sub-account settings
+        approval_phrase: read sub-account settings data in HighLevel
+      marketplace.read:
+        label: Read marketplace and wallet
+        approval_phrase: read marketplace and wallet data in HighLevel
+      media.read:
+        label: Read media library
+        approval_phrase: read media library data in HighLevel
+      objects.read:
+        label: Read custom objects
+        approval_phrase: read custom objects data in HighLevel
+      payments.read:
+        label: Read payments and orders
+        approval_phrase: read payments and orders data in HighLevel
+      phone_system.read:
+        label: Read phone system
+        approval_phrase: read phone system data in HighLevel
+      products.read:
+        label: Read products
+        approval_phrase: read products data in HighLevel
+      proposals.read:
+        label: Read documents and contracts
+        approval_phrase: read documents and contracts data in HighLevel
+      saas.read:
+        label: Read SaaS configuration
+        approval_phrase: read SaaS configuration data in HighLevel
+      snapshots.read:
+        label: Read snapshots
+        approval_phrase: read snapshots data in HighLevel
+      social_planner.read:
+        label: Read social planner
+        approval_phrase: read social planner data in HighLevel
+      store.read:
+        label: Read store configuration
+        approval_phrase: read store configuration data in HighLevel
+      surveys.read:
+        label: Read surveys
+        approval_phrase: read surveys data in HighLevel
+      users.read:
+        label: Read users
+        approval_phrase: read users data in HighLevel
+      voice_ai.read:
+        label: Read Voice AI
+        approval_phrase: read Voice AI data in HighLevel
+      workflows.read:
+        label: Read workflows
+        approval_phrase: read workflows data in HighLevel
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      contacts.manage:
+        label: Manage contacts
+        approval_phrase: create or update contacts, tags, and followers in HighLevel
+      activities.manage:
+        label: Manage notes and tasks
+        approval_phrase: create or update contact notes and tasks in HighLevel
+      opportunities.manage:
+        label: Manage opportunities
+        approval_phrase: create or update opportunities and followers in HighLevel
+      appointments.manage:
+        label: Manage appointments
+        approval_phrase: manage appointments, blocked time, and appointment notes in HighLevel
+      automations.manage:
+        label: Manage automations
+        approval_phrase: add or remove campaign and workflow enrollments in HighLevel
+      messaging.manage:
+        label: Manage messaging
+        approval_phrase: manage conversations or send, schedule, or cancel messages in HighLevel
+      ads.manage:
+        label: Manage advertising
+        approval_phrase: create or update advertising data in HighLevel
+      agent_studio.manage:
+        label: Manage AI Agent Studio
+        approval_phrase: create or update AI Agent Studio data in HighLevel
+      associations.manage:
+        label: Manage CRM associations
+        approval_phrase: create or update CRM associations data in HighLevel
+      blogs.manage:
+        label: Manage blogs
+        approval_phrase: create or update blogs data in HighLevel
+      brand_boards.manage:
+        label: Manage brand boards
+        approval_phrase: create or update brand boards data in HighLevel
+      businesses.manage:
+        label: Manage businesses
+        approval_phrase: create or update businesses data in HighLevel
+      calendars.manage:
+        label: Manage calendar configuration
+        approval_phrase: create or update calendar configuration data in HighLevel
+      chat_widget.manage:
+        label: Manage chat widgets
+        approval_phrase: create or update chat widgets data in HighLevel
+      conversation_ai.manage:
+        label: Manage Conversation AI
+        approval_phrase: create or update Conversation AI data in HighLevel
+      courses.manage:
+        label: Manage courses
+        approval_phrase: create or update courses data in HighLevel
+      custom_fields.manage:
+        label: Manage custom fields
+        approval_phrase: create or update custom fields data in HighLevel
+      custom_menus.manage:
+        label: Manage custom menus
+        approval_phrase: create or update custom menus data in HighLevel
+      emails.manage:
+        label: Manage email marketing
+        approval_phrase: create or update email marketing data in HighLevel
+      forms.manage:
+        label: Manage forms
+        approval_phrase: create or update forms data in HighLevel
+      funnels.manage:
+        label: Manage funnels
+        approval_phrase: create or update funnels data in HighLevel
+      invoices.manage:
+        label: Manage invoices and estimates
+        approval_phrase: create or update invoices and estimates data in HighLevel
+      knowledge_base.manage:
+        label: Manage knowledge bases
+        approval_phrase: create or update knowledge bases data in HighLevel
+      links.manage:
+        label: Manage trigger links
+        approval_phrase: create or update trigger links data in HighLevel
+      locations.manage:
+        label: Manage sub-account settings
+        approval_phrase: create or update sub-account settings data in HighLevel
+      marketplace.manage:
+        label: Manage marketplace and wallet
+        approval_phrase: create or update marketplace and wallet data in HighLevel
+      media.manage:
+        label: Manage media library
+        approval_phrase: create or update media library data in HighLevel
+      objects.manage:
+        label: Manage custom objects
+        approval_phrase: create or update custom objects data in HighLevel
+      payments.manage:
+        label: Manage payments and orders
+        approval_phrase: create or update payments and orders data in HighLevel
+      phone_system.manage:
+        label: Manage phone system
+        approval_phrase: create or update phone system data in HighLevel
+      products.manage:
+        label: Manage products
+        approval_phrase: create or update products data in HighLevel
+      proposals.manage:
+        label: Manage documents and contracts
+        approval_phrase: create or update documents and contracts data in HighLevel
+      saas.manage:
+        label: Manage SaaS configuration
+        approval_phrase: create or update SaaS configuration data in HighLevel
+      snapshots.manage:
+        label: Manage snapshots
+        approval_phrase: create or update snapshots data in HighLevel
+      social_planner.manage:
+        label: Manage social planner
+        approval_phrase: create or update social planner data in HighLevel
+      store.manage:
+        label: Manage store configuration
+        approval_phrase: create or update store configuration data in HighLevel
+      users.manage:
+        label: Manage users
+        approval_phrase: create or update users data in HighLevel
+      voice_ai.manage:
+        label: Manage Voice AI
+        approval_phrase: create or update Voice AI data in HighLevel
+  delete:
+    default: ask
+    label: Delete permissions
+    methods:
+      crm.delete:
+        label: Delete CRM data
+        approval_phrase: delete CRM records or remove tags and followers in HighLevel
+      ads.delete:
+        label: Delete advertising
+        approval_phrase: delete advertising data in HighLevel
+      agent_studio.delete:
+        label: Delete AI Agent Studio
+        approval_phrase: delete AI Agent Studio data in HighLevel
+      associations.delete:
+        label: Delete CRM associations
+        approval_phrase: delete CRM associations data in HighLevel
+      brand_boards.delete:
+        label: Delete brand boards
+        approval_phrase: delete brand boards data in HighLevel
+      businesses.delete:
+        label: Delete businesses
+        approval_phrase: delete businesses data in HighLevel
+      calendars.delete:
+        label: Delete calendar configuration
+        approval_phrase: delete calendar configuration data in HighLevel
+      chat_widget.delete:
+        label: Delete chat widgets
+        approval_phrase: delete chat widgets data in HighLevel
+      conversation_ai.delete:
+        label: Delete Conversation AI
+        approval_phrase: delete Conversation AI data in HighLevel
+      custom_fields.delete:
+        label: Delete custom fields
+        approval_phrase: delete custom fields data in HighLevel
+      custom_menus.delete:
+        label: Delete custom menus
+        approval_phrase: delete custom menus data in HighLevel
+      emails.delete:
+        label: Delete email marketing
+        approval_phrase: delete email marketing data in HighLevel
+      funnels.delete:
+        label: Delete funnels
+        approval_phrase: delete funnels data in HighLevel
+      invoices.delete:
+        label: Delete invoices and estimates
+        approval_phrase: delete invoices and estimates data in HighLevel
+      knowledge_base.delete:
+        label: Delete knowledge bases
+        approval_phrase: delete knowledge bases data in HighLevel
+      links.delete:
+        label: Delete trigger links
+        approval_phrase: delete trigger links data in HighLevel
+      locations.delete:
+        label: Delete sub-account settings
+        approval_phrase: delete sub-account settings data in HighLevel
+      marketplace.delete:
+        label: Delete marketplace and wallet
+        approval_phrase: delete marketplace and wallet data in HighLevel
+      media.delete:
+        label: Delete media library
+        approval_phrase: delete media library data in HighLevel
+      objects.delete:
+        label: Delete custom objects
+        approval_phrase: delete custom objects data in HighLevel
+      payments.delete:
+        label: Delete payments and orders
+        approval_phrase: delete payments and orders data in HighLevel
+      products.delete:
+        label: Delete products
+        approval_phrase: delete products data in HighLevel
+      social_planner.delete:
+        label: Delete social planner
+        approval_phrase: delete social planner data in HighLevel
+      store.delete:
+        label: Delete store configuration
+        approval_phrase: delete store configuration data in HighLevel
+      users.delete:
+        label: Delete users
+        approval_phrase: delete users data in HighLevel
+      voice_ai.delete:
+        label: Delete Voice AI
+        approval_phrase: delete Voice AI data in HighLevel
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: crm.read
+  list-operations: null
+  call-tool: null
+  execute-operation: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with HighLevel"
+      text: "Muse will access things like contacts, tags, campaigns and form submissions."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with HighLevel. To learn more, view their [terms](https://www.gohighlevel.com/terms-of-service) and [privacy policy](https://www.gohighlevel.com/privacy-policy)."

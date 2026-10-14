@@ -1,0 +1,233 @@
+{
+  "deliveryRole": "developer",
+  "envelope": {
+    "template": "<system-reminder>\n{text}\n\nTreat this reminder as internal guidance. Act on it directly without\nacknowledging, quoting, paraphrasing, or referring to the reminder.\n</system-reminder>",
+    "version": 1
+  },
+  "bodyTemplate": {
+    "maxBytes": 65536,
+    "slots": [
+      {
+        "escape": "xml",
+        "name": "advisory_text",
+        "source": {
+          "field": "advisory_text"
+        }
+      }
+    ],
+    "text": "{advisory_text}"
+  },
+  "fields": [
+    {
+      "description": "Brief reason for reminding or staying silent.",
+      "name": "reason",
+      "requirement": "always",
+      "shape": {
+        "maxBytes": 2000,
+        "minBytes": 1,
+        "type": "string"
+      }
+    },
+    {
+      "description": "Direct todo-tool advice to deliver to the main agent.",
+      "name": "advisory_text",
+      "requirement": "remind",
+      "shape": {
+        "maxBytes": 2000,
+        "minBytes": 1,
+        "type": "string"
+      }
+    }
+  ],
+  "lifecycle": {
+    "eotProgressGate": "notApplicable",
+    "failureFallback": "none",
+    "installBudget": "roster",
+    "seenKey": "redeliverExpired"
+  },
+  "limits": {
+    "arrayItems": 64,
+    "customFields": 64,
+    "declarationBytes": 65536,
+    "descriptionBytes": 1024,
+    "fieldNameBytes": 64,
+    "memoryAdmissionExaminedBytesPerDecision": 6400000,
+    "memoryAdmissionExaminedBytesPerRead": 100000,
+    "memoryAdmissionLinesPerRead": 2000,
+    "memoryAdmissionReads": 64,
+    "memoryAdmissionReturnedBytesPerDecision": 6400000,
+    "memoryAdmissionReturnedBytesPerRead": 100000,
+    "objectDepth": 4,
+    "objectFields": 32,
+    "renderedBodyBytes": 65536,
+    "scalarStringBytes": 65536,
+    "slots": 64,
+    "submittedJsonBytes": 262144,
+    "templateBytes": 16384
+  },
+  "proposal": {
+    "invalidPayload": {
+      "body": {
+        "literal": "Invalid todo reminder decision payload."
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "todo"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "inputError": true
+      },
+      "rejection": {
+        "literal": "invalid_payload"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "todo"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "none": {
+      "body": {
+        "literal": ""
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "todo"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": "no_reminder"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "todo"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "remind": {
+      "body": {
+        "renderedBody": true
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "todo"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": null
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "todo"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "roundEnded": {
+      "body": {
+        "literal": ""
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "todo"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": "round_ended"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "todo"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "syntheticFailure": {
+      "body": {
+        "literal": "Invalid todo reminder decision payload."
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "todo"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "inputError": true
+      },
+      "rejection": {
+        "literal": "invalid_payload"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "todo"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "validatorRejections": {}
+  },
+  "validators": [],
+  "version": 1
+}

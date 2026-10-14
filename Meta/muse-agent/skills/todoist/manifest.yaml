@@ -1,0 +1,108 @@
+version: 1
+connector: todoist
+category: productivity
+display_name: Todoist
+description: Organize and track your work
+icon: todoist
+request_quota:
+  mode: shadow
+  workers: [todoist]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: todoist
+  skill: todoist
+  service: todoist
+# Todoist permissions this client may request. A new connection asks only for
+# data:read; the remaining scopes are added from Settings when a write needs
+# them.
+declarable_scopes:
+  - data:read
+  - data:read_write
+  - data:delete
+  - project:delete
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      workspace.read:
+        label: Read account, workspace, collaborator, and activity details
+        approval_phrase: read account and workspace details in Todoist
+        requires_scopes: &read_access
+          - data:read
+          - data:read_write
+      tasks.read:
+        label: Search and read tasks, comments, and reminders
+        approval_phrase: read tasks in Todoist
+        requires_scopes: *read_access
+      projects.read:
+        label: Read projects, sections, and project health
+        approval_phrase: read projects in Todoist
+        requires_scopes: *read_access
+      labels.read:
+        label: Read labels and filters
+        approval_phrase: read labels and filters in Todoist
+        requires_scopes: *read_access
+  write:
+    default: ask
+    label: Write permissions
+    methods:
+      tasks.create:
+        label: Create tasks
+        approval_phrase: create tasks in Todoist
+        requires_scopes: &write_access
+          - data:read_write
+      tasks.manage:
+        label: Update, complete, reschedule, and assign tasks and reminders
+        approval_phrase: update tasks in Todoist
+        requires_scopes: *write_access
+      projects.manage:
+        label: Create, update, move, and organize projects and sections
+        approval_phrase: manage projects in Todoist
+        requires_scopes: *write_access
+      comments.manage:
+        label: Post and edit comments
+        approval_phrase: post or edit comments in Todoist
+        requires_scopes: *write_access
+      labels.manage:
+        label: Create and update labels and filters
+        approval_phrase: manage labels and filters in Todoist
+        requires_scopes: *write_access
+  delete:
+    default: ask
+    label: Delete permissions
+    methods:
+      items.delete:
+        label: Delete tasks, sections, comments, labels, filters, and reminders
+        approval_phrase: delete items in Todoist
+        requires_scopes:
+          - data:delete
+      projects.delete:
+        label: Delete projects
+        approval_phrase: delete projects in Todoist
+        requires_scopes:
+          - project:delete
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: workspace.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Todoist"
+      text: "Muse will access things like tasks, projects and account info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Todoist. To learn more, view their [terms](https://www.todoist.com/terms) and [privacy policy](https://www.todoist.com/privacy)."

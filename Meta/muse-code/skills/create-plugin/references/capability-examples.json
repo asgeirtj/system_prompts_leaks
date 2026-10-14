@@ -1,0 +1,793 @@
+{
+  "schemaVersion": 1,
+  "supportedFamilies": [
+    "skills",
+    "commands",
+    "hooks",
+    "mcpServers",
+    "reminders"
+  ],
+  "unsupportedFamilies": [
+    "tools",
+    "agents",
+    "outputStyles",
+    "settings",
+    "apps"
+  ],
+  "reservedPluginIds": [
+    "loop",
+    "muse-core",
+    "memory-reminder",
+    "skill-reminder",
+    "todo-reminder",
+    "goal-reminder",
+    "verify-reminder",
+    "scope-reminder",
+    "herdr",
+    "threejs",
+    "tbh-reminders"
+  ],
+  "creatorContract": {
+    "idRules": {
+      "maxBytes": 80,
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$",
+      "windowsReservedBasenames": [
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9"
+      ],
+      "rejectedExamples": [
+        "",
+        "Uppercase",
+        "con",
+        "CON.txt",
+        "lpt1.log",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ]
+    },
+    "pathRules": {
+      "relativeOnly": true,
+      "separator": "/",
+      "reject": [
+        "absolute",
+        "parent-traversal",
+        "backslash",
+        "symlink-escape",
+        "outside-workspace"
+      ]
+    },
+    "destination": {
+      "mustBeAbsent": true,
+      "atomicNoReplace": true,
+      "recheckCanonicalContainment": true
+    },
+    "validation": {
+      "order": [
+        "nestedSkills",
+        "plugin"
+      ],
+      "success": {
+        "exitCode": 0,
+        "valid": true,
+        "diagnostics": []
+      },
+      "warningsAccepted": false,
+      "maxCorrectionRounds": 3,
+      "terminalFailedResult": 4
+    },
+    "installProposal": {
+      "program": "muse",
+      "argv": [
+        "plugins",
+        "install",
+        "<canonical-plugin-path>"
+      ],
+      "executed": false
+    },
+    "forbiddenActions": [
+      "install",
+      "enable",
+      "trust",
+      "execute",
+      "fetch"
+    ]
+  },
+  "examples": [
+    {
+      "family": "skills",
+      "manifest": {
+        "schemaVersion": 1,
+        "name": "skills-example",
+        "displayName": "Skills Example",
+        "version": "0.1.0",
+        "description": "One native skill capability.",
+        "compat": {
+          "source": "native",
+          "manifestDir": ".muse-plugin"
+        },
+        "capabilities": {
+          "skills": [
+            {
+              "id": "review",
+              "path": "skills/review/SKILL.md",
+              "enabledDefault": false
+            }
+          ],
+          "commands": [],
+          "hooks": [],
+          "mcpServers": [],
+          "reminders": []
+        }
+      },
+      "files": {
+        "skills/review/SKILL.md": "---\nname: review\ndescription: Review the current workspace.\n---\n\nReview the requested files and report concrete findings.\n"
+      }
+    },
+    {
+      "family": "commands",
+      "manifest": {
+        "schemaVersion": 1,
+        "name": "commands-example",
+        "displayName": "Commands Example",
+        "version": "0.1.0",
+        "description": "One native command capability.",
+        "compat": {
+          "source": "native",
+          "manifestDir": ".muse-plugin"
+        },
+        "capabilities": {
+          "skills": [],
+          "commands": [
+            {
+              "id": "summarize",
+              "path": "commands/summarize.md",
+              "enabledDefault": true
+            }
+          ],
+          "hooks": [],
+          "mcpServers": [],
+          "reminders": []
+        }
+      },
+      "files": {
+        "commands/summarize.md": "---\ndescription: Summarize a requested change\nargument-hint: <path>\n---\nSummarize $ARGUMENTS with file references.\n"
+      }
+    },
+    {
+      "family": "hooks",
+      "manifest": {
+        "schemaVersion": 1,
+        "name": "hooks-example",
+        "displayName": "Hooks Example",
+        "version": "0.1.0",
+        "description": "One native hook capability.",
+        "compat": {
+          "source": "native",
+          "manifestDir": ".muse-plugin"
+        },
+        "capabilities": {
+          "skills": [],
+          "commands": [],
+          "hooks": [
+            {
+              "id": "pre-check",
+              "event": "PreToolUse",
+              "command": [
+                "sh",
+                "hooks/pre-check.sh"
+              ],
+              "timeoutMs": 1000,
+              "statusMessage": "Checking plugin policy"
+            }
+          ],
+          "mcpServers": [],
+          "reminders": []
+        }
+      },
+      "files": {
+        "hooks/pre-check.sh": "#!/bin/sh\nprintf '%s\\n' ok\n"
+      }
+    },
+    {
+      "family": "mcpServers",
+      "manifest": {
+        "schemaVersion": 1,
+        "name": "mcp-example",
+        "displayName": "MCP Example",
+        "version": "0.1.0",
+        "description": "One native MCP server capability.",
+        "compat": {
+          "source": "native",
+          "manifestDir": ".muse-plugin"
+        },
+        "capabilities": {
+          "skills": [],
+          "commands": [],
+          "hooks": [],
+          "mcpServers": [
+            {
+              "id": "workspace-index",
+              "transport": "stdio",
+              "command": [
+                "python3",
+                "mcp/server.py"
+              ]
+            }
+          ],
+          "reminders": []
+        }
+      },
+      "files": {
+        "mcp/server.py": "import sys\nfor line in sys.stdin:\n    sys.stdout.write(line)\n    sys.stdout.flush()\n"
+      }
+    },
+    {
+      "family": "reminders",
+      "manifest": {
+        "schemaVersion": 1,
+        "name": "reminders-example",
+        "displayName": "Reminders Example",
+        "version": "0.1.0",
+        "description": "One native reminder capability.",
+        "compat": {
+          "source": "native",
+          "manifestDir": ".muse-plugin"
+        },
+        "capabilities": {
+          "skills": [],
+          "commands": [],
+          "hooks": [],
+          "mcpServers": [],
+          "reminders": [
+            {
+              "id": "review-policy",
+              "path": "reminders/review-policy.md",
+              "tools": [
+                "read_file"
+              ],
+              "blocking": false,
+              "decision": {
+                "version": 1,
+                "envelope": {
+                  "version": 1,
+                  "template": "<system-reminder>\n{text}\n</system-reminder>"
+                },
+                "deliveryRole": "developer",
+                "fields": [
+                  {
+                    "name": "text",
+                    "description": "Reminder body text.",
+                    "requirement": "remind",
+                    "shape": {
+                      "type": "string",
+                      "minBytes": 1,
+                      "maxBytes": 2000
+                    }
+                  }
+                ],
+                "bodyTemplate": {
+                  "text": "{text}",
+                  "slots": [
+                    {
+                      "name": "text",
+                      "source": {
+                        "field": "text"
+                      },
+                      "escape": "xml",
+                      "fallback": ""
+                    }
+                  ],
+                  "maxBytes": 65536
+                },
+                "validators": [],
+                "proposal": {
+                  "remind": {
+                    "body": {
+                      "renderedBody": true
+                    },
+                    "kind": {
+                      "literal": "general"
+                    },
+                    "subject": {
+                      "literal": "general"
+                    },
+                    "reason": {
+                      "literal": "reminder_requested"
+                    },
+                    "requestedPriority": {
+                      "effective": "defaultPriority"
+                    },
+                    "effectivePriority": {
+                      "effective": "clampedPriority"
+                    },
+                    "visibleForSteps": {
+                      "literal": 1
+                    },
+                    "rejection": {
+                      "literal": null
+                    },
+                    "memoryEvidence": {
+                      "literal": []
+                    },
+                    "skillEvidence": {
+                      "literal": null
+                    }
+                  },
+                  "none": {
+                    "body": {
+                      "literal": ""
+                    },
+                    "kind": {
+                      "literal": "general"
+                    },
+                    "subject": {
+                      "literal": "general"
+                    },
+                    "reason": {
+                      "literal": "none"
+                    },
+                    "requestedPriority": {
+                      "effective": "defaultPriority"
+                    },
+                    "effectivePriority": {
+                      "effective": "clampedPriority"
+                    },
+                    "visibleForSteps": {
+                      "literal": 1
+                    },
+                    "rejection": {
+                      "literal": "no_reminder"
+                    },
+                    "memoryEvidence": {
+                      "literal": []
+                    },
+                    "skillEvidence": {
+                      "literal": null
+                    }
+                  },
+                  "invalidPayload": {
+                    "body": {
+                      "inputError": true
+                    },
+                    "kind": {
+                      "literal": "general"
+                    },
+                    "subject": {
+                      "literal": "general"
+                    },
+                    "reason": {
+                      "literal": "invalid_payload"
+                    },
+                    "requestedPriority": {
+                      "effective": "defaultPriority"
+                    },
+                    "effectivePriority": {
+                      "effective": "clampedPriority"
+                    },
+                    "visibleForSteps": {
+                      "literal": 1
+                    },
+                    "rejection": {
+                      "literal": "invalid_payload"
+                    },
+                    "memoryEvidence": {
+                      "literal": []
+                    },
+                    "skillEvidence": {
+                      "literal": null
+                    }
+                  },
+                  "roundEnded": {
+                    "body": {
+                      "literal": ""
+                    },
+                    "kind": {
+                      "literal": "general"
+                    },
+                    "subject": {
+                      "literal": "general"
+                    },
+                    "reason": {
+                      "literal": "round_ended"
+                    },
+                    "requestedPriority": {
+                      "effective": "defaultPriority"
+                    },
+                    "effectivePriority": {
+                      "effective": "clampedPriority"
+                    },
+                    "visibleForSteps": {
+                      "literal": 1
+                    },
+                    "rejection": {
+                      "literal": "round_ended"
+                    },
+                    "memoryEvidence": {
+                      "literal": []
+                    },
+                    "skillEvidence": {
+                      "literal": null
+                    }
+                  },
+                  "syntheticFailure": {
+                    "body": {
+                      "literal": ""
+                    },
+                    "kind": {
+                      "literal": "general"
+                    },
+                    "subject": {
+                      "literal": "general"
+                    },
+                    "reason": {
+                      "literal": "synthetic_failure"
+                    },
+                    "requestedPriority": {
+                      "effective": "defaultPriority"
+                    },
+                    "effectivePriority": {
+                      "effective": "clampedPriority"
+                    },
+                    "visibleForSteps": {
+                      "literal": 1
+                    },
+                    "rejection": {
+                      "literal": "invalid_payload"
+                    },
+                    "memoryEvidence": {
+                      "literal": []
+                    },
+                    "skillEvidence": {
+                      "literal": null
+                    }
+                  },
+                  "validatorRejections": {}
+                },
+                "lifecycle": {
+                  "seenKey": "ordinary",
+                  "eotProgressGate": "notApplicable",
+                  "failureFallback": "none",
+                  "installBudget": "roster"
+                },
+                "limits": {
+                  "declarationBytes": 65536,
+                  "customFields": 64,
+                  "fieldNameBytes": 64,
+                  "descriptionBytes": 1024,
+                  "objectDepth": 4,
+                  "objectFields": 32,
+                  "arrayItems": 64,
+                  "submittedJsonBytes": 262144,
+                  "scalarStringBytes": 65536,
+                  "templateBytes": 16384,
+                  "slots": 64,
+                  "renderedBodyBytes": 65536,
+                  "memoryAdmissionReads": 64,
+                  "memoryAdmissionLinesPerRead": 2000,
+                  "memoryAdmissionExaminedBytesPerRead": 100000,
+                  "memoryAdmissionReturnedBytesPerRead": 100000,
+                  "memoryAdmissionExaminedBytesPerDecision": 6400000,
+                  "memoryAdmissionReturnedBytesPerDecision": 6400000
+                }
+              }
+            }
+          ]
+        }
+      },
+      "files": {
+        "reminders/review-policy.md": "Check the requested files before reporting completion.\n"
+      }
+    }
+  ],
+  "mixedExample": {
+    "manifest": {
+      "schemaVersion": 1,
+      "name": "mixed-example",
+      "displayName": "Mixed Example",
+      "version": "0.1.0",
+      "description": "One example of every supported native capability.",
+      "compat": {
+        "source": "native",
+        "manifestDir": ".muse-plugin"
+      },
+      "capabilities": {
+        "skills": [
+          {
+            "id": "review",
+            "path": "skills/review/SKILL.md",
+            "enabledDefault": false
+          }
+        ],
+        "commands": [
+          {
+            "id": "summarize",
+            "path": "commands/summarize.md",
+            "enabledDefault": true
+          }
+        ],
+        "hooks": [
+          {
+            "id": "pre-check",
+            "event": "PreToolUse",
+            "command": [
+              "sh",
+              "hooks/pre-check.sh"
+            ],
+            "timeoutMs": 1000,
+            "statusMessage": "Checking plugin policy"
+          }
+        ],
+        "mcpServers": [
+          {
+            "id": "workspace-index",
+            "transport": "stdio",
+            "command": [
+              "python3",
+              "mcp/server.py"
+            ]
+          }
+        ],
+        "reminders": [
+          {
+            "id": "review-policy",
+            "path": "reminders/review-policy.md",
+            "tools": [
+              "read_file"
+            ],
+            "blocking": false,
+            "decision": {
+              "version": 1,
+              "envelope": {
+                "version": 1,
+                "template": "<system-reminder>\n{text}\n</system-reminder>"
+              },
+              "deliveryRole": "developer",
+              "fields": [
+                {
+                  "name": "text",
+                  "description": "Reminder body text.",
+                  "requirement": "remind",
+                  "shape": {
+                    "type": "string",
+                    "minBytes": 1,
+                    "maxBytes": 2000
+                  }
+                }
+              ],
+              "bodyTemplate": {
+                "text": "{text}",
+                "slots": [
+                  {
+                    "name": "text",
+                    "source": {
+                      "field": "text"
+                    },
+                    "escape": "xml",
+                    "fallback": ""
+                  }
+                ],
+                "maxBytes": 65536
+              },
+              "validators": [],
+              "proposal": {
+                "remind": {
+                  "body": {
+                    "renderedBody": true
+                  },
+                  "kind": {
+                    "literal": "general"
+                  },
+                  "subject": {
+                    "literal": "general"
+                  },
+                  "reason": {
+                    "literal": "reminder_requested"
+                  },
+                  "requestedPriority": {
+                    "effective": "defaultPriority"
+                  },
+                  "effectivePriority": {
+                    "effective": "clampedPriority"
+                  },
+                  "visibleForSteps": {
+                    "literal": 1
+                  },
+                  "rejection": {
+                    "literal": null
+                  },
+                  "memoryEvidence": {
+                    "literal": []
+                  },
+                  "skillEvidence": {
+                    "literal": null
+                  }
+                },
+                "none": {
+                  "body": {
+                    "literal": ""
+                  },
+                  "kind": {
+                    "literal": "general"
+                  },
+                  "subject": {
+                    "literal": "general"
+                  },
+                  "reason": {
+                    "literal": "none"
+                  },
+                  "requestedPriority": {
+                    "effective": "defaultPriority"
+                  },
+                  "effectivePriority": {
+                    "effective": "clampedPriority"
+                  },
+                  "visibleForSteps": {
+                    "literal": 1
+                  },
+                  "rejection": {
+                    "literal": "no_reminder"
+                  },
+                  "memoryEvidence": {
+                    "literal": []
+                  },
+                  "skillEvidence": {
+                    "literal": null
+                  }
+                },
+                "invalidPayload": {
+                  "body": {
+                    "inputError": true
+                  },
+                  "kind": {
+                    "literal": "general"
+                  },
+                  "subject": {
+                    "literal": "general"
+                  },
+                  "reason": {
+                    "literal": "invalid_payload"
+                  },
+                  "requestedPriority": {
+                    "effective": "defaultPriority"
+                  },
+                  "effectivePriority": {
+                    "effective": "clampedPriority"
+                  },
+                  "visibleForSteps": {
+                    "literal": 1
+                  },
+                  "rejection": {
+                    "literal": "invalid_payload"
+                  },
+                  "memoryEvidence": {
+                    "literal": []
+                  },
+                  "skillEvidence": {
+                    "literal": null
+                  }
+                },
+                "roundEnded": {
+                  "body": {
+                    "literal": ""
+                  },
+                  "kind": {
+                    "literal": "general"
+                  },
+                  "subject": {
+                    "literal": "general"
+                  },
+                  "reason": {
+                    "literal": "round_ended"
+                  },
+                  "requestedPriority": {
+                    "effective": "defaultPriority"
+                  },
+                  "effectivePriority": {
+                    "effective": "clampedPriority"
+                  },
+                  "visibleForSteps": {
+                    "literal": 1
+                  },
+                  "rejection": {
+                    "literal": "round_ended"
+                  },
+                  "memoryEvidence": {
+                    "literal": []
+                  },
+                  "skillEvidence": {
+                    "literal": null
+                  }
+                },
+                "syntheticFailure": {
+                  "body": {
+                    "literal": ""
+                  },
+                  "kind": {
+                    "literal": "general"
+                  },
+                  "subject": {
+                    "literal": "general"
+                  },
+                  "reason": {
+                    "literal": "synthetic_failure"
+                  },
+                  "requestedPriority": {
+                    "effective": "defaultPriority"
+                  },
+                  "effectivePriority": {
+                    "effective": "clampedPriority"
+                  },
+                  "visibleForSteps": {
+                    "literal": 1
+                  },
+                  "rejection": {
+                    "literal": "invalid_payload"
+                  },
+                  "memoryEvidence": {
+                    "literal": []
+                  },
+                  "skillEvidence": {
+                    "literal": null
+                  }
+                },
+                "validatorRejections": {}
+              },
+              "lifecycle": {
+                "seenKey": "ordinary",
+                "eotProgressGate": "notApplicable",
+                "failureFallback": "none",
+                "installBudget": "roster"
+              },
+              "limits": {
+                "declarationBytes": 65536,
+                "customFields": 64,
+                "fieldNameBytes": 64,
+                "descriptionBytes": 1024,
+                "objectDepth": 4,
+                "objectFields": 32,
+                "arrayItems": 64,
+                "submittedJsonBytes": 262144,
+                "scalarStringBytes": 65536,
+                "templateBytes": 16384,
+                "slots": 64,
+                "renderedBodyBytes": 65536,
+                "memoryAdmissionReads": 64,
+                "memoryAdmissionLinesPerRead": 2000,
+                "memoryAdmissionExaminedBytesPerRead": 100000,
+                "memoryAdmissionReturnedBytesPerRead": 100000,
+                "memoryAdmissionExaminedBytesPerDecision": 6400000,
+                "memoryAdmissionReturnedBytesPerDecision": 6400000
+              }
+            }
+          }
+        ]
+      }
+    },
+    "files": {
+      "skills/review/SKILL.md": "---\nname: review\ndescription: Review the current workspace.\n---\n\nReview the requested files and report concrete findings.\n",
+      "commands/summarize.md": "---\ndescription: Summarize a requested change\nargument-hint: <path>\n---\nSummarize $ARGUMENTS with file references.\n",
+      "hooks/pre-check.sh": "#!/bin/sh\nprintf '%s\\n' ok\n",
+      "mcp/server.py": "import sys\nfor line in sys.stdin:\n    sys.stdout.write(line)\n    sys.stdout.flush()\n",
+      "reminders/review-policy.md": "Check the requested files before reporting completion.\n"
+    }
+  }
+}

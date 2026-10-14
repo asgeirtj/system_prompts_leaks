@@ -1,0 +1,51 @@
+# Plaid skill eval scenarios (connect, read). Plaid is read-only, so no write category.
+# How to run this suite (date tokens, skill injection, persona/world): see ../../spawn-eval-instructions.md
+
+- name: connect
+  category: connect
+  tests: "Disconnected start: agent runs status, gets not_connected, and posts the exact returned connect_url as [Connect Plaid](<url>) - no fabricated URL, no Settings redirect, no bank-credential ask, no fabricated balances. Grade on the link; the post-consent continuation is not spawn-testable (a synthetic user cannot complete the Plaid Hosted Link consent)."
+  persona: "A first-time Hatch user, curious about seeing their money in one place; taps to connect accounts when prompted."
+  objective: "Show me all my bank account balances in one place."
+
+- name: disconnect
+  category: connect
+  tests: "Runs `plaid disconnect` and posts the returned disconnect_url as [Disconnect Plaid](<url>); no Settings redirect. If status still shows connected right after, the agent must NOT loop on `plaid status` or stand up a background check / goal / cron to watch for disconnection - it posts the link and stops. Grade on the link + absence of a watcher."
+  persona_id: priya-shah-freelance-architect
+  objective: "Disconnect Plaid - I don't want my bank linked anymore."
+
+- name: balances
+  category: read
+  tests: "Runs `plaid accounts` (balances come from its per-account `balances` field; there is no separate balances command); reports current balances and a correct combined total across accounts; plain language only - no command, flag, JSON, field name, raw account id, or credential id. A masked suffix is allowed only to disambiguate similar accounts."
+  persona_id: priya-shah-freelance-architect
+  objective: "How much do I have right now across all my accounts?"
+
+- name: spending
+  category: read
+  tests: "Reads transactions (transactions-sync); surfaces recent card spending and correctly identifies the genuine duplicate charge without fabricating one or flagging the legitimate duplicate-looking decoys; no jargon."
+  persona_id: priya-shah-freelance-architect
+  objective: "Check my recent card charges - did anything get billed twice?"
+
+- name: recurring
+  category: read
+  tests: "Runs transactions-recurring; lists recurring bills/subscriptions (inflow and outflow) in plain language and states it can't cancel them (read-only). Uses the catalog persona because recurring streams cannot be world-seeded."
+  persona_id: priya-shah-freelance-architect
+  objective: "What subscriptions and recurring bills am I paying each month?"
+
+- name: liabilities
+  category: read
+  tests: "Runs liabilities; reports the credit-card balance, limit, statement amount, and due date correctly, in plain language. Uses the catalog persona because liabilities cannot be world-seeded."
+  persona_id: priya-shah-freelance-architect
+  objective: "What's my credit card balance and when is the payment due?"
+
+- name: investments
+  category: read
+  tests: "Runs investments-holdings; reports the brokerage positions and their value from the seeded holdings, with no fabricated tickers or amounts; no jargon."
+  persona: "A retail investor who has already connected their bank and brokerage; comfortable with the tool, moves briskly through onboarding and reconnects accounts without fuss."
+  objective: "What's in my brokerage account and what's it worth?"
+  world: {"world_now": "{{NOW}}", "persona": {"email": "dana.reyes@example.com"}, "connectors": {"plaid": {"accounts": [{"id": "acc_brk", "name": "Brokerage", "type": "investment", "subtype": "brokerage", "balance": {"current": 38150.42}}, {"id": "acc_chk", "name": "Everyday Checking", "type": "depository", "subtype": "checking", "balance": {"current": 4238.55}}], "securities": [{"id": "sec_vti"}, {"id": "sec_aapl"}], "holdings": [{"account": "acc_brk", "security": "sec_vti", "quantity": 120}, {"account": "acc_brk", "security": "sec_aapl", "quantity": 30}]}}}
+
+- name: total-across-accounts
+  category: read
+  tests: "Aggregates balances across every account into one combined figure with a correct sum; names accounts in words and does NOT leak account ids or credential ids while distinguishing them."
+  persona_id: priya-shah-freelance-architect
+  objective: "Add up everything across all my accounts into a single total."

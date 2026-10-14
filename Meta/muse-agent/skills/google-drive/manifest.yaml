@@ -1,0 +1,127 @@
+version: 1
+connector: google_drive
+category: productivity
+display_name: Google Drive
+description: Search and manage your files and documents
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  # Keep the per-VM guard within the documented per-user allowance of about
+  # ten requests per second.
+  queries_per_minute: 600
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_drive
+  service: drive
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      files.get:
+        label: Access files
+        approval_phrase: access files in Google Drive
+      permissions.list:
+        label: View sharing permissions
+        approval_phrase: view sharing permissions in Google Drive
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      files.create.private:
+        default: allow
+        label: Create or upload private files
+      files.create.shared:
+        label: Create or upload files that may be shared
+      files.update.private:
+        default: allow
+        label: Update private files
+      files.update.shared:
+        label: Update shared files
+      files.trash:
+        default: allow
+        label: Trash or restore files
+      permissions.create:
+        label: Manage sharing permissions and move files
+      files.delete:
+        default: allow
+        label: Delete files
+commands:
+  status: null
+  disconnect: null
+  "+upload": files.create.shared
+  about.get: files.get
+  accessproposals.get: permissions.list
+  accessproposals.list: permissions.list
+  accessproposals.resolve: permissions.create
+  approvals.approve: permissions.create
+  approvals.cancel: permissions.create
+  approvals.comment: permissions.create
+  approvals.decline: permissions.create
+  approvals.get: permissions.list
+  approvals.list: permissions.list
+  approvals.reassign: permissions.create
+  approvals.start: permissions.create
+  apps.get: files.get
+  apps.list: files.get
+  changes.get_start_page_token: files.get
+  changes.list: files.get
+  changes.watch: files.update.shared
+  channels.stop: files.update.shared
+  comments.get: files.get
+  comments.list: files.get
+  comments.create: files.update.shared
+  comments.delete: files.update.shared
+  comments.update: files.update.shared
+  drives.create: files.update.shared
+  drives.delete: files.update.shared
+  drives.get: files.get
+  drives.hide: files.update.shared
+  drives.list: files.get
+  drives.unhide: files.update.shared
+  drives.update: files.update.shared
+  files.copy: files.create.private
+  files.download: files.get
+  files.empty_trash: files.delete
+  files.export: files.get
+  files.generate_cse_token: files.create.private
+  files.generate_ids: files.get
+  files.list: files.get
+  files.list_labels: files.get
+  files.modify_labels: files.update.shared
+  files.watch: files.update.shared
+  operations.get: files.get
+  permissions.delete: permissions.create
+  permissions.get: permissions.list
+  permissions.update: permissions.create
+  replies.get: files.get
+  replies.list: files.get
+  replies.create: files.update.shared
+  replies.delete: files.update.shared
+  replies.update: files.update.shared
+  revisions.delete: files.delete
+  revisions.get: files.get
+  revisions.list: files.get
+  revisions.update: files.update.shared
+  teamdrives.create: files.update.shared
+  teamdrives.delete: files.update.shared
+  teamdrives.get: files.get
+  teamdrives.list: files.get
+  teamdrives.update: files.update.shared
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Drive"
+      text: "Muse will access things like file content, file metadata and folder permissions."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Drive. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

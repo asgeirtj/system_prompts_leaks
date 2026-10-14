@@ -1,0 +1,59 @@
+version: 1
+connector: apple_healthkit
+category: health
+display_name: Apple Health
+hidden: false
+description: Read synced Apple Health data (daily metrics, sleep, workouts).
+# Connector id MUST equal this skill's `name` ("apple_healthkit") so the daemon
+# associates the manifest with the skill and surfaces it in Settings, and so the
+# runtime CLI-subcommand lookup (keyed by skill name) resolves.
+#
+# Valid CLI subcommand paths, consumed by jarvis runtime-event logging to enrich
+# tool-variant telemetry (e.g. `health-cli/query/metrics`). Keep in lockstep
+# with the clap subcommand tree in the health-cli crate. Paths are not
+# provider-qualified: `--provider` selects the data source, not the subcommand.
+#
+# `delete` is intentionally excluded, and NOT an oversight to copy. This list is
+# keyed by the skill jarvis attributes an invocation to, and a delete is
+# attributed to the `health` skill (`health_cli_skill_name_for_args`), never to
+# this provider — deliberately, so an irreversible erase is not filed under a
+# read-only skill. `health` has no connector manifest to carry a list, so an
+# entry here would never be read. Adding one back would look like it restored
+# telemetry for deletion while changing nothing. Deletion is separately visible:
+# the daemon emits a terminal row on /health-data/delete and Sentinel records a
+# connector_authorization row naming `healthkit.delete`.
+cli_subcommands:
+  - "query metrics"
+  - "query samples"
+  - "query sessions"
+  - "status"
+  - "auth connect"
+  - "auth disconnect"
+# This connector is granted independently of every other health data source:
+# Sentinel stores a grant against `(connector, action_key)`, and
+# `connector_policy_method` in health-cli `src/lib.rs` selects this connector
+# from `--provider healthkit`.
+#
+# The group key deliberately does NOT end in `_read`, and is not `read`.
+# `connector_group_is_read_class` matches exactly those, and for a read-class
+# group Sentinel overloads an `allow_once` approval into a turn-scoped grant
+# instead of a single-use one. This key stays non-read-class so an approval
+# remains single-use, exactly as the previous `health_cli` `healthkit` group
+# behaved. Renaming it would be a prompting-frequency change, which does not
+# belong in this change.
+actions:
+  healthkit:
+    default: allow
+    label: Apple Health
+    methods:
+      healthkit.query:
+        label: Read daily metrics, sleep, and workouts from Apple Health
+      healthkit.status:
+        label: Check Apple Health sync status
+  delete:
+    default: ask
+    label: Delete Apple Health data
+    methods:
+      healthkit.delete:
+        require_fresh_approval: true
+        label: Delete matching Apple Health records

@@ -1,0 +1,47 @@
+version: 1
+connector: granola
+category: productivity
+display_name: Granola
+description: Find and review your meeting notes
+cli:
+  binary: granola-cli
+  skill: granola
+request_quota:
+  mode: enforce
+  workers:
+    - granola-cli
+  queries_per_minute: 100
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    response_guard: verification_codes
+    methods:
+      query_granola_meetings:
+        label: Search meeting notes
+      list_meetings:
+        label: List meetings
+      list_meeting_folders:
+        label: List meeting folders
+      get_meetings:
+        label: Access meeting notes
+      get_meeting_transcript:
+        label: Access meeting transcripts
+      get_account_info:
+        label: Check account access
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Granola"
+      text: "Muse will access things like meeting notes, summaries, attendees, action items and transcripts."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Granola. To learn more, view their [terms](https://www.granola.ai/terms) and [privacy policy](https://www.granola.ai/privacy)."

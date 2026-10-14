@@ -1,0 +1,61 @@
+version: 1
+connector: printify
+display_name: Printify
+description: Browse catalog data, manage shops and products, and review or create orders
+request_quota:
+  mode: enforce
+  workers:
+    - printify
+  queries_per_minute: 300
+  burst: 50
+# Raw GET requests reach the same Printify API that serves order data, so
+# `api.read` is an orders DATA CLASS emitter. While "Access orders" is
+# deny/ask, Sentinel attaches an exclusion constraint and the trusted worker
+# refuses raw reads whole: a path-level projection cannot prove a raw read
+# avoids the class.
+data_classes:
+  orders:
+    governed_by: orders.list
+    emitted_by:
+      - api.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      shops.list:
+        label: Access shops
+      orders.list:
+        label: Access orders
+      api.read:
+        label: Access via raw API request
+        approval_phrase: view data through the Printify API
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      products.create:
+        label: Create or edit products
+      orders.create:
+        label: Create orders
+      api.write:
+        label: Write or delete via raw API request
+        approval_phrase: make changes through the Printify API
+      products.delete:
+        default: allow
+        label: Delete products
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Printify"
+      text: "Muse will access things like product listings, order details, shop connections, and design configurations."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Printify. To learn more, view their [terms](https://printify.com/terms-of-service/) and [privacy policy](https://printify.com/privacy-policy/)."

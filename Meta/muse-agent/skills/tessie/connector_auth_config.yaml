@@ -1,0 +1,9 @@
+name: tessie
+schema: api_key
+mode: api_key
+privsep: true
+hosts:
+- api.tessie.com
+token_proxy:
+- field: token
+  placement: bearer_header

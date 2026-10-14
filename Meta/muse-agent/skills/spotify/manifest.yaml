@@ -1,0 +1,86 @@
+version: 1
+connector: spotify
+category: social
+display_name: Spotify
+description: Play music and manage your library
+request_quota:
+  mode: enforce
+  workers:
+    - spotify-api
+  queries_per_minute: 300
+  burst: 50
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      access.read:
+        label: Read access
+        approval_phrase: have read access to Spotify
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      library.manage:
+        default: allow
+        label: Manage library
+        approval_phrase: manage your Spotify library
+      playback.control:
+        default: allow
+        label: Manage playback
+      content.manage:
+        label: Publish and manage content
+        approval_phrase: publish and manage content on Spotify
+commands:
+  status: null
+  disconnect: null
+  authorize-url: null
+  exchange-code: null
+  experience: access.read
+  next-page: access.read
+  library: access.read
+  search: access.read
+  wearable-play: access.read
+  now-playing: access.read
+  devices: access.read
+  get-queue: access.read
+  save: library.manage
+  create-collection: library.manage
+  add-to-collection: library.manage
+  update-collection: library.manage
+  play: playback.control
+  pause: playback.control
+  resume: playback.control
+  skip: playback.control
+  previous: playback.control
+  seek: playback.control
+  set-volume: playback.control
+  transfer: playback.control
+  add-to-queue: playback.control
+  upload: content.manage
+  "shows create": content.manage
+  "shows delete": content.manage
+  "shows get": access.read
+  shows: access.read
+  "episodes create": content.manage
+  "episodes delete": content.manage
+  "episodes status": access.read
+  episodes: access.read
+  "timeline set": content.manage
+  "timeline get": access.read
+  "timeline delete": content.manage
+  list: access.read
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Spotify"
+      text: "Muse will access things like your library, playlists and devices."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - "Muse will exchange info with Spotify. To learn more, view their [terms](https://www.spotify.com/legal/end-user-agreement/) and [privacy policy](https://www.spotify.com/legal/privacy-policy/)."

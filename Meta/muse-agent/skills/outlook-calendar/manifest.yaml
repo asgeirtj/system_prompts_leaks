@@ -1,0 +1,66 @@
+version: 1
+connector: outlook_calendar
+category: productivity
+display_name: Outlook Calendar
+description: View and manage calendar events and scheduling
+request_quota:
+  mode: enforce
+  workers:
+    - outlook-calendar
+  queries_per_minute: 600
+  burst: 50
+# Graph list rows carry organizer and the full attendee roster — event details
+# "Access events" governs — so the list method is an event-details DATA CLASS
+# emitter. While "Access events" is deny/ask, Sentinel attaches an exclusion
+# constraint to allowed list calls and the trusted worker strips organizer and
+# attendees from every returned row; subject, times, and location remain the
+# "Show events" promise.
+data_classes:
+  event_details:
+    governed_by: events.get
+    emitted_by:
+      - events.list
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      events.list:
+        label: Show events
+        approval_phrase: view events in Outlook Calendar
+      events.get:
+        label: Access events
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      events.create:
+        default: allow
+        label: Create events
+      events.create_with_invitations:
+        label: Create events with invitations
+        approval_phrase: create this event with invitations in Outlook Calendar
+      events.update:
+        default: allow
+        label: Edit events
+      events.update_with_notifications:
+        label: Update events and notify guests
+        approval_phrase: update this event and notify guests in Outlook Calendar
+      events.delete:
+        default: allow
+        label: Delete events
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Outlook Calendar"
+      text: "Muse will access things like calendar events, attendees and meeting locations."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Outlook Calendar. To learn more, view their [terms](https://www.microsoft.com/servicesagreement) and [privacy policy](https://privacy.microsoft.com/privacystatement)."

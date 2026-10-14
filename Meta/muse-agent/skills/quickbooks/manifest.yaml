@@ -1,0 +1,169 @@
+version: 1
+connector: quickbooks
+category: business
+display_name: QuickBooks
+description: Manage invoices, payments and financial reports
+icon: quickbooks
+gating:
+  allowed_countries: [US]
+request_quota:
+  mode: shadow
+  workers: [quickbooks]
+  queries_per_minute: 30
+  burst: 5
+cli:
+  binary: quickbooks
+  skill: quickbooks
+  service: quickbooks
+# The connected 3LO grant declares one complete consent tier. Every reviewed
+# tool currently uses the user grant; the CLI keeps a 2LO app-token path only
+# for tools it lists explicitly, and lists none. Hatch permissions gate execution.
+declarable_scopes:
+  - foundations.tools.companyprofile.read
+  - foundations.tools.businessreports.read
+  - sales.tools.invoice.read
+  - sales.tools.estimate.read
+  - sales.tools.payment-link.read
+  - sales.tools.settings.read
+  - contact.tools.customer.read
+  - catalog.tools.item.read
+  - foundations.tools.transactions.write
+  - foundations.tools.companyprofile.write
+  - sales.tools.invoice
+  - sales.tools.estimate
+  - sales.tools.payment-link
+  - sales.tools.settings
+  - contact.tools.customer
+  - catalog.tools.item
+actions:
+  read:
+    default: allow
+    label: Read QuickBooks information
+    methods:
+      company_profile.read:
+        label: Read company profile information
+        approval_phrase: read company profile information in QuickBooks
+        requires_scopes:
+          - foundations.tools.companyprofile.read
+      business_reports.read:
+        label: Read company information and business reports
+        approval_phrase: read company information and business reports in QuickBooks
+        requires_scopes:
+          - foundations.tools.businessreports.read
+      sales_documents.read:
+        label: Read invoices, estimates, recurring invoices, and payment links
+        approval_phrase: read sales documents in QuickBooks
+        requires_scopes: &read_scopes
+          - >-
+            foundations.tools.companyprofile.read
+            foundations.tools.businessreports.read
+            sales.tools.invoice.read
+            sales.tools.estimate.read
+            sales.tools.payment-link.read
+            sales.tools.settings.read
+            contact.tools.customer.read
+            catalog.tools.item.read
+      sales.settings.read:
+        label: Read sales settings
+        approval_phrase: read sales settings in QuickBooks
+        requires_scopes: *read_scopes
+      customers.read:
+        label: Read customers
+        approval_phrase: read customers in QuickBooks
+        requires_scopes: *read_scopes
+      products.read:
+        label: Search products and services
+        approval_phrase: search products and services in QuickBooks
+        requires_scopes: *read_scopes
+      business_tools.read:
+        label: Use public business tools and check import status
+        approval_phrase: use public business tools and check import status in QuickBooks
+        requires_scopes: *read_scopes
+  write:
+    default: ask
+    label: Create or change QuickBooks records
+    methods:
+      sales_documents.manage:
+        label: Create and edit invoices, estimates, and payment links
+        approval_phrase: create or edit sales documents in QuickBooks
+        requires_scopes: &all_scopes
+          - >-
+            foundations.tools.companyprofile.read
+            foundations.tools.businessreports.read
+            sales.tools.invoice.read
+            sales.tools.estimate.read
+            sales.tools.payment-link.read
+            sales.tools.settings.read
+            contact.tools.customer.read
+            catalog.tools.item.read
+            foundations.tools.transactions.write
+            foundations.tools.companyprofile.write
+            sales.tools.invoice
+            sales.tools.estimate
+            sales.tools.payment-link
+            sales.tools.settings
+            contact.tools.customer
+            catalog.tools.item
+      sales_documents.send:
+        label: Send invoices, estimates, payment links, and reminders
+        approval_phrase: send sales documents or reminders from QuickBooks
+        requires_scopes: *all_scopes
+      recurring_invoices.write:
+        label: Create, edit, and manage recurring invoices
+        approval_phrase: manage recurring invoices in QuickBooks
+        requires_scopes: *all_scopes
+      customers.create:
+        label: Create customers
+        approval_phrase: create customers in QuickBooks
+        requires_scopes: *all_scopes
+      catalog.create:
+        label: Create products and services
+        approval_phrase: create products or services in QuickBooks
+        requires_scopes: *all_scopes
+      imports.start:
+        label: Import transactions
+        approval_phrase: import transactions into QuickBooks
+        requires_scopes: *all_scopes
+      company_profile.update:
+        label: Update company profile information
+        approval_phrase: update company profile information in QuickBooks
+        requires_scopes: *all_scopes
+      sales.settings.update:
+        label: Change sales settings
+        approval_phrase: change sales settings in QuickBooks
+        requires_scopes: *all_scopes
+  delete:
+    default: ask
+    label: Delete QuickBooks records
+    methods:
+      sales_documents.delete:
+        label: Delete invoices, estimates, and recurring invoices
+        approval_phrase: delete sales documents or recurring invoices from QuickBooks
+        requires_scopes: *all_scopes
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: business_tools.read
+  # Reserved for tools the CLI explicitly routes through the 2LO app token.
+  # None do today; every reviewed tool uses call-tool.
+  call-public-tool: null
+  # The CLI classifies every reviewed tool at runtime. Unknown or newly
+  # advertised tools remain unavailable until their approval posture is reviewed.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with QuickBooks"
+      text: "Muse will access things like customers, vendors, invoices, payments and financial reports."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with QuickBooks. To learn more, view their [terms](https://www.intuit.com/legal/terms/en-us/quickbooks/online/) and [privacy policy](https://www.intuit.com/privacy/statement)."

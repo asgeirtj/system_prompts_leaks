@@ -1,4 +1,5 @@
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
+// Copied omelette starter. Re-running copy_starter_component with this kind overwrites this file with the latest version (page content is unaffected).
 
 /* BEGIN USAGE */
 // iOS.jsx — Simplified iOS 26 (Liquid Glass) device frame
@@ -203,7 +204,9 @@ function IOSDevice({
   title, keyboard = false,
 }) {
   return (
-    <div style={{
+    // data-om-starter: inert presence marker — Claude Design's starter-usage
+    // probe reads it; it renders nothing. Keep it on this root element.
+    <div data-om-starter="ios-frame" style={{
       width, height, borderRadius: 48, overflow: 'hidden',
       position: 'relative', background: dark ? '#000' : '#F2F2F7',
       boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',

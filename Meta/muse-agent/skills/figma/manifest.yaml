@@ -1,0 +1,86 @@
+version: 1
+connector: figma
+category: business
+display_name: Figma
+description: View and collaborate on your designs
+icon: figma
+request_quota:
+  mode: shadow
+  workers: [figma]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: figma
+  skill: figma
+  service: figma
+actions:
+  read:
+    default: allow
+    label: Read Figma designs
+    methods:
+      designs.read:
+        label: Read designs and FigJam boards
+        approval_phrase: read designs and FigJam boards in Figma
+      assets.read:
+        label: Download design assets
+        approval_phrase: download design assets from Figma
+      code_connect.read:
+        label: Read Code Connect mappings
+        approval_phrase: read Code Connect mappings in Figma
+      libraries.read:
+        label: Read design system libraries
+        approval_phrase: read design system libraries in Figma
+      extensions.read:
+        label: Read plugins and shaders
+        approval_phrase: read plugins and shaders in Figma
+      account.read:
+        label: Read account information
+        approval_phrase: read account information from Figma
+  write:
+    default: ask
+    label: Change Figma designs
+    methods:
+      code_connect.manage:
+        label: Change Code Connect mappings
+        approval_phrase: change Code Connect mappings in Figma
+      files.create:
+        label: Create files
+        approval_phrase: create files in Figma
+      designs.generate:
+        label: Generate designs and diagrams
+        approval_phrase: generate designs or diagrams in Figma
+      extensions.create:
+        label: Create plugins and shaders
+        approval_phrase: create plugins or shaders in Figma
+      extensions.manage:
+        label: Update plugins and shaders
+        approval_phrase: update plugins or shaders in Figma
+      assets.upload:
+        label: Upload design assets
+        approval_phrase: upload design assets to Figma
+      designs.edit:
+        label: Edit designs
+        approval_phrase: edit designs in Figma
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: designs.read
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Figma"
+      text: "Muse will access things like files, components, variables and assets."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Figma. To learn more, view their [terms](https://www.figma.com/legal/tos/) and [privacy policy](https://www.figma.com/legal/privacy/)."

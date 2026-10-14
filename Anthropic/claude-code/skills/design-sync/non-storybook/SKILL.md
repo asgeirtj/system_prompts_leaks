@@ -186,7 +186,7 @@ Build emits **`ds-bundle/.review.html`** - a local page iframing every card (the
 node .ds-sync/storybook/http-serve.mjs ./ds-bundle   # prints "serving ... at http://127.0.0.1:<port>/", stays running
 ```
 
-Run it as a background task through your shell tool's background mode (a plain `&` inside the command dies with the shell). Tell the user: "open `http://127.0.0.1:<port>/.review.html` (port from the serve line) - N components, M authored and graded good, K flagged: [names]. Tell me anything that looks wrong."
+Run it as a background task through your shell tool's background mode, with `timeout: 7200000` (a plain `&` inside the command dies with the shell). With no `timeout` a background command is stopped after 30 minutes; if you are told the server was stopped at its time limit, do not restart it in that turn; start it again the same way when the user next asks to review. Tell the user: "open `http://127.0.0.1:<port>/.review.html` (port from the serve line) - N components, M authored and graded good, K flagged: [names]. Tell me anything that looks wrong."
 
 **Headless / `-p` session (no user to review):** skip serving. Note the `.review.html` path in your final output as the thing a human should open, and treat the grades + render check as the gate.
 
@@ -265,7 +265,7 @@ The converter does NOT emit the adherence config, the `ds_manifest`, a version f
 
 ## Troubleshooting
 
-**Previews show "context" or "provider" errors** (e.g. "No <X> context", "use<Hook> must be inside <Provider>") -> the DS needs a provider wrapper. Set `cfg.provider` to the DS's top-level provider. For a chain, nest via `inner`:
+**Previews show "context" or "provider" errors** (e.g. "No `<X>` context", "use`<Hook>` must be inside `<Provider>`") -> the DS needs a provider wrapper. Set `cfg.provider` to the DS's top-level provider. For a chain, nest via `inner`:  
 ```json
 {"provider": {"component": "ThemeProvider", "props": {"theme": {}}, "inner": {"component": "RouterProvider"}}}
 ```

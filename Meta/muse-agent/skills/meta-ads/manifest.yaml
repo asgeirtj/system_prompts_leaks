@@ -1,0 +1,137 @@
+version: 1
+connector: meta_ads
+category: business
+display_name: Meta Business Manager
+description: Manage your ad accounts, campaigns and insights
+icon: meta_ads
+cli:
+  binary: meta-ads-cli
+  skill: meta_ads
+cli_subcommands:
+  - status
+  - manage-consent
+  - disconnect-url
+  - authorize-url
+  - auth-url
+  - exchange-code
+  - refresh
+  - disconnect
+  - list-tools
+  - describe-tool
+  - call-tool
+  - estimate-budget
+  - render-campaign-summary
+  - render-campaign-success
+  - render-chart
+  - creative generate-image
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      ads.read:
+        label: Read ads and performance
+        approval_phrase: read your Meta Ads accounts, ads and performance
+      catalogs.read:
+        label: Read catalogs and products
+        approval_phrase: read your Meta Ads catalogs and products
+      audiences.read:
+        label: Read audiences and measurement
+        approval_phrase: read your Meta Ads audiences and measurement data
+  write:
+    default: ask
+    label: Publishing
+    methods:
+      advertising.publish:
+        label: Publish ads
+        approval_phrase: publish or run your Meta Ads campaigns or ads
+      experiments.start:
+        label: Start experiments
+        approval_phrase: start your Meta Ads experiments
+  campaigns_write:
+    default: ask
+    label: Ads and campaigns
+    methods:
+      campaigns.create:
+        default: allow
+        label: Create ads and campaigns, and upload media
+        approval_phrase: create Meta Ads campaigns, ads or creatives, or upload media
+      campaigns.edit:
+        label: Edit or archive ads and campaigns
+        approval_phrase: edit or archive your Meta Ads campaigns, ads or creatives
+      campaigns.delete:
+        label: Delete ads and campaigns
+        approval_phrase: delete your Meta Ads campaigns, ads or creatives
+  audiences_write:
+    default: ask
+    label: Audiences
+    methods:
+      audiences.create:
+        default: allow
+        label: Create new audiences
+        approval_phrase: create Meta Ads audiences
+      audiences.edit:
+        label: Edit existing audiences
+        approval_phrase: edit your Meta Ads audiences and their membership
+      audiences.delete:
+        label: Delete audiences
+        approval_phrase: delete your Meta Ads audiences
+  catalogs_write:
+    default: ask
+    label: Catalogs and feeds
+    methods:
+      catalogs.create:
+        default: allow
+        label: Create new catalogs and feeds
+        approval_phrase: create Meta Ads catalogs, product sets or feeds
+      catalogs.edit:
+        label: Edit existing catalogs and feeds
+        approval_phrase: edit or refresh your Meta Ads catalogs, products, feeds or data sources
+      catalogs.delete:
+        label: Delete catalog items and feeds
+        approval_phrase: delete your Meta Ads products, product sets, feeds or rules
+  pixels_write:
+    default: ask
+    label: Pixels
+    methods:
+      pixels.create:
+        default: allow
+        label: Create new pixel events and parameters
+        approval_phrase: create Meta Pixel events or parameters
+      pixels.edit:
+        label: Edit or archive pixel settings
+        approval_phrase: edit or enable your Meta Pixel events or parameters, or archive parameters
+      pixels.delete:
+        label: Delete pixel event rules
+        approval_phrase: delete your Meta Pixel event rules
+  experiments_write:
+    default: ask
+    label: Experiments
+    methods:
+      experiments.edit:
+        label: Edit or end experiments
+        approval_phrase: edit or end your Meta Ads experiments while retaining their results
+      experiments.delete:
+        label: Cancel experiments and discard results
+        approval_phrase: cancel your Meta Ads experiments and discard their results
+commands:
+  status: null
+  disconnect-url: null
+  list-tools: null
+  describe-tool: null
+  estimate-budget: null
+  # Local deterministic presentation rendering; does not access Meta Ads.
+  render-campaign-summary: null
+  render-campaign-success: null
+  render-chart: null
+  # Local media preparation through media-generation; it neither reads nor
+  # changes the advertiser's Meta Ads account.
+  "creative generate-image": null
+  # The trusted CLI resolves capabilities from the tool and its arguments.
+  call-tool: null
+
+consent_screen:
+  footer_paragraphs:
+    - "Meta AI's suggestions are estimates, not professional advice, and do not guarantee specific performance. They're based on your account info and public information about businesses. Please verify before acting."
+    - "These interactions with Meta AI are subject to the [Commercial Terms](https://www.facebook.com/legal/commercial_terms) and the [AI Terms](https://www.facebook.com/legal/ai-terms), and will be used to improve [AI at Meta](https://www.facebook.com/privacy/genai). If you later move Meta AI to a new Accounts Center, it will no longer help manage your business. [Learn more](https://www.meta.com/help/accounts-center/589288436078759/)"
+    - "By clicking Connect, you agree to the relevant Meta terms, as applicable: [Meta Platform Terms](https://developers.facebook.com/terms/dfc_platform_terms/), [Advertising Standards](https://transparency.meta.com/policies/ad-standards/), [Self-service Ad Terms](https://www.facebook.com/legal/self_service_ads_terms), [Product Catalog Terms](https://www.facebook.com/legal/product_catalog_terms/), [Seller Agreement](https://www.facebook.com/legal/commerce_product_merchant_agreement), [Meta Business Tools Terms](https://www.facebook.com/legal/terms/businesstools), [Customer List Custom Audiences Terms](https://www.facebook.com/legal/terms/customaudience), [Lead Ad Terms](https://www.facebook.com/legal/leadgen/tos), [Ad Creative Generative AI Terms](https://www.facebook.com/legal/terms/ad_creative_generative_ai_terms) and [Pages, groups and events](https://www.facebook.com/policies_center/pages_groups_events)."

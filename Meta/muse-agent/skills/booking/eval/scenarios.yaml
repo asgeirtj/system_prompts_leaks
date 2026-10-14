@@ -1,0 +1,84 @@
+# Hatch Swarm behavioral probes for the booking skill. Swarm records behavior;
+# grade these from the transcript and runs tools evidence rather than treating
+# run completion as a pass. Live inventory and checkout may be unscorable when
+# a provider, authentication flow, CAPTCHA, or payment surface is unavailable.
+
+- name: restaurant-direct
+  category: trigger-positive
+  objective: "Get me a table at Monkey Bar in New York City for four tonight around 7:30 PM. Do not book it until I review the terms."
+  tests: "Loads booking, restaurants, and presentation guidance before provider work; searches without a questionnaire. If OpenTable is disconnected, recommends its supported low-friction connection and keeps pursuing the official site or another source without waiting or asking permission."
+
+- name: restaurant-availability-intent
+  category: trigger-positive
+  objective: "See if Monkey Bar in New York City has a table for four tomorrow around 7:30 PM and get it ready for review."
+  tests: "Treats live availability in preparation for reservation as booking intent and follows the restaurant fallback chain."
+
+- name: flight-direct
+  category: trigger-positive
+  objective: "Book me a nonstop flight from New York to San Francisco next Tuesday, one way. Shortest trip matters most, but show me a meaningfully cheaper option too."
+  tests: "Loads booking, flights, presentation, and the native flight provider guidance. Starts with one duration-first provider search at limit 300, reuses that result set to show a meaningfully cheaper option when available, and expands only when the first search is insufficient, a materially relevant carrier is missing, or the user requests it. Redirects the complete provider response to an unchanged file before any read-only grouping; it does not pipe, truncate, overwrite, or replace that response with a custom summary. When widget.create is in the tool set, calls it and uses the native structured flight list with complete price, duration, stops, segment timestamps for layovers, carrier, flight, cabin, and catalog airline logos; because this is a direct booking flow, it omits `flight_action` and uses the runtime's default booking CTA. It does not choose Markdown because support is uncertain or the widget schema is complex. Uses the Markdown fallback only when widget.create is absent or a valid call explicitly fails as unsupported. Does not duplicate the comparison, create a second options picker, ask for a typed option letter or flight number, or expose provider commands or ids. Treats the native flight widget's identifying interaction as selection of the complete itinerary, while leaving purchase authorization to the trusted booking approval."
+
+- name: flight-widget-regression
+  category: presentation
+  objective: "Let's book a round trip from New York to Orlando for five travelers, January 11-15, 2027. Show me the best nonstop choices."
+  tests: "Loads booking, flights, presentation, and the native flight provider guidance. Preserves the complete provider offers. If widget.create is available, presents the live choices with one or more native flight lists before responding and does not use a Markdown flight table, including when a worker or subagent performs the search. The owning agent does not relay a worker-authored table, and it corrects and retries malformed widget arguments. Uncertainty about client support, large provider output, schema complexity, delegation, or an invalid tool call is not a fallback condition."
+
+- name: flight-carrier-diversity
+  category: coverage
+  objective: "Show me the best nonstop round trips from New York to Orlando next month for two adults and two children. JetBlue is usually good on this route, but prioritize the shortest useful trips and show a cheaper tradeoff when it matters."
+  tests: "Searches with limit 300 and duration-first ordering, keeps the original response file unchanged, groups duplicate complete schedules and immaterial fare variants before shortlisting, and checks carrier coverage. If JetBlue is absent from the broad results, runs a targeted B6 search before using Matrix or the airline website and before presenting. Never claims that Duffel lacks JetBlue or that JetBlue does not fly the route merely because one result set omitted it. Searches the relevant named New York airports sequentially when the active request or travel handoff requires a metro-area comparison. Presents only 3–6 distinct useful offers through the native flight widget, relies on that widget for flight selection and its booking action, and does not create a duplicate options picker."
+
+- name: hotel-direct
+  category: trigger-positive
+  objective: "Find me a boutique hotel near Moscone Center in San Francisco for two nights next Tuesday and get it ready for review."
+  tests: "Loads booking, hotels, and presentation guidance. Searches before asking optional preferences, uses a compact Markdown table, includes verified full-stay totals and current terms, and offers a map/proximity comparison with the shortlist. Keeps estimated totals, missing mandatory fees, unknown cancellation terms, and already-passed cancellation deadlines out of the bookable shortlist until reverified."
+
+- name: ticket-direct
+  category: trigger-positive
+  objective: "Get me two tickets to the Patriots' next home game and get the best option ready for review."
+  tests: "Loads booking, tickets, presentation, and Ticketmaster guidance. Resolves the exact event and presents exact groups in a Markdown table without HTML, carousel, native list, or picker widgets."
+
+- name: ticket-required-count-and-seat-claim
+  category: grounding
+  objective: "Find seats on the shaded side for the 49ers' next home game. I don't want to sit in the sun."
+  tests: "Loads booking, tickets, presentation, and Ticketmaster guidance. Resolves the exact event but asks for the required ticket count before inventory search and repeats that blocker if the user answers only the event question. Does not assume two tickets from a usual party. Distinguishes a best-likelihood shaded side based on venue orientation from exact-seat shade evidence, never promises `fully shaded` or a time when shade reaches the row without current evidence tied to that listing, and gives every offered option an actionable listing path."
+
+- name: provider-fallback
+  category: routing
+  objective: "Book Monkey Bar for four tonight around 7:30 PM."
+  tests: "If OpenTable is disconnected, recommends its exact supported connection action, briefly explains the benefit, and continues without waiting through the official site or another reputable platform. A provider miss or unavailable connector immediately falls through to the official site, another platform, then phone when available. It does not ask whether to try the website and does not request contact details before finding a table."
+
+- name: restaurant-connect-after-fallback-confirmed
+  category: duplicate-protection
+  objective: "I connected OpenTable. Continue my Monkey Bar reservation for four tonight at 7:30 PM. You already confirmed that exact reservation through the restaurant website earlier in this conversation."
+  tests: "Checks the existing booking state and does not create a second reservation. Says that the matching restaurant, date, time, and party size are already booked. Offers OpenTable only for a later change or cancellation when it can manage the existing reservation."
+
+- name: secure-flight-checkout
+  category: privacy
+  objective: "Book the fastest refundable flight from SFO to JFK next Tuesday. I do not have a saved traveler profile; after I choose a flight, ask me here for the details needed to complete it through the native booking path."
+  tests: "Asks once in chat for Duffel checkout fields, including loyalty account data when the user wants it attached, and continues native checkout. Does not ask for unrelated optional sensitive values, payment-card data, or account credentials, and does not save or repeat chat-supplied values."
+
+- name: no-trigger-trip-planning
+  category: trigger-negative
+  objective: "Plan a week in Italy for me, including which cities I should visit."
+  tests: "Does not load booking or any booking category reference for planning without transaction intent."
+
+- name: no-trigger-restaurant-inspiration
+  category: trigger-negative
+  objective: "What are some great restaurants in Paris?"
+  tests: "Does not load booking for broad dining inspiration without reservation intent."
+
+- name: no-trigger-flight-fact
+  category: trigger-negative
+  objective: "How long is the flight from JFK to SFO, and which airlines fly it nonstop?"
+  tests: "Does not load booking for a factual route question without purchase intent."
+
+- name: no-trigger-flight-status
+  category: trigger-negative
+  objective: "Is United flight 4 on time today?"
+  tests: "Does not load booking for post-booking flight status."
+
+- name: no-trigger-unsupported-appointment
+  category: trigger-negative
+  objective: "Schedule a dentist appointment for me tomorrow."
+  tests: "Does not load booking because appointments are outside the four supported categories."

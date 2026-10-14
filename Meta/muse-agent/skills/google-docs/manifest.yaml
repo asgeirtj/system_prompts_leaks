@@ -1,0 +1,54 @@
+version: 1
+connector: google_docs
+category: productivity
+display_name: Google Docs
+description: Draft, edit and collaborate on documents
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_docs
+  service: docs
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      documents.get:
+        label: Access documents
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      documents.create:
+        default: allow
+        label: Create documents
+      documents.batch_update.private:
+        default: allow
+        label: Edit private documents
+      documents.batch_update.shared:
+        label: Edit shared documents
+commands:
+  status: null
+  disconnect: null
+  "+write --dry-run": documents.get
+  "+write": documents.batch_update.private
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Docs"
+      text: "Muse will access things like document content, history and collaboration details."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Docs. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

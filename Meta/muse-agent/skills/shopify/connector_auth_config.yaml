@@ -1,0 +1,11 @@
+name: shopify
+schema: oauth
+mode: direct_oauth
+hosts:
+  - setup.shopify.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+version: 1

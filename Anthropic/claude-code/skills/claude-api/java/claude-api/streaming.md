@@ -7,7 +7,7 @@ import com.anthropic.core.http.StreamResponse;
 import com.anthropic.models.messages.RawMessageStreamEvent;
 
 MessageCreateParams params = MessageCreateParams.builder()
-    .model("claude-opus-5")
+    .model("claude-opus-5-5")
     .maxTokens(64000L)
     .addUserMessage("Write a haiku")
     .build();

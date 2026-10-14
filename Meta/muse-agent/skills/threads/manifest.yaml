@@ -1,0 +1,36 @@
+version: 1
+connector: threads
+category: social
+display_name: Threads
+description: Stay in the loop on trending topics and conversations.
+request_quota:
+  mode: shadow
+  workers:
+    - threads-cli
+    - threads-messages-cli
+  queries_per_minute: 600
+  burst: 100
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      content.read:
+        label: Access content
+      interactions.read:
+        label: Access interactions
+      algorithm.read:
+        label: Access your algorithm
+        approval_phrase: access your Threads algorithm
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      algorithm.update:
+        default: allow
+        label: Edit your algorithm
+        approval_phrase: update your Threads algorithm
+      content.post:
+        require_fresh_approval: true
+        label: Post content
+        approval_phrase: post this content to Threads

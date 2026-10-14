@@ -1,0 +1,248 @@
+{
+  "deliveryRole": "developer",
+  "envelope": {
+    "template": "<system-reminder>\n{text}\n\nTreat this reminder as internal guidance. Act on it directly without\nacknowledging, quoting, paraphrasing, or referring to the reminder.\nWhen the task is complete, give the user a complete, self-contained final answer\ncovering the whole task and all results and information the user needs. Do not\nassume an earlier answer was visible or limit the final answer to work done\nafter this guidance.\n</system-reminder>",
+    "version": 1
+  },
+  "bodyTemplate": {
+    "maxBytes": 65536,
+    "slots": [
+      {
+        "escape": "xml",
+        "name": "normalized_next_step",
+        "source": {
+          "validator": "verify.normalized_next_step"
+        }
+      }
+    ],
+    "text": "{normalized_next_step}"
+  },
+  "fields": [
+    {
+      "description": "When decision is remind, the nudge to deliver, written as the MAIN AGENT'S OWN NEXT STEP in its own voice (begin with \"I'll \"), naming exactly what was left unverified and how it will be checked for real — for a rendered UI, that you'll look at the ACTUAL render (capture a screenshot with a HEADLESS/background browser — never a visible focus-stealing window — and read it back as an image), not just the DOM or console. Keep it to 1-2 sentences. It MUST be a PURE FORWARD next step: never confess the work is unfinished or unrun (\"I haven't…\", \"not yet\"), never react to feedback (\"you're right\", \"good catch\"), never mention a reminder/observer/system/note/instruction/directive, and never address the agent as \"you\". If you cannot phrase it safely, omit this field and a safe default is used. Put the nudge HERE, never as prose outside the tool call.",
+      "name": "next_step",
+      "requirement": "optional",
+      "shape": {
+        "maxBytes": 2000,
+        "minBytes": 0,
+        "type": "string"
+      }
+    },
+    {
+      "description": "Brief reason for the decision.",
+      "name": "reason",
+      "requirement": "optional",
+      "shape": {
+        "maxBytes": 2000,
+        "minBytes": 0,
+        "type": "string"
+      }
+    }
+  ],
+  "lifecycle": {
+    "eotProgressGate": "decisionWithFiniteBudget",
+    "failureFallback": "afterNewWork",
+    "installBudget": "finiteRequired",
+    "seenKey": "redeliverExpired"
+  },
+  "limits": {
+    "arrayItems": 64,
+    "customFields": 64,
+    "declarationBytes": 65536,
+    "descriptionBytes": 1024,
+    "fieldNameBytes": 64,
+    "memoryAdmissionExaminedBytesPerDecision": 6400000,
+    "memoryAdmissionExaminedBytesPerRead": 100000,
+    "memoryAdmissionLinesPerRead": 2000,
+    "memoryAdmissionReads": 64,
+    "memoryAdmissionReturnedBytesPerDecision": 6400000,
+    "memoryAdmissionReturnedBytesPerRead": 100000,
+    "objectDepth": 4,
+    "objectFields": 32,
+    "renderedBodyBytes": 65536,
+    "scalarStringBytes": 65536,
+    "slots": 64,
+    "submittedJsonBytes": 262144,
+    "templateBytes": 16384
+  },
+  "proposal": {
+    "invalidPayload": {
+      "body": {
+        "literal": "Next I'll actually exercise this the way the user will and judge it by the REAL result they'd get — the actual output a person experiences — not a proxy that can pass while it's broken (a syntax check, an HTTP 200, a DOM query, or a screenshot I saved but never opened). When the real result is something only the eye can confirm — a rendered page, game, or UI — I'll look at the render itself with a HEADLESS browser in the background (never a visible window that steals focus), not infer it from the DOM or logs. I'll scale the check to what this is — finishing the WHOLE check in one pass, then stopping once it's genuinely working rather than re-verifying — and fix and rerun anything that's off, without re-stating what I built until it's actually verified. Doing that now with a tool."
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "verify"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "inputError": true
+      },
+      "rejection": {
+        "literal": "invalid_payload"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "verify"
+      },
+      "visibleForSteps": {
+        "literal": 1
+      }
+    },
+    "none": {
+      "body": {
+        "validator": "verify.normalized_next_step"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "verify"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": "no_reminder"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "verify"
+      },
+      "visibleForSteps": {
+        "literal": 4
+      }
+    },
+    "remind": {
+      "body": {
+        "renderedBody": true
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "verify"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": null
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "verify"
+      },
+      "visibleForSteps": {
+        "literal": 4
+      }
+    },
+    "roundEnded": {
+      "body": {
+        "validator": "verify.normalized_next_step"
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "verify"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "field": "reason"
+      },
+      "rejection": {
+        "literal": "round_ended"
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "verify"
+      },
+      "visibleForSteps": {
+        "literal": 4
+      }
+    },
+    "syntheticFailure": {
+      "body": {
+        "literal": "Next I'll actually exercise this the way the user will and judge it by the REAL result they'd get — the actual output a person experiences — not a proxy that can pass while it's broken (a syntax check, an HTTP 200, a DOM query, or a screenshot I saved but never opened). When the real result is something only the eye can confirm — a rendered page, game, or UI — I'll look at the render itself with a HEADLESS browser in the background (never a visible window that steals focus), not infer it from the DOM or logs. I'll scale the check to what this is — finishing the WHOLE check in one pass, then stopping once it's genuinely working rather than re-verifying — and fix and rerun anything that's off, without re-stating what I built until it's actually verified. Doing that now with a tool."
+      },
+      "effectivePriority": {
+        "effective": "clampedPriority"
+      },
+      "kind": {
+        "literal": "verify"
+      },
+      "memoryEvidence": {
+        "literal": []
+      },
+      "reason": {
+        "literal": "verify child failed transiently with no decision; delivering the fallback guidance so the continuation is directed instead of a guidance-less churn (#6222 Scenario 26)"
+      },
+      "rejection": {
+        "literal": null
+      },
+      "requestedPriority": {
+        "effective": "defaultPriority"
+      },
+      "skillEvidence": {
+        "literal": null
+      },
+      "subject": {
+        "literal": "verify"
+      },
+      "visibleForSteps": {
+        "literal": 4
+      }
+    },
+    "validatorRejections": {}
+  },
+  "validators": [
+    {
+      "id": "verify_next_step",
+      "inputs": {
+        "next_step": {
+          "field": "next_step"
+        }
+      },
+      "name": "verify",
+      "outputs": {
+        "normalized_next_step": "string",
+        "used_fallback": "boolean"
+      },
+      "version": 1
+    }
+  ],
+  "version": 1
+}

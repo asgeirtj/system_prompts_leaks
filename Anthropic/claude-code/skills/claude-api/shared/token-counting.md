@@ -16,19 +16,19 @@ from anthropic import Anthropic
 
 client = Anthropic()
 resp = client.messages.count_tokens(
-    model="claude-opus-5",
+    model="claude-opus-5-5",
     messages=[{"role": "user", "content": open("CLAUDE.md").read()}],
 )
 print(resp.input_tokens)
 ```
 
-TypeScript: `await client.messages.countTokens({model, messages})` ->
+TypeScript: `await client.messages.countTokens({model, messages})` ->  
 `.input_tokens`. See `{lang}/claude-api/README.md` for other SDKs.
 
 ## CLI
 
 ```sh
-ant messages count-tokens --model claude-opus-5 \
+ant messages count-tokens --model claude-opus-5-5 \
   --message '{role: user, content: "@./CLAUDE.md"}' \
   --transform input_tokens -r
 ```
@@ -44,7 +44,7 @@ import subprocess
 client = Anthropic()
 def count(text: str) -> int:
     return client.messages.count_tokens(
-        model="claude-opus-5",
+        model="claude-opus-5-5",
         messages=[{"role": "user", "content": text}],
     ).input_tokens
 

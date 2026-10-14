@@ -1,0 +1,13 @@
+name: stripe
+schema: oauth
+mode: direct_oauth
+hosts:
+  - mcp.stripe.com
+  - access.stripe.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /mcp/oauth2/token

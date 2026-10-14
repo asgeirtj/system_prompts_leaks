@@ -1,0 +1,120 @@
+version: 1
+connector: box
+category: business
+display_name: Box
+description: Search, share and manage your files and folders
+icon: box
+cli:
+  binary: box-cli
+  skill: box
+request_quota:
+  mode: shadow
+  workers: [box-cli]
+  queries_per_minute: 300
+  burst: 50
+declarable_scopes:
+  - root_readonly
+  - root_readwrite
+# `get_file_content` and `get_file_preview` return full file bytes — the data
+# the consent-gated "Download files" toggle governs — so content.read is a
+# file-bytes DATA CLASS emitter. The trusted worker refuses those two tools
+# whole only on an explicit files.download DENY; the shipped ask default
+# passes so the documented read flow keeps working, and ask-parity is a named
+# product follow-up. List/search/details reads carry file metadata only and
+# always proceed.
+data_classes:
+  file_bytes:
+    governed_by: files.download
+    emitted_by:
+      - content.read
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    response_guard: verification_codes
+    methods:
+      content.read:
+        label: Search and read content
+        approval_phrase: search and read content in Box
+        requires_scopes:
+          - root_readonly
+          - root_readwrite
+      activity.read:
+        label: Read comments and tasks
+        approval_phrase: read comments and tasks in Box
+        requires_scopes:
+          - root_readwrite
+      sharing.read:
+        label: Read collaborations
+        approval_phrase: read collaboration access in Box
+        requires_scopes:
+          - root_readwrite
+      files.download:
+        default: ask
+        label: Download files
+        approval_phrase: download files from Box
+        response_guard: disabled
+        requires_scopes:
+          - root_readwrite
+  write:
+    default: ask
+    label: Write and delete permissions
+    response_guard: verification_codes
+    methods:
+      content.manage:
+        label: Create and organize content
+        approval_phrase: create or organize content in Box
+        requires_scopes:
+          - root_readwrite
+      metadata.manage:
+        label: Edit metadata and templates
+        approval_phrase: edit metadata or templates in Box
+        requires_scopes:
+          - root_readwrite
+      comments.write:
+        label: Post comments
+        approval_phrase: post a comment in Box
+        requires_scopes:
+          - root_readwrite
+      sharing.manage:
+        label: Share content and manage access
+        approval_phrase: share content or change access in Box
+        requires_scopes:
+          - root_readwrite
+      content.delete:
+        label: Delete content
+        approval_phrase: delete content from Box
+        requires_scopes:
+          - root_readwrite
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: content.read
+  call-tool: null
+  download: files.download
+  upload: content.manage
+  upload-version: content.manage
+  update-file: content.manage
+  update-folder: content.manage
+  delete-file: content.delete
+  delete-folder: content.delete
+  restore-file: content.manage
+  restore-folder: content.manage
+  list-trash: content.read
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Box"
+      text: "Muse will access things like file content, metadata, comments, collaborators and shared links."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Box. To learn more, view their [terms](https://www.box.com/legal/termsofservice) and [privacy policy](https://www.box.com/legal/privacypolicy)."

@@ -7,7 +7,7 @@ using Anthropic.Models.Messages;
 
 var parameters = new MessageCreateParams
 {
-    Model = "claude-opus-5",
+    Model = "claude-opus-5-5",
     MaxTokens = 64000,
     Messages = [new() { Role = Role.User, Content = "Write a haiku" }]
 };

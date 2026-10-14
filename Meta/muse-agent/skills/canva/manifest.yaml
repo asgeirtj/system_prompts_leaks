@@ -1,0 +1,96 @@
+version: 1
+connector: canva
+category: business
+display_name: Canva
+description: Create AI-powered on-brand social posts, presentations and flyers
+icon: canva
+request_quota:
+  mode: shadow
+  workers: [canva]
+  queries_per_minute: 60
+  burst: 10
+cli:
+  binary: canva
+  skill: canva
+  service: canva
+actions:
+  read:
+    default: allow
+    label: Read Canva designs and libraries
+    methods:
+      content.read:
+        label: Read designs and assets
+        approval_phrase: read designs and assets in Canva
+      help.read:
+        label: Read Canva help answers
+        approval_phrase: look up answers in Canva Help
+      brand.read:
+        label: Read brand templates and kits
+        approval_phrase: read brand templates and kits in Canva
+      comments.read:
+        label: Read comments
+        approval_phrase: read comments in Canva
+      folders.read:
+        label: Read folders
+        approval_phrase: read folders in Canva
+      designs.export:
+        default: ask
+        label: Export designs
+        approval_phrase: export designs from Canva
+  write:
+    default: ask
+    label: Create and modify Canva content
+    methods:
+      designs.manage:
+        label: Create and edit designs
+        approval_phrase: create or edit designs in Canva
+      images.manage:
+        label: Generate and edit images
+        approval_phrase: generate or edit images in Canva
+      brand.manage:
+        label: Create and publish brand templates
+        approval_phrase: create or publish organization brand templates in Canva
+      content.import:
+        label: Import assets and designs
+        approval_phrase: upload or import content into Canva
+      comments.write:
+        label: Post comments and replies
+        approval_phrase: post comments or replies in Canva
+      folders.manage:
+        label: Create folders and organize content
+        approval_phrase: create folders or organize content in Canva
+  delete:
+    default: ask
+    label: Delete Canva content
+    methods:
+      designs.pages.delete:
+        label: Delete design pages
+        approval_phrase: permanently delete pages from a Canva design
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  search-designs: content.read
+  get-design-content: content.read
+  get-design-pages: content.read
+  list-tools: content.read
+  upload-file: content.import
+  # The CLI classifies each allowlisted MCP tool at runtime. Keep the manifest
+  # default pessimistic so an unknown or newly added tool cannot skip approval.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Canva"
+      text: "Muse will access things like designs, your saved brand elements, uploaded assets, and exports."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Canva. To learn more, view their [terms](https://www.canva.com/policies/terms-of-use/) and [privacy policy](https://www.canva.com/policies/privacy-policy/)."

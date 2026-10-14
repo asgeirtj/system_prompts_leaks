@@ -1,0 +1,12 @@
+name: ghl
+schema: oauth
+mode: direct_oauth
+hosts:
+  - services.leadconnectorhq.com
+token_proxy:
+  - field: credentials.access_token
+    placement: bearer_header
+stripped:
+  - credentials.refresh_token
+token_refresh:
+  - path: /mcp/muse/token

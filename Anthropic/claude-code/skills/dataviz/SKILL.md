@@ -1,5 +1,5 @@
 ---
-name: Data Visualization
+name: dataviz
 description: >
   Use this skill whenever you are about to create ANY chart, graph, plot,
   dashboard, or data visualization, in ANY output medium — an HTML or React

@@ -1,0 +1,81 @@
+version: 1
+connector: stripe
+category: business
+display_name: Stripe
+description: Manage payments, customers and subscriptions
+icon: connectorStripe
+request_quota:
+  mode: shadow
+  workers: [stripe]
+  queries_per_minute: 50
+  burst: 10
+cli:
+  binary: stripe
+  skill: stripe
+  service: stripe
+actions:
+  read:
+    default: allow
+    label: Read Stripe data
+    methods:
+      api.discover:
+        label: Inspect Stripe API capabilities
+        approval_phrase: inspect available Stripe API capabilities
+      data.read:
+        label: Read Stripe data
+        approval_phrase: read data from Stripe
+      account.read:
+        label: Read account information
+        approval_phrase: read Stripe account information
+      analytics.read:
+        label: Analyze Stripe data
+        approval_phrase: analyze Stripe data
+      balances.read:
+        label: Read balances
+        approval_phrase: read balances in Stripe
+      documentation.read:
+        label: Search Stripe guidance
+        approval_phrase: search Stripe documentation and implementation guidance
+      invoices.preview:
+        label: Preview invoices
+        approval_phrase: preview invoices in Stripe
+  write:
+    default: ask
+    label: Change Stripe data
+    methods:
+      data.modify:
+        label: Create or update Stripe data
+        approval_phrase: create or update data in Stripe
+      feedback.send:
+        label: Send feedback to Stripe
+        approval_phrase: send feedback to Stripe
+  delete:
+    default: ask
+    label: Delete Stripe data
+    methods:
+      data.delete:
+        label: Delete or cancel Stripe data
+        approval_phrase: delete or cancel data in Stripe
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  list-tools: api.discover
+  # Each reviewed provider tool selects its own method at runtime.
+  call-tool: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Stripe"
+      text: "Muse will access things like customer info, payments, subscriptions and invoices."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Stripe. To learn more, view their [terms](https://stripe.com/legal/ssa) and [privacy policy](https://stripe.com/privacy)."

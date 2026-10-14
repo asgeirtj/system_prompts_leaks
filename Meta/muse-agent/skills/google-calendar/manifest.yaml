@@ -1,0 +1,137 @@
+version: 1
+connector: google_calendar
+category: productivity
+display_name: Google Calendar
+description: Manage calendar events and scheduling
+request_quota:
+  mode: enforce
+  workers:
+    - hatch-gws-cli-fully-isolated
+  queries_per_minute: 60
+  burst: 20
+cli:
+  binary: hatch_gws_cli
+  skill: google_calendar
+  service: calendar
+declarable_scopes:
+  - https://www.googleapis.com/auth/calendar.readonly
+  - https://www.googleapis.com/auth/calendar
+# A freeBusy query returns the start/end of every event in the window — the
+# complete timing skeleton of the schedule "Access events" governs — so it is
+# an event-schedule DATA CLASS emitter. While "Access events" is deny/ask,
+# Sentinel attaches an exclusion constraint to allowed free_busy.query calls
+# and the trusted hatch_gws_cli worker refuses them (freeBusy has no partial
+# projection to filter: its entire response is the class).
+data_classes:
+  event_schedule:
+    governed_by: events.list
+    emitted_by:
+      - free_busy.query
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      events.list:
+        label: Access events
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar.readonly
+          - https://www.googleapis.com/auth/calendar
+      calendar_list.list:
+        label: Access calendars
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar.readonly
+          - https://www.googleapis.com/auth/calendar
+      free_busy.query:
+        label: Check availability
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar.readonly
+          - https://www.googleapis.com/auth/calendar
+      acl.list:
+        label: Access calendar sharing
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+  write:
+    default: ask
+    label: Write and delete permissions
+    methods:
+      events.insert:
+        default: allow
+        label: Create events
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+      events.insert_with_invitations:
+        label: Create events with invitations
+        approval_phrase: create this event with invitations in Google Calendar
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+      events.patch:
+        default: allow
+        label: Update events
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+      events.update_with_notifications:
+        label: Update events and notify guests
+        approval_phrase: update this event and notify guests in Google Calendar
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+      events.delete:
+        default: allow
+        label: Delete events
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+      calendars.manage:
+        label: Create, delete and share calendars
+        requires_scopes:
+          - https://www.googleapis.com/auth/calendar
+commands:
+  status: null
+  disconnect: null
+  "+agenda": events.list
+  "+insert": events.insert
+  events.update: events.patch
+  acl.get: acl.list
+  acl.delete: calendars.manage
+  acl.insert: calendars.manage
+  acl.patch: calendars.manage
+  acl.update: calendars.manage
+  acl.watch: calendars.manage
+  calendar_list.delete: calendars.manage
+  calendar_list.insert: calendars.manage
+  calendar_list.patch: calendars.manage
+  calendar_list.update: calendars.manage
+  calendar_list.watch: calendars.manage
+  calendars.clear: calendars.manage
+  calendars.delete: calendars.manage
+  calendars.get: calendar_list.list
+  calendars.insert: calendars.manage
+  calendars.patch: calendars.manage
+  calendars.transfer_ownership: calendars.manage
+  calendars.update: calendars.manage
+  calendar_list.get: calendar_list.list
+  channels.stop: calendars.manage
+  colors.get: calendar_list.list
+  events.get: events.list
+  events.import: events.insert
+  events.instances: events.list
+  events.move: events.patch
+  events.quick_add: events.insert
+  events.watch: calendars.manage
+  settings.get: calendar_list.list
+  settings.list: calendar_list.list
+  settings.watch: calendars.manage
+
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Google Calendar"
+      text: "Muse will access things like calendar events, attendees and meeting locations."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  footer_paragraphs:
+    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - "Muse will exchange info with Google Calendar. To learn more, view their [terms](https://policies.google.com/terms) and [privacy policy](https://policies.google.com/privacy)."

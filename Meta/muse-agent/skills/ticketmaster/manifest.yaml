@@ -1,0 +1,13 @@
+version: 1
+connector: ticketmaster
+display_name: Ticketmaster
+description: Search live events and get ticket listings, prices, and seat views.
+actions:
+  read:
+    default: allow
+    label: Read permissions
+    methods:
+      events.read:
+        label: Access event details
+      tickets.read:
+        label: Access ticket listings

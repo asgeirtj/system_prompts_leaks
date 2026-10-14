@@ -417,7 +417,7 @@ Strategy types: `clear_tool_uses_20250919` (clears old tool results; optional `c
 
 Availability: `shared/platform-availability.md`. For agents on Bedrock / Vertex / Foundry (where Managed Agents is unsupported), use Claude API + tool use.
 
-**Mandatory flow:** Agent (once) -> Session (every run). `model`/`system`/`tools` live on the agent, never the session. See `shared/managed-agents-overview.md` for the full reading guide, beta headers, and pitfalls.
+**Mandatory flow:** Agent (once) -> Session (every run). `model`/`system`/`tools` live on the agent. See `shared/managed-agents-overview.md` for the full reading guide, beta headers, and pitfalls.
 
 **Beta headers:** `managed-agents-2026-04-01` - the SDK sets this automatically for all `client.beta.{agents,environments,sessions,vaults,deployments,deployment_runs}.*` calls. Memory stores use `agent-memory-2026-07-22` instead, which the SDK sets on `client.beta.memory_stores.*` calls; sending both headers on a memory store request returns a 400. Files API and Skills API are out of beta - no beta header needed (see the API Drift table above for the migration guides).
 
@@ -626,3 +626,5 @@ Live documentation URLs are in `shared/live-sources.md`.
 - **Eval / hillclimb work has dedicated guides:** If the user says "hillclimb", "improve my eval score", "iterate on my prompt against an eval", or "build me an eval" - load `shared/evals/eval-hillclimb.md` or `shared/evals/build-eval.md` rather than improvising. The bundled HTML report builder is `shared/evals/report/build-report.mjs` when it is on disk (EAP install), else `shared/evals/report/build-report-lite.mjs` (always extracted with this skill); don't write a parallel one.
 - **Code execution output block type:** `code_execution_20260521` returns `bash_code_execution_tool_result` (with `.content.stdout`), **not** the legacy bare `code_execution_tool_result`. Iterate `response.content` and match on the correct type.
 - **Tool search: never defer everything.** The search tool itself must not have `defer_loading: true`, and at least one tool in `tools` must be non-deferred, or the API returns 400 `All tools have defer_loading set`.
+
+No project language was auto-detected. Ask the user which language they are using (see Language Detection above), then Read the matching `{lang}/claude-api/README.md` (or `curl/examples.md` for cURL/raw HTTP or an unsupported language) from the base directory before anything else.

@@ -13,7 +13,7 @@ Every session references a pre-created `/v1/agents` object. Create the agent onc
 | 1 | `POST /v1/agents` - `model`, `system`, `tools`, `mcp_servers`, `skills` live here | **ONCE.** Store `agent.id` **and** `agent.version`. |
 | 2 | `POST /v1/sessions` - `agent: "agent_abc123"` or `{type: "agent", id, version}` | **Every run.** String shorthand uses latest version. |
 
-If you're about to write `sessions.create()` with `model`, `system`, or `tools` on the session body - **stop**. Those fields live on `agents.create()`. The session takes a *pointer* only.
+If you're about to pass `model`, `system`, or `tools` to `sessions.create()` as top-level fields - **stop**. They are fields of `agents.create()`. To change them for one session, see `shared/managed-agents-core.md` § Override agent configuration for a session.
 
 **When generating code, separate setup from runtime.** `agents.create()` belongs in a setup script (or a guarded `if agent_id is None:` block), not at the top of the hot path. If the user's code calls `agents.create()` on every invocation, they're accumulating orphaned agents and paying the create latency for nothing. The correct shape is: define the agent as a version-controlled file and sync it with `ant apply`, which records the ID in `claude-lock.json` (see `shared/anthropic-cli.md`) - or use a guarded setup script that persists the returned ID (config file, env var, secrets manager) - and have every run load the ID and call `sessions.create()`.
 
@@ -68,7 +68,7 @@ Managed Agents is in beta. The SDK sets required beta headers automatically:
 
 ## Common Pitfalls
 
-- **Agent FIRST, then session - NO EXCEPTIONS** - the session's `agent` field accepts **only** a string ID or `{type: "agent", id, version}`. `model`, `system`, `tools`, `mcp_servers`, `skills` are **top-level fields on `POST /v1/agents`**, never on `sessions.create()`. If the user hasn't created an agent, that is step zero of every example.
+- **Agent FIRST, then session - NO EXCEPTIONS** - a session requires the ID of an agent that already exists. `model`, `system`, `tools`, `mcp_servers`, `skills` are **top-level fields on `POST /v1/agents`**. If the user hasn't created an agent, that is step zero of every example.
 - **Agent ONCE, not every run** - `agents.create()` is a setup step. Store the returned `agent_id` and reuse it; don't call `agents.create()` at the top of your hot path. If the agent's config needs to change, `POST /v1/agents/{id}` - each update creates a new version, and sessions can pin to a specific version for reproducibility.
 - **MCP auth goes through vaults** - the agent's `mcp_servers` array declares `{type, name, url}` only (no auth). Credentials live in vaults (`client.beta.vaults.credentials.create`) and attach to sessions via `vault_ids`. Anthropic auto-refreshes OAuth tokens using the stored refresh token. Vaults also hold `environment_variable` credentials for non-MCP services (CLIs, SDKs, direct API calls) - substituted at egress, never visible in the sandbox.
 - **Reconcile resources before the first run** - a session with a clear ask but a missing tool, credential, data mount, or context will discover the gap mid-run, then flail and give up. Before creating the session, check that every action in the task maps to a configured tool/MCP server, every MCP server has a vault credential, and every referenced file/host is mounted/reachable. When helping a user set one up, run the reconciliation in `shared/managed-agents-onboarding.md` -> §4 silent viability gate.

@@ -10,7 +10,7 @@ Creating a session requires an `environment_id`. Environments are **reusable con
 
 | Network Policy   | Description                                                   |
 | ---------------- | ------------------------------------------------------------- |
-| `unrestricted`   | Full egress (except legal blocklist)                          |
+| `unrestricted`   | Full egress (except for a general safety blocklist)           |
 | `limited`        | Deny-by-default; opt in via `allowed_hosts` / `allow_package_managers` / `allow_mcp_servers` |
 
 ```json
@@ -24,7 +24,7 @@ Creating a session requires an `environment_id`. Environments are **reusable con
 }
 ```
 
-All three `limited` fields are optional. `allow_package_managers` (default `false`) permits PyPI/npm/etc.; `allow_mcp_servers` (default `false`) permits the agent's configured MCP server endpoints without listing them in `allowed_hosts`.
+All three `limited` fields are optional. `allow_package_managers` (default `false`) permits PyPI/npm/etc.; `allow_mcp_servers` (default `false`) permits the agent's configured MCP server endpoints without listing them in `allowed_hosts`. In `allowed_hosts`, a bare hostname matches that exact host: `example.com` does not match `www.example.com`. `*.example.com` matches every subdomain of `example.com`, but not `example.com` itself.
 
 **MCP caveat:** Under `limited` networking, either set `allow_mcp_servers: true` or add each MCP server domain to `allowed_hosts`. Otherwise creating a session for an agent that declares those servers fails with a 400 naming the blocked hosts.
 

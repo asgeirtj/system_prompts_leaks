@@ -36,7 +36,7 @@ Full detail per knob: `shared/managed-agents-tools.md` (toolset, MCP, custom too
 Usually zero or one question:
 
 - **Reuse or create?** Environments are shared across agents - check for an existing one first.
-- **Networking** - always set it explicitly rather than relying on the API default. Prefer `limited` and allow only what the job needs: `allow_package_managers: true` if it installs packages, and `allow_mcp_servers: true` (or every MCP server domain in `allowed_hosts`) if the agent declares MCP servers - otherwise session creation fails with a 400 naming the blocked hosts. Use `unrestricted` only when the agent must reach hosts you can't list in advance.
+- **Networking** - always set it explicitly rather than relying on the API default. Prefer `limited` and allow only what the job needs: `allow_package_managers: true` if it installs packages, and `allow_mcp_servers: true` (or every MCP server domain in `allowed_hosts`) if the agent declares MCP servers - otherwise session creation fails with a 400 naming the blocked hosts. If `web_search` or `web_fetch` is enabled, list the sites it must reach in `allowed_hosts`: when `allowed_hosts` lists no hosts, those tools return no page or search result. Use `unrestricted` only when the agent must reach hosts you can't list in advance.
 - **Suggest `self_hosted`** when the signals are there: tools must run on their own infra, secrets can't leave it, or they need binaries/data the cloud container won't have (`shared/managed-agents-self-hosted-sandboxes.md`; on Claude Platform on AWS the worker authenticates with IAM instead of an environment key and sessions there can't attach memory stores). Otherwise `cloud` - don't raise it unprompted for simple jobs.
 
 ## 4. Session - auth, then test run

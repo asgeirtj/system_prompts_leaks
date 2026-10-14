@@ -43,7 +43,7 @@ print(environment.id)  # env_...
 
 ## Create an Agent (required first step)
 
-> Warning: **There is no inline agent config.** `model`/`system`/`tools` live on the agent object, not the session. Always start with `agents.create()` - the session only takes `agent={"type": "agent", "id": agent.id}`.
+> Warning: **A session needs an agent that already exists.** `model`/`system`/`tools` are set on the agent object; a session can override them for that session only, with the `agent_with_overrides` form of `agent` (`shared/managed-agents-core.md` § Override agent configuration for a session). Always start with `agents.create()` - the session takes `agent=agent.id` or `agent={"type": "agent", "id": agent.id, "version": agent.version}`.
 
 ### Minimal
 

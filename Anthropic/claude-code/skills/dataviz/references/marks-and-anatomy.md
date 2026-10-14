@@ -1,6 +1,6 @@
 # Marks & anatomy
 
-The quiet, considered look is a few fixed specs plus two pieces of negative space.
+The quiet, considered look is a few fixed specs plus two pieces of negative space.  
 The data is the only thing allowed to be loud.
 
 ## Mark specs (fixed across every chart)
@@ -50,7 +50,7 @@ one swatch restates the title and costs space.
   segment to "solve" it - that crops the first/last characters and is worse than no
   label. Text never overflows or is clipped by its own mark.
 - Bars -> value at the tip. Columns -> value on the cap. Lines -> value at the end.
-- Y-axis ticks: round to clean numbers (0 / 1,000 / 2,000), thousands-comma'd; they
+- Y-axis ticks: round to clean numbers, compact from 1,000 up (0 / 1K / 2K); they
   carry the values you didn't directly label, so keep them unless every value is labeled.
 - **Text never wears the data color.** Marks - bars, lines, dots, area fills - carry
   the series color; labels, values, legends, and axis text use **text tokens**

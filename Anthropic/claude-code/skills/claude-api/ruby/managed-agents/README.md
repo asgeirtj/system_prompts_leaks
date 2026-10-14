@@ -43,7 +43,7 @@ puts "Environment ID: #{environment.id}" # env_...
 
 ## Create an Agent (required first step)
 
-> Warning: **There is no inline agent config.** `model`/`system_`/`tools` live on the agent object, not the session. Always start with `client.beta.agents.create()` - the session takes either `agent: agent.id` or the typed hash form `agent: {type: "agent", id: agent.id, version: agent.version}`.
+> Warning: **A session needs an agent that already exists.** `model`/`system_`/`tools` are set on the agent object; a session can override them for that session only, with the `agent_with_overrides` form of `agent` (`shared/managed-agents-core.md` § Override agent configuration for a session). Always start with `client.beta.agents.create()` - the session takes `agent: agent.id` or the typed hash form `agent: {type: "agent", id: agent.id, version: agent.version}`.
 
 ### Minimal
 

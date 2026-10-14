@@ -1,6 +1,6 @@
 # Anthropic CLI (`ant`)
 
-The `ant` CLI exposes every Claude API resource as a shell subcommand. Compared to `curl`: request bodies are built from typed flags or piped YAML instead of hand-written JSON, `@path` inlines file contents into any string field, `--transform` extracts fields with a GJSON path (no `jq`), list endpoints auto-paginate (cap total results with `--max-items N`; `--limit` only sets the server page size), and the `beta:` prefix auto-sets the right `anthropic-beta` header.
+The `ant` CLI exposes every Claude API resource as a shell subcommand. Compared to `curl`: request bodies are built from typed flags or piped YAML instead of hand-written JSON, `@path` inlines file contents into piped bodies and structured flag values, `--transform` extracts fields with a GJSON path (no `jq`), list endpoints auto-paginate (cap total results with `--max-items N`; `--limit` only sets the server page size), and the `beta:` prefix auto-sets the right `anthropic-beta` header.
 
 ## When to use the CLI vs the SDK
 
@@ -146,10 +146,12 @@ tools:
 YAML
 ```
 
-**`@file` references** - inline a file's contents into any string-valued field. Inside structured flag values, quote the path. Binary files are auto-base64'd; force with `@file://` (text) or `@data://` (base64). Escape a literal leading `@` as `\@`.
+**`@file` references** - in a piped body or a structured flag value, a string that starts with `@` is replaced by the contents of the file it names (quote it: `system: "@./prompt.txt"`). Binary files are auto-base64'd; force with `@file://` (text) or `@data://` (base64). In those two places, write a literal leading `@` as `\@`, unquoted or in single quotes. On plain scalar flags `@path` is not reliable: some, such as `--system` on `beta:agents` and `--content` on `beta:memory-stores:memories`, send it as written. To load a file into one of those fields, set the field in a piped body instead:
 
 ```sh
-ant beta:agents create --name "Researcher" --model '{id: claude-sonnet-5-5}' --system @./prompts/researcher.txt
+ant beta:agents create --name "Researcher" --model '{id: claude-sonnet-5-5}' <<'YAML'
+system: "@./prompts/researcher.txt"
+YAML
 
 ant messages create --model claude-opus-5-5 --max-tokens 1024 \
   --message '{role: user, content: [

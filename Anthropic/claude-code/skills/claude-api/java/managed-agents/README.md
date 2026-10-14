@@ -47,7 +47,7 @@ System.out.println("Environment ID: " + environment.id()); // env_...
 
 ## Create an Agent (required first step)
 
-> Warning: **There is no inline agent config.** Model, system, and tools live on the agent object, not the session. Always start with `client.beta().agents().create()` - the session takes either `.agent(agent.id())` or the typed `BetaManagedAgentsAgentParams.builder()...build()`.
+> Warning: **A session needs an agent that already exists.** Model, system, and tools are set on the agent object; a session can override them for that session only, with the `agent_with_overrides` form of `agent` (`shared/managed-agents-core.md` § Override agent configuration for a session). Always start with `client.beta().agents().create()` - the session takes `.agent(agent.id())` or the typed `BetaManagedAgentsAgentParams.builder()...build()`.
 
 ### Minimal
 

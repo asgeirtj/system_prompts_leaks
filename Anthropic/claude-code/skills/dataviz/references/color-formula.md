@@ -16,9 +16,9 @@ system's ramps.
 | **Status** | state (good->critical) | a small fixed scale, reserved meaning, always icon+label |
 
 **Categorical or ordinal?** If swapping the category order would change the
-meaning - funnel stages, size tiers (S/M/L), age bands, cohort buckets - it is
+meaning - funnel stages, size tiers (S/M/L), age bands, cohort buckets - it is  
 **ordinal** and takes a one-hue ramp so the reader sees the order in the color.
-If swapping would not - product names, teams, regions, endpoints - it is
+If swapping would not - product names, teams, regions, endpoints - it is  
 **nominal categorical** and each bar takes the *same* slot-1 hue (one series,
 so no legend box - the title names it), or slots 1..N when there are N separate
 series. Never color nominal bars by their value: that spends the identity channel
@@ -63,7 +63,7 @@ Every categorical color - current or proposed - must pass all six.
 
 ```
 node scripts/validate_palette.js \
-  "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
+  "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#6250d6,#e34948" --mode light
 ```
 
 (`scripts/` is relative to this skill's base directory, shown at the top of the prompt.)
@@ -77,7 +77,7 @@ relief - still exit 0 and require secondary encoding); exit 1 on any FAIL,
 including a normal-vision floor below 15, which is a hard gate. Run once per mode
 (`--mode dark --surface "#1a1a19"`), and add
 `--pairs all` for scatter / bubble / map / small-multiples charts (where any two marks
-can be neighbors - the default adjacent check would hide a collapse). For an
+can be neighbors - the default adjacent check would hide a collapse). For an  
 **ordinal** ramp pass `--ordinal` - it switches to the ramp checks (monotone L,
 adjacent delta L >= 0.06, light-end contrast >= 2.0:1, single hue) instead of the
 categorical six.

@@ -150,6 +150,8 @@ if (s?.status !== 'running') {
 } // else: still running after 2s - don't archive, let it settle or escalate
 ```
 
+While a workflow run is open, the status is not enough: an archive or a delete might return a 400 even when the session is `idle`, and an archive that succeeds ends the run. Before either, ask the agent to stop its runs, or wait until each run has ended (`shared/managed-agents-multiagent.md` § While a run is open).
+
 ---
 
 ## 7. Stream-first, then send

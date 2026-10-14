@@ -50,7 +50,7 @@ All resources are under the `beta` namespace. Python and TypeScript share identi
 
 ## Agents
 
-**Step one of every flow.** Sessions require a pre-created agent - there is no inline agent config under `managed-agents-2026-04-01`.
+**Step one of every flow.** Sessions require a pre-created agent.
 
 | Method   | Path                                             | Operation        | Description                              |
 | -------- | ------------------------------------------------ | ---------------- | ---------------------------------------- |
@@ -230,7 +230,7 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
 
 ### CreateAgent Request Body
 
-**Always start here.** `model`, `system`, `tools`, `mcp_servers`, `skills` are top-level fields on this object - they do NOT go on the session.
+**Always start here.** `model`, `system`, `tools`, `mcp_servers`, `skills` are top-level fields on this object.
 
 ```json
 {

@@ -37,7 +37,7 @@ All resources are under the `beta` namespace. Python and TypeScript share identi
 | Memory Versions | `memory_stores.memory_versions.list` / `retrieve` / `redact` | `MemoryStores.MemoryVersions.List` / `Get` / `Redact` |
 
 **Naming quirks to watch for:**
-- Agents and Session Threads have **no delete** - only `archive`. Archive is **permanent**: the agent becomes read-only, new sessions cannot reference it, and there is no unarchive. Confirm with the user before archiving a production agent. Environments, Sessions, Vaults, Credentials, and Memory Stores have both `delete` and `archive`; Session Resources, Files, Skills, and Memories are `delete`-only; Memory Versions have neither - only `redact`.
+- Agents and Session Threads have **no delete** - only `archive`. Archive is **permanent**: the agent becomes read-only, new sessions cannot reference it, and there is no unarchive. Environments, Sessions, Vaults, Credentials, and Memory Stores have both `delete` and `archive`; Session Resources, Files, Skills, and Memories are `delete`-only; Memory Versions have neither - only `redact`.
 - Session resources use `add` (not `create`).
 - Go's event stream is `StreamEvents` (not `Stream`).
 - The self-hosted worker class is `EnvironmentWorker` from `anthropic.lib.environments` / `@anthropic-ai/sdk/helpers/beta/environments` / `anthropic-sdk-go/lib/environments`; `client.beta.environments.work.worker(...)` is a factory that returns the same class, alongside the `environments.work.poller/stats/stop` client methods.
@@ -273,7 +273,7 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
 }
 ```
 
-> Limits: `tools` max 128, `skills` max 20, `mcp_servers` max 20 (unique names). `multiagent.agents` 1-20 entries (string ID | `{type:"agent",id,version?}` | `{type:"self"}` | `{type:"advisor",model}`, at most one advisor) - see `shared/managed-agents-multiagent.md`. `multiagent` can instead be `{type:"multiagent_20261001", workflows?, subagents?, advisor?}`, each member `{type:"enabled"}` or `{type:"disabled"}`; enabled `workflows` and `subagents` each take optional `predefined_agents` (up to 20, same entry forms minus advisor) and `inline_agents` (`{type:"enabled"}` or `{type:"disabled"}`, default enabled; disabled with an empty list is a 400), enabled `advisor` requires `model`; `workflows` and `subagents` default to enabled, `advisor` to disabled (§ Dynamic workflows).
+> Limits: `tools` max 256, `skills` max 500, `mcp_servers` max 20 (unique names). `multiagent.agents` 1-20 entries (string ID | `{type:"agent",id,version?}` | `{type:"self"}` | `{type:"advisor",model}`, at most one advisor) - see `shared/managed-agents-multiagent.md`. `multiagent` can instead be `{type:"multiagent_20261001", workflows?, subagents?, advisor?}`, each member `{type:"enabled"}` or `{type:"disabled"}`; enabled `workflows` and `subagents` each take optional `predefined_agents` (up to 20, same entry forms minus advisor) and `inline_agents` (`{type:"enabled"}` or `{type:"disabled"}`, default enabled; disabled with an empty list is a 400), enabled `advisor` requires `model`; `workflows` and `subagents` default to enabled, `advisor` to disabled (§ Dynamic workflows).
 
 ### CreateSession Request Body
 

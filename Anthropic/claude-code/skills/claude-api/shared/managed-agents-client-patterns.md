@@ -136,7 +136,7 @@ for await (const event of stream) {
 
 The SSE stream emits `session.status_idle` slightly before the session's queryable status reflects it. Clients that break on idle and immediately call `sessions.delete()` or `sessions.archive()` will intermittently 400 with "cannot delete/archive while running."
 
-Poll before cleanup:
+If the user asked you to delete or archive the session, poll first:
 
 ```ts
 let s
@@ -184,7 +184,7 @@ const session = await client.beta.sessions.create({
 // session.resources[0].file_id !== uploaded.id  <- different IDs
 ```
 
-Delete the original via `files.delete(uploaded.id)`; the session-scoped copy is garbage-collected with the session. `mount_path` must be absolute - see `shared/managed-agents-environments.md`.
+The original stays until you delete it (`files.delete(uploaded.id)`); the session-scoped copy is garbage-collected with the session. `mount_path` must be absolute - see `shared/managed-agents-environments.md`.
 
 ---
 

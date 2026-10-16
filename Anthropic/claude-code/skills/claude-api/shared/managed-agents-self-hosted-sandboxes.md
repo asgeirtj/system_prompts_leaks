@@ -249,6 +249,8 @@ For example, sync every 10 s and only *log* would-be deletes: Python `Environmen
 
 ## Monitoring & control
 
+**Tracing tool calls (OpenTelemetry, beta).** The API emits no tool spans for tools your sandbox runs; the SDK environment worker (Python, TypeScript, Go) emits them in its own process under one `anthropic.environment.work` span per work item, once a tracer provider is registered there and the sandbox can reach your backend. Setup and span attributes: `shared/opentelemetry.md` -> Tracing a Managed Agents self-hosted sandbox.
+
 These are **control-plane** calls - authenticate with `x-api-key` (not the environment key); `managed-agents-2026-04-01` beta header. **Call them from outside the worker host** - setting `ANTHROPIC_API_KEY` on the worker host exposes an organization-scoped credential to agent tool calls.
 
 | SDK (`client.beta.environments.work.*`) | REST | CLI | Returns |

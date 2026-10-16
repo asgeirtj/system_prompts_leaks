@@ -53,6 +53,18 @@ This file contains WebFetch URLs for fetching current information from platform.
 | Claude Platform on AWS | `https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws.md` | "Extract the AnthropicAWS client per language, SigV4 auth, credential precedence, short-term API keys, workspace_id, and region requirements" |
 | Claude Platform on AWS - IAM actions | `https://platform.claude.com/docs/en/api/claude-platform-on-aws-iam-actions.md` | "Extract the IAM action names, resource ARNs, and policy examples required for each API capability" |
 
+### OpenTelemetry
+
+| Topic | URL | Extraction Prompt |
+| --- | --- | --- |
+| OpenTelemetry overview | `https://platform.claude.com/docs/en/manage-claude/opentelemetry.md` | "Extract SDK vs API tracing coverage, content modes and limits, example traces, and token counting rules" |
+| SDK tracing | `https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk.md` | "Extract the install command for my language, tracer provider setup, SDK options and environment variables" |
+| API tracing | `https://platform.claude.com/docs/en/manage-claude/opentelemetry/api.md` | "Extract how to add a destination through the Admin API or the Console, workspace selection, traceparent propagation, delivery rules, limits and delivery errors" |
+| Telemetry destinations API reference | `https://platform.claude.com/docs/en/api/beta/organization/telemetry_destinations.md` | "Extract the create, list, update and delete requests for telemetry destinations and their workspaces, every request field, and the response fields including state and delivery_health" |
+| Span reference | `https://platform.claude.com/docs/en/api/opentelemetry/spans.md` | "Extract span names, parents and children, and the attributes of the span I ask about" |
+
+If a fetch fails, use `shared/opentelemetry.md`.
+
 ### Admin API (Organization Management)
 
 | Topic | URL | Extraction Prompt |

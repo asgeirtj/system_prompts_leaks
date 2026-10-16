@@ -218,7 +218,7 @@ Sheet1!D7   '=D5/0'        -> '#DIV/0!'  <-- ERROR DIVIDE_BY_ZERO
 errors: 1
 ```
 
-Add `--errors-only` to list only the error cells. Add `sheets.data.rowData.values.userEnteredFormat` to the fields when you need to read formatting, and keep the range tight: grid reads grow fast.
+Add `--errors-only` to list only the error cells. Add `sheets.data.rowData.values.userEnteredFormat` to the fields when you need to read formatting, and keep the range tight: grid reads grow fast. `get_values` shows only a link's label. For the URL, add `sheets.data.rowData.values.hyperlink` to the fields and read it from the JSON, since `cells` doesn't print it. A cell with several links has no `hyperlink`; read `textFormatRuns` for those.
 
 ## Write values and formulas
 

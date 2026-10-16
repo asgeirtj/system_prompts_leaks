@@ -49,9 +49,9 @@ Example: "I can create the sheet now. If you want changes later, turn on the Goo
 
 ## 3. Drive, for all three apps
 
-- **Find a file:** use Drive search when the user names a file without a link. Confirm the match with the user if more than one file fits.
+- **Find a file:** use Drive search when the user names a file without a link. Confirm the match with the user if more than one file fits. A page can be short even when more files match (5 files at page size 20) and can repeat the previous page's last file, so follow the next-page token until none comes back, and drop repeated ids.
 - **Create:** `create_file` with `contentMimeType` set to `application/vnd.google-apps.document`, `.spreadsheet`, or `.presentation` creates an empty file. Uploading content with a source type (HTML, CSV, .xlsx, .pptx) converts it into the matching Google type. Each reference says which route fits that app.
-- **Read as text:** `read_file_content` returns a compact text rendering: Markdown for a Doc. It is a few KB where the editor connector's full read can be over 100 KB, so use it to understand content, then use the editor read when you need positions.
+- **Read as text:** `read_file_content` returns a compact text rendering: Markdown for a Doc. It is a few KB where the editor connector's full read can be over 100 KB, so use it to understand content, then use the editor read when you need positions. For a Doc, pass `includeComments: true`; without it, emoji come out garbled and the end of the text is cut off. For a Sheet, read the data with `get_values`: Drive returns only a sample (the first rows, long values cut).
 - **Export:** `download_file_content` with `exportMimeType: "application/pdf"` returns the rendered file as base64. It is large (about 65 KB of text for a four-slide deck), so export only for a visual check, and only where you can run code.
 
 ## 4. Helper scripts
@@ -77,7 +77,7 @@ Every script prints `--help` with its full usage. Each reference shows the comma
 | Permission denied on a file you created | The file is in the trash | Ask the user to restore it from Drive's trash. You can't restore it with the connectors. |
 | 400: required revision ID does not match | The file changed after your read: your own previous write, or someone else editing | Read again, rebuild the requests from the new read, and send them with the new revision. For Sheets, send them without `writeControl`. |
 | A whole batch failed on one bad request | Batches are atomic | Fix the named request and resend the full batch. Nothing from the failed call was applied. |
-| A read is too large or cut off | Unmasked editor reads include everything | Use Drive `read_file_content`, a field mask, a range, or a single tab. Run the helper on a saved result. |
+| A read is too large or cut off | Unmasked editor reads include everything | Use Drive `read_file_content` (not for a Sheet), a field mask, a range, or a single tab. Run the helper on a saved result. |
 | Two files where the user expected one | An edit was done by creating a new file | Make changes in place with the editor connector. Tell the user about the extra file; don't trash it without asking. |
 
 Each reference ends with the failures specific to that app.
@@ -87,7 +87,7 @@ Each reference ends with the failures specific to that app.
 When a request runs into one of these, say so plainly and do the alternative. *Reported*: seen through the connectors or in their tool schemas. *Untested*: not yet checked.
 
 - **Claude can't see the user's screen.** No connector shows what the user has selected, or which file, tab or slide they have open. If "this" or "here" isn't clear from the chat, ask which file, heading, slide number or cell range they mean. *Reported.*
-- **Comments:** `read_doc` has returned no comments even with `commentsIncluded: true`. To read comments, use Drive `read_file_content` with `includeComments: true`, or ask the user to paste them. `update_doc` has accepted `insertComment` in one report, although its description is cut before listing it; if that request fails, say you can't add comments and offer to list your notes in the reply. *Reported.*
+- **Comments:** `read_doc` with `commentsIncluded: true` has returned each comment with its place in the text. If the result shows `COMMENTS_VIEW_MODE_OMITTED` instead, use Drive `read_file_content` with `includeComments: true`, or ask the user to paste them. `update_doc` has accepted `insertComment` in one report, although its description is cut before listing it; if that request fails, say you can't add comments and offer to list your notes in the reply. *Reported.*
 - **Suggestion mode can be refused** with "Unsupported WriteControl mode". Never make direct edits in its place: offer to list the proposed changes or to edit directly (see `references/docs.md`). *Reported.*
 - **Request lists are cut short.** The `update_doc`, `update_spreadsheet` and `update_presentation` descriptions stop partway through their request lists. Requests missing from the description, such as `addDocumentTab` and `addChart`, have still worked, so try one before deciding it isn't supported. *Reported.*
 - **Uploads travel inside the call.** `create_file` takes the whole file as text or base64, so an .xlsx or .pptx upload is slow and often fails. Build in the file with the editor connectors where you can, and keep uploads small. *Reported.*

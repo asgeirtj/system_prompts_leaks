@@ -179,9 +179,9 @@ An outcome-driven session is therefore a single call - pass one `user.define_out
 | `name`        | string   | **Yes**  | Human-readable name (1-256 chars)              |
 | `model`       | string or object | **Yes** | Claude model ID (bare string, or an object taking `id`, `speed`, `effort`, and `inference_geo`). All Claude 4.5+ models supported. See § Effort on the agent model and § Pinning inference geography below. |
 | `system`      | string   | No       | System prompt - defines the agent's behavior (up to 100K chars) |
-| `tools`       | array    | No       | Encompasses three kinds: (1) pre-built Claude Agent tools (`agent_toolset_20260401`), (2) MCP tools (`mcp_toolset`), and (3) custom client-side tools. Max 128. |
+| `tools`       | array    | No       | Encompasses three kinds: (1) pre-built Claude Agent tools (`agent_toolset_20260401`), (2) MCP tools (`mcp_toolset`), and (3) custom client-side tools. Max 256. |
 | `mcp_servers` | array    | No       | MCP server connections - standardized third-party capabilities (e.g. GitHub, Asana). Max 20, unique names. See `shared/managed-agents-tools.md` -> MCP Servers. |
-| `skills`      | array    | No       | Customized "best-practices" context with progressive disclosure. Max 20. See `shared/managed-agents-tools.md` -> Skills. |
+| `skills`      | array    | No       | Customized "best-practices" context with progressive disclosure. Max 500. See `shared/managed-agents-tools.md` -> Skills. |
 | `description` | string   | No       | Description of the agent (up to 2048 chars)    |
 | `multiagent`  | object   | No       | `{type: "coordinator", agents: [...]}` - roster this agent may delegate to. See `shared/managed-agents-multiagent.md`. |
 | `metadata`    | object   | No       | Arbitrary key-value pairs (max 16, keys <=64 chars, values <=512 chars) |
@@ -231,7 +231,7 @@ The API is **flat** - `model`, `system`, `tools` etc. are top-level fields, not 
 | `system`           | string   | No       | System prompt                                      |
 | `tools`            | array    | No       | Agent toolset / MCP toolset / custom tools         |
 | `mcp_servers`      | array    | No       | MCP server connections                             |
-| `skills`           | array    | No       | Skill references (max 20)                          |
+| `skills`           | array    | No       | Skill references (max 500)                         |
 | `description`      | string   | No       | Description of the agent                           |
 | `multiagent`       | object   | No       | Coordinator roster - see `shared/managed-agents-multiagent.md` |
 | `metadata`         | object   | No       | Arbitrary key-value pairs                          |
@@ -304,7 +304,7 @@ Each `POST /v1/agents/{id}` (update) creates a new immutable version - a sequent
 | Update           | `POST`   | `/v1/agents/{id}`                     |
 | Archive          | `POST`   | `/v1/agents/{id}/archive`             |
 
-> Warning: **Archive is permanent.** Archiving makes the agent read-only: existing sessions continue to run, but **new sessions cannot reference it**, and there is no unarchive. Since agents have no `delete`, this is the terminal lifecycle state. Never archive a production agent as routine cleanup - confirm with the user first.
+> Warning: **Archive is permanent.** Archiving makes the agent read-only: existing sessions continue to run, but **new sessions cannot reference it**, and there is no unarchive. Since agents have no `delete`, this is the terminal lifecycle state. Never archive a production agent as routine cleanup.
 
 ### Using an Agent in a Session
 

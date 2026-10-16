@@ -44,13 +44,15 @@ reply is not needed and the replay stays cheap), and stream off unless --stream.
 other spelling of the mismatch-behavior field found under block_binding in a capture is removed so
 that only the documented name is sent. A request with no thinking configuration is sent with {type: adaptive} (on models with preserved thinking
 that is what the API runs anyway, and the thinking configuration is outside the compared prefix); a request
-with {type: enabled} or {type: between_tools} is rewritten to adaptive for the same reason; thinking disabled is SKIPPED. On every
+with {type: enabled}, {type: between_tools} or {type: disabled} is rewritten to adaptive for the same reason (the check
+still covers thinking already in the history when a request turns thinking off). On every
 request that declares tools the probe sets tool_choice to none (outside the compared prefix) so that no
 tool -- server-side or the harness's own -- can run during a replay; it never removes tools from the
 capture, because the tool set IS compared. temperature is set to 1 and top_p / top_k are removed (a
 thinking request rejects them). Every such change is printed as a "shaped:" note. Nothing is sent without
 --yes. --count-tokens replays against /v1/messages/count_tokens, which runs the same conversation check
-for free (a 400 in --mode error is the break signal; no input_transformations on a 200).
+for free (a 400 in --mode error is the break signal; no input_transformations on a 200, so drops that are
+not errors -- a model switch, another account's blocks -- do not show there).
 
 Status words per turn: BREAK (a prefix-check drop or rejection), ok (replayed thinking, nothing dropped),
 none (the request replayed no thinking block, so it could not fail), model (only model-check drops: a
@@ -78,8 +80,8 @@ header, or a surface without the controls). So is a 200 carrying a thinking_mism
 entry: the probe sets thinking.block_binding on every replay and a request that sets the field
 never receives one, so the field was stripped on the way (a gateway or proxy rebuilding the
 body) and the check ran record-only. So is a 200 whose only drops are organization_binding_mismatch:
-another account produced those blocks, so they were dropped before the prefix check (the usual
-cause is a replay key from a different account). Exit status: 0 clean, 1 inconclusive or errors,
+another account produced those blocks, so they were dropped before the prefix check (a replay key
+from a different account, or a harness that moves one conversation between accounts). Exit status: 0 clean, 1 inconclusive or errors,
 2 breaks found. --json is validated before the first request and written after every request, so
 a bad path costs nothing and a crash loses nothing.
 
@@ -305,8 +307,6 @@ def prepare(body, mode, model=None, stream=False, max_tokens=16):
         # and the thinking configuration is outside the compared prefix, so adding it changes no verdict.
         th = {"type": "adaptive"}
         notes.append("no thinking configuration in the capture: sent with {type: adaptive} (outside the compared prefix)")
-    if th.get("type") == "disabled":
-        return None, "thinking is disabled in this request; nothing to check", notes
     bb = th.get("block_binding")
     if th.get("type") == "enabled":
         # The budget form is rejected by models that only take adaptive thinking; adaptive is accepted everywhere the
@@ -318,6 +318,12 @@ def prepare(body, mode, model=None, stream=False, max_tokens=16):
         # configuration is outside the compared prefix, so the replay goes out as adaptive.
         th = {"type": "adaptive"}
         notes.append("thinking {type: between_tools} rewritten to {type: adaptive} (block_binding is a 400 with between_tools; outside the compared prefix)")
+    if th.get("type") == "disabled":
+        # The check still covers the thinking blocks already in the history when the request turns thinking off,
+        # and block_binding is a 400 with this type too, so the replay goes out as adaptive. A request that replays
+        # no thinking block is skipped by the caller, whatever its thinking type.
+        th = {"type": "adaptive"}
+        notes.append("thinking {type: disabled} rewritten to {type: adaptive} (block_binding is a 400 with disabled; outside the compared prefix)")
     if not isinstance(bb, dict):
         bb = {}
     removed = [k for k in bb if k != "prefix_mismatch_behavior"]
@@ -682,7 +688,7 @@ def run_conversation(cid, reqs, args, api_key, betas, sink=None, flush=None):
         allowed_entries = [t for t in transformations if t.get("type") == ALLOWED_ENTRY["type"]]
         # An organization_binding_mismatch drop means another account produced the block. It is removed before
         # the prefix check judges it, so a turn with only these measured nothing: reading it as clean would be
-        # a false pass (the usual cause is a replay key from a different account than the capture's).
+        # a false pass (a replay key from another account than the capture's, or a harness that switches accounts).
         account_drops = [t for t in transformations if t.get("type") == DROPPED_ENTRY["type"] and t.get("reason") == "organization_binding_mismatch"]
         other_drops = [t for t in transformations if t not in prefix_drops and t not in model_drops and t not in allowed_entries and t not in account_drops]
         keys = {}
@@ -732,8 +738,10 @@ def run_conversation(cid, reqs, args, api_key, betas, sink=None, flush=None):
                                     " record-only; run --self-test through the same path"))
             elif other_account:
                 unevaluated.append((turn, status, "200 with organization_binding_mismatch drops: another account produced"
-                                    " those blocks, so they were dropped before the prefix check; replay with a key from"
-                                    " the account that made the capture, or one linked to it"))
+                                    " those blocks, so they were dropped before the prefix check. If the replay key is from"
+                                    " a different account than the capture, replay with a key from that account, or one"
+                                    " linked to it; if the harness itself moves a conversation between accounts, that is"
+                                    " the finding"))
             else:
                 unevaluated.append((turn, status, (shareable_error(status, msg, error_text, False) or "")[:120]))
         is_break = bool(prefix_drops) or bool(rejected)
@@ -827,8 +835,9 @@ def print_turn(r, full_error=None):
               " record-only -- not evaluated")
     if r.get("account_drops"):
         print("           organization_binding_mismatch: another account produced those blocks, so they were dropped"
-              " before the prefix check -- replay with a key from the account that made the capture, or one linked"
-              " to it%s" % ("" if r.get("evaluated") else " -- not evaluated"))
+              " before the prefix check -- if the replay key is from a different account than the capture, replay with"
+              " a key from that account, or one linked to it; if the harness itself moves a conversation between"
+              " accounts, that is the finding%s" % ("" if r.get("evaluated") else " -- not evaluated"))
 
 
 def print_summary(summaries):
@@ -863,7 +872,7 @@ def print_summary(summaries):
             len(unevald), ", ".join("HTTP %s x%d" % (k, v) if k is not None else "network error x%d" % v for k, v in by.items()),
             len(summaries) - n))
     if nothing_sent:
-        print("!! %d conversation(s) had no request to send (every request was skipped: thinking disabled, or no replayed thinking) -- inconclusive, left out of the share" % len(nothing_sent))
+        print("!! %d conversation(s) had no request to send (every request was skipped: no replayed thinking) -- inconclusive, left out of the share" % len(nothing_sent))
     if never_replayed:
         print("!! %d conversation(s) never replayed a thinking block -- a clean result on those proves nothing about binding" % never_replayed)
 

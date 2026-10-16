@@ -278,14 +278,10 @@ some events carry useful metadata beyond the status change itself:
 }
 ```
 
-### Archive
+### Archive and delete
 
-When done with a session, archive it to free resources:
+Leave sessions in place after a run: they're the user's debugging record in the Console session viewer. Archive (`client.beta.sessions.archive(sessionId)`: read-only, no unarchive) or delete (`client.beta.sessions.delete(sessionId)`: permanent) only when the user explicitly asks.
 
-```ts
-await client.beta.sessions.archive(sessionId);
-```
-
-> Archiving a **session** is routine cleanup - sessions are per-run and disposable. **Do not generalize this to agents or environments**: those are persistent, reusable resources, and archiving them is permanent (no unarchive; new sessions cannot reference them). See `shared/managed-agents-overview.md` -> Common Pitfalls.
+> Archiving an agent or environment is permanent too, and new sessions can't reference it. See `shared/managed-agents-overview.md` -> Common Pitfalls.
 
 

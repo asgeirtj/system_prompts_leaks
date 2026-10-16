@@ -36,6 +36,8 @@ Columns: **1P** = first-party Claude API, **P-AWS** = Claude Platform on AWS (An
 | &nbsp;&nbsp;MCP connector | beta | beta | No | No | beta | |
 | &nbsp;&nbsp;Managed Agents | beta | beta | No | No | No | Foundry: No (inferred; not in Foundry docs either way) |
 | &nbsp;&nbsp;Self-hosted sandboxes | beta | beta | No | No | No | P-AWS: worker authenticates with IAM/SigV4 or an AWS-Console API key + `AnthropicSelfHostedEnvironmentAccess` (Console environment keys don't work there); sessions on self-hosted environments cannot attach memory stores; `GET /v1/environments/{id}/work` list endpoint not supported, other work endpoints OK |
+| OpenTelemetry tracing - SDK spans | beta | beta | beta | beta | beta | Emitted in the application by the SDKs (`shared/opentelemetry.md`) |
+| OpenTelemetry tracing - API spans (destinations) | beta | beta | No | No | No | Destinations are added through the Admin API or the Console (on P-AWS, through Amazon's gateway with SigV4 and IAM, or the Console); Messages API and Managed Agents (`shared/opentelemetry.md`) |
 | **API endpoints** | | | | | | |
 | &nbsp;&nbsp;Message Batches | Yes | Yes | No | No | No | |
 | &nbsp;&nbsp;Files API | Yes | Yes | No | No | beta | Foundry: Hosted on Anthropic deployments only - Hosted on Azure returns a 400 |

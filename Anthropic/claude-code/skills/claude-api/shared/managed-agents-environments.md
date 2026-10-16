@@ -4,8 +4,6 @@
 
 Creating a session requires an `environment_id`. Environments are **reusable configuration templates** for spinning up containers in Anthropic's infrastructure - you might create different environments for different use cases (e.g. data visualization vs web development, with different package sets). Anthropic handles scaling, container lifecycle, and work orchestration.
 
-**Environment names must be unique.** Creating an environment with an existing name returns 409.
-
 ### Networking
 
 | Network Policy   | Description                                                   |

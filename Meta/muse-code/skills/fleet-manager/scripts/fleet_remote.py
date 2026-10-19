@@ -232,7 +232,7 @@ def snapshot_agents(socket_path: str) -> tuple[list[dict], dict]:
 def ssh_control(target: str, *args: str, timeout: float | None = None, control_path: str | None = None) -> subprocess.CompletedProcess:
     control = ["-o", f"ControlPath={control_path}"] if control_path else []
     return subprocess.run(
-        [SSH, "-o", "BatchMode=yes", *control, "-O", *args, target],
+        [SSH, "-o", "BatchMode=yes", *control, "-O", *args, "--", target],
         capture_output=True,
         text=True,
         timeout=timeout or SSH_TIMEOUT_S,
@@ -353,7 +353,7 @@ def ssh_argv(machine: dict | None, *args: str) -> list[str]:
     control = control_path_for(machine) if machine and machine.get("target") else None
     if control:
         argv += ["-o", f"ControlPath={control}"]
-    return argv + list(args)
+    return argv + ["--"] + list(args)
 
 
 def run_local(argv: list[str], *, timeout: float, stdin_text: str | None = None) -> RemoteResult:

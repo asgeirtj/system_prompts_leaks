@@ -46,6 +46,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 |------|------|------|
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
+| **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
-| **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
 
 ---
 ## Anthropic — Claude
@@ -282,7 +282,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
-| GLM | [GLM serves no system prompt — verified & documented](GLM/README.md) |
+| **ZCode Desktop (GLM-5.3)** | [**ZCode Desktop system prompt and tools**](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
 
 ## Notion AI
 

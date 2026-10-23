@@ -1,1 +1,0 @@
-The GLM models via chat.z.ai have no system prompt. The GLM models also get no system prompt injected behind the scenes via the API.

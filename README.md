@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
 | **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
-| **GPT-6-Sol Codex** | September 27, 2026 | [GPT-6-Sol Codex system prompt](OpenAI/Codex/gpt-6-sol.md) |
 
 ---
 ## Anthropic — Claude
@@ -107,6 +107,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Claude Dashboards | [Dashboard type skill](Anthropic/artifact-types/dashboard/SKILL.md) · [references](Anthropic/artifact-types/dashboard/artifact-type/reference) |
 | Claude Design (canvas) | [Design type skill](Anthropic/artifact-types/design/SKILL.md) · [references](Anthropic/artifact-types/design/artifact-type/reference) |
 | Claude Docs | [Docs type skill](Anthropic/artifact-types/docs/SKILL.md) |
+| Claude Motion | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | Design System | [Design System type skill](Anthropic/artifact-types/design-system/SKILL.md) · [references](Anthropic/artifact-types/design-system/artifact-type/reference) |
 
 ### Claude integrations

@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
@@ -52,7 +53,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
 | **Meta Muse agent (VM files)** | October 3, 2026 | [Muse agent system prompt](Meta/muse-agent/workspace/system/system_prompt.md) · [all VM files](Meta/muse-agent/) |
 | **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
-| **Fable 5.1 Claude Code on the web (cloud)** | September 30, 2026 | [Claude Code on the web system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
 | **Sonnet 5.5 Claude Code** | September 29, 2026 | [Claude Code system prompt (Sonnet 5.5)](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
@@ -246,7 +246,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
-| **Perplexity** | [**Perplexity AI system prompt**](Perplexity/perplexity-ai.md) |
+| **Perplexity** | [**Perplexity search system prompt**](Perplexity/perplexity-search.md) · [no-search mode](Perplexity/perplexity-no-search.md) |
 | **Perplexity Computer** | [**Perplexity Computer system prompt**](Perplexity/perplexity-computer.md) |
 | **Deep Research** | [**Perplexity Deep Research system prompt**](Perplexity/deep-research.md) |
 | Comet Browser | [Comet browser assistant system prompt](Perplexity/comet-browser-assistant.md) |

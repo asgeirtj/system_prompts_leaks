@@ -50,3 +50,7 @@ Anthropic's published constitution, the document describing Claude's values and 
 |---------|-----------|------|
 | v2 | January 20, 2026 | [claude-constitution-v2.md](claude-constitution/2026-01-20-claude-constitution-v2.md) |
 | v1 | May 9, 2023 | [claude-constitution-v1.md](claude-constitution/2023-05-09-claude-constitution-v1.md) |
+
+## Usage Policy
+
+Every version of Anthropic's Usage Policy (Acceptable Use Policy), text only so versions diff cleanly. Index in [anthropic-usage-policies/README.md](anthropic-usage-policies/README.md).

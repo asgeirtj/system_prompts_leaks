@@ -4,6 +4,8 @@ description: Push a React design system to claude.ai/design. This runs a convert
 disable-model-invocation: true
 ---
 
+Before anything else, tell the user this, as written: "Standalone Claude Design (claude.ai/design) closes by December 14, 2026. Claude Design now lives in Claude." Then carry on.
+
 # Sync a design system to claude.ai/design
 
 ## What this is for

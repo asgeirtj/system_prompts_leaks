@@ -9,7 +9,9 @@ import { createServer } from 'node:http';
 import { extname, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
+// Without a charset, chromium decodes pages and the scripts they load as
+// windows-1252, so raw UTF-8 in a bundle turns into a SyntaxError.
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 
 export function serveDir(root) {
   const rootAbs = resolve(root) + sep;
@@ -21,7 +23,7 @@ export function serveDir(root) {
     } catch { res.statusCode = 400; return res.end(); }
     // 200 on / so a caller can goto('/') to establish a same-origin page
     // before setContent() (-> fonts load same-origin, no CORS header needed).
-    if (pathname === '/') { res.setHeader('Content-Type', 'text/html'); return res.end('<!doctype html>'); }
+    if (pathname === '/') { res.setHeader('Content-Type', MIME['.html']); return res.end('<!doctype html>'); }
     if (!p.startsWith(rootAbs) || !existsSync(p) || !statSync(p).isFile()) { res.statusCode = 404; return res.end(); }
     res.setHeader('Content-Type', MIME[extname(p)] ?? 'application/octet-stream');
     res.end(readFileSync(p));

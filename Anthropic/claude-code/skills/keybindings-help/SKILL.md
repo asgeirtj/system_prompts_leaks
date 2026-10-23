@@ -260,8 +260,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `footer:dismiss` | (none) | Footer |
 | `abovePrompt:toggle` | `ctrl+x ctrl+a` | Chat |
 | `abovePrompt:focus` | `ctrl+x tab` | Chat |
-| `abovePrompt:next` | `tab`, `right`, `tab`, `down`, `tab`, `tab` | AbovePrompt |
-| `abovePrompt:previous` | `shift+tab`, `left`, `shift+tab`, `up`, `shift+tab`, `shift+tab` | AbovePrompt |
+| `abovePrompt:next` | `tab`, `right`, `tab`, `tab`, `tab` | AbovePrompt |
+| `abovePrompt:previous` | `shift+tab`, `left`, `shift+tab`, `shift+tab`, `shift+tab` | AbovePrompt |
 | `abovePrompt:press` | `enter`, `space`, `enter`, `enter`, `enter` | AbovePrompt |
 | `abovePrompt:leave` | `escape`, `escape`, `escape`, `escape` | AbovePrompt |
 | `abovePrompt:highlightNext` | `down` | AbovePromptSelect |
@@ -307,6 +307,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `settings:retry` | `r` | Settings |
 | `settings:periodDay` | `d` | Settings |
 | `settings:periodWeek` | `w` | Settings |
+| `settings:fixUsage` | `f` | Settings |
 | `settings:sortByTokens` | `t` | Settings |
 | `voice:pushToTalk` | `space` | Chat |
 | `scroll:pageUp` | `pageup`, `pageup` | Scroll |

@@ -13,6 +13,41 @@
  * this artifact's document store, on a page that declared `db`): then
  * `use("mcp")` resolves whatever the connector manifest's state — none
  * declared, or declared but not granted to this viewer.
+ *
+ * Claude Docs (connector `"Claude Docs"`, manifest entry `{server:
+ * "Claude Docs", tools: ["batch"]}`): a page can create a NEW document
+ * owned by the VIEWER. Beyond that, and `export` when this artifact is
+ * itself a Doc (see `self_only`), it cannot read, edit, share, list or
+ * search their documents. Send these members and no others:
+ *
+ *     callTool("Claude Docs", "batch", {container: {kind: "project",
+ *       create: {name, doc: {markdown}}}, batch: []})
+ *
+ * `name`, the title: 1-200 code points, none of them `\p{Cc}`, `\p{Cf}`,
+ * `\p{Zl}` or `\p{Zp}` (so no line break or tab) except U+200C and
+ * U+200D. `markdown`: not empty, under 32 KB as UTF-8 bytes (not
+ * `.length`); Docs refuses an image, footnote or TeX math in it. Check
+ * the `name` and the size first: outside those limits, with an extra
+ * member, or for a Claude Docs tool the manifest declares other than
+ * `batch` and `export`, the call rejects `self_only`. claude.ai asks
+ * the viewer to allow this artifact's first create. A decline is not
+ * kept (a later call asks again); an allow is kept: later creates run
+ * without asking, whether or not the viewer wanted one. Only your page's
+ * code can check that: call only when the viewer clicks a control that
+ * says it creates a new document, once per click, never on load or a
+ * timer. Outcomes (other codes: as below):
+ * - resolves: `payload` includes `created: true` and may include `url`;
+ *   link to `url` if set.
+ * - `approval_required`: declined, or this view cannot ask. Keep the
+ *   control; say creating the document needs the viewer's approval, and
+ *   that claude.ai asks for it when the artifact is open there.
+ * - `tool_error` whose `result?.structuredContent` is `{created: false,
+ *   reason}`: nothing was created. Say so and show `reason`, a code such
+ *   as `unsupported_construct` (an image, footnote or TeX math); do not
+ *   show `message`, it is JSON.
+ * - other `tool_error`, `server_unavailable`, `upstream_error`: the
+ *   document may exist. Say so and suggest checking Claude Docs; call
+ *   again only on a new click, whatever `retryable` says.
  */
 
 declare namespace Claude {
@@ -181,12 +216,31 @@ declare namespace Claude {
      *   in a loop.
      * - `blocked_by_policy` — tool is in the manifest but org policy blocks
      *   it for this viewer.
-     * - `approval_required` — org policy requires per-call approval for
-     *   this tool and none was given; per-call approval is not yet
-     *   supported in artifacts. Not retryable without viewer action;
-     *   render a "needs approval" degraded state. (Older runtimes
-     *   degrade this code to `upstream_error` per the unknown-code
-     *   rule.)
+     * - `self_only` — the artifacts connector and Claude Docs work from a
+     *   page only on the page's own artifact: `get_artifact` and
+     *   `publish_version` naming this artifact (a page that also reads
+     *   other artifacts' data or project files cannot republish itself),
+     *   and Claude Docs `export` when this artifact is a Doc. One
+     *   exception, for any page: the Claude Docs create form at the top
+     *   of this file. Anything else on these two connectors is refused
+     *   for every viewer. Permanent for that call, a page bug: remove or
+     *   correct it. Claude in a conversation can still use these
+     *   connectors. The artifacts connector is the viewer's connector to
+     *   artifacts on Claude, the one with `get_artifact` and
+     *   `publish_version`; it is not one of Claude's own servers for this
+     *   artifact, such as `artifacts_data`.
+     * - `approval_required` — this call needs the viewer's approval and
+     *   none was given. The shell asks only while a page's own
+     *   `callTool` waits; on Allow that call resolves as usual. A watch
+     *   never asks, however it is refreshed: its handler gets this
+     *   code, as does a call whose ask the viewer declines, leaves
+     *   unanswered or is not shown. Not retryable without viewer
+     *   action: render a "needs approval" degraded state with a button
+     *   that makes the same call once with `callTool`, and render that
+     *   result. Keep the watch and the button: the watch's next refetch
+     *   delivers if the Allow covers later calls, never if each call
+     *   needs its own. (Older runtimes degrade this code to
+     *   `upstream_error` per the unknown-code rule.)
      * - `tool_error` — the tool ran but reported failure. The call
      *   REJECTS with this code; the full envelope rides the rejection's
      *   `result`. (Tool failures no longer resolve with an `isError`
@@ -265,6 +319,7 @@ declare namespace Claude {
       | "server_unavailable"
       | "not_in_manifest"
       | "blocked_by_policy"
+      | "self_only"
       | "approval_required"
       | "tool_error"
       | "bad_request"
@@ -488,11 +543,15 @@ declare namespace Claude {
         | false
         | {
             /** Serve-without-execution window. Default 0; capped at
-             * 300000 ms (5 min) — the cap bounds how long revoked
-             * access keeps answering. */
+             * 604800000 ms (7 days; 5 min on an older shell, and for a
+             * connector the viewer chose among several with the same
+             * name) — the cap bounds how long revoked access keeps
+             * answering. Needs a `gcTime` at least as long. */
             staleTime?: number;
             /** Entry lifetime. Default 300000 ms (5 min); capped at
-             * 86400000 (24 h); zero/negative disables caching. */
+             * 604800000 (7 days; 24 h on an older shell, and for a
+             * connector the viewer chose among several with the same
+             * name); zero/negative disables caching. */
             gcTime?: number;
             /** Skip the cache read: execute upstream, overwrite the
              * entry ("invalidate then call" in one flag). Failed
@@ -682,11 +741,20 @@ declare namespace Claude {
     function server(name: string): Promise<ServerHandle>;
 
     /**
-     * One tool's description and JSON Schemas. Answered for Claude's own
-     * artifact servers; a connector name rejects `bad_request`, and an
-     * older shell rejects an artifact server's too (`bad_request`, or
-     * `capability_disabled` with no connector bridge) — treat any
-     * rejection as "no schema available".
+     * One tool's description and JSON Schemas: `inputSchema` names the
+     * members of the tool's `input`; `outputSchema`, when the server
+     * declares one, the shape of the call's `payload` (many connectors
+     * declare none). Answered for Claude's own artifact servers, and for
+     * a connector tool in the manifest once the viewer has allowed that
+     * connector for this page — the first {@link callTool} asks, or the
+     * page asks with `permissions.request(["mcp:<server>"])`; describing
+     * never asks. Rejects `not_in_manifest` for a connector tool outside
+     * the manifest or not yet allowed, `server_not_connected` when no
+     * server by that name is reachable from this view (`needs_reauth`
+     * when the viewer must reconnect it), and `bad_request` when no
+     * schema is available (an older shell or platform, a `host:` server,
+     * a tool the connector no longer lists) — treat any rejection as "no
+     * schema available".
      */
     function describeTool(
       server: string,

@@ -142,29 +142,45 @@ Try to explain to the model why things are important in lieu of heavy-handed mus
 
 After writing the skill draft, come up with 2-3 realistic test prompts — the kind of thing a real user would actually say. Share them with the user: [you don't have to use this exact language] "Here are a few test cases I'd like to try. Do these look right, or do you want to add more?" Then run them.
 
-Save test cases to `evals/evals.json`. Don't write assertions yet — just the prompts. You'll draft assertions in the next step while the runs are in progress.
+Save each test case as its own folder under `evals/` in the skill directory. Don't write assertions yet — just the prompts. You'll draft assertions in the next step while the runs are in progress.
 
-```json
-{
-  "skill_name": "example-skill",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "User's task prompt",
-      "expected_output": "Description of expected result",
-      "files": []
-    }
-  ]
-}
+```
+my-skill/
+├── SKILL.md
+└── evals/
+    └── flags-negative-quantity/   # the case name: lowercase-with-hyphens, says what's being tested
+        ├── prompt.md              # run settings, then the user's task prompt
+        ├── case.yaml              # the name, and what a good result looks like
+        ├── graders/               # one file per assertion; a placeholder until Step 2
+        └── files/                 # input files, only if the test needs any
 ```
 
-See `references/schemas.md` for the full schema (including the `assertions` field, which you'll add later).
+Before you write the first one, read the "Test cases" section of `references/schemas.md` and copy its templates, because the format is strict. These are plain files that you write and read yourself, so this works the same everywhere, with no extra tooling. The layout is the one `claude plugin eval` reads, so a user who has Claude Code can later run the very same tests from a terminal or in CI.
+
+**If the skill already has an `evals/evals.json`** (the older format), its tests still count: run them together with the case folders, as one set. The file belongs to the user, so never edit, convert or delete it unless they ask; anything new or changed goes in a case folder. The "evals.json" section of `references/schemas.md` says how the two sets combine.
 
 ## Running and evaluating test cases
 
 This section is one continuous sequence — don't stop partway through. Do NOT use `/skill-test` or any other testing skill.
 
-Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory (`eval-0/`, `eval-1/`, etc.). Don't create all of this upfront — just create directories as you go.
+Put results in `<skill-name>-workspace/` as a sibling to the skill directory. Within the workspace, organize results by iteration (`iteration-1/`, `iteration-2/`, etc.) and within that, each test case gets a directory with its case name. Keep the same directory names from one iteration to the next, because the viewer matches a run to its previous output and feedback by that path. Don't create all of this upfront — just create directories as you go.
+
+```
+<skill-name>-workspace/
+└── iteration-1/
+    ├── flags-negative-quantity/  # one directory per test case
+    │   ├── eval_metadata.json    # the viewer takes the prompt from here
+    │   ├── with_skill/           # a configuration; with one run, also the run directory
+    │   │   ├── outputs/          # the files the run produced
+    │   │   ├── grading.json
+    │   │   └── timing.json
+    │   └── without_skill/        # the baseline (or old_skill/), with the same contents
+    ├── handles-empty-file/
+    ├── benchmark.json
+    └── benchmark.md
+```
+
+Keep to this layout, because the viewer and the aggregation script both read it. A run directory is the one that holds a run's `outputs/`, `grading.json` and `timing.json`. If you run a configuration more than once, give each run its own inside it (`with_skill/run-1/`, `with_skill/run-2/`, ...); `eval_metadata.json` stays where it is.
 
 ### Step 1: Spawn all runs (with-skill AND baseline) in the same turn
 
@@ -176,8 +192,8 @@ For each test case, spawn two subagents in the same turn — one with the skill,
 Execute this task:
 - Skill path: <path-to-skill>
 - Task: <eval prompt>
-- Input files: <eval files if any, or "none">
-- Save outputs to: <workspace>/iteration-<N>/eval-<ID>/with_skill/outputs/
+- Input files: <full paths of the test's input files, or "none">
+- Save outputs to: <workspace>/iteration-<N>/<case-name>/with_skill/outputs/
 - Outputs to save: <what the user cares about — e.g., "the .docx file", "the final CSV">
 ```
 
@@ -185,24 +201,29 @@ Execute this task:
 - **Creating a new skill**: no skill at all. Same prompt, no skill path, save to `without_skill/outputs/`.
 - **Improving an existing skill**: the old version. Before editing, snapshot the skill (`cp -r <skill-path> <workspace>/skill-snapshot/`), then point the baseline subagent at the snapshot. Save to `old_skill/outputs/`.
 
-Write an `eval_metadata.json` for each test case (assertions can be empty for now). Give each eval a descriptive name based on what it's testing — not just "eval-0". Use this name for the directory too. If this iteration uses new or modified eval prompts, create these files for each new eval directory — don't assume they carry over from previous iterations.
+Write an `eval_metadata.json` for each test case (assertions can be empty for now), directly in the test case's directory, beside `with_skill/`. The viewer and the benchmark never look inside the skill's `evals/` folder: this file is where they get the prompt from, and without it the viewer shows "(No prompt found)". Write it afresh for every test case in every iteration — don't assume it carries over from previous iterations.
 
 ```json
 {
-  "eval_id": 0,
-  "eval_name": "descriptive-name-here",
+  "eval_name": "flags-negative-quantity",
   "prompt": "The user's task prompt",
   "assertions": []
 }
 ```
 
+`eval_name` is the case name, `prompt` is the test's prompt without the settings block, and `assertions` lists its assertions (never the placeholder grader).
+
 ### Step 2: While runs are in progress, draft assertions
 
-Don't just wait for the runs to finish — you can use this time productively. Draft quantitative assertions for each test case and explain them to the user. If assertions already exist in `evals/evals.json`, review them and explain what they check.
+Don't just wait for the runs to finish — you can use this time productively. Draft quantitative assertions for each test case and explain them to the user. If a test already has assertions (files in its `graders/` folder other than the placeholder, or `expectations` / `assertions` in an old `evals/evals.json`), review them and explain what they check.
 
 Good assertions are objectively verifiable and have descriptive names — they should read clearly in the benchmark viewer so someone glancing at the results immediately understands what each one checks. Subjective skills (writing style, design quality) are better evaluated qualitatively — don't force assertions onto things that need human judgment.
 
-Update the `eval_metadata.json` files and `evals/evals.json` with the assertions once drafted. Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.
+Once drafted, save each assertion as its own file in the case's `graders/` folder, delete the placeholder, and put the same sentences in the `assertions` list of that test's `eval_metadata.json`. Word each assertion about the result itself ("summary.md states a total revenue of 693.5"), not about where this workflow saves it ("…in the outputs folder"), so that it also holds under `claude plugin eval`.
+
+For a test you're leaving to human judgment, keep the placeholder. It is only there so that `claude plugin eval` can load the case, so it isn't graded here.
+
+Also explain to the user what they'll see in the viewer — both the qualitative outputs and the quantitative benchmark.
 
 ### Step 3: As runs complete, capture timing data
 
@@ -229,6 +250,7 @@ Once all runs are done:
    python -m scripts.aggregate_benchmark <workspace>/iteration-N --skill-name <name>
    ```
    This produces `benchmark.json` and `benchmark.md` with pass_rate, time, and tokens for each configuration, with mean ± stddev and the delta. If generating benchmark.json manually, see `references/schemas.md` for the exact schema the viewer expects.
+
 Put each with_skill version before its baseline counterpart.
 
 3. **Do an analyst pass** — read the benchmark data and surface patterns the aggregate stats might hide. See `agents/analyzer.md` (the "Analyzing Benchmark Results" section) for what to look for — things like assertions that always pass regardless of skill (non-discriminating), high-variance evals (possibly flaky), and time/token tradeoffs.
@@ -271,9 +293,9 @@ When the user tells you they're done, read `feedback.json`:
 ```json
 {
   "reviews": [
-    {"run_id": "eval-0-with_skill", "feedback": "the chart is missing axis labels", "timestamp": "..."},
-    {"run_id": "eval-1-with_skill", "feedback": "", "timestamp": "..."},
-    {"run_id": "eval-2-with_skill", "feedback": "perfect, love this", "timestamp": "..."}
+    {"run_id": "flags-negative-quantity-with_skill", "feedback": "the chart is missing axis labels", "timestamp": "..."},
+    {"run_id": "handles-empty-file-with_skill", "feedback": "", "timestamp": "..."},
+    {"run_id": "csv-summary-2-with_skill", "feedback": "perfect, love this", "timestamp": "..."}
   ],
   "status": "complete"
 }
@@ -465,7 +487,7 @@ The agents/ directory contains instructions for specialized subagents. Read them
 - `agents/analyzer.md` — How to analyze why one version beat another
 
 The references/ directory has additional documentation:
-- `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
+- `references/schemas.md` — File formats: test case folders, the older evals.json, grading.json, etc.
 
 ---
 
@@ -480,6 +502,6 @@ Repeating one more time the core loop here for emphasis:
 - Repeat until you and the user are satisfied
 - Package the final skill and return it to the user.
 
-Please add steps to your TodoList, if you have such a thing, to make sure you don't forget. If you're in Cowork, please specifically put "Create evals JSON and run `eval-viewer/generate_review.py` so human can review test cases" in your TodoList to make sure it happens.
+Please add steps to your TodoList, if you have such a thing, to make sure you don't forget. If you're in Cowork, please specifically put "Create test cases and run `eval-viewer/generate_review.py` so human can review them" in your TodoList to make sure it happens.
 
 Good luck!

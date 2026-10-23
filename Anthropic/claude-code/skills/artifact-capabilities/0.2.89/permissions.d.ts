@@ -1,9 +1,10 @@
 /**
  * The `permissions` capability — read and request this page's capability
- * permissions at runtime. Two verbs: `state` reads (never prompts),
- * `request` asks (at most one batched dialog per call). Obtain the
- * namespace with `await claude.use("permissions")` — `null` means this
- * view cannot run the capability; design for absence.
+ * permissions at runtime. Three verbs: `state` reads (never prompts),
+ * `request` asks (at most one batched dialog per call), `manage` opens
+ * the platform's Permissions panel. Obtain the namespace with
+ * `await claude.use("permissions")` — `null` means this view cannot run
+ * the capability; design for absence.
  *
  * By default every capability asks the viewer lazily, at its first use; a
  * page that prefers the single up-front dialog calls `request` with no
@@ -21,8 +22,10 @@ declare namespace Claude {
      *   needs no standing grant (its own surface confirms each use).
      * - "prompt": available; first use (or `request`) will ask the
      *   viewer.
-     * - "denied": the viewer declined during THIS page load. Resets on
-     *   the next load; `request` will not re-ask this load.
+     * - "denied": the viewer declined during THIS page load, or holds a
+     *   standing refusal for this artifact (lifted from the artifact's
+     *   Permissions menu, not by asking again). `request` will not
+     *   re-ask this load.
      * - "unavailable": not usable and not askable here. Deliberately one
      *   bucket — an undeclared capability and a declared-but-unavailable
      *   one answer identically, so design for absence rather than
@@ -65,6 +68,20 @@ declare namespace Claude {
     function request(
       names?: readonly string[],
     ): Promise<Record<string, PermissionState>>;
+
+    /**
+     * Open the platform's own Permissions panel, the way out of a
+     * "denied" state: there the viewer switches a capability or connector
+     * back on. Call it when the viewer asks for it (a button), never on
+     * load: the platform limits how often a page may open the panel, and
+     * how many times in one page load. Takes no arguments. Resolves with
+     * nothing once the panel is closed, so re-read `state`. Rejects
+     * `unavailable`, one code for every reason, when the panel did not
+     * open: a platform dialog is open, the panel was opened too often, or
+     * the view has no panel (an older platform rejects `upstream_error`).
+     * On a rejection point the viewer to the artifact's Permissions menu.
+     */
+    function manage(): Promise<void>;
   }
 }
 

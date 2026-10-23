@@ -8,25 +8,30 @@ The SDK sets the `managed-agents-2026-04-01` beta header automatically on all `c
 
 ## When to use it - start with `self`, then add cheaper workers
 
-**If the agent's work splits into independent pieces** - several sources to research, many files or records to process, anything shaped like "look into N things, then summarize" - or one piece would fill its context with reading, **use a multiagent session instead of one long single-threaded loop.** Each delegated piece runs in its own thread with a fresh context window, threads run in parallel in the same container, and only each subagent's report comes back, so the coordinator's context stays small. There is no orchestration code to write: the coordinator is given delegation tools automatically and decides when to use them, and your client still creates one session and reads one stream. For work too big to hand out one task at a time (reviewing hundreds of documents, cross-checking many sources), dynamic workflows fit better than a roster - see § Dynamic workflows below.
+**If the agent's work splits into independent pieces** - several sources to research, many files or records to process, anything shaped like "look into N things, then summarize" - or one piece would fill its context with reading, **use a multiagent session instead of one long single-threaded loop.** Each delegated piece runs in its own thread with a fresh context window, threads run in parallel in the same container, and only each subagent's report comes back, so the coordinator's context stays small. There is no orchestration code to write: the coordinator is given delegation tools automatically and decides when to use them, and your client still creates one session and reads one stream. Give every such agent dynamic workflows as well, with a `system` prompt line saying when to start a workflow run: a run handles work with many pieces, such as hundreds of documents, better than a roster - see § Dynamic workflows below.
 
-**Not for one question at a time.** An agent that answers questions or solves problems one at a time (Q&A over documents, a tutoring solver, a support agent) works out each answer itself: no roster of extra solvers, checkers, voters or auditors that redo or grade the same answer, and no client-side second pass - a re-check loop, another session or another model call - that checks it, votes on it or asks for another answer. This holds however strongly the request stresses accuracy; each extra pass multiplies the cost of every answer. A check in your own code that calls no model - such as confirming each cited quote appears word for word in the source - is fine, and so is sending an answer that fails it back to the same session a few times at most. For accuracy, give the agent the documents and tools it needs, tell it in its `system` prompt to check its own work before it replies, and raise its effort above the model's default (`model: {"id": ..., "effort": ...}` - `shared/managed-agents-core.md` § Effort on the agent model). An advisor the agent consults mid-turn (§ Advisor) is a separate choice, not an extra pass. If the user explicitly asks for a checker, build it and say what it adds to the cost of every answer. A roster or a workflow run is for a question whose work splits into independent pieces: if one question needs many sources or files read, delegating that reading is still fine (Step 1), and a question that spans hundreds of documents can use dynamic workflows.
+**Not for one question at a time.** An agent that answers questions or solves problems one at a time (Q&A over documents, a tutoring solver, a support agent) works out each answer itself: no roster of extra solvers, checkers, voters or auditors that redo or grade the same answer, and no client-side second pass - a re-check loop, another session or another model call - that checks it, votes on it or asks for another answer. This holds however strongly the request stresses accuracy; each extra pass multiplies the cost of every answer. A check in your own code that calls no model - such as confirming each cited quote appears word for word in the source - is fine, and so is sending an answer that fails it back to the same session a few times at most. For accuracy, give the agent the documents and tools it needs, tell it in its `system` prompt to check its own work before it replies, and raise its effort above the model's default (`model: {"id": ..., "effort": ...}` - `shared/managed-agents-core.md` § Effort on the agent model). An advisor the agent consults mid-turn (§ Advisor) is a separate choice, not an extra pass. If the user explicitly asks for a checker, build it and say what it adds to the cost of every answer. A roster or a workflow run is for a question whose work splits into independent pieces: if one question needs many sources or files read, delegating that reading to copies of the agent is still fine (Step 1, but with `workflows: {"type": "disabled"}` and without Step 1's run sentence in the `system` prompt). Only a question that spans hundreds of documents keeps workflows on. This exception is for one agent delegating a question's reading to itself: a team of helpers or specialists that the user asks for is a team, with workflows on, even when it works on one item at a time.
 
-**Step 1 - the smallest useful roster is the agent itself.** Add a `multiagent` block whose only entry is `{"type": "self"}`. The coordinator can then hand self-contained sub-tasks to copies of itself - same model, system prompt, and tools, minus the ability to delegate further - and combine what they report. Nothing else changes.
+**Step 1 - the smallest useful roster is the agent itself.** Add a `multiagent` block whose only roster entry is `{"type": "self"}`. The coordinator can then hand self-contained sub-tasks to copies of itself - same model, system prompt, and tools, minus the ability to delegate further - and combine what they report. Workflows stay on, so its `system` prompt also says when to start a workflow run (§ Dynamic workflows).
 
 ```python
 agent = client.beta.agents.create(
     name="Research assistant",
     description="Researches a question end to end. A copy can be spawned to own one well-scoped sub-question.",
     model="claude-opus-5-5",
-    system="You are a research assistant. When a request splits into independent sub-questions, delegate each to a copy of yourself, one self-contained task per copy, then verify and combine their reports.",
+    system="You are a research assistant. When a request splits into independent sub-questions, delegate each to a copy of yourself, one self-contained task per copy, then verify and combine their reports. When a request needs dozens of sources read, start a workflow run that reads them in parallel and combines the findings.",
     tools=[{"type": "agent_toolset_20260401",
             "default_config": {"permission_policy": {"type": "auto"}},
             "configs": [{"name": n, "enabled": True} for n in ("web_fetch", "web_search")]}],  # research needs the web
-    multiagent={"type": "coordinator", "agents": [{"type": "self"}]},  # the only change vs. a single agent
+    multiagent={"type": "multiagent_20261001",
+                "subagents": {"type": "enabled", "predefined_agents": [{"type": "self"}]},
+                "workflows": {"type": "enabled"}},
 )
 
-session = client.beta.sessions.create(agent=agent.id, environment_id=env.id)  # unchanged
+session = client.beta.sessions.create(
+    agent=agent.id, environment_id=env.id,
+    budget={"type": "limit", "max_list_cost": {"amount": "2500", "currency": "USD"}},  # $25.00 cap, runs included
+)
 ```
 
 **Step 2 - move the reading-heavy work to a cheaper model.** Delegated research work is mostly searching, reading, and extracting: many input tokens, little hard reasoning. Create a second agent on a smaller current-generation model (Claude Haiku 5.5, or Claude Sonnet 5.5 when the worker needs more judgment) with a narrow `system` prompt and only the tools it needs, and list it next to `self`. A roster entry is only a reference: the worker runs on its own `model`, `system`, and `tools`, and its tokens are billed at its own model's rates. The large model spends its tokens on planning, checking, and synthesis; the small model does the bulk reading.
@@ -48,11 +53,15 @@ lead = client.beta.agents.create(
     name="Research lead",
     description="Plans and synthesizes research. A copy can be spawned to own one large sub-analysis.",
     model="claude-opus-5-5",
-    system="Plan the work. Delegate each independent, reading-heavy question to Web researcher, one self-contained task per spawn, several in parallel. Keep verification and the final synthesis for yourself; spawn a copy of yourself only for a sub-analysis that needs your full capability.",
+    system="Plan the work. Delegate each independent, reading-heavy question to Web researcher, one self-contained task per spawn, several in parallel. When there are more questions than a few spawns can cover, start a workflow run that gives each to Web researcher. Keep verification and the final synthesis for yourself; spawn a copy of yourself only for a sub-analysis that needs your full capability.",
     tools=[{"type": "agent_toolset_20260401",
             "default_config": {"permission_policy": {"type": "auto"}},
             "configs": [{"name": n, "enabled": True} for n in ("web_fetch", "web_search")]}],  # the lead verifies sources itself
-    multiagent={"type": "coordinator", "agents": [worker.id, {"type": "self"}]},
+    multiagent={"type": "multiagent_20261001",  # reading goes to the cheaper worker, in threads and in runs
+                "subagents": {"type": "enabled", "predefined_agents": [worker.id, {"type": "self"}],
+                              "inline_agents": {"type": "disabled"}},
+                "workflows": {"type": "enabled", "predefined_agents": [worker.id],
+                              "inline_agents": {"type": "disabled"}}},
 )
 ```
 
@@ -79,11 +88,15 @@ lead = client.beta.agents.create(
     name="Engineering lead",
     description="Plans and makes code changes and integrates specialist reports. A copy can be spawned to own one independent change.",
     model="claude-opus-5-5",
-    system="Make the change yourself. Then, in parallel, send the changed paths and invariants to three Concurrency reviewers and the module path and test command to Test writer. Merge and de-duplicate the reviewers' findings, check each against the code before acting on it, fix, and have Test writer re-run. Keep design decisions and the final summary for yourself.",
+    system="Make the change yourself. Then, in parallel, send the changed paths and invariants to three Concurrency reviewers and the module path and test command to Test writer. When the change touches more files than three reviewers can cover, start a workflow run that gives each file to a Concurrency reviewer instead. Merge and de-duplicate the reviewers' findings, check each against the code before acting on it, fix, and have Test writer re-run. Keep design decisions and the final summary for yourself.",
     tools=[{"type": "agent_toolset_20260401",
             "default_config": {"permission_policy": {"type": "auto"}},
             "configs": [{"name": n, "enabled": False} for n in ("web_fetch", "web_search")]}],
-    multiagent={"type": "coordinator", "agents": [reviewer.id, test_writer.id, {"type": "self"}]},
+    multiagent={"type": "multiagent_20261001",  # only the listed agents, no inline ones
+                "subagents": {"type": "enabled", "predefined_agents": [reviewer.id, test_writer.id, {"type": "self"}],
+                              "inline_agents": {"type": "disabled"}},
+                "workflows": {"type": "enabled", "predefined_agents": [reviewer.id],
+                              "inline_agents": {"type": "disabled"}}},
 )
 ```
 
@@ -93,8 +106,8 @@ The same shape fits a pipeline of different specialists: a fast document extract
 - **Write `name` and `description` for the coordinator to read.** The coordinator chooses whom to spawn from each roster entry's name and description (the `self` entry is listed under the coordinator's own name), so say what each agent is good at and what to hand it. Names must be unique across the roster; don't name an agent `self`.
 - **Say how to delegate in the coordinator's `system` prompt** - what to hand off and to whom, how many at once, what to keep for itself, and what is too small to be worth delegating (the *Delegating to subagents* sample prompt in `shared/model-migration.md` is a starting point). Subagents see none of the coordinator's conversation, so each task must carry the paths, constraints, and report format it needs. Spawning returns immediately; the subagent's report arrives in a later coordinator turn.
 - **Web tool domain lists layer, never widen.** A roster agent's `web_search` / `web_fetch` calls are bound by its own `allowed_domains` / `blocked_domains`, by those of every agent that called it, and by the coordinator's current lists (allow-lists intersect, block-lists union). Keep each roster agent's allow-list inside the coordinator's - disjoint lists leave the tool present but every call fails `url_not_allowed`. See `shared/managed-agents-tools.md` § Web search & web fetch settings.
-- **Too big to hand out one task at a time?** For work like reviewing hundreds of documents, cross-checking many sources, or repeating the same step across many items, turn on dynamic workflows (with or without a roster) - see § Dynamic workflows below.
-- **Limits:** 1-20 roster entries (at most one `self`; each rostered agent can be spawned many times), one level of delegation (a roster member must not have its own `multiagent`), and at most 25 child threads per session, idle ones included - archive finished threads if a long session needs more (see *Interrupting and archiving threads* below).
+- **Dynamic workflows on every team.** Workflows are on by default on this type; keep them on and say in the `system` prompt which tasks start a workflow run, for work like reviewing hundreds of documents, cross-checking many sources, or repeating the same step across many items - see § Dynamic workflows below.
+- **Limits:** up to 20 roster entries (at most one `self`; each rostered agent can be spawned many times), one level of delegation (a roster member must not have its own `multiagent`), and at most 25 child threads per session, idle ones included - archive finished threads if a long session needs more (see *Interrupting and archiving threads* below).
 
 The sections below are the reference for rosters, threads, events, and client-side handling; the platform guide is `https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration.md`.
 
@@ -102,27 +115,36 @@ The sections below are the reference for rosters, threads, events, and client-si
 
 ## Declare the roster on the coordinator
 
-`multiagent` is a **top-level field** on `agents.create()` / `agents.update()` - **not** a `tools[]` entry. `agents` lists 1-20 roster entries. (The other variant, `{"type": "multiagent_20261001"}`, puts the roster under `subagents.predefined_agents`, turns dynamic workflows on unless `workflows` is `{"type": "disabled"}`, and turns delegating on unless `subagents` is - for a roster only, use `coordinator`. See § Dynamic workflows.) Nothing changes on `sessions.create()` - the roster is resolved from the coordinator's config.
+`multiagent` is a **top-level field** on `agents.create()` / `agents.update()` - **not** a `tools[]` entry. Its type is `multiagent_20261001`; `subagents.predefined_agents` lists up to 20 roster entries. Dynamic workflows are on unless `workflows` is `{"type": "disabled"}`; write `{"type": "enabled"}` and add the `system` prompt line that says when to start a run, unless the user has said not to use workflows or asked to keep the agent's cost down (§ Dynamic workflows). The roster is resolved from the coordinator's config, so `sessions.create()` needs nothing for it; with workflows on, give the session a budget (`shared/managed-agents-core.md` § Session budgets).
 
 ```python
 orchestrator = client.beta.agents.create(
     name="Engineering lead",
     model="claude-opus-5-5",
-    system="You coordinate engineering work. Delegate code review to the reviewer and test writing to the test agent.",
+    system="You coordinate engineering work. Delegate code review to the reviewer and test writing to the test agent. For a change across many files, start a workflow run that reviews them in parallel.",
     tools=[{"type": "agent_toolset_20260401",
             "default_config": {"permission_policy": {"type": "auto"}},
             "configs": [{"name": n, "enabled": False} for n in ("web_fetch", "web_search")]}],
     multiagent={
-        "type": "coordinator",
-        "agents": [
-            reviewer.id,                                            # bare string - latest version
-            {"type": "agent", "id": test_writer.id, "version": 4},  # pinned version
-            {"type": "self"},                                       # the coordinator itself
-        ],
+        "type": "multiagent_20261001",
+        "subagents": {
+            "type": "enabled",
+            "predefined_agents": [
+                reviewer.id,                                            # bare string - latest version
+                {"type": "agent", "id": test_writer.id, "version": 4},  # pinned version
+                {"type": "self"},                                       # the coordinator itself
+            ],
+            "inline_agents": {"type": "disabled"},                      # only the listed agents
+        },
+        "workflows": {"type": "enabled", "predefined_agents": [reviewer.id],
+                      "inline_agents": {"type": "disabled"}},           # runs use the reviewer too
     },
 )
 
-session = client.beta.sessions.create(agent=orchestrator.id, environment_id=env.id)
+session = client.beta.sessions.create(
+    agent=orchestrator.id, environment_id=env.id,
+    budget={"type": "limit", "max_list_cost": {"amount": "2500", "currency": "USD"}},
+)
 ```
 
 | Roster entry | Shape | Notes |
@@ -130,30 +152,40 @@ session = client.beta.sessions.create(agent=orchestrator.id, environment_id=env.
 | String shorthand | `"agent_abc123"` | References the latest version of a stored agent. |
 | Agent reference | `{type: "agent", id, version?}` | Omit `version` to pin the latest at coordinator save time. |
 | Self | `{type: "self"}` | The coordinator can spawn copies of itself. |
-| Advisor | `{type: "advisor", model}` | A model the session's primary thread can consult mid-turn. At most one per roster. See § Advisor below. |
+
+An advisor is not a roster entry: it is the `advisor` member (§ Advisor). `subagents.inline_agents` (on by default) also lets the agent delegate to agents it defines itself, which run on the coordinator's model with all its tools. When the roster is there to pin cheaper workers or narrow tool sets, set it to `{"type": "disabled"}` to keep the agent to the listed ones, and, when workflows are on, do the same under `workflows`, listing those workers in `workflows.predefined_agents`.
 
 If the session was created with `agent_with_overrides` (see `shared/managed-agents-core.md` -> Override agent configuration for a session), those overrides apply to the **coordinator and its `self` copies**. Roster agents referenced by ID always use their own as-created configuration - overrides do not propagate to them.
 
-The coordinator's thread receives delegation tools for working the roster: `list_agents` (see the roster) and `send_to_agent` (task or message a member). Up to **20 unique agents** in the roster; the coordinator may spawn **multiple copies** of each. **One level of delegation only** - and it is enforced rather than silently flattened: rostering an agent that itself has `multiagent` set (either type) fails the create or update with a validation error.
+The coordinator's thread receives delegation tools for working the roster: `list_agents` (see the roster) and `send_to_agent` (task or message a member). Up to **20 unique agents** in the roster; the coordinator may spawn **multiple copies** of each. **One level of delegation only** - and it is enforced rather than silently flattened: rostering an agent that itself has `multiagent` set (`multiagent_20261001` or the older `coordinator`) fails the create or update with a validation error.
 
 **Inference geo pins must be roster-uniform.** When agents pin an inference geography (`model.inference_geo` - see `shared/managed-agents-core.md` § Pinning inference geography), the coordinator's pin and every roster member's must all be the same value or all be unset. A mismatched roster is a 400 validation error, both when the agent is saved and when a session-create `model` override changes any of the pins.
 
+**Moving off the `coordinator` type.** The older `coordinator` type (`{"type": "coordinator", "agents": [...]}`) delegates only to the agents it lists and can't start workflow runs. To move an agent off it, send the whole block in one `agents.update()`:
+- the `multiagent_20261001` type, with the `agents` entries as `subagents.predefined_agents` (same forms), an advisor entry as `advisor: {"type": "enabled", "model": ...}`, and `workflows: {"type": "enabled"}`, unless the user has said not to use workflows or asked to keep the agent's cost down (send the `system` prompt line that says when to start a run in the same update, and tell the user as § Dynamic workflows says);
+- `subagents.inline_agents: {"type": "disabled"}`, to keep it to the listed agents as before, and, when workflows are on, the same under `workflows`, listing those agents in `workflows.predefined_agents`;
+- if the advisor was the only entry, `subagents` and `workflows` both `{"type": "disabled"}` instead: that agent does its own work.
+
+A change of type replaces the whole block, so a member you leave out takes its default; existing sessions keep the old block.
+
+**If creating or updating an agent fails with 400 `multiagent.type: must be "coordinator"`**, the beta header the code sends doesn't accept the newer type (research-preview and frontier headers don't). **If it fails with `Extra inputs are not permitted` on the `multiagent` field itself** (not on an entry inside it), the organization doesn't have the newer type yet. In either case, don't drop or swap a beta header the code sends: a frontier header can't be swapped for the standard one, and a research-preview header turns on other features. Keep an existing `coordinator` block, or write that form for a new agent (`agents`: 1-20 entries, at most one advisor entry), and tell the user that the newer type needs the standard `managed-agents-2026-04-01` header and access for their organization.
+
 ---
 
-## Dynamic workflows - for work too big to hand out one task at a time
+## Dynamic workflows - on for every team of agents
 
-When the agent's job is too big to hand out one task at a time - reviewing hundreds of documents, cross-checking many sources, repeating the same step across many items - turn on **dynamic workflows**. The agent can then write a plan that runs many agents in phases and combines what they return; the server carries out the plan in the background as a **workflow run**, so the agent can keep working or end its turn while the run goes on. This is `multiagent: {"type": "multiagent_20261001", "workflows": {"type": "enabled"}}` on the Managed Agents agent you are writing code for - not Claude Code's own dynamic workflows (its `Workflow` tool).
+Turn on **dynamic workflows** for every agent that uses other agents, and for any job with many pieces - reviewing hundreds of documents, cross-checking many sources, repeating the same step across many items. The agent can then write a plan that runs many agents in phases and combines what they return; the server carries out the plan in the background as a **workflow run**, so the agent can keep working or end its turn while the run goes on. This is `multiagent: {"type": "multiagent_20261001", "workflows": {"type": "enabled"}}` on the Managed Agents agent you are writing code for - not Claude Code's own dynamic workflows (its `Workflow` tool).
 
-**If the user has said they do not want dynamic workflows** - in the request, or at any point while you build - leave them off, and say in your closing reply that they are off. For a roster only, use the `coordinator` type; if you use the `multiagent_20261001` type, write `workflows: {"type": "disabled"}`, because workflows are on by default on that type. A user who has said nothing about dynamic workflows has not said no: when the work is too big to hand out one task at a time, turn them on.
+**If the user has said not to use workflows, or asked to keep the agent's cost down** ("keep it cheap") - in the request, or at any point while you build - leave them off, and say in your closing reply that they are off and how to turn them on. Write `workflows: {"type": "disabled"}`, because workflows are on by default on the `multiagent_20261001` type. A general description of the job is not such a request, and a user who has said nothing about dynamic workflows has not said no: for any team of agents, turn them on.
 
-**What to tell the user.** When you turn dynamic workflows on, say in your closing reply that they are on, what they do for this job (many agents work through its pieces in phases, in the background, where a roster would have to run them in batches), that every agent in a run uses tokens, so the session needs a budget, and how to turn them off (`workflows: {"type": "disabled"}`, or the `coordinator` type for a roster only).
+**What to tell the user.** When you turn dynamic workflows on, on a new agent or one you move or update, say in your closing reply that they are on, what they do for this job (many agents work through its pieces in phases, in the background; when there are more pieces than the roster can run at once, a run finishes them without batching), that every agent in a run uses tokens, so the session needs a budget, and how to turn them off (`workflows: {"type": "disabled"}`).
 
 **An agent can run dynamic workflows with or without a roster and an advisor.** A run's plan can use the agents you list in `workflows.predefined_agents` and define agents of its own; it doesn't use the roster.
-- **Roster** (`{"type": "coordinator", "agents": [...]}`, above): the work has several well-scoped tasks, or needs cheaper workers or specialists with their own system prompts and tools. Each agent works in its own session thread, which you can list and stream, and the roster can include an advisor.
-- **Dynamic workflows** (`{"type": "multiagent_20261001", "workflows": {"type": "enabled"}}`): the work is too big to hand out one task at a time, with more pieces than a session's 25 child threads can hold at once. Count the pieces in the whole job: if a roster would have to run them in batches to stay under the 25-child-thread limit, use dynamic workflows. The plan can run the agents listed in `workflows.predefined_agents` and agents it defines (see "What a run's agents get", below). You follow the run by its phases and can read each of its threads. The same agent can also have a roster (`subagents`) and an advisor (`advisor`).
-- **Neither:** simple or single-step agents, and agents that answer one question at a time when answering needs no fan-out. Every agent in a run uses tokens, so set a session budget when they are on (below).
+- **Roster** (`subagents.predefined_agents`, above): the agent hands well-scoped tasks to cheaper workers or specialists with their own system prompts and tools. Each agent works in its own session thread, which you can list and stream, and the agent can also have an advisor.
+- **Dynamic workflows** (`"workflows": {"type": "enabled"}`, on with or without a roster): the agent starts a run when its `system` prompt says the task calls for one - work with many pieces, parallel work, or a long task that should finish sooner. Tasks with more pieces than a session's 25 child threads can hold at once always call for one: a roster would have to run them in batches. The plan can run the agents listed in `workflows.predefined_agents` and agents it defines (see "What a run's agents get", below). You follow the run by its phases and can read each of its threads.
+- **Neither:** simple or single-step agents, and agents that answer one question at a time when answering needs no fan-out (one that delegates a question's reading to copies of itself gets a roster with workflows disabled; a team of helpers or specialists the user asks for still gets workflows). Every agent in a run uses tokens, so set a session budget when they are on (below).
 
-**To turn it on,** set `multiagent` to the `multiagent_20261001` type with `workflows` enabled. Workflows default to enabled on that type, but write it out. To let a run's plan use agents you've already created, list them: `workflows: {"type": "enabled", "predefined_agents": [...]}` (up to 20, same entry forms as a roster minus the advisor). `workflows.inline_agents` (default `{"type": "enabled"}`) set to `{"type": "disabled"}` stops the plan from defining its own agents; the list then needs at least one agent, or the request is a 400. `subagents` works the same way: `subagents: {"type": "enabled", "predefined_agents": [...]}` is the roster (optional, up to 20), and `subagents.inline_agents` (default `{"type": "enabled"}`) lets the agent also delegate to agents it defines itself; set to `{"type": "disabled"}`, the roster needs at least one agent, or the request is a 400. For an advisor, add `advisor: {"type": "enabled", "model": ...}` to the same block. On this type the advisor is only the `advisor` member - never a `{"type": "advisor"}` entry in `subagents.predefined_agents`. On create, a member you omit takes its default (`workflows` and `subagents` enabled, `advisor` disabled):
+**To turn it on,** set `multiagent` to the `multiagent_20261001` type with `workflows` enabled. Workflows default to enabled on that type, but write it out. To let a run's plan use agents you've already created, list them: `workflows: {"type": "enabled", "predefined_agents": [...]}` (up to 20, same entry forms as `subagents.predefined_agents`). `workflows.inline_agents` (default `{"type": "enabled"}`) set to `{"type": "disabled"}` stops the plan from defining its own agents; the list then needs at least one agent, or the request is a 400. `subagents` works the same way: `subagents: {"type": "enabled", "predefined_agents": [...]}` is the roster (optional, up to 20), and `subagents.inline_agents` (default `{"type": "enabled"}`) lets the agent also delegate to agents it defines itself; set to `{"type": "disabled"}`, the roster needs at least one agent, or the request is a 400. For an advisor, add `advisor: {"type": "enabled", "model": ...}` to the same block. On this type the advisor is only the `advisor` member - never a `{"type": "advisor"}` entry in `subagents.predefined_agents`. On create, a member you omit takes its default (`workflows` and `subagents` enabled, `advisor` disabled):
 
 ```python
 agent = client.beta.agents.create(
@@ -200,8 +232,8 @@ To adapt it, name the kinds of tasks in the agent's domain that call for a run, 
 **What a run's agents get.** Each of a run's threads runs an agent listed in `workflows.predefined_agents` or an agent the plan defines. A listed agent runs with its own configuration, as a roster agent does when the coordinator delegates to it. An agent the plan defines gets its system prompt from the plan and runs on the session agent's model. It gets the session agent's `tools`, `mcp_servers`, and skills (all of them today; the API doesn't promise that), and its tools keep their permission policies. With no list, the plan defines every agent it runs. The server creates session threads for the run as its plan needs them (§ Following a run, below).
 
 **Rules:**
-- **Updating:** an `agents.update()` that sends the `multiagent_20261001` type to an agent that already has it is merged into the stored block, level by level. Every object you send needs its `type`. A key you omit keeps its stored value. A key you send as `null` goes back to its default, and so does every key inside it. A `predefined_agents` list you send replaces the stored list. A member you send with a `type` other than the stored one (`disabled` to `enabled`, say) is replaced whole, so send its `inline_agents` and `predefined_agents` with it. An update that leaves `multiagent` out keeps it all. Sent to an agent that has the `coordinator` type, the update replaces the whole block, so send the roster again as `subagents.predefined_agents` and the advisor as `advisor`.
-- **Turning it off:** send `workflows: {"type": "disabled"}` in an `agents.update()`; it stays off until an update turns it on again. Don't send `workflows: null`: `null` puts a member back to its default, and the default for `workflows` is enabled. For a roster only, switch to the `coordinator` type: a change of type replaces the whole block, so send the roster as `agents`, with any advisor as an entry in it.
+- **Updating:** an `agents.update()` that sends the `multiagent_20261001` type to an agent that already has it is merged into the stored block, level by level. Every object you send needs its `type`. A key you omit keeps its stored value. A key you send as `null` goes back to its default, and so does every key inside it. A `predefined_agents` list you send replaces the stored list. A member you send with a `type` other than the stored one (`disabled` to `enabled`, say) is replaced whole, so send its `inline_agents` and `predefined_agents` with it. An update that leaves `multiagent` out keeps it all. An update that changes the type replaces the whole block (§ Declare the roster on the coordinator).
+- **Turning it off:** send `workflows: {"type": "disabled"}` in an `agents.update()`; it stays off until an update turns it on again. Don't send `workflows: null`: `null` puts a member back to its default, and the default for `workflows` is enabled.
 - **Existing sessions** copy the setting at create; changing the agent later doesn't change them.
 - **An agent with `multiagent` set (either type) can't be rostered** by another agent, or listed in another agent's `workflows.predefined_agents`.
 - **An agent with a custom tool named `ant__...` accepts only an update that sends `tools` with no `ant__` name** - rename or remove the tool in the update that turns workflows on. A new session whose agent (after any overrides), or an agent in its roster or in `workflows.predefined_agents`, has such a tool is refused with a 400; existing sessions go on.
@@ -388,7 +420,7 @@ GET /v1/sessions/{sid}/threads/{tid}/stream?event_deltas%5B%5D=agent.message
 
 ## Advisor
 
-An `{"type": "advisor", "model": "<model id>"}` roster entry gives the session's **primary thread** an advisor: a model it can consult mid-turn for strategic guidance (planning an approach, getting unstuck, reviewing work before finishing). The entry has exactly two fields - `type` and `model` - and can sit alongside any other roster forms; a roster with no other entries works too. On the `{"type": "multiagent_20261001"}` variant the advisor is the `advisor` member (`{"type": "enabled", "model": ...}`) instead, never a roster entry. The advisor is also available as a server tool on the Messages API (`advisor_20260301` - see `shared/tool-use-concepts.md` -> Advisor); the Managed Agents surface differs in configuration and delivery: the roster entry has **no `max_uses`, `max_tokens`, or `caching` fields**, and advice arrives through thread events rather than `advisor_tool_result` blocks.
+The `advisor` member of the `multiagent` block, `{"type": "enabled", "model": "<model id>"}`, gives the session's **primary thread** an advisor: a model it can consult mid-turn for strategic guidance (planning an approach, getting unstuck, reviewing work before finishing). It has exactly two fields - `type` and `model` - and works with or without a roster; it is never an entry in `subagents.predefined_agents` or `workflows.predefined_agents`. The advisor is also available as a server tool on the Messages API (`advisor_20260301` - see `shared/tool-use-concepts.md` -> Advisor); the Managed Agents surface differs in configuration and delivery: the member has **no `max_uses`, `max_tokens`, or `caching` fields**, and advice arrives through thread events rather than `advisor_tool_result` blocks.
 
 ```python
 agent = client.beta.agents.create(
@@ -396,8 +428,11 @@ agent = client.beta.agents.create(
     model="claude-sonnet-5-5",
     system="You implement backend features end to end.",
     multiagent={
-        "type": "coordinator",
-        "agents": [{"type": "advisor", "model": "claude-opus-5-5"}],
+        "type": "multiagent_20261001",
+        "advisor": {"type": "enabled", "model": "claude-opus-5-5"},
+        # subagents and workflows are on by default; this agent does the work itself
+        "subagents": {"type": "disabled"},
+        "workflows": {"type": "disabled"},
     },
 )
 ```
@@ -405,7 +440,7 @@ agent = client.beta.agents.create(
 (Claude Opus 5.5 is the default advisor choice. It is a redacted advisor - the agent reads its advice server-side, but the client sees `[{"type": "redacted"}]`; see *Plaintext vs redacted delivery* below. For client-readable advice, a plaintext advisor such as `claude-opus-4-8` is valid only when the agent's own model is `claude-opus-4-8` or below - agents on Claude Opus 5.5, Claude Opus 5, Claude Sonnet 5.5, Claude Fable 5.1, or Claude Mythos 5.1 can only pair with redacted advisors, so client-readable advice is not available for them (pairing table: `shared/tool-use-concepts.md`).)
 
 **Rules:**
-- **At most one advisor entry per roster.** The entry occupies the reserved roster name `anthropic.advisor` - a roster that also lists a member literally named `anthropic.advisor` is a 400. In responses, the advisor entry is echoed **last** in the roster regardless of submitted position.
+- **Reserved name.** An enabled advisor reserves the name `anthropic.advisor` - listing an agent literally named `anthropic.advisor` is then a 400.
 - **Pairing is validated at agent save:** the advisor model must meet a minimum capability bar, and the agent's own model must not be more capable than its advisor (equals can pair). Invalid pairing -> 400. The valid pairs mirror the Messages advisor tool's executor<->advisor table (`shared/tool-use-concepts.md`).
 - **Only the primary thread consults it.** The advisor is not a roster agent: invisible to the coordinator's `list_agents` tool, unreachable via `send_to_agent`, and roster agents cannot consult it.
 
@@ -423,9 +458,9 @@ No `agent.tool_use` and no `agent.thread_message_sent` are emitted for a consult
 
 **Failure and interruption.** A failed consultation - or one abandoned via a `user.interrupt` carrying the advisor thread's `session_thread_id` - never fails the agent's turn: the agent continues after a generic notice. A session-level `user.interrupt` during a consultation halts the whole session as usual (every thread, primary included), terminating the advisor thread with no advice delivered.
 
-**Threads, billing, caching.** Advisor threads are **exempt from the 25-child-thread limit**. They appear in the session's thread list with `agent` set to the advisor form as configured (`{"type": "advisor", "model": ...}`) and `parent_thread_id` set to the primary thread. Consultations are billed at the advisor model's rates; their tokens appear in the advisor thread's usage and the session's totals. Advisor-side prompt caching is automatic - nothing to configure.
+**Threads, billing, caching.** Advisor threads are **exempt from the 25-child-thread limit**. They appear in the session's thread list with `agent` set to `{"type": "advisor", "model": ...}` (the model you configured) and `parent_thread_id` set to the primary thread. Consultations are billed at the advisor model's rates; their tokens appear in the advisor thread's usage and the session's totals. Advisor-side prompt caching is automatic - nothing to configure.
 
-**Removing the advisor:** update the agent with a roster that omits the entry; if the advisor is the roster's only entry, clear the roster with `"multiagent": null`. On the `multiagent_20261001` type, set `advisor: {"type": "disabled"}`; an update that leaves `advisor` out keeps the advisor.
+**Removing the advisor:** on an agent that already has the `multiagent_20261001` type, update it with `multiagent: {"type": "multiagent_20261001", "advisor": {"type": "disabled"}}`; an update that leaves `advisor` out keeps the advisor. On an agent still on the older `coordinator` type, send its `multiagent` block again, still of that type, without the advisor entry in its `agents` list, or `"multiagent": null` if the advisor was its only entry; to move it to the newer type instead, see § Declare the roster on the coordinator -> Moving off the `coordinator` type. Don't send the `multiagent_20261001` block above to such an agent: a change of type replaces the whole block, so its `agents` list is dropped and `subagents` and `workflows` take their defaults, which are on.
 
 ---
 
@@ -464,7 +499,7 @@ The same pattern applies to `user.custom_tool_result`. A workflow run's threads 
 - **Don't put the roster on `sessions.create()` or in `tools[]`.** `multiagent` is a top-level agent field; update the coordinator, then start a session that references it.
 - **Don't assume shared context.** Threads share the filesystem but not conversation history or tools. If the coordinator needs a subagent to act on something, it must say so in the delegated message (or write it to disk).
 - **Depth > 1 is a validation error.** Rostering an agent that itself has `multiagent` set (either type, even with workflows disabled) fails the create or update - only the session's coordinator delegates.
-- **Don't turn workflows on by accident.** On the `multiagent_20261001` type, `workflows` is enabled by default: when you create the agent or switch it to this type without `workflows` or with `workflows: null`, and when an update sends `workflows: null`. `subagents` is enabled by default too, with its `inline_agents` enabled, so the agent can delegate to agents it defines itself; to keep a roster and stop that, set `subagents.inline_agents` to `{"type": "disabled"}` (`subagents: {"type": "disabled"}` turns the roster off as well). For a roster-only agent use the `coordinator` type, or set `workflows: {"type": "disabled"}`; later updates that leave `workflows` out keep it off.
+- **Know what is on by default.** On the `multiagent_20261001` type, `workflows` is enabled by default: when you create the agent or switch it to this type without `workflows` or with `workflows: null`, and when an update sends `workflows: null`. Write it out anyway. When the user has said not to use workflows or asked to keep the agent's cost down, set `workflows: {"type": "disabled"}`; later updates that leave `workflows` out keep it off. `subagents` is enabled by default too, with its `inline_agents` enabled, so the agent can delegate to agents it defines itself; to keep a roster and stop that, set `subagents.inline_agents` to `{"type": "disabled"}` (`subagents: {"type": "disabled"}` turns the roster off as well), and, when workflows are on, do the same under `workflows`, listing the workers in `workflows.predefined_agents` (§ Declare the roster on the coordinator).
 - **Don't turn on dynamic workflows without a system-prompt line saying when to start a run, and don't make that line unconditional.** The setting gives the agent the ability; the line tells it when to use it. Keep runs to the tasks that need them, because every agent in a run uses tokens. Leave workflows off for simple agents.
 
-For per-language bindings beyond Python, WebFetch `https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration.md` (see `shared/live-sources.md`).
+For per-language bindings beyond Python, fetch `https://platform.claude.com/docs/en/managed-agents/multiagent-orchestration.md` (see `shared/live-sources.md`).

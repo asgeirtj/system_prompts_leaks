@@ -19,7 +19,7 @@
  * structural rules the skill enforces, not measurable from hexes alone.
  *
  * Usage (node):
- *   node validate_palette.js "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
+ *   node validate_palette.js "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#6250d6,#e34948" --mode light
  *   node validate_palette.js "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
  *   node validate_palette.js "#86b6ef,#5598e7,#256abf,#104281" --ordinal
  *
@@ -84,6 +84,43 @@ const lin2s = (c) => { c = Math.max(0, Math.min(1, c)); return c <= 0.0031308 ? 
 const lin = (h) => hex2srgb(h).map(s2lin);
 const relLum = (h) => { const [r, g, b] = lin(h); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
 export const contrast = (a, b) => { const [hi, lo] = [relLum(a), relLum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+
+// Ported from Color.js 0.5.2, src/contrast/APCA.js, itself a port of github.com/Myndex/apca-w3,
+// under Color.js's MIT license:
+// MIT License
+//
+// Copyright (c) 2021 Lea Verou, Chris Lilley
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+const apcaY = (h) => {
+  const [r, g, b] = hex2srgb(h).map((c) => c ** 2.4);
+  const y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b;
+  return y >= 0.022 ? y : y + (0.022 - y) ** 1.414;
+};
+// APCA 0.0.98G lightness contrast (Lc). Negative means light text on a dark background.
+// Color.js's argument order is (background, text); this one is (text, background).
+export const apca = (text, background) => {
+  const [t, b] = [apcaY(text), apcaY(background)];
+  if (Math.abs(b - t) < 0.0005) return 0;
+  const c = 1.14 * (b > t ? b ** 0.56 - t ** 0.57 : b ** 0.65 - t ** 0.62);
+  return Math.abs(c) < 0.1 ? 0 : (c - Math.sign(c) * 0.027) * 100;
+};
 
 function oklabFromLin([r, g, b]) {
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
@@ -247,8 +284,8 @@ function printReport({ report, ok }, { mode, surface, ordinal, n }) {
   } else {
     console.log(`\n  \u2192 ${ok ? "ALL CHECKS PASS" : "FAILED \u2014 fix the marked checks"}`
       + "  (CVD in the 6\u20138 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)");
-    console.log("  scope: categorical palettes only. For a lone status/text color check WCAG"
-      + " text contrast; for a sequential ramp, lightness monotonicity.\n");
+    console.log("  scope: categorical palettes only. For a lone status/text color check"
+      + " text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity.\n");
   }
 }
 

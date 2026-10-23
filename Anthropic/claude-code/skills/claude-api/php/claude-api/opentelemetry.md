@@ -76,3 +76,5 @@ try {
 Without the SDK (raw HTTP or another client), inject the active span's trace context into the request headers:
 
 `TraceContextPropagator::getInstance()->inject($headers)`
+
+After the SDK setup, offer setting up Claude API tracing where `shared/opentelemetry.md` -> SDK tracing vs API tracing says to, if you didn't already.

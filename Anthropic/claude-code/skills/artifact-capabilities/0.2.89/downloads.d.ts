@@ -18,10 +18,12 @@ declare namespace Claude {
     /**
      * Stable error codes; treat unknown codes as `"unavailable"`.
      * - `rejected_extension` — extension missing or outside the allowlist
-     *   (`gif png jpg jpeg webp mp4 webm txt json md` and
+     *   (`gif png jpg jpeg webp mp4 webm mov txt json md` and
      *   `docx pptx epub csv ttf html svg pdf xlsx zip`). Offer the format the
      *   content wants (a plain table is a `csv`, a workbook an `xlsx`);
-     *   do not pre-build fallbacks to other formats.
+     *   do not pre-build fallbacks to other formats. For a `mov`: the app
+     *   around the artifact is out of date; the viewer needs to reload or
+     *   update it.
      * - `extension_not_enabled` — the platform has switched the second
      *   list off for this view. Not the normal state: if it arrives, tell
      *   the viewer that format is unavailable here and stop — no retry,
@@ -34,15 +36,24 @@ declare namespace Claude {
      *   a download up front; on `too_large`, offer a smaller rendition.
      * - `declined` — the viewer said no (or let the prompt expire);
      *   never auto-retry.
-     * - `rate_limited` — a prompt is already open or too many recent
-     *   prompts; wait, then retry.
+     * - `rate_limited` — a prompt is already open, too many recent prompts
+     *   (each `mov` save that is checked counts as one, shown or not), or an
+     *   earlier `mov` save still being checked; wait, then retry.
      * - `bad_request` — caller bug: bad filename (non-string or >512
      *   chars), bad/empty/detached data, a malformed `request`, or an
      *   answered export whose extension is not the requested format.
      * - `request_unknown` — `request` named no open export request
      *   (expired, already answered, or never issued to this page);
      *   nothing was saved. Drop the work; never retry with that token.
-     * - `unavailable` — saves unusable in this view; hide your save UI.
+     * - `not_signed` — a `mov` is saved only with content credentials, and
+     *   none were added; nothing was saved. A `mov` that your own code encodes
+     *   is refused in claude.ai every time (it signs only the platform's
+     *   built-in film export): do not retry it; offer `mp4` or `webm`. For that
+     *   export, keep the file: the viewer can try again, or open the artifact in
+     *   claude.ai if this view is outside it; reloading Claude may help.
+     * - `unavailable` — saves unusable in this view; hide your save UI. For a
+     *   `mov` it can also be a busy moment, and the code does not say which:
+     *   keep the file and leave the viewer a way to retry.
      * - `not_granted`, `capability_disabled`, `capability_removed`,
      *   `transform_error` — runtime lifecycle; treat like `unavailable`
      *   (`transform_error` like `bad_request`).
@@ -55,6 +66,7 @@ declare namespace Claude {
       | "rate_limited"
       | "bad_request"
       | "request_unknown"
+      | "not_signed"
       | "unavailable"
       | "not_granted"
       | "capability_disabled"

@@ -25,7 +25,7 @@ and the chart body is written against roles rather than raw hex:
   :root:where(:not([data-theme="light"])) .viz-root {
     color-scheme: dark;
     --surface-1:      #1a1a19;
-    --text-primary:   #ffffff;
+    --text-primary:   #f0efec;
     --text-secondary: #c3c2b7;
     --series-1:       #3987e5;
   }
@@ -33,7 +33,7 @@ and the chart body is written against roles rather than raw hex:
 :root[data-theme="dark"] .viz-root {
   color-scheme: dark;
   --surface-1:      #1a1a19;
-  --text-primary:   #ffffff;
+  --text-primary:   #f0efec;
   --text-secondary: #c3c2b7;
   --series-1:       #3987e5;
 }
@@ -57,7 +57,7 @@ dark surface, not a separate palette:
 | 4 | yellow | `#eda100` | `#c98500` |
 | 5 | magenta | `#e87ba4` | `#d55181` |
 | 6 | green | `#008300` | `#008300` |
-| 7 | violet | `#4a3aa7` | `#9085e9` |
+| 7 | violet | `#6250d6` | `#9085e9` |
 | 8 | red | `#e34948` | `#e66767` |
 
 This order passes every hard gate in both modes on the default *adjacent*
@@ -83,8 +83,12 @@ dark run in the 6-8 CVD warn band, so secondary encoding was required there;
 this order deliberately trades that fourth slot - yellow now sits beside orange -
 for better-looking leading colors. Revisit the trade if yellow<->orange
 confusion shows up in real charts with four or more series; undoing it is a
-pure re-order.) When you swap in your own ramps, hold your palette to the full
-gate.
+pure re-order. Light slot 7 has since been lightened, `#4a3aa7` -> `#6250d6`
+(August 2026); the adjacent-pair figures above are unchanged by that move, the
+non-adjacent blue<->violet pair now sits below both floors under `--pairs all`
+(normal-vision 10.5, CVD 4.5 - inside the range the series cap already
+excludes), and the order enumeration was run with the earlier value.) When you
+swap in your own ramps, hold your palette to the full gate.
 
 The slot **ordering** is the CVD-safety mechanism, not cosmetic - candidate
 orderings were enumerated and only those clearing every adjacent gate in both
@@ -168,9 +172,10 @@ actually renders on.
 |---|---|---|
 | Chart surface | `#fcfcfb` | `#1a1a19` |
 | Page plane | `#f9f9f7` | `#0d0d0d` |
-| Primary ink | `#0b0b0b` | `#ffffff` |
+| Primary ink | `#0b0b0b` | `#f0efec` |
 | Secondary ink | `#52514e` | `#c3c2b7` |
 | Muted (axis/labels) | `#898781` | `#898781` |
+| Label inside a categorical or status fill | `#ffffff`, except `#0b0b0b` on yellow and warning | `#ffffff`, except `#0b0b0b` on warning |
 | Gridline (hairline) | `#e1e0d9` | `#2c2c2a` |
 | Baseline / axis | `#c3c2b7` | `#383835` |
 | Delta up good (success text) | `#006300` | `#0ca30c` |

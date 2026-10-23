@@ -198,4 +198,4 @@ GET    /v1/memory_stores/{memory_store_id}/memory_versions
 POST   /v1/memory_stores/{memory_store_id}/memory_versions/{version_id}/redact
 ```
 
-For cURL examples and the CLI (`ant beta:memory-stores ...`), WebFetch the Memory URL in `shared/live-sources.md` -> Managed Agents.
+For cURL examples and the CLI (`ant beta:memory-stores ...`), fetch the Memory URL in `shared/live-sources.md` -> Managed Agents.

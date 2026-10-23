@@ -1,12 +1,80 @@
-# JSON Schemas
+# Schemas
 
-This document defines the JSON schemas used by skill-creator.
+This document defines the file formats used by skill-creator.
 
 ---
 
-## evals.json
+## Test cases (`evals/<case-name>/`)
 
-Defines the evals for a skill. Located at `evals/evals.json` within the skill directory.
+Each test is a folder under `evals/` in the skill directory, in the layout `claude plugin eval` reads (the tree is in SKILL.md, under Test Cases). Always write new tests this way. You never need the CLI to use them.
+
+**Case name**: the folder name. Lowercase letters, digits and hyphens, starting with a letter; a few words on what the test checks. Don't use `results`, `mocks` or `node_modules` (the CLI keeps those names for itself), `files` (older tests keep their input files in `evals/files/`), or `true`, `false` or `null` (they don't read as text in `case.yaml`).
+
+**prompt.md**: a settings block, copied as is, then the prompt exactly as the user would type it.
+
+```markdown
+---
+tags: [skill-creator]
+max_turns: 20
+timeout_seconds: 600
+allowed_tools: [Read, Glob, Grep, Skill, Write, Edit, Bash]
+---
+
+User's task prompt
+```
+
+- Only the CLI uses the settings: `max_turns` and `timeout_seconds` cap a run, `allowed_tools` is what the run may ask for, `tags` let the user filter. An unknown key there makes the case fail to load.
+- Keep free text out of the settings block. It ends at the first `---` it meets, even in the middle of a sentence, so descriptions go in `case.yaml`.
+
+**case.yaml**: the version (quoted, or it reads as a number and the case fails to load), the name (same as the folder), and a human-readable description of success (indented under the `|`, so that no character in it needs escaping).
+
+```yaml
+schema_version: "1.1"
+name: flags-negative-quantity
+expected_outcome: |
+  Description of expected result
+```
+
+**graders/NN-few-words.md**: one verifiable statement per file, numbered so that they keep their order (`01-states-total-revenue.md`, `02-flags-negative-row.md`). The block on top is always the same, and the CLI ignores a file without it; the body is the statement.
+
+```markdown
+---
+type: llm
+focus: trace
+weight: 1
+---
+
+summary.md states a total revenue of 693.5
+```
+
+`focus: trace` lets the CLI's judge see what was done as well as the final message, and equal weights make the CLI's score the same pass rate you compute.
+
+A case with no grader fails to load, so write a placeholder with the case: `graders/01-expected-output.md`, with the same block on top and the body `The result matches this description: <the expected outcome>` (or, with no description to go on, `The response completes the task the prompt asks for.`). It stays until the case has real assertions, and you never grade it yourself.
+
+If a case holds graders of another `type` (`regex`, `file_exists`, `tool_used`, `tool_order`, `baseline`), someone wrote them for the CLI. Leave them as they are, and grade what each one describes as well as you can from the outputs and transcript.
+
+**Input files**: put them in the case's `files/` folder and hand their paths to the run. So that the CLI can find them too, do three more things: end the prompt with a line `Input files: orders.csv, notes.txt`; add this `place-files.sh` next to `prompt.md`:
+
+```bash
+#!/usr/bin/env bash
+set -eu
+cp -R "$(dirname "$0")/files/." .
+```
+
+and name it in `case.yaml`:
+
+```yaml
+context:
+  scaffold_script: place-files.sh
+```
+
+**Running the same tests with the CLI** (optional; Claude Code v2.1.269 or later), from the skill directory: `claude plugin eval . --allow-tools Write,Edit,Bash`, plus `--scaffold` if any case has input files. It runs each case folder with and without the skill (it does not read `evals.json`) and writes its own report under `evals/results/`. These are real, billed model runs, so if the user has Claude Code, offer it rather than just doing it.
+
+---
+
+## evals.json (older format: read it, don't write it)
+
+Earlier versions of skill-creator kept all tests in `evals/evals.json`. When a skill has one, run its tests along with the case folders, taking each test's prompt, input files and assertions from its entry, and leave the file untouched unless the user asks otherwise.
 
 ```json
 {
@@ -26,13 +94,29 @@ Defines the evals for a skill. Located at `evals/evals.json` within the skill di
 }
 ```
 
-**Fields:**
-- `skill_name`: Name matching the skill's frontmatter
-- `evals[].id`: Unique integer identifier
-- `evals[].prompt`: The task to execute
-- `evals[].expected_output`: Human-readable description of success
-- `evals[].files`: Optional list of input file paths (relative to skill root)
-- `evals[].expectations`: List of verifiable statements
+| evals.json | case folder |
+|---|---|
+| `skill_name` + `id` | the case name (below) |
+| `prompt` | body of `prompt.md` |
+| `expected_output` | `expected_outcome` in `case.yaml` |
+| `files` (paths relative to the skill root) | copies in the case's `files/` |
+| each `expectations` entry (`assertions` in some files; read both) | one file in `graders/` |
+
+**Case name of an old test**: always `<skill>-<label>`.
+
+1. To slug a text: lowercase it, keep its first 8 words, turn every run of characters other than a-z and 0-9 into one hyphen, cut it to 48 characters, and drop any hyphen at either end.
+2. `<skill>` is the slug of the file's `skill_name`; if the file has none, of the `name` in the skill's SKILL.md. If that leaves nothing, it is `eval`.
+3. `<label>` is the slug of the entry's `eval_name` (of its `name`, if it has no `eval_name` field). If that leaves nothing, it is the slug of its `id`; if that leaves nothing too, its position in the list as three digits (`001` for the first).
+4. If several entries end up with the same case name, the later ones get `-2`, `-3`, ... at the end.
+
+| entry in `csv-summary`'s evals.json | case name |
+|---|---|
+| `"id": 2` | `csv-summary-2` |
+| `"id": 3, "eval_name": "Empty input!"` | `csv-summary-empty-input` |
+| `"id": 4, "name": "Odd rows are mentioned"` | `csv-summary-odd-rows-are-mentioned` |
+| the first entry, with none of the three | `csv-summary-001` |
+
+**Putting the two together.** The set of tests for a run is every case folder, plus every `evals.json` entry whose case name is not already a case folder. When both exist the folder wins, because it is the newer version: when an old test needs to change (a better prompt, new assertions), write the new version as a case folder with the test's case name, and leave the file alone. If the user asks to move everything over, write one folder per entry with the table above, then ask before removing the file.
 
 ---
 
@@ -290,16 +374,16 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
   - `skill_name`: Name of the skill
   - `timestamp`: When the benchmark was run
   - `evals_run`: List of eval names or IDs
-  - `runs_per_configuration`: Number of runs per config (e.g. 3)
+  - `runs_per_configuration`: Number of runs of each eval per config (e.g. 3)
 - `runs[]`: Individual run results
-  - `eval_id`: Numeric eval identifier
+  - `eval_id`: Eval identifier, a number or a name
   - `eval_name`: Human-readable eval name (used as section header in the viewer)
-  - `configuration`: Must be `"with_skill"` or `"without_skill"` (the viewer uses this exact string for grouping and color coding)
+  - `configuration`: The name of the run's configuration directory, such as `"with_skill"`, `"without_skill"` or `"old_skill"` (the viewer groups runs by this string)
   - `run_number`: Integer run number (1, 2, 3...)
   - `result`: Nested object with `pass_rate`, `passed`, `total`, `time_seconds`, `tokens`, `errors`
 - `run_summary`: Statistical aggregates per configuration
   - `with_skill` / `without_skill`: Each contains `pass_rate`, `time_seconds`, `tokens` objects with `mean` and `stddev` fields
-  - `delta`: Difference strings like `"+0.50"`, `"+13.0"`, `"+1700"`
+  - `delta`: The first configuration minus the second, as strings like `"+0.50"`, `"+13.0"`, `"+1700"`; each is `null` when there is only one configuration
 - `notes`: Freeform observations from the analyzer
 
 **Important:** The viewer reads these field names exactly. Using `config` instead of `configuration`, or putting `pass_rate` at the top level of a run instead of nested under `result`, will cause the viewer to show empty/zero values. Always reference this schema when generating benchmark.json manually.

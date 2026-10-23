@@ -9,8 +9,9 @@
  *     const { text, truncated } = await sample(input, options?)         // the whole answer
  *     const data = await sample.json(input, options?)                    // the answer parsed as JSON
  *     // input   = "prompt" | [{role: "user"|"assistant", content}, ...] ending on a user turn
- *     // options = { onText?({text, delta}), signal?, tools?, images?, modelTier?, cache? }
+ *     // options = { onText?({text, delta}), signal?, tools?, images?, modelTier?, model?, effort?, fast?, cache? }
  *     // failure = one rejected {code, message, text?}; text = the part you may keep
+ *     // manifest = capabilities: {sample: {}}, or capabilities: {sample: {images: true}} to pass images
  *
  * One function, one promise. Pass `onText` to render the answer while it
  * streams (each call brings `text`, the WHOLE answer so far, to assign,
@@ -46,14 +47,25 @@
  * in a view asks the viewer to allow it; the call waits while they decide
  * and a decline rejects `not_granted` for the rest of the view. Answers
  * are cached for the viewer by default: repeating a call with the same
- * `input`, `modelTier` and `images` within five minutes replays the
- * stored answer without contacting Claude (see
+ * `input`, `modelTier`, `model`, `effort` and `images` within five
+ * minutes replays the stored answer without contacting Claude (see
  * {@link sample.SampleOptions.cache}). A couple of calls run at once for
  * a viewer, a few more wait their turn, and a flood rejects
  * `rate_limited`. So: sample on an explicit viewer action ("Ask",
  * "Summarize", "Send") or once at load with a prompt that is stable
  * across loads — never from a loop or a timer — and render a sensible
  * page when sampling is unavailable.
+ *
+ * Images are declared. A page that passes `images` must declare it in
+ * its manifest: `capabilities: {sample: {images: true}}`. The dialog that
+ * asks the viewer to allow Claude then also tells them the artifact can
+ * send images to Claude, and a viewer who allowed the artifact before it
+ * declared images is asked again at their next use of Claude. Without the
+ * declaration no view can send images: {@link sample.limits} reports no
+ * `images` and a call that passes them rejects `images_unavailable`;
+ * text calls are unaffected. Declare it only on a page that does pass
+ * images — every viewer of a page that declares images is told the page
+ * can send images to Claude.
  *
  * Timing to design for: on `"quick"` a short prompt answers in a second
  * or two; on `"default"`/`"complex"` Claude thinks silently before it
@@ -130,7 +142,7 @@ declare namespace Claude {
    *
    * @param input   What Claude reads: a prompt string, or user/assistant
    *                turns starting and ending on a user turn — see
-   *                {@link sample.SampleInput}. At most 64 KiB of text in total.
+   *                {@link sample.SampleInput}. At most 256 KiB of text in total.
    * @param options {@link sample.SampleOptions}: `onText` to stream, `signal`
    *                to cancel, `tools`, `images`, `modelTier`, `cache`.
    *                Optional; must be a plain object.
@@ -180,7 +192,9 @@ declare namespace Claude {
     /**
      * Resolve this view's limits: the input byte cap, and an `images`
      * member ONLY when this view can send images (how many per call, the
-     * largest file accepted, the file types). Use it to decide whether to
+     * largest file accepted, the file types). The `images` member is never
+     * present on an artifact whose manifest does not declare
+     * `capabilities: {sample: {images: true}}`. Use it to decide whether to
      * show an image affordance at all; treat a rejection like an absent
      * `images`. Cheap and local — no usage is spent, the viewer is not
      * prompted.
@@ -209,8 +223,8 @@ declare namespace Claude {
      *   whatever the page says they are and the platform tells Claude so
      *   — use them for real back-and-forth, not to script words into
      *   Claude's mouth (that makes answers worse).
-     * Either way the text totals at most 64 KiB (`prompt_too_large` beyond
-     * that) — about 60,000 characters of English, fewer for other
+     * Either way the text totals at most 256 KiB (`prompt_too_large` beyond
+     * that) — about 250,000 characters of English, fewer for other
      * scripts: slice page text to a few thousand characters rather than
      * measuring, and drop the oldest chat turns (never your instructions
      * turn) as a conversation grows. The array is copied when you call.
@@ -310,8 +324,10 @@ declare namespace Claude {
        * call. The platform downsizes each to about 1.2 megapixels, applies
        * orientation, keeps an animation's first frame and strips metadata
        * before anything is sent; say in the prompt what the images are and
-       * what to do with them. Only where {@link limits} reports `images` —
-       * elsewhere the call rejects `images_unavailable`; a file of another
+       * what to do with them. The artifact's manifest must declare
+       * `capabilities: {sample: {images: true}}`. Only where {@link limits}
+       * reports `images` — elsewhere the call rejects
+       * `images_unavailable`; a file of another
        * type, undecodable, or over 20 MB / 10,000 px a side / 64 megapixels
        * rejects `image_rejected`. The page cannot fetch images from URLs
        * (its network is blocked): ask the viewer to pick or drop the file.
@@ -330,19 +346,75 @@ declare namespace Claude {
        * of items prefer ONE call that returns a JSON array over one call
        * per item. The platform may serve a nearby cheaper tier when the
        * viewer's plan lacks the one asked for —
-       * {@link SampleResult.modelTierApplied} reports which tier actually
-       * answered.
+       * {@link SampleResult.modelTierApplied} reports the tier that
+       * answered, or, when your named model answered, the tier the call
+       * counted as.
        */
       modelTier?: ModelTier;
 
       /**
+       * A specific model, by its Claude API model id (`"claude-opus-5"`).
+       * Name one only when the person you are building the page for asked
+       * for a particular model; otherwise choose a `modelTier`, which keeps
+       * up as models are retired. It answers if this viewer could pick it in
+       * Claude's chat; if this page comes from outside the viewer's
+       * organization, only a released model answers. If it cannot, if the id
+       * is retired or misspelled, or if the model is unavailable or
+       * overloaded before it starts answering, the call runs on `modelTier`
+       * without an error. If the viewer's access to it is
+       * held, the call rejects `sampling_disabled`, as it would on
+       * `modelTier`; if the viewer has reached a usage limit, it rejects
+       * `rate_limited`.
+       * {@link SampleResult.modelApplied} says whether it answered.
+       *
+       * Cost: it draws on the viewer's own Claude usage, as a chat message
+       * to the model that answers would. Toward how often this page may call
+       * Claude for this viewer (one of the causes of `rate_limited`), a call
+       * whose model is tried counts as that model's tier (Haiku as
+       * `"quick"`, Sonnet as `"default"`, Opus as `"complex"`), or as
+       * `modelTier` if that is higher, whichever model answers; otherwise it
+       * counts as its `modelTier`. If the platform has no model for your
+       * `modelTier`, the call fails even when a model is named.
+       */
+      model?: string;
+
+      /**
+       * How much Claude thinks before it answers: `"low"`, `"medium"` or
+       * `"high"`. It sets how much a named model thinks, and a named model
+       * that cannot take an effort answers without it. Without `effort`, a
+       * named model that can think thinks at the platform's usual setting.
+       * When `modelTier` answers, `effort` applies where the platform runs
+       * that tier with thinking and is otherwise ignored; without it the
+       * tier keeps the platform's own setting. Any other value is ignored,
+       * with a console warning.
+       */
+      effort?: SampleEffort;
+
+      /**
+       * Whether the platform may answer this call faster. Left out or
+       * `null`, it is `"auto"`, so most calls need not pass it.
+       * `"auto"`: the platform may answer faster when it expects that to use
+       * no more of the viewer's usage limits or paid extra usage than the
+       * same call at normal speed; otherwise the call runs at normal speed.
+       * No speed is promised, and the result does not say whether it was
+       * faster.
+       * `false`: asks for normal speed. Use it where a faster answer helps
+       * nobody, such as a prefetch or background work.
+       * The same model answers either way, and a cached answer is reused
+       * whatever `fast` was. Any other value, `true` among them, is ignored
+       * with a console warning, as if `fast` were left out.
+       */
+      fast?: "auto" | false;
+
+      /**
        * Answer caching — ON by default. An answer this viewer already
        * received in this artifact for the same `input` (every turn),
-       * `modelTier`, `images` (byte-identical) and verb (`sample` vs
-       * `json`) is replayed to a repeat call: no usage is spent, Claude is
-       * not contacted, `onText` fires once with the whole text and the
-       * promise resolves. An identical call made while the first is still
-       * running shares its answer as it streams instead of asking twice.
+       * `modelTier`, `model`, `effort`, `images` (byte-identical) and
+       * verb (`sample` vs `json`) is replayed to a repeat call: no usage
+       * is spent, Claude is not contacted, `onText` fires once with the
+       * whole text and the promise resolves. An identical call made while
+       * the first is still running shares its answer as it streams instead
+       * of asking twice.
        * Only successful answers are stored (including `truncated` ones,
        * which replay with `truncated: true`); rejections — `cancelled`,
        * `invalid_json`, everything else — never are, so retrying after a
@@ -470,6 +542,8 @@ declare namespace Claude {
 
     type ModelTier = "default" | "complex" | "quick";
 
+    type SampleEffort = "low" | "medium" | "high";
+
     // Output
 
     /** What {@link Claude.sample} resolves with — a plain object. */
@@ -483,18 +557,27 @@ declare namespace Claude {
        * with a note, and ask for less or split the task next time.
        * Usually `false`. */
       truncated: boolean;
-      /** The tier that actually answered — the one you asked for, or the
-       * substitute the viewer's plan allowed. If you offer a tier choice,
-       * this is how you tell the viewer it could not be honoured. */
+      /** The tier that answered: the one you asked for, or the substitute
+       * the viewer's plan allowed. When your named model answered, it is
+       * the tier the call counted as: that model's tier, or the one you
+       * asked for if higher. If you offer a tier choice, this is how you
+       * tell the viewer it could not be honoured. */
       modelTierApplied: ModelTier;
+      /** The model you named in {@link SampleOptions.model}, exactly as you
+       * passed it, when it answered. Absent when the call named no model,
+       * when `modelTier` answered instead, or when this viewer's app or
+       * the platform cannot take model names yet. Only on `sample()`'s
+       * result: `sample.json` resolves to the parsed value. */
+      modelApplied?: string;
     }
 
     /** Resolution shape for {@link limits}. */
     interface SampleLimits {
       /** Largest `input`, in UTF-8 bytes of text — the prompt string, or all
-       * turns' `content` together (65536). */
+       * turns' `content` together (262144). */
       maxPromptBytes: number;
-      /** Present only when this view can send `images`. */
+      /** Present only when the artifact declares images and this view can
+       * send them. */
       images?: ImageLimits;
       /** Present only when this view can run {@link SampleOptions.tools}. */
       tools?: ToolLimits;
@@ -559,7 +642,7 @@ declare namespace Claude {
      *   rule), `cache` passed with `tools`, or a tool `inputSchema` Claude's
      *   API refused. (Rarely, the service itself refuses a request as
      *   malformed after text began; `e.text` then carries the partial.)
-     * - `prompt_too_large` — over 64 KiB of text, or one call's tool rounds
+     * - `prompt_too_large` — over 256 KiB of text, or one call's tool rounds
      *   outgrew what Claude can read at once (return less per tool). Send an
      *   excerpt, a summary, or fewer turns.
      * - `transform_error` — arguments could not be prepared; treat like
@@ -576,9 +659,9 @@ declare namespace Claude {
      * - `capability_disabled` — granted but unusable in this view.
      * - `capability_removed` — the method is not in the runtime serving
      *   this view (e.g. `json` on an older viewer app).
-     * - `images_unavailable` — this view cannot send images (check
-     *   {@link limits} first). Hide the IMAGE affordance only; text calls
-     *   work.
+     * - `images_unavailable` — this view cannot send images, or the
+     *   artifact does not declare them (check {@link limits} first). Hide
+     *   the IMAGE affordance only; text calls work.
      * - `tools_unavailable` — this view cannot run page tools (check
      *   {@link limits} first). Hide what depends on them; plain calls work.
      *

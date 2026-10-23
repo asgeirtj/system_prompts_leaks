@@ -4,7 +4,7 @@
 
 `anthropic` 1.x is deliberately a small step from the last 0.x release: no method was restructured and no new pattern is required. Long-deprecated surface was removed, the HTTP layer moved from `httpx` to its maintained fork `httpx2`, and the minimum Python version is now 3.10. Almost every required edit is mechanical, and a type checker flags nearly all of them once 1.x is installed - which makes `pyright` / `mypy` output a good cross-check for the inventory below.
 
-The SDK repository's `MIGRATION.md` is the authoritative change list - WebFetch it (URL in `shared/live-sources.md` -> SDK major-version upgrade guides) when you can, and if it disagrees with this file, follow `MIGRATION.md` and say so in your report. The other Python files in this skill may still show 0.x-era details; for a project on 1.x, this file takes precedence.
+The SDK repository's `MIGRATION.md` is the authoritative change list - fetch it (URL in `shared/live-sources.md` -> SDK major-version upgrade guides) when you can, and if it disagrees with this file, follow `MIGRATION.md` and say so in your report. The other Python files in this skill may still show 0.x-era details; for a project on 1.x, this file takes precedence.
 
 
 ---
@@ -15,7 +15,7 @@ The SDK repository's `MIGRATION.md` is the authoritative change list - WebFetch 
 
 **Current version.** Read the declared requirement (`anthropic...` in the manifests above) and, if a project environment is available, the installed one (`python -c "import anthropic; print(anthropic.__version__)"`). If the project is already on 1.x, skip the dependency bump and treat this as a call-site cleanup. If nothing in scope declares the dependency (a bare scripts directory, or `anthropic` arrives transitively), don't invent a manifest - upgrade the code and put the install command in the report.
 
-**Target version.** Before writing any pin, confirm a 1.x release is actually published: `pip index versions anthropic` (or `curl -s https://pypi.org/pypi/anthropic/json` and read `info.version`). Use the newest 1.x you find. If no 1.x release exists yet, stop and tell the user - do not write an uninstallable requirement. If you cannot check (no network), proceed with `>=1,<2` and list the unverified pin in your report.
+**Target version.** Before writing any pin, confirm a 1.x release is actually published: `pip index versions anthropic` (or `curl -s https://pypi.org/pypi/anthropic/json` and read `info.version`). Use the newest 1.x you find. If no 1.x release exists yet, stop and tell the user - do not write an uninstallable requirement. If you cannot check (no network), proceed with `>=1,<2` and list the unverified pin in your report. If the target release is at or past the first one whose default API version is newer than the one the code sends now (`shared/api-version-migration.md` -> that version's Set the version table), and the code does not set `anthropic-version` itself, the upgrade also moves the API version: **[DECIDE]** pin the newest 1.x below that release (if every published 1.x already sends the newer version, say so; the only choice left is to apply that version's changes first), or follow that guide's Steps 1-4, with this SDK bump as its Step 3, and report as its Step 5 says.
 
 If the scope is under git, check `git status` before editing - unexpected modifications mean a concurrent process; stop and investigate before proceeding.
 
@@ -145,7 +145,7 @@ Anchor every edit on a value that demonstrably comes from a `.with_raw_response.
 **[BREAKS]** `client.completions.create()` (`/v1/complete`), the `Completion` types, and the `anthropic.HUMAN_PROMPT` / `anthropic.AI_PROMPT` constants are removed (also from `AnthropicBedrock`). Port each call to `client.messages.create()`:
 
 - the `f"{HUMAN_PROMPT} ...{AI_PROMPT}"` prompt string becomes `messages=[{"role": "user", "content": "..."}]`; text that preceded the first `HUMAN_PROMPT` as instructions becomes `system=`; alternating `HUMAN_PROMPT`/`AI_PROMPT` turns become alternating `user`/`assistant` messages;
-- `max_tokens_to_sample=` -> `max_tokens=`; `stop_sequences=` carries over; drop `temperature`/`top_p`/`top_k` (Step 6);
+- `max_tokens_to_sample=` -> `max_tokens=`; `stop_sequences=` carries over; handle `temperature`/`top_p`/`top_k` as Step 6 says;
 - `completion.completion` -> the text blocks of `message.content` (`"".join(b.text for b in message.content if b.type == "text")`); `stop_reason` values carry over (`"stop_sequence"`, `"max_tokens"`), with `"end_turn"` as the new normal-completion value;
 - `stream=True` completions -> `client.messages.stream(...)` and its `text_stream`.
 
@@ -173,13 +173,13 @@ print("".join(block.text for block in message.content if block.type == "text"))
 
 ## Step 6: Removed request parameters
 
-- **[BREAKS] `temperature`, `top_p`, `top_k`** are no longer accepted by `messages.create()` / `.stream()` / `.parse()`, their `beta.messages` counterparts, or `beta.messages.tool_runner()` (passing them is a `TypeError`), and are gone from the per-request `params` TypedDict of `messages.batches.create()` (a type checker flags the key; at runtime the SDK still forwards it). Delete them - they are gone from the 1.x signatures, not from the API, and whether a model still honours them is a model question (`shared/model-migration.md`): Opus 4.7 and later return a 400 for any request that carries one (the default value included), Claude Sonnet 5.5, Claude Sonnet 5, and Claude Haiku 5.5 reject non-default values, and every still-served model before those accepts them - the Claude 4.6 / 4.5 line (Opus 4.6, Sonnet 4.6, Opus 4.5, Sonnet 4.5, Haiku 4.5) and the deprecated-but-still-served Claude 4 models (`shared/models.md` -> Deprecated Models). So **[DECIDE]** when the call pins one of those accepting models and visibly depends on the setting (a documented determinism requirement, an A/B on temperature), move it into `extra_body` instead of deleting it - `extra_body={"temperature": 0.2}` is merged into the request JSON as-is - and for a `messages.batches.create()` request leave the key in that request's `params` dict (it is forwarded, see above). A call that pins a retired model (`shared/models.md` -> Retired Models) is the `migrate` flow's problem first: it needs a replacement model, and the replacement decides whether the setting survives. Say which calls kept a setting this way in the report. When a test existed only to assert that these parameters pass through, keep it meaningful by asserting on parameters that still exist (`stop_sequences`, `metadata`, `service_tier`, `max_tokens`) rather than deleting it.
+- **[BREAKS] `temperature`, `top_p`, `top_k`** are no longer accepted by `messages.create()` / `.stream()` / `.parse()`, their `beta.messages` counterparts, or `beta.messages.tool_runner()` (passing them is a `TypeError`), and are gone from the per-request `params` TypedDict of `messages.batches.create()` (a type checker flags the key; at runtime the SDK still forwards it). Delete them - they are gone from the 1.x signatures, not from API version `2023-06-01` (on `2026-10-21` the API rejects all three on every model - `shared/api-version-migration.md`), and whether a model still honours them is a model question (`shared/model-migration.md`): Opus 4.7 and later return a 400 for any request that carries one (the default value included), Claude Sonnet 5.5, Claude Sonnet 5, and Claude Haiku 5.5 reject non-default values, and every still-served model before those accepts them - the Claude 4.6 / 4.5 line (Opus 4.6, Sonnet 4.6, Opus 4.5, Sonnet 4.5, Haiku 4.5) and, on Amazon Bedrock and Google Cloud Vertex AI, older models each platform still serves (those platforms set their own retirement schedules). So **[DECIDE]** when the code will still send `2023-06-01` after the upgrade, the call pins one of those accepting models, and it visibly depends on the setting (a documented determinism requirement, an A/B on temperature), move it into `extra_body` instead of deleting it - `extra_body={"temperature": 0.2}` is merged into the request JSON as-is - and for a `messages.batches.create()` request leave the key in that request's `params` dict (it is forwarded, see above). A call that pins a model its platform has retired (for the Claude API, `shared/models.md` -> Retired Models) is the `migrate` flow's problem first: it needs a replacement model, and the replacement decides whether the setting survives. Say which calls kept a setting this way in the report. When a test existed only to assert that these parameters pass through, keep it meaningful by asserting on parameters that still exist (`stop_sequences`, `metadata`, `service_tier`, `max_tokens`) rather than deleting it.
 
   ```python
   # Before
   client.messages.create(..., model="claude-sonnet-4-6", temperature=0.2)
 
-  # After (only when the pinned model accepts it and the code depends on it)
+  # After (only when the pinned model accepts it, the code depends on it, and the code sends 2023-06-01)
   client.messages.create(..., model="claude-sonnet-4-6", extra_body={"temperature": 0.2})
   ```
 
@@ -187,7 +187,7 @@ print("".join(block.text for block in message.content if block.type == "text"))
 
   ```python
   # Before
-  client.beta.messages.create(..., temperature=0.2, output_format={"type": "json_schema", "schema": Order.model_json_schema()})
+  client.beta.messages.create(..., output_format={"type": "json_schema", "schema": Order.model_json_schema()})
 
   # After
   client.beta.messages.create(..., output_config={"format": {"type": "json_schema", "schema": Order.model_json_schema()}})
@@ -278,7 +278,7 @@ Lead with the outcome, then:
 - [ ] **[BREAKS]** `httpx` objects passed to / received from the SDK (custom transports, auth flows and event hooks included) come from `httpx2` - or **[DECIDE]** `httpx2.alias_httpx()` at the top of an application entry point; `httpx`-patching instrumentation / mocking (`respx`, `pytest-httpx`, `vcrpy`, OpenTelemetry, Sentry) covered by the alias; `httpx-aiohttp` dropped; `httpx2>=2.0` declared if imported
 - [ ] **[BREAKS]** async `.with_raw_response`: `await` on `parse()/json()/text()/read()`; `.text` -> `.text()`, `.content` -> `.read()` everywhere; `LegacyAPIResponse` annotations replaced
 - [ ] **[BREAKS]** `completions.create` / `HUMAN_PROMPT` / `AI_PROMPT` ported to Messages; **[DECIDE]** model choice surfaced
-- [ ] **[BREAKS]** `temperature` / `top_p` / `top_k` removed from SDK calls - or, **[DECIDE]**, moved to `extra_body` only where the call pins an older model *and* visibly depends on the setting; raw `output_format={...}` -> `output_config={"format": ...}` everywhere (helpers included); helper `output_format=Model` untouched
+- [ ] **[BREAKS]** `temperature` / `top_p` / `top_k` removed from SDK calls - or, **[DECIDE]**, moved to `extra_body` only where the code still sends API version `2023-06-01` after the upgrade, the call pins an older model, *and* it visibly depends on the setting; raw `output_format={...}` -> `output_config={"format": ...}` everywhere (helpers included); helper `output_format=Model` untouched
 - [ ] **[BREAKS]** `BetaBase64PDFBlockParam` -> `BetaRequestDocumentBlockParam`; `Transport`/`AsyncTransport`/`ProxiesTypes` -> `httpx2` names; `READ_MAX_BYTES` -> `DEFAULT_MAX_FILE_BYTES`
 - [ ] **[BREAKS]** `parse(stream=)` -> `messages.stream()`; `compaction_control` -> server-side compaction; `body=bytes` -> `content=`; `Stream` isinstance checks retargeted
 - [ ] **[DECIDE]** duplicate-casing headers joined; **[BREAKS]** `bytes` header values decoded

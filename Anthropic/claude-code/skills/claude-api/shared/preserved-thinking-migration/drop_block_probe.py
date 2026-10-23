@@ -434,6 +434,8 @@ def post(base_url, path, body, betas, api_key, timeout):
     req.add_header("content-type", "application/json")
     for name, value in (api_key if isinstance(api_key, dict) else {"x-api-key": api_key}).items():
         req.add_header(name, value)
+    # Stays on 2023-06-01: it accepts every request body 2026-10-21 accepts,
+    # plus captured bodies with fields 2026-10-21 rejects.
     req.add_header("anthropic-version", "2023-06-01")
     req.add_header("anthropic-beta", ",".join(betas))
     t0 = time.time()

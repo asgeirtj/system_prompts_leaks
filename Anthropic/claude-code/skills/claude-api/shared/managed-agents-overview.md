@@ -49,7 +49,7 @@ Managed Agents is in beta. The SDK sets required beta headers automatically:
 | Stream events / handle tool_use        | `shared/managed-agents-events.md` + language file       |
 | Get notified of session state changes via webhook (no polling) | `shared/managed-agents-webhooks.md` - Console-registered endpoint, HMAC verify, thin payload + fetch |
 | Define an outcome / rubric-graded iterate loop | `shared/managed-agents-outcomes.md` - `user.define_outcome` event, grader, `span.outcome_evaluation_*` events |
-| Coordinate multiple agents / subagents / threads | `shared/managed-agents-multiagent.md` - `multiagent: {type: "coordinator", agents: [...]}` on the agent, session threads, cross-posted tool confirmations |
+| Coordinate multiple agents / subagents / threads | `shared/managed-agents-multiagent.md` - `multiagent: {type: "multiagent_20261001", subagents: {...}, workflows: {type: "enabled"}}` on the agent with the system-prompt line for runs, session threads, cross-posted tool confirmations |
 | Set up environments                    | `shared/managed-agents-environments.md` + language file |
 | Run tool execution in your own infra / VPC (self-hosted sandbox) | `shared/managed-agents-self-hosted-sandboxes.md` - `config:{type:"self_hosted"}`, `ANTHROPIC_ENVIRONMENT_KEY`, `EnvironmentWorker.run()` / `ant beta:worker poll` |
 | Upload files / attach repos            | `shared/managed-agents-environments.md` (Resources)     |
@@ -62,9 +62,9 @@ Managed Agents is in beta. The SDK sets required beta headers automatically:
 | Cap a session's spend with a hard dollar budget | `shared/managed-agents-core.md` (§ Session budgets) - `budget` at session create, `budget_reached` pause, change/remove to resume. Deployments: `shared/managed-agents-scheduled-deployments.md` § Deployment budgets |
 | Pin where model inference runs (data residency) | `shared/managed-agents-core.md` (§ Pinning inference geography) - `model.inference_geo` on the agent, per-session override, roster uniformity |
 | Load skills from the codebase instead of uploading | `shared/managed-agents-tools.md` (§ Skills from a GitHub repository) - root `.claude/skills` discovery at session start |
-| Let the agent run work too big to hand out one task at a time (hundreds of documents, many sources) as a background workflow run | `shared/managed-agents-multiagent.md` (§ Dynamic workflows) - `multiagent: {type: "multiagent_20261001", workflows: {type: "enabled"}}` (can combine with a roster), the system-prompt line that says when to start a run, `workflow_run.*` events, knowing when the work is done, interrupting with runs open |
+| Let the agent run many agents in phases (hundreds of documents, many sources) as a background workflow run - on for every team | `shared/managed-agents-multiagent.md` (§ Dynamic workflows) - `multiagent: {type: "multiagent_20261001", workflows: {type: "enabled"}}` (can combine with a roster), the system-prompt line that says when to start a run, `workflow_run.*` events, knowing when the work is done, interrupting with runs open |
 | Make a workflow run cheaper, faster or better | `shared/managed-agents-multiagent.md` (§ Dynamic workflows -> Reading the plan the agent wrote) - read the plan the agent wrote before you propose a change |
-| Give the session an advisor to consult mid-turn | `shared/managed-agents-multiagent.md` (§ Advisor) - `{type: "advisor", model}` roster entry, consultation threads, plaintext vs redacted delivery |
+| Give the session an advisor to consult mid-turn | `shared/managed-agents-multiagent.md` (§ Advisor) - `advisor: {type: "enabled", model}` in `multiagent`, consultation threads, plaintext vs redacted delivery |
 
 ## Common Pitfalls
 

@@ -57,8 +57,9 @@ one swatch restates the title and costs space.
   (primary / secondary / muted). A light categorical hue (yellow, aqua) is illegible
   as text on the surface. Identity comes from the colored mark *beside* the text - a
   dot, a short line-key, a swatch - never from coloring the text itself. A label set
-  *inside* a colored fill (a stacked segment, a map tile) is the one exception: pick
-  white or ink by the fill's luminance so it always clears contrast.
+  *inside* a colored fill (a stacked segment, a map tile) is the one exception: white or
+  near-black, the same two in both modes, by the fill's luminance. `palette.md` says which its
+  categorical and status colors take.
 - **When end-labels collide, don't stack them.** Direct end-labels work when series
   separate at the right edge. When lines converge, nudging labels apart vertically
   detaches them from their lines and reads as noise - instead use **leader lines**

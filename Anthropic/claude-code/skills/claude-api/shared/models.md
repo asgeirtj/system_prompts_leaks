@@ -1,6 +1,6 @@
 # Claude Model Catalog
 
-**Only use exact model IDs listed in this file.** Never guess or construct model IDs - incorrect IDs will cause API errors. Use aliases wherever available. For the latest information, WebFetch the Models Overview URL in `shared/live-sources.md`, or query the Models API directly (see Programmatic Model Discovery below).
+**Only use exact model IDs listed in this file.** Never guess or construct model IDs - incorrect IDs will cause API errors. Use aliases wherever available. For the latest information, fetch the Models Overview URL in `shared/live-sources.md`, or query the Models API directly (see Programmatic Model Discovery below).
 
 ## Programmatic Model Discovery
 
@@ -34,7 +34,7 @@ Top-level fields (`id`, `display_name`, `max_input_tokens`, `max_tokens`) are ty
 ```bash
 curl https://api.anthropic.com/v1/models/claude-opus-4-8 \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
-  -H "anthropic-version: 2023-06-01"
+  -H "anthropic-version: 2026-10-21"
 ```
 
 ```yaml

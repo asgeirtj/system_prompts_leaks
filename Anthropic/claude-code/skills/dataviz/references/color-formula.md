@@ -94,9 +94,14 @@ sub-3:1 fill with neither is a fail.
 
 **Scope - what the validator does and doesn't cover.** These six checks validate a
 *categorical* palette (series identity). They do **not** judge a lone status/text
-color or a sequential ramp. For a single status or text color, run a WCAG *text*-
-contrast check (4.5:1 normal, 3:1 large) - `validate_palette.js` exports
-`contrast(a, b)` for exactly this. For sequential/diverging, the check is lightness
+color or a sequential ramp. For a single status or text color, run a *text*-contrast
+check. APCA is an acceptable measure, and tracks what people see more closely than
+WCAG 2's ratio, so go by APCA where the two disagree; that is how `palette.md` picks the
+label inside each fill. Where WCAG 2 AA conformance is required, hold text to its ratio
+instead (4.5:1 normal, 3:1 large). `validate_palette.js` exports `apca(text, background)`
+for APCA (compare absolute values: light text on dark scores negative) and `contrast(a, b)`
+for WCAG 2's ratio.
+For sequential/diverging, the check is lightness
 monotonicity across the ramp, not adjacency CVD - running the categorical validator on
 a sequential ramp **will FAIL by design** (it spans the band; steps sit close), which
 is expected, not a real failure; don't "fix" a good ramp to satisfy it.

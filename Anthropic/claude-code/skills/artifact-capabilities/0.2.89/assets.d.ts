@@ -4,10 +4,12 @@
  * JavaScript) for this artifact and get back durable asset ids.
  *
  * Methods: `upload(blob, options?)` resolves `{id, url, sizeBytes,
- * contentType}`; `list()` resolves every stored asset plus the
- * artifact's storage usage; `delete(ref)` removes one asset. Assets live
- * with the artifact: they survive reloads and republishes, are shared by
- * all of the artifact's viewers, and are deleted with the artifact. The
+ * contentType}`; `list()` resolves the stored assets this viewer may
+ * list plus the artifact's storage usage; `delete(ref)` removes one
+ * asset. Assets live with the artifact: they survive reloads and
+ * republishes, are shared by the artifact's viewers (one outside the
+ * owner's organization may be refused an asset), and are deleted with
+ * the artifact. The
  * `db` document an id is stored in remains the asset's index — a listing
  * carries no names or meaning of its own, so `list()` is for
  * housekeeping (a storage meter, removing assets no row points at), not
@@ -17,23 +19,85 @@
  *
  * The capability is a NAMESPACE of methods: obtain it with
  * `const assets = await claude.use("assets")`, then call
- * `assets.upload(...)`. Every method is WRITER-ONLY: the platform grants
- * the capability only to viewers holding this artifact's write bit, so
- * on a read-only view `use("assets")` resolves `null` — hide upload and
- * delete affordances on `null`, and still handle the rejection codes on
- * every call (`not_granted` remains the per-call backstop). Declare
- * `capabilities: {assets: {}}`
- * (declare `db` too — an asset id without a document to live in is lost
- * when the page reloads). A declaring artifact is organization-internal
- * and cannot be shared publicly.
+ * `assets.upload(...)`. Declare `capabilities: {assets: {}}` (declare
+ * `db` too — an asset id without a document to live in is lost when the
+ * page reloads). Declared that way every method is for people who can
+ * EDIT the artifact (the share menu's Editor and Owner, the `db` levels
+ * `admin` and `owner`): the platform grants the capability only to
+ * them, so on any other view `use("assets")` resolves `null` — hide
+ * upload and delete affordances on `null`, and still handle the
+ * rejection codes on every call (`not_granted` remains the per-call
+ * backstop).
+ *
+ * UPLOADS FROM PEOPLE WHO CANNOT EDIT. Declare
+ * `capabilities: {assets: {upload: "interact"}}` and the platform can
+ * also grant the capability to signed-in members of the owner's
+ * organization who hold the `interact` level (the share menu's
+ * Contributor, the level that writes shared `db` documents by default),
+ * for a page where people who only use the artifact add files: demo
+ * videos on a submission form, photos on a team wall, a profile
+ * picture. It is not switched on everywhere yet. Where it is not, and
+ * on an artifact that no person owns (such as one Claude made in a
+ * channel or project that nobody has claimed), the page still publishes
+ * and only people who can edit get the capability. Admission follows
+ * the version people are served (the Shared version, if one is pinned),
+ * so declare the key there. `upload: "admin"`, like leaving `upload`
+ * out, keeps the default above; any other value is refused at publish.
+ * Declare `"interact"` only when the user asks for, or clearly
+ * describes, a page where people who cannot edit add files, not because
+ * the page might have other users; when the request does not say, leave
+ * it out. Once it is declared, every such member can fill the
+ * artifact's shared storage quota, and only people who can edit can
+ * remove someone else's files. On an artifact shared publicly, or with
+ * the whole organization at Contributor, that is nearly every member: a
+ * person's own Viewer or Commenter row does not hold them below
+ * Contributor there. Pages then load no asset as script or stylesheet
+ * (below), so keep the page's own code and styles in its files.
+ *
+ * A viewer admitted this way uploads the same types within the same
+ * limits as an editor (on some artifacts the platform refuses more
+ * types: handle `unsupported_type`). A stored id does not say who
+ * uploaded it, so on an artifact that declares, or has ever declared,
+ * `"interact"`, pages use every asset only as an image, video, font,
+ * download link or data they parse: they never run one as code
+ * (`<script>`, `import()`, a Worker), load one as a stylesheet
+ * (`<link>`, `@import`) or insert its text as HTML (Markdown rendered
+ * to HTML included). Otherwise someone who cannot edit the page could
+ * write the id of their own upload into a `db` row the page reads and
+ * change what it does for everyone who opens it, editors included.
+ * Filtering or sanitizing the file first does not make loading it safe:
+ * not even a filtered copy goes into a `<style>`. `delete` removes only
+ * an asset that same person uploaded (anyone else's rejects
+ * `not_uploader`, as for an editor invited from outside the
+ * organization), and `list()` resolves only the assets that person
+ * uploaded, while its `usage` still counts the whole artifact. People
+ * whose level is Viewer or Commenter, people from outside the
+ * organization who cannot edit and signed-out visitors get `null`.
+ * `use("assets")` resolving non-null means this viewer may upload, and
+ * delete what they uploaded: gate those controls on that. Gate controls
+ * that delete someone else's asset or do housekeeping on the `user`
+ * capability's `can("assets.write")`, which is false for a viewer
+ * admitted this way.
+ *
+ * A file uploaded by a viewer admitted by `upload: "interact"` is
+ * served only to members of the owner's organization who open the
+ * artifact signed in to that organization. On a public artifact,
+ * visitors from outside the organization, signed in or not, are not
+ * served it, nor is a member whose browser sends the artifact no
+ * cookies; nor are people invited from outside the organization. Its
+ * URL fails to load for them, which does not mean the file is gone.
+ * Show a placeholder, and do not rely on such files being visible
+ * outside the organization.
  *
  * What to store where, the one invariant worth designing around: store
  * the returned `id` (an opaque 32-char string) in `db` documents as the
  * durable pointer — e.g. `{"ticket_id": 7, "screenshot": id}` — and
  * build the display URL per view from it. The returned `url` is that
  * display URL, already correct for the current view — use it verbatim
- * as an `<img>`/`<video>`/`<script>` `src`, a stylesheet `<link>`
- * `href`, an `@font-face` `src: url()`, or a download link's `href`.
+ * as an `<img>`/`<video>` `src`, a `<script>` `src` or stylesheet
+ * `<link>` `href` (never either of those two on an artifact that has
+ * declared `upload: "interact"`), an `@font-face` `src: url()`, or a
+ * download link's `href`.
  * To display an asset whose id you read back
  * from `db`, build `"/_blob/" + id`: that root-relative path resolves
  * from every page and version of the artifact (the one root-relative
@@ -55,7 +119,8 @@
  * page that ingests a data file reads it back from its `url` and parses
  * the text itself; a stylesheet or script asset takes effect where one
  * of the artifact's own pages references it, same-origin, e.g.
- * `<link rel="stylesheet" href={url}>` or `<script src={url}>`. The
+ * `<link rel="stylesheet" href={url}>` or `<script src={url}>`, except
+ * on an artifact that has declared `upload: "interact"` (see above). The
  * type must be the exact spelling — a `;charset=` parameter or a
  * platform alias (a `.csv` picked on Windows can report
  * `application/vnd.ms-excel`; `.js` often reports
@@ -138,7 +203,7 @@ declare namespace Claude {
 
     /** Resolution shape for {@link Claude.Assets.list}. */
     interface ListResult {
-      /** Every stored asset, oldest first. */
+      /** The stored assets this viewer may list, oldest first. */
       assets: Asset[];
       usage: Usage;
     }
@@ -188,6 +253,10 @@ declare namespace Claude {
      *   it is unpublished, being deleted, or retired. Surface the
      *   condition; uploading something smaller, or deleting assets no
      *   row points at, may work for the quota half only.
+     * - `not_uploader` — delete only: this viewer may delete only the
+     *   assets they uploaded themselves and this one is someone else's (a
+     *   viewer admitted by `upload: "interact"`, or an editor invited from
+     *   outside the organization). Nothing was removed.
      * - `rate_limited` — calling too often; back off and let the
      *   viewer retry. Never loop.
      * - `upstream_auth` — the platform could not authenticate the
@@ -212,6 +281,7 @@ declare namespace Claude {
       | "too_large"
       | "unsupported_type"
       | "quota_or_state"
+      | "not_uploader"
       | "rate_limited"
       | "upstream_auth"
       | "capability_disabled"
@@ -224,7 +294,7 @@ declare namespace Claude {
 
   /**
    * The method namespace `await claude.use("assets")` resolves for a
-   * writer (`null` for a reader).
+   * viewer the platform lets upload (`null` for everyone else).
    */
   interface Assets {
     /**
@@ -239,7 +309,7 @@ declare namespace Claude {
      *
      * The upload is not transactional with any `db` write: write the id
      * into its document right after the call resolves, and treat a pointer
-     * whose asset 404s as deleted (render a placeholder).
+     * whose asset 404s as missing (render a placeholder).
      *
      * @param blob The bytes: a `Blob` or `File`, 1 byte to 20 MiB (2 MiB
      *   for SVG, 16 MiB for CSS and JavaScript), whose type (or
@@ -252,11 +322,15 @@ declare namespace Claude {
     ): Promise<assets.UploadResult>;
 
     /**
-     * List every asset stored for this artifact, oldest first, with the
+     * List the assets stored for this artifact, oldest first, with the
      * artifact's storage usage. A housekeeping read: drive a storage
      * meter from `usage`, or reconcile against the ids your `db` rows
      * hold to find assets nothing points at. It is not a substitute for
      * those rows — entries carry no names, order keys, or ownership.
+     * For a viewer admitted by `upload: "interact"` the listing holds only
+     * the assets that person uploaded, while `usage` covers the whole
+     * artifact. An editor invited from outside the organization is not
+     * shown Contributors' files, in the listing or in `usage`.
      */
     list(): Promise<assets.ListResult>;
 
@@ -268,7 +342,8 @@ declare namespace Claude {
      * the id in the same deliberate user action, and otherwise call it
      * only on ids no row points at — never speculatively or in bulk on
      * load. Idempotent: an id with nothing stored resolves
-     * `{deleted: false}`.
+     * `{deleted: false}`. A viewer who may delete only their own uploads
+     * gets `not_uploader` for anyone else's.
      */
     delete(ref: string): Promise<assets.DeleteResult>;
   }

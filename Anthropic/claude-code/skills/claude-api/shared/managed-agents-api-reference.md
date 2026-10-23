@@ -1,6 +1,6 @@
 # Managed Agents - Endpoint Reference
 
-All endpoints require `x-api-key` and `anthropic-version: 2023-06-01` headers. Managed Agents endpoints additionally require the `anthropic-beta` header.
+All endpoints require an `x-api-key` header and an `anthropic-version` header (for example `2026-10-21`). Managed Agents endpoints additionally require the `anthropic-beta` header.
 
 > Most users should define agents and environments as version-controlled files synced with `ant apply` - see `shared/anthropic-cli.md`. The endpoints below are the underlying API that the CLI and SDKs drive.
 
@@ -28,8 +28,8 @@ All resources are under the `beta` namespace. Python and TypeScript share identi
 | Session Events | `sessions.events.list` / `send` / `stream` | `Sessions.Events.List` / `Send` / `StreamEvents` |
 | Session Threads | `sessions.threads.list` / `retrieve` / `archive`; `sessions.threads.events.list` / `stream` | `Sessions.Threads.List` / `Get` / `Archive`; `Sessions.Threads.Events.List` / `StreamEvents` |
 | Session Resources | `sessions.resources.add` / `retrieve` / `update` / `list` / `delete` | `Sessions.Resources.Add` / `Get` / `Update` / `List` / `Delete` |
-| Deployments | `deployments.create` / `update` / `pause` / `unpause` / `archive` / `run` | Not yet documented - WebFetch the SDK repo (`shared/live-sources.md`) |
-| Deployment Runs | `deployment_runs.list` / `retrieve` (TS: `deploymentRuns.*`) | Not yet documented - WebFetch the SDK repo (`shared/live-sources.md`) |
+| Deployments | `deployments.create` / `update` / `pause` / `unpause` / `archive` / `run` | Not yet documented - fetch the SDK repo (`shared/live-sources.md`) |
+| Deployment Runs | `deployment_runs.list` / `retrieve` (TS: `deploymentRuns.*`) | Not yet documented - fetch the SDK repo (`shared/live-sources.md`) |
 | Vaults | `vaults.create` / `retrieve` / `update` / `list` / `delete` / `archive` | `Vaults.New` / `Get` / `Update` / `List` / `Delete` / `Archive` |
 | Credentials | `vaults.credentials.create` / `retrieve` / `update` / `list` / `delete` / `archive` / `mcp_oauth_validate` | `Vaults.Credentials.New` / `Get` / `Update` / `List` / `Delete` / `Archive` / `McpOauthValidate` |
 | Memory Stores | `memory_stores.create` / `retrieve` / `update` / `list` / `delete` / `archive` | `MemoryStores.New` / `Get` / `Update` / `List` / `Delete` / `Archive` |
@@ -260,12 +260,16 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
     }
   ],
   "multiagent": {
-    "type": "coordinator",
-    "agents": [
-      "agent_abc123",
-      { "type": "agent", "id": "agent_def456", "version": 4 },
-      { "type": "self" }
-    ]
+    "type": "multiagent_20261001",
+    "subagents": {
+      "type": "enabled",
+      "predefined_agents": [
+        "agent_abc123",
+        { "type": "agent", "id": "agent_def456", "version": 4 },
+        { "type": "self" }
+      ]
+    },
+    "workflows": { "type": "enabled" }
   },
   "metadata": {
     "key": "value (max 16 pairs, keys <=64 chars, values <=512 chars)"
@@ -273,7 +277,7 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
 }
 ```
 
-> Limits: `tools` max 256, `skills` max 500, `mcp_servers` max 20 (unique names). `multiagent.agents` 1-20 entries (string ID | `{type:"agent",id,version?}` | `{type:"self"}` | `{type:"advisor",model}`, at most one advisor) - see `shared/managed-agents-multiagent.md`. `multiagent` can instead be `{type:"multiagent_20261001", workflows?, subagents?, advisor?}`, each member `{type:"enabled"}` or `{type:"disabled"}`; enabled `workflows` and `subagents` each take optional `predefined_agents` (up to 20, same entry forms minus advisor) and `inline_agents` (`{type:"enabled"}` or `{type:"disabled"}`, default enabled; disabled with an empty list is a 400), enabled `advisor` requires `model`; `workflows` and `subagents` default to enabled, `advisor` to disabled (§ Dynamic workflows).
+> Limits: `tools` max 256, `skills` max 500, `mcp_servers` max 20 (unique names). `multiagent` is `{type:"multiagent_20261001", workflows?, subagents?, advisor?}` - see `shared/managed-agents-multiagent.md` (an existing agent can have the older `coordinator` type: § Declare the roster on the coordinator -> Moving off the `coordinator` type). Each member is `{type:"enabled"}` or `{type:"disabled"}`; enabled `workflows` and `subagents` each take optional `predefined_agents` (up to 20 entries: string ID | `{type:"agent",id,version?}` | `{type:"self"}`) and `inline_agents` (`{type:"enabled"}` or `{type:"disabled"}`, default enabled; disabled with an empty list is a 400), enabled `advisor` requires `model`; `workflows` and `subagents` default to enabled, `advisor` to disabled (§ Dynamic workflows).
 
 ### CreateSession Request Body
 

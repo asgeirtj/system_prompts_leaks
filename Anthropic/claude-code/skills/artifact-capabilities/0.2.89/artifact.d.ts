@@ -1,9 +1,12 @@
 /**
- * The `artifact` capability — artifact publish: this page writes to ITSELF
- * by publishing a new version (`publish`). LIVE DOCS ONLY: on an artifact
- * the platform created as a live doc (neither the page nor its declaration
- * chooses that), edits are appended instead, by `edit` or by a viewer's
- * gestures on the markup (`sync`); see those members.
+ * The `artifact` capability — this artifact, and the titles of other
+ * artifacts whose ids or links it holds.
+ *
+ * Artifact publish: this page writes to ITSELF by publishing a new version
+ * (`publish`). LIVE DOCS ONLY: on an artifact the platform created as a
+ * live doc (neither the page nor its declaration chooses that), edits are
+ * appended instead, by `edit` or by a viewer's gestures on the markup
+ * (`sync`); see those members.
  *
  * The page hands the shell a complete replacement `index.html` — or, on a
  * multi-file artifact, just the files that changed — and the shell
@@ -14,6 +17,12 @@
  * cannot run the capability; a read-only view still resolves the
  * namespace, and its write verbs surface as rejection codes
  * (`not_granted` / `not_writer`), never as `null`.
+ *
+ * Declaring `{artifact: {publish: false}}` stops the page from saving
+ * itself: for every viewer, writers included, `publish`, `edit` and
+ * `sync` reject `not_granted` and nothing a viewer does to the markup is
+ * saved. Claude and the artifact's editors can still publish new versions
+ * the usual way. `metadata` works the same under either declaration.
  */
 
 declare namespace Claude {
@@ -112,9 +121,9 @@ declare namespace Claude {
      *
      * Lifecycle codes (from the runtime itself, not the publish path) —
      * permanent for this view, never retryable:
-     * - `not_granted` — the viewer's session did not grant `artifact` to
-     *   this frame (undeclared artifact, or a read-only view); render
-     *   the read-only experience.
+     * - `not_granted` — the viewer's session did not grant this verb to this
+     *   frame (undeclared artifact, a declaration with `publish: false`, or
+     *   a read-only view); render the read-only experience.
      * - `capability_disabled` — granted but not usable in this view
      *   (the serving runtime predates it, or its module failed to
      *   load), or — for the files form of {@link publish} — the form is
@@ -515,6 +524,50 @@ declare namespace Claude {
      * shared markup.
      */
     function sync(fn: () => unknown): Promise<void>;
+
+    /** One answer from {@link metadata}. */
+    interface ArtifactMetadata {
+      /** The artifact's id as a lowercase 36-character uuid, whichever form
+       *  the input used; "" when the input named no artifact. */
+      id: string;
+      /** Its current title; "" when there is none for this viewer here. */
+      title: string;
+      /** A short word for what kind of artifact it is, as the platform names it;
+       *  null when it has none or it is not known. Treat a word you don't know as null. */
+      type: string | null;
+    }
+
+    /**
+     * Current titles and kinds of other artifacts, for link chips the page
+     * draws. Use it only when the page must show an artifact's current
+     * title: a page that just links, or labels its links with the person's
+     * own words, needs neither `metadata()` nor `{artifact: {publish: false}}`.
+     * Pass ids or links, up to 200 distinct artifacts per call; you
+     * get one entry per input, keyed by the input as given. An input may be
+     * an artifact id (the 36-character uuid, any case, or the 22-character
+     * id) or an http(s) link whose path ends in /artifact/ and then the id,
+     * optionally after a title and a hyphen. Only that id is read, never the
+     * link's host, so a title does not show where a link goes.
+     *
+     * Answers differ per viewer. Show them to this viewer only: keep what
+     * `metadata()` returns out of the published page, stored data, a room,
+     * comments and anything sent off the page; on a live doc, draw chips
+     * inside <artifact-local> or keep titles on `data-local-*` attributes.
+     * Keep answers in memory for this view and ask
+     * again on load and when the page's links change. Set titles with
+     * textContent; they are other people's text.
+     *
+     * On a runtime that has `metadata()` it never rejects. Where the serving
+     * runtime predates it, calling it throws a TypeError or rejects
+     * `capability_removed`: once
+     * `const artifact = await claude.use("artifact")` has given a non-null
+     * `artifact`, call it only if `"metadata" in artifact`. An empty title
+     * means there is no title for this viewer here, for any reason: show a
+     * plain link, never "no access".
+     */
+    function metadata(
+      refs: readonly string[],
+    ): Promise<Record<string, ArtifactMetadata>>;
   }
 }
 

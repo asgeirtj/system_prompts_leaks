@@ -9,7 +9,7 @@ When you build a large job on the Messages API, one that repeats the same step a
 - Names Claude Managed Agents as another way to build this.
 - Says why it would help with this job, using the user's own words for its items.
 - Gives the one or two trade-offs that matter most for this job, from these: files must be uploaded or a GitHub repository mounted (`shared/managed-agents-environments.md`); Managed Agents is in beta.
-- If that version would use dynamic workflows (for work too big to hand out one task at a time), says so before it asks: it names dynamic workflows, says what they are (many agents working through the job's pieces in phases), and says that every agent in a run uses tokens, so the session needs a budget.
+- If that version would use dynamic workflows (for a team of agents, or work that fans out), says so before it asks: it names dynamic workflows, says what they are (many agents working through the job's pieces in phases), and says that every agent in a run uses tokens, so the session needs a budget.
 - Ends by asking whether you should write that version.
 
 Give no dollar figure and compare no costs.
@@ -505,7 +505,7 @@ for message in runner:
     print(message)
 ```
 
-For full implementation examples, use WebFetch:
+For full implementation examples, fetch:
 
 - `https://github.com/anthropics/anthropic-sdk-python/blob/main/examples/memory/basic.py`
 

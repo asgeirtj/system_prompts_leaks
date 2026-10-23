@@ -13,7 +13,7 @@
  * optional datum (null when not available), [] for a search, booleans false,
  * or an object whose fields follow those same rules. "Not available" covers
  * every reason at once (no viewer, scope not declared, organization policy,
- * viewer outside the organization, degraded session) and there is nothing to
+ * a guest the platform gives no identity, degraded session) and there is nothing to
  * catch. The spelling is fixed: display strings (name) are "" when withheld or
  * unknown -- falsy, so `p.name || "Someone"` renders and `if (p.name)`
  * discriminates (note: ?? does NOT catch "" -- use ||); optional data (id,
@@ -46,13 +46,14 @@ declare namespace Claude {
     function isOwner(): Promise<boolean>;
 
     /** This person can publish new PAGE VERSIONS -- i.e. artifact publish would
-     *  not reject not_writer; read it up front instead of waiting for the
+     *  not reject not_writer (a page that declares `publish: false` rejects
+     *  not_granted for everyone); read it up front instead of waiting for the
      *  rejection. For `db` it is the `admin` level: gate the controls a
      *  declared rule reserves for `admin` on this. It does NOT mean "may
      *  write SHARED db documents" -- by default the `interact` level writes
      *  them too -- and neither does id(): a view-only member has an id and
      *  cannot write, while an editor invited from outside the organization
-     *  writes and has none. For that question ask can("data.write"); when
+     *  writes and may have none. For that question ask can("data.write"); when
      *  it resolves null, keep the control and let a refused write decide
      *  rather than falling back to this. false when there is no viewer. */
     function canEdit(): Promise<boolean>;
@@ -63,18 +64,26 @@ declare namespace Claude {
      *  top-level, a viewer from outside the organization, or no viewer), and
      *  then every name resolves null: null is NOT "cannot", so decide without
      *  can(): keep a shared-data control and let a refused write decide;
-     *  for the two file-writing names, canEdit(). The names:
+     *  for the two file-writing names, canEdit(); "people.add" has no such
+     *  fallback, so offer no add-people control. The names:
      *    "data.write"      change the artifact's SHARED `db` documents
      *    "files.write"     publish the artifact's own files and page versions
-     *    "assets.write"    upload and delete assets
+     *    "assets.write"    upload, list and delete the artifact's assets (an
+     *                      Editor invited from outside the organization
+     *                      deletes only their own); a Contributor the page
+     *                      lets upload (see `assets`) does not hold it
+     *    "people.add"      add a colleague to this artifact by name
      *  When the platform answers at all, any other string resolves false, so
      *  a page written for a name a later host adds simply does not offer that
      *  control on this one. The answer is advice about what to OFFER; the
      *  server enforces every real action regardless, and may refuse one.
      *  "data.write" is about shared documents only: a viewer's own
      *  data/users/<id>/ subtree follows that path's own `db` rule, so write
-     *  there and handle the rejection. Fixed for the life of a view. can()
-     *  changes no other member's answer. Needs no declaration. */
+     *  there and handle the rejection. "people.add" is about the platform's
+     *  own sharing controls (the share menu): the page itself cannot add
+     *  anyone, and the name says nothing about inviting by email, sharing by
+     *  link or changing who manages access. Fixed for the life of a view.
+     *  can() changes no other member's answer. Needs no declaration. */
     function can(capability: string): Promise<boolean | null>;
 
     /** The viewer, in ONE await. NEVER null and never rejects: each field is
@@ -89,9 +98,9 @@ declare namespace Claude {
     function me(): Promise<Viewer>;
 
     interface Viewer {
-      /** Your id in this artifact's organization: an opaque token (u_...);
-       *  needs capabilities:{user:{}}. null = no identity on this page (signed
-       *  out, outside the organization, or the capability undeclared). The
+      /** Your id on this artifact: an opaque token (u_...); needs
+       *  capabilities:{user:{}}. null = no identity on this page (signed out,
+       *  a guest the platform gives none, or the capability undeclared). The
        *  value `db` recognizes in data/users/<id>/. */
       id: string | null;
       /** Your display name; needs scope "profile". "" when not available to
@@ -114,13 +123,23 @@ declare namespace Claude {
 
     // -- capabilities: { user: {} } -------------------------------------------
 
-    /** The viewer's id: an opaque per-ORGANIZATION token -- the same for you
-     *  on every artifact your organization owns and in every capability
-     *  (`db`'s private data/users/<id>/ subtree, rows you attribute, votes you
-     *  count); meaningless outside the organization; severed if the account is
-     *  deleted. Opaque: never parse, shorten, or show it. null = no identity
-     *  here. Resolve it to a person with profiles() -- never store the name it
-     *  resolved to. */
+    /** The viewer's id: an opaque token issued within one SCOPE -- today the
+     *  organization that owns the artifact. The same for you on every
+     *  artifact that organization owns and in every capability (`db`'s
+     *  private data/users/<id>/ subtree, rows you attribute, votes you
+     *  count), whether you belong to it or were invited from outside as a
+     *  guest; severed if the account is deleted. A member's id and a guest's
+     *  look alike: `Profile.guest` (under scope "profile") and a `room`
+     *  sender's `guest` tell them apart, never the id.
+     *    1. Ids are comparable only within one scope.
+     *    2. Within a scope they are stable forever: store them, key by them,
+     *       compare them freely.
+     *    3. Never compare across scopes. Same shape, never equal, no error.
+     *    4. Composite keys are fine for uniqueness but will not travel in a
+     *       copy into another scope.
+     *    5. Ids are opaque: never parse them.
+     *  Never shorten or show it either. null = no identity here. Resolve it
+     *  to a person with profiles() -- never store the name it resolved to. */
     function id(): Promise<string | null>;
 
     /** One person AS THIS VIEWER SEES THEM, NOW. Persist only `id` -- never
@@ -129,17 +148,17 @@ declare namespace Claude {
      *  again with profiles() when rendering. Two viewers of one page may
      *  legitimately see different names for the same id. */
     interface Profile {
-      /** The person's id -- the value THEIR id() returns in this organization
+      /** The person's id -- the value THEIR id() returns on this artifact
        *  (an opaque token), and the ONLY thing about them to write into state.
        *  Every id you pass to profiles() gets an entry: a person this viewer
        *  cannot resolve comes back with name "". */
       id: string;
       /** Their current display name, or "" when this viewer cannot resolve
-       *  them (another organization, no longer resolvable, directory switched
-       *  off, scope missing, or a stray id -- deliberately one signal). Falsy
-       *  on purpose: render `p.name || "Someone"`, branch with `if (p.name)`.
-       *  Note ?? does not catch "" -- use ||. User-set text: set it with
-       *  textContent. */
+       *  them (not someone this viewer may see named, no longer resolvable,
+       *  directory switched off, scope missing, or a stray id -- deliberately
+       *  one signal). Falsy on purpose: render `p.name || "Someone"`, branch
+       *  with `if (p.name)`. Note ?? does not catch "" -- use ||. User-set
+       *  text: set it with textContent. */
       name: string;
       /** Never null. An <img>-able URL: their profile photo, served from this
        *  artifact's own origin, when they have one and claude.ai shows it to
@@ -154,6 +173,12 @@ declare namespace Claude {
       email: string | null;
       /** p.id === (await id()). Never store it. */
       isMe: boolean;
+      /** The platform's own statement that this person was invited from
+       *  outside the organization that owns the artifact; needs scope
+       *  "profile", like name; false for its members and whenever the
+       *  platform said nothing. Display data, never authority, and never
+       *  stored: it can change while the id does not. */
+      guest: boolean;
     }
 
     /** Resolve the people your state refers to. BATCH-ONLY BY DESIGN (there
@@ -174,7 +199,12 @@ declare namespace Claude {
      *  Any length (the shell chunks and dedupes; absurd inputs resolve as
      *  unresolved entries with one console warning). A bare string is treated
      *  as [string]. Without scope "profile" every entry is unresolved. A hit
-     *  from search() is already warm. Never rejects. */
+     *  from search() is already warm. Who resolves is who this viewer may see
+     *  named on this artifact: for a member, colleagues and, where the
+     *  platform names them, the artifact's guests; for a guest, whoever the
+     *  platform already shows them by name here, other guests included. A
+     *  guest's entry carries `guest: true` whenever the platform says so (it
+     *  needs scope "profile", like names). Never rejects. */
     function profiles(
       ids: readonly string[] | string,
     ): Promise<Record<string, Profile>>;
@@ -199,8 +229,11 @@ declare namespace Claude {
      *  query searches the directory by name
      *  or email; email VALUES are returned only under the "email" scope.
      *  [] means no match OR unavailable
-     *  (signed out, another organization, a viewer who cannot edit, an
-     *  organization that withholds colleagues), never "keep typing". Call it
+     *  (signed out, another organization, a viewer who can neither edit nor
+     *  comment, a viewer who cannot edit where people outside the organization
+     *  have taken part in the artifact, a viewer who cannot edit after their
+     *  3,000th call in one page load, an organization that withholds
+     *  colleagues), never "keep typing". Call it
      *  straight from oninput: the platform debounces, and a call superseded
      *  by a newer search() resolves with the NEWER call's result at the same
      *  moment, so naive handlers always paint the final list. Hits are the

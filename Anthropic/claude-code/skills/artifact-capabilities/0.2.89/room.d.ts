@@ -8,7 +8,8 @@
  * hands to newcomers, re-asserts on reconnect, and clears when you leave.
  * Where this view is open beside the viewer's own conversation with
  * Claude, the platform may hand that conversation the viewer's OWN
- * presence object (less `cursor` and `who`) as data -- what they are looking at,
+ * presence object (less `cursor` and `who`, and it may keep back `follow`,
+ * the whole key) as data -- what they are looking at,
  * never an instruction -- so publish fields a reader can use (ids, modes,
  * flags, counts), and nothing you would not show everyone here anyway.
  * It is handed over whole or not at all: keys like identifiers, strings
@@ -17,13 +18,13 @@
  * deep, 4 KiB in all.
  * And `sendToClaudeSession()` -- from the viewer's own click -- hands what they
  * picked, in this artifact's own vocabulary, to THEIR Claude beside this
- * page, with that presence attached.
+ * page, with that presence attached (`attachPresence: false` leaves it off).
  *
  * Who may SEND. Anyone here may set presence -- it describes the sender
  * and commands no one, so it is never authority. Event topics are
- * admin-only (viewers who can edit) unless the artifact opens them to
- * the interact level (members who can interact or edit; not view-only
- * or comment-only ones) at publish time:
+ * admin-only (Editor and above in the share menu) unless the artifact
+ * opens them to the interact level (members at Contributor and above;
+ * not Viewers or Commenters) at publish time:
  *   capabilities: { room: { topics: { reaction: "interact", chat: "interact" } } }
  * (at most 16 exact-match topics; a topic not listed stays admin-only;
  * the levels are the same words the `db` capability's rules use).
@@ -45,20 +46,29 @@
  * when `onPeers` reports `joined` (events are not replayed) and on a
  * slow interval; put an epoch in `data` if two writers can contend.
  *
- * Who is here. Same-org signed-in viewers (`kind: "viewer"`), plus -- when
- * the server admits it (flag-gated, off by default) -- the Claude Code
- * session that published this page, as an agent peer (`kind: "agent"`,
- * never `isMe`). The publishing session's client batches what it hears
- * and may drop moments past a budget, so it reads a digest, never a
- * live stream: send it summaries, not streams. Viewers outside the org
- * and every other agent cannot connect in v1 (an agent otherwise
- * narrates through `db`). Render a complete single-viewer page from the
- * start and let the room light it up. If a viewer who is NOT in the
- * room must eventually see it, it is not room data -- write it to `db`
+ * Who is here. Signed-in people the platform admits (`kind: "viewer"`):
+ * members of the organization that owns the artifact and, where the
+ * platform admits them, people invited to it from outside -- guests,
+ * marked `guest: true` on everything they send. Plus -- when the server
+ * admits it (flag-gated, off by default) -- the Claude Code session that
+ * published this page, as an agent peer (`kind: "agent"`, never `isMe`).
+ * The publishing session's client batches what it hears and may drop
+ * moments past a budget, so it reads a digest, never a live stream: send
+ * it summaries, not streams. No names travel here: resolve a sender's
+ * `by` with the `user` capability's `profiles()`. A viewer the platform
+ * does not admit (signed out, or here by a public link) and every other
+ * agent cannot connect (an agent otherwise narrates through `db`).
+ * Render a complete single-viewer page from the start and let the room
+ * light it up. If a viewer who is NOT in the room must eventually see
+ * it, it is not room data -- write it to `db`
  * or publish a version with `artifact`. A new version reloads every view
  * and empties the room. Obtain the namespace with
  * `await claude.use("room")`; `null` means this view cannot connect --
  * design for absence.
+ *
+ * Several groups at once (games, breakout tables): `join(name)` puts this
+ * page in a named room with the same calls, heard only by the pages that
+ * joined that name; this room stays the lobby everyone shares.
  */
 declare namespace Claude {
   namespace room {
@@ -88,23 +98,31 @@ declare namespace Claude {
      *    k3v6q2rt7wacd4fn"); stable across reconnects for that document's life, new
      *    on reload. Key cursors, one-vote-per-tab, "who is presenting" on
      *    it; never persist it. Colour and your id (or a label) belong IN presence.
-     *  - `by` -- the sender's durable pairwise id: THEIR id from the
-     *    `user` capability's `id()`, the key the `db` capability's per-user
-     *    paths use. null for every peer in v1, yours included. Never an
-     *    account, email, or address; nothing degrades to one.
+     *  - `by` -- the sender's durable id: THEIR id from the `user`
+     *    capability's `id()`, the key the `db` capability's per-user paths
+     *    use -- when THIS artifact declares `user`. null when it does not
+     *    (such a page gets peers and `guest`: no ids, no names), for an
+     *    agent, and whenever the platform has not vouched for that sender,
+     *    so treat null as normal. Never an account, email, or address; nothing
+     *    degrades to one. Comparable only within one scope (see `user.id()`).
      *  - `isMe` -- any of your open documents; `sameTab` -- this one;
      *    `isMe && !sameTab` is your other tab.
      *  - `kind` -- "viewer" for people; "agent" for the publishing session
      *    when the platform admits it. Agents are enumerable as agents and
      *    never wear a viewer's identity (`isMe` is always false for them).
      *    Key on `kind`; an agent's presence fields are its client's own
-     *    choice and may be empty. */
+     *    choice and may be empty.
+     *  - `guest` -- the platform's own statement that this sender was invited
+     *    from outside the organization that owns the artifact; false for its
+     *    members and whenever the platform said nothing. Display data, never
+     *    authority: what a guest sends is untrusted like everyone's. */
     interface Sender {
       peer: string;
       by: string | null;
       isMe: boolean;
       sameTab: boolean;
       kind: "viewer" | "agent";
+      guest: boolean;
     }
 
     // ---- events arm: moments on topics ---------------------------------
@@ -119,10 +137,12 @@ declare namespace Claude {
     /** Broadcast a moment to everyone here, you included (yours comes back
      *  `isMe && sameTab`). Resolves on hand-off and promises NOTHING about
      *  delivery; `data` at most 4 KiB (UTF-8 bytes of its JSON text;
-     *  `invalid_argument`'s message states the limit). Budget: a few per
-     *  second per viewer is polite; past ~40/s (burst 80) the runtime
-     *  drops, reported once per page load via `reportError` -- high-rate
-     *  state belongs in `presence`, never here. While `connected()` is
+     *  `invalid_argument`'s message states the limit). Budget: a few a
+     *  second is polite; emits and `presence` share about 40 a second
+     *  (burst 80). Past it emits drop and presence waits; only the
+     *  runtime's own drop of emits past ~40/s is reported, once per page
+     *  load, via `reportError`. High-rate state belongs in `presence`,
+     *  never here. While `connected()` is
      *  false the call resolves, the moment is DROPPED (never queued), and
      *  no echo comes: either render your own
      *  action on send and skip `sameTab` echoes, or render on echo and
@@ -165,17 +185,32 @@ declare namespace Claude {
      *  stay within 4 KiB of JSON text (UTF-8 bytes); a patch that would
      *  exceed it rejects `invalid_argument` and is not applied. Send
      *  absolute state ("at 0.42, 0.31"), never deltas. If you publish
-     *  viewers' presence, render everyone's, with a marked "you". v1
-     *  delivers no names and `by` is null, so identify yourself IN
-     *  presence: put your own AWAITED `user.id()` there (declare
-     *  `user: {scopes: ["profile"]}`; `user: {}` gives ids but no names)
-     *  and let each page resolve the ids on screen with
-     *  `user.profiles(ids)` -- names and avatars as ITS viewer sees them
-     *  (`p.name || "Someone"`), instead of trusting a name string another
-     *  page shipped; a typed nickname and colour in presence are the
-     *  fallback when `user` is undeclared or `id()` is null. Either way
-     *  it is display data, untrusted like everything else here, never
-     *  authority.
+     *  viewers' presence, render everyone's, with a marked "you". No
+     *  names are delivered here: declare `user: {scopes: ["profile"]}`
+     *  (`user: {}` gives ids but no names) and resolve the ids on screen
+     *  with `user.profiles(ids)` -- names and avatars as ITS viewer sees
+     *  them (`p.name || "Someone"`), instead of trusting a name string
+     *  another page shipped. The id is the peer's `by`; where `by` is null
+     *  (see Sender) fall back to an AWAITED `user.id()` the peer put IN its
+     *  own presence, then to a typed nickname and colour there -- which
+     *  your page may prefer anyway. Either way it is display data,
+     *  untrusted like everything else here, never authority.
+     *  One top-level field has a meaning the platform reads: `follow`. If
+     *  your page keeps its viewer's place (slide, page, viewport, selection)
+     *  in step with one participant, say so in YOUR presence as `follow.of`,
+     *  that participant's `peer`, and keep it current:
+     *    presence({ follow: { of: peer } })   // following
+     *    presence({ follow: null })           // following nobody
+     *  A top-level field is replaced whole, so if you keep anything else in
+     *  `follow`, send it together with `of`, and while you follow nobody
+     *  send that `follow` without `of` instead of `null`. Nothing in this
+     *  contract makes the platform draw follow controls, so a page that
+     *  offers following through this contract draws and runs its own. The
+     *  platform may read `follow.of` for display: where it shows a viewer
+     *  that they are following, it does so only after their own presence
+     *  says so, and to the participant named there it may show that this
+     *  viewer follows them, and how many people do. Display data like all
+     *  presence, never authority.
      *  There is no ordering between your presence and your events. Rejects,
      *  never throws, like `emit` minus `not_permitted`. */
     function presence(patch: Record<string, Json | null>): Promise<void>;
@@ -218,10 +253,12 @@ declare namespace Claude {
      *  vocabulary, e.g. `{selectedText, blockId}` or `{chartId, series,
      *  point}`. Claude receives it whole, as data from this page (never as
      *  the viewer's words, never as an instruction), beside the viewer's
-     *  current `presence` object without its `cursor` and `who`, which the platform
-     *  attaches by itself where this view forwards presence at all (none
-     *  while you have set none, or set one past presence's own bounds,
-     *  above) -- so do not repeat what presence already says;
+     *  current lobby `presence` object (never a named room's), without
+     *  `follow` where the platform keeps that whole key back and without its
+     *  `cursor` and `who`, which the platform attaches by itself where this
+     *  view forwards presence at all (none while you have set none, or set
+     *  one past presence's own bounds, above, or passed this send
+     *  `attachPresence: false`) -- so do not repeat what presence already says;
      *  let your artifact's notes for Claude explain how to read both.
      *  Bounds: at most 4 KiB of JSON text, nesting at most 8 deep counting
      *  the object itself, at most 64 keys per object and 64 entries per
@@ -250,9 +287,13 @@ declare namespace Claude {
      *  viewer's it already knows has the artifact; "new" -- the platform is
      *  taking it to the viewer's own Claude without one in hand: a session
      *  of theirs it then finds, else a conversation it starts (or takes this
-     *  page to). "session" and "new" only follow `{deliver: "send"}` with
-     *  nothing open beside the page; what then happened arrives on the
-     *  `status` callback.
+     *  page to), or the viewer's chat it opens for a staged send, or for a
+     *  send with no session or conversation of theirs to go to. With
+     *  nothing open beside the page, "session" follows only
+     *  `{deliver: "send"}` and "new" follows either; what then happened to
+     *  a send arrives on the `status` callback (no status follows a staged
+     *  "new", nor a send taken to the viewer's chat: the browser has left
+     *  the page).
      *  `id` names this send on that callback: present only with "session"
      *  or "new", and never from an older platform. Treat an unrecognized
      *  `to` as "pane". */
@@ -272,7 +313,7 @@ declare namespace Claude {
      *  a state may be told more than once. `shell` names the platform build
      *  that said so, for your own telemetry. A state you do not recognize
      *  changes nothing you show. Expect no calls when `SentTo` carried no
-     *  `id`. */
+     *  `id`, nor for a send taken to the viewer's chat. */
     interface SendStatus {
       state: "working" | "sent" | "failed";
       reason?: string;
@@ -282,7 +323,11 @@ declare namespace Claude {
     /** How `sendToClaudeSession` hands `data` over. `deliver` (default
      *  "stage"): "stage" -- it appears in the viewer's composer as one
      *  attachment they can see and remove, and nothing reaches Claude until
-     *  the viewer sends their own message with it; "send" -- for a control
+     *  the viewer sends their own message with it; with nothing open beside
+     *  the artifact's own page, the platform may instead open the viewer's
+     *  chat for this artifact (a new one starts with nothing sent) with
+     *  `data` waiting there, and the browser leaves this page for it, so
+     *  keep nothing the viewer would lose; "send" -- for a control
      *  whose whole point is that Claude acts on it now (a "Build this now"
      *  button): the platform shows the viewer what this page is about to
      *  send and asks them, in its own dialog, whether to send it; their Send
@@ -294,7 +339,26 @@ declare namespace Claude {
      *  types goes to the viewer's own Claude instead -- a session of theirs
      *  that has the artifact, else a new conversation of theirs, else a
      *  chat this page leaves for -- on the viewer's own key press in that
-     *  page; other pages hear `claude_unavailable` there, as for "stage".
+     *  page. Where the platform has this turned on for members who cannot
+     *  edit, the platform's own page types' road also serves signed-in
+     *  members of the artifact's organization who cannot edit it, where they
+     *  can comment on it or are view-only (not on an artifact shared by
+     *  public link); for those members the platform asks Claude to answer in
+     *  the conversation, not to change the artifact. It never serves a
+     *  visitor from outside the organization. Where a staged send would open
+     *  the viewer's chat (`canSendToClaudeSession` "available_if_opened"), a
+     *  "send" opens it too, where the platform has that turned on: the viewer
+     *  leaves this page for that chat, so save anything the viewer would lose
+     *  first, and the platform asks them there, in its own dialog showing
+     *  `data` in full, whether to send it. If they choose Cancel, nothing is
+     *  sent and nothing is left waiting; if they close the dialog another
+     *  way (a Cancel pressed as the dialog appears counts as that, not as an
+     *  answer), or where it cannot ask, `data` waits unsent in that chat's
+     *  composer. Where the platform has it turned off, a "send" there is
+     *  `claude_unavailable` and a staged send still opens the chat; elsewhere
+     *  a "send" with nothing open beside the page is `claude_unavailable`, as
+     *  for "stage". The platform decides per
+     *  viewer: gate on `canSendToClaudeSession`, never on the viewer's level.
      *  The call resolves when the platform has taken it, before the viewer
      *  decides or the conversation answers -- so with "send" word your own
      *  confirmation for either outcome ("Sent to Claude -- check the
@@ -303,10 +367,17 @@ declare namespace Claude {
      *  "stage"; the platform does. */
     interface SendToClaudeSessionOptions {
       deliver?: "stage" | "send";
+      /** `false` leaves the viewer's `presence` object off this one send and
+       *  out of the platform's dialog: for a send that means the same whatever
+       *  the viewer has open or selected. Not a way to keep it from Claude: the
+       *  viewer's own messages may still carry it (top of this file). Any other
+       *  value, or an older platform, attaches it (`ToClaude`). */
+      attachPresence?: boolean;
       /** Called with each step of a send the platform itself took to the
        *  viewer's Claude (`SentTo` "session" or "new"); never for one the
-       *  conversation beside the page took, nor for a staged send. Kept in
-       *  the page; nothing of it crosses to the platform. */
+       *  conversation beside the page took, nor for a staged send, nor for a
+       *  send taken to the viewer's chat. Kept in the page; nothing of it
+       *  crosses to the platform. */
       onStatus?: (status: SendStatus) => void;
     }
 
@@ -315,11 +386,22 @@ declare namespace Claude {
      *  when (re)showing the control, and treat an unrecognized value as
      *  unavailable.
      *  - "available" -- offer the control: a conversation open beside this
-     *    page takes it.
+     *    page takes a staged send. It takes a `{deliver: "send"}` too,
+     *    except on a browser that cannot prove the viewer's click for one,
+     *    where that send is `claude_unavailable`.
      *  - "available_if_summoned" -- nothing is open beside the page, but a
      *    `{deliver: "send"}` goes to the viewer's own Claude (`SentTo`
-     *    "session" or "new"); a staged send is still `claude_unavailable`.
-     *    Offer a control that sends, not one that stages.
+     *    "session" or "new"). Offer a control that sends; a staged send
+     *    there may also open the viewer's chat, or be `claude_unavailable`.
+     *  - "available_if_opened" -- nothing is open beside the page, but a
+     *    send opens the viewer's own chat for this artifact with it waiting
+     *    there (`SentTo` "new"); never answered on a publicly shared
+     *    artifact. A `{deliver: "send"}` also has the platform ask the
+     *    viewer there, in its dialog, to send it now, where the platform has
+     *    that turned on (a page cannot tell beforehand); where it has not, or
+     *    on a browser that cannot prove the viewer's click for one, it is
+     *    `claude_unavailable`, so fall back to a staged send in the same
+     *    press.
      *  - "no_session" -- nothing beside this view would take it right now
      *    (the page is not open next to a conversation with Claude).
      *  - "unsupported" -- this browser cannot prove the viewer's click to the
@@ -329,6 +411,7 @@ declare namespace Claude {
     type CanSendToClaudeSession =
       | "available"
       | "available_if_summoned"
+      | "available_if_opened"
       | "no_session"
       | "unsupported"
       | "off";
@@ -376,13 +459,73 @@ declare namespace Claude {
 
     /** Whether `sendToClaudeSession` can go through for this viewer right now:
      *  call it before rendering your control and enable the control only
-     *  on "available" (either `deliver`) or "available_if_summoned"
-     *  (`deliver: "send"` only); on any other value or any rejection (a platform that
+     *  on "available" (a staged send always; a `deliver: "send"` only
+     *  where the browser can prove the click for one), "available_if_summoned"
+     *  (`deliver: "send"` only) or "available_if_opened" (a staged send
+     *  always; a `deliver: "send"` only where the platform has it turned on
+     *  and the browser can prove the click for one); on any other value or
+     *  any rejection (a platform that
      *  predates the method rejects `capability_removed` or
      *  `invalid_argument`), hide it. Posts nothing to Claude, never
      *  prompts, cheap per render; the answer can change after load, so
      *  re-check when (re)showing the control. */
     function canSendToClaudeSession(): Promise<CanSendToClaudeSession>;
+
+    // ---- named rooms: groups inside this room --------------------------
+
+    /** ^[a-z0-9][a-z0-9_.-]{0,47}$ -- a name you pick ("game-7", a random
+     *  code). Any viewer can pick one, guests included, so show a name as
+     *  untrusted text. Names are not secret: whoever can use this room can
+     *  join any name. */
+    type RoomName = string;
+
+    /** One named room: this room's calls, scoped to the pages that joined
+     *  `name`; nothing crosses between it, the lobby and other rooms.
+     *  Presence is per room; topic send rights, the `peer` label and the
+     *  send budget (see `emit`) are the lobby's. The publishing Claude
+     *  Code session never joins one. */
+    interface NamedRoom {
+      readonly name: RoomName;
+      emit(topic: Topic, data?: Json): Promise<void>;
+      on(
+        topic: Topic,
+        handler: (msg: Message) => void,
+        onError?: OnError,
+      ): Unsubscribe;
+      presence(patch: Record<string, Json | null>): Promise<void>;
+      peers(): readonly Peer[];
+      onPeers(
+        handler: (change: PeersChange) => void,
+        onError?: OnError,
+      ): Unsubscribe;
+      connected(): boolean;
+      onConnection(
+        handler: (connected: boolean) => void,
+        onError?: OnError,
+      ): Unsubscribe;
+      /** Leave. Idempotent. Your listeners on this room stop, and their
+       *  onError is not called; later calls on it reject `invalid_argument`,
+       *  and the others see you in `left`. Join the name again to come back. */
+      leave(): Promise<void>;
+    }
+
+    /** Join the named room, opening it if nobody is in it, and resolve once
+     *  admitted. Joining a name you are in returns the same object. After
+     *  a reconnect the platform re-joins your rooms by itself; if it
+     *  cannot, that room ends: each of its listeners hears one error
+     *  (`not_permitted`, `limit_reached` or `upstream_error`) and its
+     *  calls reject with it; join the name again unless the code is
+     *  `not_permitted`. Closing the page leaves every room; a terminal
+     *  code here ends them all.
+     *  Rejects, never throws: `invalid_argument` (the name grammar);
+     *  `limit_reached` (this page is already in as many rooms as it may
+     *  hold, at most 16, or the platform cannot take another room now;
+     *  leave one or retry later); `not_permitted` (this viewer cannot
+     *  use named rooms here, or rooms are not offered; don't retry);
+     *  `upstream_error` (transient, or no answer within 10 seconds; where
+     *  the platform never answers any join, joins on this page reject
+     *  until the connection is re-established); or a terminal code. */
+    function join(name: RoomName): Promise<NamedRoom>;
 
     // ---- connection: fail-open, but visible ----------------------------
 
@@ -403,14 +546,19 @@ declare namespace Claude {
       onError?: OnError,
     ): Unsubscribe;
 
-    /** `emit`/`presence`/`sendToClaudeSession` reject with these -- as
+    /** `emit`/`presence`/`join`/`sendToClaudeSession` reject with these -- as
      *  Promises, never synchronous throws. Listeners receive only the
-     *  terminal ones, once, via `onError`.
+     *  terminal ones, once, via `onError`, and a named room's listeners
+     *  also receive the one code that ended that room (see `join`).
      *  - `invalid_argument` -- topic grammar, non-JSON or exotic values, too
      *    deep, over the byte limit, or not a function where one is
      *    required; `message` says which. A page bug: fix the call.
-     *  - `not_permitted` -- `emit` only, see above. A declaration bug.
-     *  - `upstream_error` -- transient or unknown; not terminal, safe to drop.
+     *  - `not_permitted` -- `emit` (a declaration bug) and `join`.
+     *  - `limit_reached` -- `join`, see there; not terminal for the page.
+     *  - `upstream_error` -- transient or unknown; not terminal for the page,
+     *    safe to drop when a call rejects with it. A named room's listener
+     *    that hears this, `not_permitted` or `limit_reached` has lost that
+     *    room (see `join`).
      *  - `claude_unavailable` / `rate_limited` -- `sendToClaudeSession` only, see
      *    there; not terminal.
      *  Terminal for this page load -- every listener hears one and is dead,
@@ -428,6 +576,7 @@ declare namespace Claude {
     type RoomErrorCode =
       | "invalid_argument"
       | "not_permitted"
+      | "limit_reached"
       | "upstream_error"
       | "claude_unavailable"
       | "rate_limited"

@@ -28,13 +28,14 @@ curl -fsSL "https://github.com/anthropics/anthropic-cli/releases/download/v${VER
 go install github.com/anthropics/anthropic-cli/cmd/ant@latest
 ```
 
-**Auth** - the CLI resolves credentials the same way the SDKs do (first match wins): explicit flags, then `ANTHROPIC_API_KEY`, then `ANTHROPIC_AUTH_TOKEN`, then the `ANTHROPIC_PROFILE`-selected or active profile, then Workload Identity Federation env vars, then the default profile on disk. Override the host with `ANTHROPIC_BASE_URL` or `--base-url`.
+**Auth** - the CLI resolves credentials in this order (first match wins): explicit flags, then `ANTHROPIC_API_KEY`, then `ANTHROPIC_AUTH_TOKEN`, then the profile named by `--profile` or `ANTHROPIC_PROFILE`, then Workload Identity Federation env vars, then the Google Cloud settings, then the Claude Platform on AWS settings (below), then the active or default profile on disk. Override the host with `ANTHROPIC_BASE_URL` or `--base-url`.
 
 - **API key**: set `ANTHROPIC_API_KEY` in the environment.
 - **OAuth profile** (no static key to manage): `ant auth login` opens a browser, exchanges for a short-lived token, and stores a profile under `$ANTHROPIC_CONFIG_DIR` (default `~/.config/anthropic/` on Linux/macOS, `%APPDATA%\Anthropic` on Windows - `configs/<profile>.json` for settings, `credentials/<profile>.json` for tokens). Subsequent `ant` (and SDK) calls pick it up automatically - a bare `Anthropic()` client works after login, but scripts that read `ANTHROPIC_API_KEY` directly do not. Claude Code and the Claude Agent SDK honor the same profile resolution. `ant auth status` shows which credential source and profile won (it reports status only - don't script against its exit code as a health check); `ant auth logout` clears the active profile (`--all` for every profile). On a remote host without a browser, `ant auth login --no-browser` prints the authorize URL and accepts the code back in the terminal.
 - **Non-interactive workloads** (CI, servers, containers): interactive login is for development on your own machine - use Workload Identity Federation instead (see the authentication docs via `shared/live-sources.md`).
+- **Claude Platform on AWS** (needs `ant` 1.42.0 or later): set `AWS_REGION` and `ANTHROPIC_AWS_WORKSPACE_ID`, or pass `--aws-region` and `--aws-workspace-id`. Every command, `ant apply` included, then goes to the AWS gateway, SigV4-signed with whatever the AWS default credential chain finds (`AWS_PROFILE`, SSO, environment keys, a role). To use an API key generated in the AWS Console instead, set `ANTHROPIC_AWS_API_KEY` or pipe it to `--aws-api-key-stdin`. The workspace ID, `--aws-region` or an AWS API key selects AWS; `AWS_REGION` alone doesn't. `ant auth login` doesn't apply there. Unset `ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN` and `ANTHROPIC_PROFILE`, leave out `--profile`, and set no federation or Google Cloud variables, since each outranks these settings, then confirm with `ant auth status` that AWS is the active credential. `--base-url` and `ANTHROPIC_BASE_URL` aren't used (`--aws-base-url` or `ANTHROPIC_AWS_BASE_URL` overrides the gateway URL), and `ant beta:worker` doesn't read these settings. Platform details: `shared/claude-platform-on-aws.md`.
 
-> **The #1 auth trap:** profiles are only consulted when no API key is set. A stale exported `ANTHROPIC_API_KEY` silently overrides every profile - requests hit whatever org/workspace that key is scoped to. `ant auth status` shows which source won; unset the key (or per-command: `env -u ANTHROPIC_API_KEY ant ...`) before relying on a profile. Truly **unset** it - an empty `ANTHROPIC_API_KEY=""` still wins its precedence slot and authenticates with an empty key. The same shadowing applies in reverse to Claude Code: after `ant auth login`, Claude Code may warn about an auth conflict between the profile and its own `/login` credential - keep one (use the profile and `/logout` in Claude Code, or `ant auth logout` to keep Claude Code's own login).
+> **The #1 auth trap:** a stale exported `ANTHROPIC_API_KEY` or `ANTHROPIC_AUTH_TOKEN` overrides every profile. `ant` says so in a note on stderr, and `ant auth status` shows which source won. To use the profile, **unset** the variable (per-command: `env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN ant ...`) - an empty `ANTHROPIC_API_KEY=""` still wins its precedence slot and authenticates with an empty key.
 
 **Named profiles** - an interactive-login token is bound to a single org+workspace, and the API only shows resources belonging to that workspace. If an agent, session, or file you created "disappears", the usual cause is a token scoped to a different workspace than the one that created it (`ant auth status` shows the active workspace). Multi-workspace work means one profile per workspace:
 
@@ -57,7 +58,7 @@ To hand the active credential to a subprocess or raw-HTTP script:
 # Bare access token - for curl's Authorization header
 curl https://api.anthropic.com/v1/messages \
   -H "Authorization: Bearer $(ant auth print-credentials --access-token)" \
-  -H "anthropic-version: 2023-06-01" \
+  -H "anthropic-version: 2026-10-21" \
   -H "anthropic-beta: oauth-2025-04-20" \
   -H "content-type: application/json" \
   -d '{"model": "claude-opus-5-5", "max_tokens": 1024, "messages": [{"role": "user", "content": "Hello"}]}'
@@ -165,7 +166,7 @@ Flags that natively take a file path (e.g. `--file` on `beta:files upload`) acce
 
 ## Version-controlled Managed Agents resources (`ant apply`)
 
-This is the recommended flow for defining agents, environments, skills, memory stores, vaults and deployments: one file (or skill directory) per resource in your repo, synced with `ant apply` (needs `ant` 1.30.0 or later, 1.34.0 for vaults - check `ant --version`). It prints a plan, creates or updates what differs, and records each resource's ID in `claude-lock.json`. See `shared/managed-agents-core.md` for the field reference, and the `ant apply` page in `shared/live-sources.md` for `--force`, `--prune`, `--lock-file`, renamed or deleted files and CI setup (written for a person at a terminal; the rules below still apply).
+This is the recommended flow for defining agents, environments, skills, memory stores, vaults and deployments: one file (or skill directory) per resource in your repo, synced with `ant apply` (needs `ant` 1.30.0 or later, 1.34.0 for vaults, 1.40.0 for file paths in an agent's `predefined_agents` lists - check `ant --version`). It prints a plan, creates or updates what differs, and records each resource's ID in `claude-lock.json`. See `shared/managed-agents-core.md` for the field reference, and the `ant apply` page in `shared/live-sources.md` for `--force`, `--prune`, `--lock-file`, renamed or deleted files and CI setup (written for a person at a terminal; the rules below still apply).
 
 ```
 agents/summarizer.md          # YAML frontmatter = agent config, Markdown body = system prompt
@@ -307,4 +308,4 @@ ant beta:agents retrieve --agent-id bogus --transform-error error.message --form
 
 Shell completion: `ant @completion {zsh|bash|fish|powershell}`.
 
-For the full, always-current reference (including per-endpoint flags), WebFetch the **Anthropic CLI** URL in `shared/live-sources.md`.
+For the full, always-current reference (including per-endpoint flags), fetch the **Anthropic CLI** URL in `shared/live-sources.md`.

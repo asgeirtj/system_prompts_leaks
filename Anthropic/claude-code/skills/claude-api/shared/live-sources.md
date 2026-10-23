@@ -1,19 +1,16 @@
 # Live Documentation Sources
 
-This file contains WebFetch URLs for fetching current information from platform.claude.com and Agent SDK repositories. Use these when users need the latest data that may have changed since the cached content was last updated.
+This file lists the URLs of the current docs on platform.claude.com and of the SDK repositories, with what to look for on each.
 
-## When to Use WebFetch
+## How to fetch
 
-- User explicitly asks for "latest" or "current" information
-- Cached data seems incorrect
-- User asks about features not covered in cached content
-- User needs specific API details or examples
+Use a web fetch tool or `curl` (docs URLs ending in `.md` return Markdown). Try the fetch rather than assuming it's blocked.
 
 ## Claude API Documentation URLs
 
 ### Models & Pricing
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Models Overview | `https://platform.claude.com/docs/en/about-claude/models/overview.md` | "Extract current model IDs, context windows, and pricing for all Claude models" |
 | Migration Guide | `https://platform.claude.com/docs/en/about-claude/models/migration-guide.md` | "Extract breaking changes, deprecated parameters, and per-model migration steps when moving to a newer Claude model" |
@@ -23,7 +20,7 @@ This file contains WebFetch URLs for fetching current information from platform.
 
 ### Core Features
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Extended Thinking | `https://platform.claude.com/docs/en/build-with-claude/extended-thinking.md` | "Extract extended thinking parameters, budget_tokens requirements, and usage examples" |
 | Adaptive Thinking | `https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking.md` | "Extract adaptive thinking setup, effort levels, and Claude Opus 5.5 usage examples" |
@@ -34,20 +31,21 @@ This file contains WebFetch URLs for fetching current information from platform.
 
 ### Media & Files
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Vision | `https://platform.claude.com/docs/en/build-with-claude/vision.md` | "Extract supported image formats, size limits, and code examples" |
 | PDF Support | `https://platform.claude.com/docs/en/build-with-claude/pdf-support.md` | "Extract PDF handling capabilities, limits, and examples" |
 
 ### API Operations
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Batch Processing | `https://platform.claude.com/docs/en/build-with-claude/batch-processing.md` | "Extract batch API endpoints, request format, and polling for results" |
 | Files API | `https://platform.claude.com/docs/en/build-with-claude/files.md` | "Extract file upload, download, referencing in messages, supported types, and the migration steps from files-api-2025-04-14" |
 | Token Counting | `https://platform.claude.com/docs/en/build-with-claude/token-counting.md` | "Extract token counting API usage and examples" |
 | Rate Limits | `https://platform.claude.com/docs/en/api/rate-limits.md` | "Extract current rate limits by tier and model" |
 | Usage and Cost Admin API | `https://platform.claude.com/docs/en/manage-claude/usage-cost-api.md` | "Extract the usage_report and cost_report endpoints, Admin API key requirements, filter and group_by dimensions, token fields, and granularity limits" |
+| API versions | `https://platform.claude.com/docs/en/api/versioning.md` | "Extract each version's migration guide URL" |
 | Errors | `https://platform.claude.com/docs/en/api/errors.md` | "Extract HTTP error codes, meanings, and retry guidance" |
 | Amazon Bedrock | `https://platform.claude.com/docs/en/build-with-claude/claude-on-amazon-bedrock.md` | "Extract the AnthropicBedrockMantle client per language, `anthropic.`-prefixed model IDs, auth paths, feature availability, and regions" |
 | Claude Platform on AWS | `https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws.md` | "Extract the AnthropicAWS client per language, SigV4 auth, credential precedence, short-term API keys, workspace_id, and region requirements" |
@@ -55,7 +53,7 @@ This file contains WebFetch URLs for fetching current information from platform.
 
 ### OpenTelemetry
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | OpenTelemetry overview | `https://platform.claude.com/docs/en/manage-claude/opentelemetry.md` | "Extract SDK vs API tracing coverage, content modes and limits, example traces, and token counting rules" |
 | SDK tracing | `https://platform.claude.com/docs/en/manage-claude/opentelemetry/sdk.md` | "Extract the install command for my language, tracer provider setup, SDK options and environment variables" |
@@ -67,7 +65,7 @@ If a fetch fails, use `shared/opentelemetry.md`.
 
 ### Admin API (Organization Management)
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Admin API Guide | `https://platform.claude.com/docs/en/manage-claude/admin-api.md` | "Extract Admin API authentication, SDK/CLI usage, and member/invite/key management" |
 | Admin API Reference | `https://platform.claude.com/docs/en/api/admin.md` | "Extract endpoint parameters, responses, and pagination for the Admin API" |
@@ -78,7 +76,7 @@ If a fetch fails, use `shared/opentelemetry.md`.
 
 ### Tools
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Code Execution | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool.md` | "Extract code execution tool setup, file upload, container reuse, and response handling" |
 | Computer Use | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool.md` | "Extract the computer_toolset_20260801 setup (configs, member tools, batch actions, toolset_name on results), the Compatibility matrix, and the migration steps from computer_20251124" |
@@ -92,7 +90,7 @@ If a fetch fails, use `shared/opentelemetry.md`.
 
 ### Advanced Features
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Structured Outputs | `https://platform.claude.com/docs/en/build-with-claude/structured-outputs.md` | "Extract output_config.format usage and schema enforcement" |
 | Compaction | `https://platform.claude.com/docs/en/build-with-claude/compaction.md` | "Extract compaction setup, trigger config, and streaming with compaction" |
@@ -104,7 +102,7 @@ If a fetch fails, use `shared/opentelemetry.md`.
 
 Use these when a managed-agents binding, behavior, or wire-level detail isn't covered in the cached `shared/managed-agents-*.md` concept files or in `{lang}/managed-agents/README.md`.
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Overview | `https://platform.claude.com/docs/en/managed-agents/overview.md` | "Extract the high-level architecture and how agents/sessions/environments/vaults fit together" |
 | Quickstart | `https://platform.claude.com/docs/en/managed-agents/quickstart.md` | "Extract the minimal end-to-end agent -> environment -> session -> stream code path" |
@@ -134,7 +132,7 @@ Use these when a managed-agents binding, behavior, or wire-level detail isn't co
 
 The `ant` CLI provides terminal access to the Claude API. Every API resource is exposed as a subcommand. It is the recommended way to keep agents, environments, skills, memory stores, vaults and deployments as version-controlled files (`ant apply` - see `shared/anthropic-cli.md`), and also exposes sessions and every other API resource for scripting and interactive inspection.
 
-| Topic | URL | Extraction Prompt |
+| Topic | URL | What to look for |
 | --- | --- | --- |
 | Anthropic CLI | `https://platform.claude.com/docs/en/cli-sdks-libraries/cli/quickstart.md` | "Extract CLI install, authentication, command structure, and sending a first request" |
 | `ant apply` | `https://platform.claude.com/docs/en/cli-sdks-libraries/cli/apply.md` | "Extract the file layout per resource kind, how a file's kind is inferred, path references between files, `claude-lock.json`, the flags (`--dry-run`, `--yes`, `--force`, `--prune`, `--upgrade`, `--lock-file`), and the CI setup" |
@@ -146,9 +144,9 @@ The `ant` CLI provides terminal access to the Claude API. Every API resource is 
 
 ## Claude API SDK Repositories
 
-WebFetch these when a binding (class, method, namespace, field) isn't covered in the cached `{lang}/` skill files or in the managed-agents docs above. The SDKs include beta managed-agents support for `/v1/agents`, `/v1/sessions`, `/v1/environments`, and related resources - search the repo for `BetaManagedAgents`, `beta.agents`, `beta.sessions`, or the equivalent namespace for that language.
+Fetch these when a binding (class, method, namespace, field) isn't covered in the cached `{lang}/` skill files or in the managed-agents docs above. The SDKs include beta managed-agents support for `/v1/agents`, `/v1/sessions`, `/v1/environments`, and related resources - search the repo for `BetaManagedAgents`, `beta.agents`, `beta.sessions`, or the equivalent namespace for that language.
 
-| SDK | URL | Extraction Prompt |
+| SDK | URL | What to look for |
 | --- | --- | --- |
 | Python | `https://github.com/anthropics/anthropic-sdk-python` | "Extract beta managed-agents namespaces, classes, and method signatures (`client.beta.agents`, `client.beta.sessions`)" |
 | TypeScript | `https://github.com/anthropics/anthropic-sdk-typescript` | "Extract beta managed-agents namespaces, classes, and method signatures (`client.beta.agents`, `client.beta.sessions`)" |
@@ -164,7 +162,7 @@ Each SDK repo also ships runnable programs under `examples/` - including the ref
 
 Authoritative change lists for upgrading the SDK package itself across a major version. The bundled `{lang}/claude-api/sdk-upgrade.md` is the executable form; when the two disagree, the repository guide wins.
 
-| SDK | URL | Extraction Prompt |
+| SDK | URL | What to look for |
 | --- | --- | --- |
 | Python (0.x -> 1.x) | `https://github.com/anthropics/anthropic-sdk-python/blob/main/MIGRATION.md` | "Extract every breaking change with its before/after code, the new minimum Python version, and the upgrade command" |
 
@@ -172,7 +170,7 @@ Authoritative change lists for upgrading the SDK package itself across a major v
 
 ## Fallback Strategy
 
-If WebFetch fails (network issues, URL changed):
+If a fetch fails (network issues, URL changed):
 
 1. Use cached content from the language-specific files (note the cache date)
 2. Inform user the data may be outdated

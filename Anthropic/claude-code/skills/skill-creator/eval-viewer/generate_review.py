@@ -27,8 +27,24 @@ from functools import partial
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
-# Files to exclude from output listings
+# Files directly inside outputs/ to exclude from output listings
 METADATA_FILES = {"transcript.md", "user_notes.md", "metrics.json"}
+
+# Subfolders of outputs/ that are never listed, along with hidden ones (.git, .venv, ...)
+JUNK_DIRS = {"node_modules", "__pycache__", "venv"}
+
+# Limits on the files shown from subfolders of outputs/, so that runs that wrote
+# whole projects do not make the page too big to open. The last one is shared by
+# all the runs of a workspace.
+MAX_NESTED_FILES = 100
+MAX_NESTED_BYTES = 20 * 1024 * 1024
+MAX_NESTED_BYTES_PER_WORKSPACE = 50 * 1024 * 1024
+
+NO_PROMPT = "(No prompt found)"
+NO_PROMPT_HINT = (
+    'Each test case\'s folder needs a valid eval_metadata.json with a "prompt" field '
+    "(for example eval-0/eval_metadata.json). Add or fix it, or ask Claude to, then generate this page again."
+)
 
 # Extensions we render as inline text
 TEXT_EXTENSIONS = {
@@ -60,18 +76,34 @@ def get_mime_type(path: Path) -> str:
 def find_runs(workspace: Path) -> list[dict]:
     """Recursively find directories that contain an outputs/ subdirectory."""
     runs: list[dict] = []
-    _find_runs_recursive(workspace, workspace, runs)
-    runs.sort(key=lambda r: (r.get("eval_id", float("inf")), r["id"]))
+    budget = {"nested_bytes": MAX_NESTED_BYTES_PER_WORKSPACE}
+    _find_runs_recursive(workspace, workspace, runs, budget)
+    runs.sort(key=_run_sort_key)
     return runs
 
 
-def _find_runs_recursive(root: Path, current: Path, runs: list[dict]) -> None:
+def _run_sort_key(run: dict) -> tuple:
+    """Order runs by eval id: numbers first, then strings, then everything else.
+
+    Ids of different types cannot be compared with each other, so each type
+    gets its own rank. "Everything else" is a missing id or one that is a list
+    or an object.
+    """
+    eval_id = run.get("eval_id")
+    if isinstance(eval_id, (int, float)):
+        return (0, eval_id, "", run["id"])
+    if isinstance(eval_id, str):
+        return (1, 0, eval_id, run["id"])
+    return (2, 0, "", run["id"])
+
+
+def _find_runs_recursive(root: Path, current: Path, runs: list[dict], budget: dict) -> None:
     if not current.is_dir():
         return
 
     outputs_dir = current / "outputs"
     if outputs_dir.is_dir():
-        run = build_run(root, current)
+        run = build_run(root, current, budget)
         if run:
             runs.append(run)
         return
@@ -79,25 +111,90 @@ def _find_runs_recursive(root: Path, current: Path, runs: list[dict]) -> None:
     skip = {"node_modules", ".git", "__pycache__", "skill", "inputs"}
     for child in sorted(current.iterdir()):
         if child.is_dir() and child.name not in skip:
-            _find_runs_recursive(root, child, runs)
+            _find_runs_recursive(root, child, runs, budget)
 
 
-def build_run(root: Path, run_dir: Path) -> dict | None:
-    """Build a run dict with prompt, outputs, and grading data."""
+def _metadata_dirs(root: Path, run_dir: Path) -> list[Path]:
+    """Folders that may hold a run's eval_metadata.json, nearest first.
+
+    The run folder and its parent come first, even when the run folder is the
+    workspace root and its parent lies outside. Then come the folders above
+    them, up to the workspace root. This finds the file in eval-0/ for both
+    eval-0/with_skill/outputs/ and eval-0/with_skill/run-1/outputs/.
+    """
+    dirs = [run_dir, run_dir.parent]
+    while root in dirs[-1].parents:
+        dirs.append(dirs[-1].parent)
+    return dirs
+
+
+def _read_metadata(dirs: list[Path]) -> tuple[str, object]:
+    """Return (prompt, eval_id) from the eval_metadata.json files in dirs.
+
+    The files are read in order, up to the first one that has a prompt. The
+    eval_id is that of the last file that could be read.
+    """
     prompt = ""
     eval_id = None
-
-    # Try eval_metadata.json
-    for candidate in [run_dir / "eval_metadata.json", run_dir.parent / "eval_metadata.json"]:
+    for candidate in [d / "eval_metadata.json" for d in dirs]:
         if candidate.exists():
             try:
-                metadata = json.loads(candidate.read_text())
+                metadata = json.loads(candidate.read_text(encoding="utf-8"))
                 prompt = metadata.get("prompt", "")
                 eval_id = metadata.get("eval_id")
-            except (json.JSONDecodeError, OSError):
+            except (ValueError, OSError, AttributeError):
                 pass
             if prompt:
                 break
+    return prompt, eval_id
+
+
+def _list_output_files(outputs_dir: Path, budget: dict) -> tuple[list[Path], list[Path]]:
+    """Return (files to show, files left out) under outputs/.
+
+    Every file directly in outputs/ is shown, except METADATA_FILES. Files in
+    subfolders are shown up to MAX_NESTED_FILES, MAX_NESTED_BYTES and what is
+    left of the workspace's budget, which this call draws on. Hidden
+    subfolders, JUNK_DIRS and symlinked subfolders are not looked into at all,
+    nor is any subfolder when outputs/ is itself a symlink.
+    """
+    top: list[Path] = []
+    nested: list[Path] = []
+    for current, subdirs, names in os.walk(outputs_dir):
+        subdirs[:] = [
+            d for d in subdirs
+            if d not in JUNK_DIRS and not d.startswith(".") and not outputs_dir.is_symlink()
+        ]
+        at_top = Path(current) == outputs_dir
+        for name in names:
+            path = Path(current) / name
+            if not path.is_file():
+                continue
+            if not at_top:
+                nested.append(path)
+            elif name not in METADATA_FILES:
+                top.append(path)
+
+    shown: list[Path] = []
+    left_out: list[Path] = []
+    bytes_left = min(MAX_NESTED_BYTES, budget["nested_bytes"])
+    for path in sorted(nested):
+        size = path.stat().st_size
+        if len(shown) < MAX_NESTED_FILES and size <= bytes_left:
+            shown.append(path)
+            bytes_left -= size
+            budget["nested_bytes"] -= size
+        else:
+            left_out.append(path)
+    return sorted(top + shown), left_out
+
+
+def build_run(root: Path, run_dir: Path, budget: dict) -> dict | None:
+    """Build a run dict with prompt, outputs, and grading data."""
+    metadata_dirs = _metadata_dirs(root, run_dir)
+
+    # Try eval_metadata.json in the run folder and its parent
+    prompt, eval_id = _read_metadata(metadata_dirs[:2])
 
     # Fall back to transcript.md
     if not prompt:
@@ -108,13 +205,20 @@ def build_run(root: Path, run_dir: Path) -> dict | None:
                     match = re.search(r"## Eval Prompt\n\n([\s\S]*?)(?=\n##|$)", text)
                     if match:
                         prompt = match.group(1).strip()
-                except OSError:
+                except (OSError, ValueError):
                     pass
                 if prompt:
                     break
 
+    # Fall back to eval_metadata.json further up, for the prompt or the eval_id if either is still missing
+    if not prompt or eval_id is None:
+        far_prompt, far_eval_id = _read_metadata(metadata_dirs[2:])
+        prompt = prompt or far_prompt
+        if eval_id is None:
+            eval_id = far_eval_id
+
     if not prompt:
-        prompt = "(No prompt found)"
+        prompt = f"{NO_PROMPT}\n\n{NO_PROMPT_HINT}"
 
     run_id = str(run_dir.relative_to(root)).replace("/", "-").replace("\\", "-")
 
@@ -122,17 +226,32 @@ def build_run(root: Path, run_dir: Path) -> dict | None:
     outputs_dir = run_dir / "outputs"
     output_files: list[dict] = []
     if outputs_dir.is_dir():
-        for f in sorted(outputs_dir.iterdir()):
-            if f.is_file() and f.name not in METADATA_FILES:
-                output_files.append(embed_file(f))
+        shown, left_out = _list_output_files(outputs_dir, budget)
+        for f in shown:
+            embedded = embed_file(f)
+            embedded["name"] = f.relative_to(outputs_dir).as_posix()
+            output_files.append(embedded)
+        if left_out:
+            names = [f.relative_to(outputs_dir).as_posix() for f in left_out[:MAX_NESTED_FILES]]
+            if len(left_out) > len(names):
+                names.append("...")
+            output_files.append({
+                "name": (
+                    f"{len(left_out)} more file{'' if len(left_out) == 1 else 's'} in subfolders not shown: "
+                    f"the page holds up to {MAX_NESTED_FILES} of them and {MAX_NESTED_BYTES // 2**20} MB per run, "
+                    f"{MAX_NESTED_BYTES_PER_WORKSPACE // 2**20} MB per workspace. They are still in outputs/."
+                ),
+                "type": "text",
+                "content": "\n".join(names),
+            })
 
     # Load grading if present
     grading = None
     for candidate in [run_dir / "grading.json", run_dir.parent / "grading.json"]:
         if candidate.exists():
             try:
-                grading = json.loads(candidate.read_text())
-            except (json.JSONDecodeError, OSError):
+                grading = json.loads(candidate.read_text(encoding="utf-8"))
+            except (ValueError, OSError):
                 pass
             if grading:
                 break
@@ -276,7 +395,8 @@ def generate_html(
     if benchmark:
         embedded["benchmark"] = benchmark
 
-    data_json = json.dumps(embedded)
+    # "</script>" or "<!--" inside an output file would otherwise break the page's own script
+    data_json = json.dumps(embedded).replace("<", "\\u003c")
 
     return template.replace("/*__EMBEDDED_DATA__*/", f"const EMBEDDED_DATA = {data_json};")
 
@@ -410,8 +530,20 @@ def main() -> None:
 
     runs = find_runs(workspace)
     if not runs:
-        print(f"No runs found in {workspace}", file=sys.stderr)
+        print(
+            f"No runs found in {workspace}. A run is a folder that holds an outputs/ folder, "
+            "for example eval-0/with_skill/outputs/.",
+            file=sys.stderr,
+        )
         sys.exit(1)
+
+    missing_prompt = [r["id"] for r in runs if str(r["prompt"]).startswith(NO_PROMPT)]
+    if missing_prompt:
+        print(
+            f'Warning: {len(missing_prompt)} of {len(runs)} runs will show "{NO_PROMPT}": '
+            f"{', '.join(missing_prompt)}. {NO_PROMPT_HINT}",
+            file=sys.stderr,
+        )
 
     skill_name = args.skill_name or workspace.name.replace("-workspace", "")
     feedback_path = workspace / "feedback.json"

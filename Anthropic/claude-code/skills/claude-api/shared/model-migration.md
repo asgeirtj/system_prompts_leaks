@@ -4,7 +4,7 @@
 
 How to move existing code to newer Claude models. Covers breaking changes, deprecated parameters, and drop-in replacements for retired models.
 
-For the latest, authoritative version (with code samples in every supported language), WebFetch the **Migration Guide** URL from `shared/live-sources.md`. Use this file for the consolidated, skill-resident reference; fall back to the live docs whenever a model launch or breaking change may have shifted the picture.
+For the latest, authoritative version (with code samples in every supported language), fetch the **Migration Guide** URL from `shared/live-sources.md`. Use this file for the consolidated, skill-resident reference; fall back to the live docs whenever a model launch or breaking change may have shifted the picture.
 
 **This file is large.** Use the section names below to jump (or `Grep` this file for the heading text). Read Step 0 and Step 1 first - they apply to every migration. Then read only the per-target section for the model you are migrating to.
 
@@ -101,7 +101,7 @@ When migrating tests specifically: breaking parameters (`temperature`, `top_p`, 
 
 Code examples in this guide are Python. **The same fields exist in every official Anthropic SDK** - Stainless generates all 7 from the same OpenAPI spec, so JSON field names map 1:1 with only case-convention differences. Use the rows below to translate the Python examples to the SDK you are migrating.
 
-> **Verify type and method names against the SDK source before writing them into customer code.** WebFetch the relevant repository from the SDK source-code table in `shared/live-sources.md` (one row per SDK) and confirm the exact symbol - particularly for typed SDKs (Go, Java, C#) where union/builder names can differ from the JSON shape. Do not guess type names that aren't in the table below or in `<lang>/claude-api/README.md`.
+> **Verify type and method names against the SDK source before writing them into customer code.** Fetch the relevant repository from the SDK source-code table in `shared/live-sources.md` (one row per SDK) and confirm the exact symbol - particularly for typed SDKs (Go, Java, C#) where union/builder names can differ from the JSON shape. Do not guess type names that aren't in the table below or in `<lang>/claude-api/README.md`.
 
 
 ### `thinking` - `budget_tokens` -> adaptive
@@ -118,7 +118,7 @@ Code examples in this guide are Python. **The same fields exist in every officia
 
 ### Sampling parameters - `temperature` / `top_p` / `top_k`
 
-(Remove the field entirely on Opus 4.7; on Claude 4.x keep at most one of `temperature` or `top_p`.)
+(Remove the field entirely on Opus 4.7; on Claude 4.x keep at most one of `temperature` or `top_p`. On API version `2026-10-21`, remove all three on every model - `shared/api-version-migration.md`.)
 
 | SDK | Field(s) to remove |
 |---|---|
@@ -538,7 +538,7 @@ When migrating a Bedrock file, apply the same rename-table row as first-party, t
 
 **Skip for Bedrock:** the `code_execution_*` tool-version checklist item and the **Task Budgets** section - neither is available on Bedrock (see `shared/platform-availability.md` for the per-feature table). Everything else in this guide - `effort`, adaptive/extended thinking, `output_config.format`, `thinking.display`, token counting - is available on Bedrock; fine-grained tool streaming (`eager_input_streaming`) is available on Bedrock's newer serving stack only (see the per-model note in `shared/platform-availability.md`).
 
-> **Out of scope:** the legacy Amazon Bedrock integration (`InvokeModel` / `Converse` APIs with ARN-versioned IDs like `anthropic.claude-3-5-sonnet-20241022-v2:0`) uses a different request shape and model-ID format. This guide does not cover it; WebFetch the Bedrock page in `shared/live-sources.md` if the user is migrating between the two Bedrock integrations.
+> **Out of scope:** the legacy Amazon Bedrock integration (`InvokeModel` / `Converse` APIs with ARN-versioned IDs like `anthropic.claude-3-5-sonnet-20241022-v2:0`) uses a different request shape and model-ID format. This guide does not cover it; fetch the Bedrock page in `shared/live-sources.md` if the user is migrating between the two Bedrock integrations.
 
 ### Claude Platform on AWS
 
@@ -583,7 +583,7 @@ For cached prompts: the render order and hash inputs did not change, so existing
 
 ## Migrating to Opus 4.7
 
-> **Model ID `claude-opus-4-7` is authoritative as written here.** When the user asks to migrate to Opus 4.7, write `model="claude-opus-4-7"` exactly. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-opus-4-7` is authoritative as written here.** When the user asks to migrate to Opus 4.7, write `model="claude-opus-4-7"` exactly. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Opus 4.7 was Anthropic's most capable model at its launch and is now the previous-generation Opus (Opus 4.8 is current - see Migrating to Opus 4.8 below). It is highly autonomous and performs exceptionally well on long-horizon agentic work, knowledge work, vision tasks, and memory tasks. This section summarizes everything that was new at the 4.7 launch and remains the layered breaking-change path for callers coming from Opus 4.6 or older. It is layered on top of the 4.6 migration above - if the caller is jumping from Opus 4.5 or older, apply the 4.6 changes first, then this section, then the 4.8 section.
 
@@ -830,7 +830,7 @@ Every item is tagged: **`[BLOCKS]`** items cause a 400 error, infinite loop, sil
 
 ## Migrating to Opus 4.8
 
-> **Model ID `claude-opus-4-8` is authoritative as written here.** When the user asks to migrate to Opus 4.8, write `model="claude-opus-4-8"` exactly. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-opus-4-8` is authoritative as written here.** When the user asks to migrate to Opus 4.8, write `model="claude-opus-4-8"` exactly. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Opus 4.8 is our most capable Opus-tier model - highly autonomous, with state-of-the-art long-horizon agentic execution, knowledge work, and memory. It is layered on top of the Opus 4.7 migration above. If the caller is jumping from Opus 4.6 or older, apply the 4.6 and 4.7 sections first, then this one.
 
@@ -926,7 +926,7 @@ For a caller **already on Opus 4.7**, only the first item is required; everythin
 
 ## Migrating to Claude Opus 5
 
-> **Model ID `claude-opus-5` is authoritative as written here.** When the user asks to migrate to Claude Opus 5, write `model="claude-opus-5"` exactly. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-opus-5` is authoritative as written here.** When the user asks to migrate to Claude Opus 5, write `model="claude-opus-5"` exactly. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Opus 5 is the successor to Claude Opus 4.8 in the Opus line, and is strongest on long-horizon agentic work and coding. It is layered on top of the Opus 4.8 migration above; if the caller is coming from Opus 4.7 or older, apply those sections first. Like Claude Fable 5.1, it ships with **elevated cybersecurity safeguards, and its safety classifiers can decline a request**: you get a normal HTTP 200 with `stop_reason: "refusal"` and a `stop_details` category, not an error. Benign security and life-sciences work occasionally trips them, so **check `stop_reason` before reading `response.content`** - code that indexes `content[0]` unconditionally breaks on a refusal. Cyber-category refusals route to Opus 4.8 as the recommended fallback, so a fallback strategy genuinely recovers the request rather than just relabelling the failure. The full refusal semantics (pre-output vs mid-stream billing, retry strategies, fallback credit) are in the Claude Fable 5.1 section below and apply here unchanged.
 
@@ -1168,7 +1168,7 @@ Apply it only where first-token latency is user-visible; on background and agent
 
 ## Migrating to Claude Sonnet 5
 
-> **Model ID `claude-sonnet-5` is authoritative as written here.** When the user asks to migrate to Claude Sonnet 5, write `model="claude-sonnet-5"` exactly. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-sonnet-5` is authoritative as written here.** When the user asks to migrate to Claude Sonnet 5, write `model="claude-sonnet-5"` exactly. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Sonnet 5 substantially improves on Sonnet 4.6 for coding and agentic work, reaching what was previously Opus-tier quality on many tasks. Its API surface aligns with Opus 4.7/4.8: manual extended thinking is removed (adaptive or disabled only, adaptive is the default), and non-default sampling parameters are rejected. This section is layered on top of the Sonnet 4.6 migration above - if the caller is jumping from Sonnet 4.5 or older, apply the 4.6 changes first, then this one.
 
@@ -1191,7 +1191,7 @@ output_config={"effort": "high"},  # or "xhigh" for the hardest coding/agentic t
 
 To turn thinking off entirely, set `thinking: {type: "disabled"}` - but see *Adaptive vs. disabled* below before doing so.
 
-**2. Sampling parameters rejected.** Setting `temperature`, `top_p`, or `top_k` to a non-default value returns a 400; omitting the parameter, or passing its default, is still accepted. The safest migration is to omit them entirely and steer with prompting. If the caller was relying on `temperature=0` for determinism, note in the migration comment that it never guaranteed identical outputs.
+**2. Sampling parameters rejected.** Setting `temperature`, `top_p`, or `top_k` to a non-default value returns a 400; omitting the parameter is accepted, and so is passing its default on API version `2023-06-01` (on `2026-10-21` any value returns a 400). The safest migration is to omit them entirely and steer with prompting. If the caller was relying on `temperature=0` for determinism, note in the migration comment that it never guaranteed identical outputs.
 
 ```python
 # Before
@@ -1319,7 +1319,7 @@ Every item is tagged: **`[BLOCKS]`** items cause a 400 error or truncated output
 
 ## Migrating to Claude Fable 5.1
 
-> **Model IDs `claude-fable-5-1` and `claude-mythos-5-1` are authoritative as written here.** When the user asks to migrate to Claude Fable 5.1, write `model="claude-fable-5-1"` exactly; a Mythos Preview migrator in Project Glasswing writes `model="claude-mythos-5-1"` (everyone else: `claude-fable-5-1`). Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entries exist in `shared/models.md`.
+> **Model IDs `claude-fable-5-1` and `claude-mythos-5-1` are authoritative as written here.** When the user asks to migrate to Claude Fable 5.1, write `model="claude-fable-5-1"` exactly; a Mythos Preview migrator in Project Glasswing writes `model="claude-mythos-5-1"` (everyone else: `claude-fable-5-1`). Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entries exist in `shared/models.md`.
 
 Claude Fable 5.1 is Anthropic's most capable widely released model - for the most demanding reasoning and long-horizon agentic work. **Claude Mythos 5.1** (`claude-mythos-5-1`) offers the same capabilities and pricing through Project Glasswing (participation is the only way to access it), and succeeds the invitation-only **Claude Mythos Preview** (`claude-mythos-preview`). Everything in this section applies to both models except where § Claude Mythos 5.1 below says otherwise (the history-editing check, platform availability, and safeguards that depend on the access program). Mythos Preview migrators in Project Glasswing target `claude-mythos-5-1`; everyone else targets `claude-fable-5-1`. 1M token context window by default (the maximum is also the default), up to 128K output tokens per request.
 
@@ -1441,7 +1441,7 @@ Create **one state per conversation** - it is the pinning scope; sharing one acr
 - **Go**: `option.WithMiddleware(betafallback.BetaRefusalFallbackMiddleware([]anthropic.BetaFallbackParam{{Model: ...}}))` (package `lib/betafallback`); state via `betafallback.WithBetaFallbackState(&betafallback.BetaFallbackState{})` passed as a request option. Server-side equivalents: `Fallbacks: []anthropic.BetaFallbackParam{...}` + `anthropic.AnthropicBetaServerSideFallback2026_06_01`.
 - **C#**: it's a *handler* - `new AnthropicClient { Handlers = [new BetaRefusalFallbackHandler { Fallbacks = [new(Model.ClaudeOpus4_8)] }] }` (namespace `Anthropic.Helpers`); state via `BetaFallbackState.Create()` scoped per call with `using (fallbackState.Use()) { ... }`. Server-side equivalents: `Fallbacks = [new(Model.ClaudeOpus4_8)]` + `AnthropicBeta.ServerSideFallback2026_06_01`.
 
-For languages not listed (Java, Ruby, PHP) - or for a full runnable program in any language - each public SDK repo ships a fallbacks example under `examples/` (e.g. `examples/fallbacks.py`, `examples/refusal-fallback/`): WebFetch the repo from `shared/live-sources.md` § SDK Repositories rather than improvising the binding.
+For languages not listed (Java, Ruby, PHP) - or for a full runnable program in any language - each public SDK repo ships a fallbacks example under `examples/` (e.g. `examples/fallbacks.py`, `examples/refusal-fallback/`): fetch the repo from `shared/live-sources.md` § SDK Repositories rather than improvising the binding.
 
 **3. Hand-rolled retry + fallback credit (raw HTTP, or SDKs without the middleware).** Detect the refusal via `stop_reason` and re-send the conversation as-is on a model with broader availability such as `claude-opus-4-8` (no stripping required either way: Claude Fable 5's thinking blocks are silently ignored by models other than Claude Fable 5.1 / Claude Mythos 5.1, which read them, and Claude Fable 5.1's own blocks are dropped by the API for any other model - breaking change 2 in § Migrating to Claude Fable 5.1 from Claude Fable 5); keep using the fallback model for subsequent turns. **Fallback credit** (beta: Claude API, Claude Platform on AWS, Amazon Bedrock, Vertex AI, and Microsoft Foundry) makes those retries cheaper. Prompt caches are per-model, so a plain retry pays cold cache-writes on the new model. With the `fallback-credit-2026-07-01` beta header (send it on both the original request and the retry), a refusal's `stop_details` carries `fallback_credit_token` (opaque; `null` when unavailable) and `fallback_has_prefill_claim`. The earlier `fallback-credit-2026-06-01` header is still accepted and grants the same fields. Echo the token as the top-level `fallback_credit_token` request parameter on the retry (typed in the GA SDKs; on a pre-GA SDK pass it via `extra_body`) and the previously-cached span bills at cache-read rates - the retry costs what it would have if the conversation had been on that model all along. Rules: the retry body must match the refused request **exactly** in every prompt-shaping field (`system`, `messages`, `tools`, `tool_choice`, `thinking` - do **not** strip thinking blocks when redeeming a credit - the server handles them); the retry model must be in the refused model's `allowed_fallback_models`; the token expires in 5 minutes; Batches results carry no tokens. If `fallback_has_prefill_claim` is `true`, append one assistant message echoing the refused response's `content` - the retry model continues from where the refused model stopped (and completed server-tool work isn't re-run). When echoing, strip trailing whitespace from a final `text` block (the prefill validator rejects it; the credit match tolerates that edit), after omitting any unpaired `tool_use` blocks. On a 400, fall back to the unchanged body with the token; on a 400 naming `fallback_credit_token`, retry without it (credit forfeited).
 
@@ -1556,7 +1556,7 @@ For agents that only narrate routine progress, the model's default progress narr
 
 ## Migrating to Claude Fable 5.1 from Claude Fable 5
 
-> **Model IDs `claude-fable-5-1` and `claude-mythos-5-1` are authoritative as written here.** When the user asks to migrate to Claude Fable 5.1, write `model="claude-fable-5-1"` exactly; a Project Glasswing participant migrating from Claude Mythos 5 writes `model="claude-mythos-5-1"`. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entries exist in `shared/models.md`.
+> **Model IDs `claude-fable-5-1` and `claude-mythos-5-1` are authoritative as written here.** When the user asks to migrate to Claude Fable 5.1, write `model="claude-fable-5-1"` exactly; a Project Glasswing participant migrating from Claude Mythos 5 writes `model="claude-mythos-5-1"`. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entries exist in `shared/models.md`.
 
 Claude Fable 5.1 succeeds Claude Fable 5 in the same tier at the same per-token price, with stronger long-running agentic coding, multistep research, and document / spreadsheet / slide work. **Claude Mythos 5.1** (`claude-mythos-5-1`) is the same model for Project Glasswing participants (see § Claude Mythos 5.1 below for how it differs). Same 1M token context window (default and maximum), same 128K max output, same tokenizer as Claude Fable 5 (token counts unchanged; coming from a pre-Opus-4.7 model, expect roughly 30% more tokens - follow the tokenizer guidance in § Migrating to Claude Fable 5.1 above). Available on the Claude API, Amazon Bedrock (`anthropic.claude-fable-5-1`), Claude Platform on AWS, Google Cloud, and Microsoft Foundry (Anthropic-hosted). Existing Claude Fable 5 prompts should perform well out of the box.
 
@@ -1871,7 +1871,7 @@ The second tells it to hold the scope the user set:
 
 ## Migrating to Claude Opus 5.5
 
-> **Model ID `claude-opus-5-5` is authoritative as written here.** When the user asks to migrate to Claude Opus 5.5, write `model="claude-opus-5-5"` exactly. Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-opus-5-5` is authoritative as written here.** When the user asks to migrate to Claude Opus 5.5, write `model="claude-opus-5-5"` exactly. Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Opus 5.5 succeeds Claude Opus 5 in the Opus line for long-running agentic coding and knowledge work, **at a lower price** - $4 / $20 per MTok input / output against Claude Opus 5's $5 / $25. Same 1M token context window (default and maximum), same 128K max output, same tokenizer as Claude Opus 5 (token counts unchanged; coming from a pre-Opus-4.7 model, follow the tokenizer guidance in the Claude Opus 5 section). Knowledge cutoff June 2026. Available at launch on the Claude API (`claude-opus-5-5`), Amazon Bedrock (`anthropic.claude-opus-5-5`), Claude Platform on AWS, Google Cloud, and Microsoft Foundry (all as `claude-opus-5-5`; on Foundry under both hosting options, "Hosted on Anthropic" and "Hosted on Azure"); Claude Opus 5 stays available on all of them. Existing Claude Opus 5 prompts should perform well out of the box; the Claude Opus 5 prompting patterns below remain a reasonable starting point.
 
@@ -1961,7 +1961,7 @@ anthropic-beta: thinking-binding-controls-2026-08-01
 
 ### Breaking change 4: computer use only through the computer toolset
 
-> **Re-check before promising computer use on a partner platform.** Which platforms offer the toolset can change - WebFetch the Computer Use page from `shared/live-sources.md` and read its Compatibility section.
+> **Re-check before promising computer use on a partner platform.** Which platforms offer the toolset can change - fetch the Computer Use page from `shared/live-sources.md` and read its Compatibility section.
 
 Claude Opus 5 accepts computer use both as the `computer_toolset_20260801` toolset and, with the `computer-use-2025-11-24` beta header, as the earlier `computer_20251124` tool. **On the Claude API and Google Cloud, Claude Opus 5.5 accepts only the toolset**: a `tools` entry of type `computer_20251124` returns a 400 `invalid_request_error` that names the rejected type and then lists the accepted ones after `Did you mean one of` (it begins `'claude-opus-5-5' does not support tool types: computer_20251124.`). The toolset is GA on the Claude API and Google Cloud with no beta header. On Amazon Bedrock, Claude Opus 5.5 still accepts `computer_20251124` (with its beta header), as Claude Opus 5 does - keep that version there. For other platforms, check the computer use tool's Compatibility section (`shared/tool-use-concepts.md` § Computer Use has the toolset summary). This is more than a `tools`-entry swap, so make and test the change on Claude Opus 5 first (it accepts both forms):
 
@@ -2076,7 +2076,7 @@ The classifiers can still flag benign requests - the fallback opt-in is what kee
 
 ## Migrating to Claude Sonnet 5.5
 
-> **Model ID `claude-sonnet-5-5` is authoritative as written here.** When the user asks to migrate to Claude Sonnet 5.5, write `model="claude-sonnet-5-5"` exactly (no date suffix; `anthropic.claude-sonnet-5-5` on Amazon Bedrock). Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-sonnet-5-5` is authoritative as written here.** When the user asks to migrate to Claude Sonnet 5.5, write `model="claude-sonnet-5-5"` exactly (no date suffix; `anthropic.claude-sonnet-5-5` on Amazon Bedrock). Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
 Claude Sonnet 5.5 succeeds Claude Sonnet 5 in the Sonnet line **at the same prices** - $2 / $10 per MTok input / output, 5-minute cache writes $2.50, 1-hour cache writes $4, cache reads $0.20, and Claude Sonnet 5's batch rates. Same tokenizer as Claude Sonnet 5 (token counts unchanged), 1M token context window, 128K max output (up to 300K on the Message Batches API with the `output-300k-2026-03-24` beta header). Available at launch on the Claude API (`claude-sonnet-5-5`), Amazon Bedrock (`anthropic.claude-sonnet-5-5`), Claude Platform on AWS, Google Cloud, and Microsoft Foundry (all three as `claude-sonnet-5-5`). On Foundry it is hosted on Azure only, with Global Standard deployments only, so the features Foundry doesn't offer when hosted on Azure are unavailable for it there - code execution, programmatic tool calling, Agent Skills, the Files API, and the newer web search and web fetch versions (`shared/platform-availability.md`). The SDK constants listed below may be missing from the SDK version a project pins; the bare string `"claude-sonnet-5-5"` works in every SDK (with the `anthropic.` prefix on Amazon Bedrock). Existing Claude Sonnet 5 prompts should perform well without changes; for the hardest long-horizon work, an Opus model is the better choice.
 
@@ -2229,9 +2229,9 @@ None of these break code. Re-evaluate Claude Sonnet 5-specific prompt instructio
 
 ## Migrating to Claude Haiku 5.5
 
-> **Model ID `claude-haiku-5-5` is authoritative as written here.** When the user asks to migrate to Claude Haiku 5.5, write `model="claude-haiku-5-5"` exactly (a fixed ID with no date suffix and no separate alias; `anthropic.claude-haiku-5-5` on Amazon Bedrock). Do **not** WebFetch to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
+> **Model ID `claude-haiku-5-5` is authoritative as written here.** When the user asks to migrate to Claude Haiku 5.5, write `model="claude-haiku-5-5"` exactly (a fixed ID with no date suffix and no separate alias; `anthropic.claude-haiku-5-5` on Amazon Bedrock). Do **not** fetch the docs to verify - this guide is the source of truth for migration target IDs. The corresponding entry exists in `shared/models.md`.
 
-Claude Haiku 5.5 succeeds Claude Haiku 4.5 as the Haiku-class model, for high-volume, latency-sensitive work such as classification, routing, extraction, and sub-agent tasks. 1M token context window and 128K max output, up from 200K and 64K. **Pricing has two rate cards, chosen by prompt length:** $0.10 / $0.50 per MTok input / output when the prompt is 100K tokens or fewer, and $0.50 / $2.50 when it is longer; cache reads are 0.1x the input rate, 5-minute cache writes 1.25x, and 1-hour cache writes 2x (Claude Haiku 4.5 is $1 / $5 at any prompt length). For a user who is budgeting on the figure, WebFetch the Pricing row in `shared/live-sources.md` first. Available on the Claude API (`claude-haiku-5-5`), Amazon Bedrock (`anthropic.claude-haiku-5-5`), Claude Platform on AWS, Google Cloud, and Microsoft Foundry (all three as `claude-haiku-5-5`). The SDK constants listed below may be missing from the SDK version a project pins; the bare string `"claude-haiku-5-5"` works in every SDK (with the `anthropic.` prefix on Amazon Bedrock). Existing Claude Haiku 4.5 prompts should work well without changes; the model is substantially better at instruction following and at running as a sub-agent, across coding and knowledge work.
+Claude Haiku 5.5 succeeds Claude Haiku 4.5 as the Haiku-class model, for high-volume, latency-sensitive work such as classification, routing, extraction, and sub-agent tasks. 1M token context window and 128K max output, up from 200K and 64K. **Pricing has two rate cards, chosen by prompt length:** $0.10 / $0.50 per MTok input / output when the prompt is 100K tokens or fewer, and $0.50 / $2.50 when it is longer; cache reads are 0.1x the input rate, 5-minute cache writes 1.25x, and 1-hour cache writes 2x (Claude Haiku 4.5 is $1 / $5 at any prompt length). For a user who is budgeting on the figure, fetch the Pricing row in `shared/live-sources.md` first. Available on the Claude API (`claude-haiku-5-5`), Amazon Bedrock (`anthropic.claude-haiku-5-5`), Claude Platform on AWS, Google Cloud, and Microsoft Foundry (all three as `claude-haiku-5-5`). The SDK constants listed below may be missing from the SDK version a project pins; the bare string `"claude-haiku-5-5"` works in every SDK (with the `anthropic.` prefix on Amazon Bedrock). Existing Claude Haiku 4.5 prompts should work well without changes; the model is substantially better at instruction following and at running as a sub-agent, across coding and knowledge work.
 
 **Claude Haiku 5.5 is the default Haiku migration target.** This section covers code that calls Claude Haiku 4.5. A caller on Haiku 3 or 3.5 applies § Additional Changes When Coming from 3.x / 4.0 / 4.1 -> 4.6 first, then this section. To move a Haiku workload up to a Sonnet or Opus model instead, use that model's section (§ Migrating to Claude Sonnet 5.5 covers arrival from Claude Haiku 4.5). Claude Opus 5.5 stays the default model for new code; target Claude Haiku 5.5 when the user asks for Haiku or for a fast, low-cost model.
 
@@ -2289,7 +2289,7 @@ client.messages.create(
 
 ### Breaking change 2: non-default sampling parameters return a 400
 
-Claude Haiku 4.5 accepts `temperature`, `top_p`, and `top_k`. On Claude Haiku 5.5, omit all three and guide the model's behavior from the prompt instead. The accepted values are narrow: `temperature` must be `1`, and `top_p` must be `0.99`, its default; any other value of either returns a 400 (a `top_p` of `1` included), and so does any `top_k` value, and so does a request that sends both `temperature` and `top_p`. This holds on every request, whether or not thinking is used. `temperature=0` on a classification route is the common case: remove it, and constrain the output with structured outputs or an enum-valued tool. The per-language fields are in **Per-SDK Syntax Reference** -> Sampling parameters above.
+Claude Haiku 4.5 accepts `temperature`, `top_p`, and `top_k`. On Claude Haiku 5.5, omit all three and guide the model's behavior from the prompt instead. On API version `2023-06-01` the accepted values are narrow: `temperature` must be `1`, and `top_p` must be `0.99`, its default; any other value of either returns a 400 (a `top_p` of `1` included), and so does any `top_k` value, and so does a request that sends both `temperature` and `top_p`. This holds on every request, whether or not thinking is used. On API version `2026-10-21`, any value of any of the three returns a 400. `temperature=0` on a classification route is the common case: remove it, and constrain the output with structured outputs or an enum-valued tool. The per-language fields are in **Per-SDK Syntax Reference** -> Sampling parameters above.
 
 ### Breaking change 3: assistant prefill returns a 400
 
@@ -2304,7 +2304,7 @@ The per-language edit is in **Per-SDK Syntax Reference** -> Prefill replacement 
 
 ### Breaking change 4: computer use needs the toolset on the Claude API and Google Cloud
 
-Claude Haiku 4.5 supports computer use through the `computer_20250124` tool with the `computer-use-2025-01-24` beta header. On the Claude API and Google Cloud, Claude Haiku 5.5 supports computer use only through the `computer_toolset_20260801` toolset, and a request that declares `computer_20250124` returns a 400. To move an integration: drop the `computer-use-2025-01-24` beta header, replace the `tools` entry with `{"type": "computer_toolset_20260801"}`, and make the agent-loop changes - dispatch on each member `tool_use` block's `name` and `toolset_name` rather than on `input.action`, handle every such block in a turn, and echo `toolset_name` on results; zoom is on by default in the toolset, so if the environment doesn't implement it add `"configs": {"zoom": {"enabled": false}}` (`shared/tool-use-concepts.md` § Computer Use; § Migrating to Claude Opus 5.5 -> Breaking change 4). If the request sends the `fine-grained-tool-streaming-2025-05-14` beta header, replace it with `eager_input_streaming: true` on each tool that needs it: alongside a toolset entry the header returns a 400. For Amazon Bedrock and the other platforms, WebFetch the computer use tool page's Compatibility section (`shared/live-sources.md`) before choosing a version - don't assume the Bedrock exception that Claude Opus 5.5 and Claude Sonnet 5.5 have carries over to this model.
+Claude Haiku 4.5 supports computer use through the `computer_20250124` tool with the `computer-use-2025-01-24` beta header. On the Claude API and Google Cloud, Claude Haiku 5.5 supports computer use only through the `computer_toolset_20260801` toolset, and a request that declares `computer_20250124` returns a 400. To move an integration: drop the `computer-use-2025-01-24` beta header, replace the `tools` entry with `{"type": "computer_toolset_20260801"}`, and make the agent-loop changes - dispatch on each member `tool_use` block's `name` and `toolset_name` rather than on `input.action`, handle every such block in a turn, and echo `toolset_name` on results; zoom is on by default in the toolset, so if the environment doesn't implement it add `"configs": {"zoom": {"enabled": false}}` (`shared/tool-use-concepts.md` § Computer Use; § Migrating to Claude Opus 5.5 -> Breaking change 4). If the request sends the `fine-grained-tool-streaming-2025-05-14` beta header, replace it with `eager_input_streaming: true` on each tool that needs it: alongside a toolset entry the header returns a 400. For Amazon Bedrock and the other platforms, fetch the computer use tool page's Compatibility section (`shared/live-sources.md`) before choosing a version - don't assume the Bedrock exception that Claude Opus 5.5 and Claude Sonnet 5.5 have carries over to this model.
 
 On the Claude API and Google Cloud, Claude Haiku 5.5 also supports the browser use tool (`browser_toolset_20260801`) for tasks inside webpages; Claude Haiku 4.5 doesn't.
 

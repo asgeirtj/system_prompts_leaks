@@ -7,33 +7,57 @@
  * surviving reloads, republishes, and sessions. The store is created on
  * the first write and erased when the artifact is deleted. Reads and
  * subscriptions see other viewers' writes live. Declare
- * `capabilities: {db: {}}` — a declaring artifact is organization-internal
- * and cannot be shared publicly, so every reader and writer is a
- * signed-in member of the owner's organization.
+ * `capabilities: {db: {}}`. Only the owner can write, plus anyone invited
+ * by email as an editor (where the share menu offers that level, and only
+ * while the artifact is not also shared by a public link), plus,
+ * on a plan with other members (such as Team or Enterprise), the members
+ * who can open the artifact, unless their sharing level is view-only
+ * (`view`). A view-only member can only read shared data, never write it.
+ * Anyone else is an outside viewer: they never write, and read shared data
+ * only when signed in, through a public link or an email invitation.
  *
- * ACCESS RULES. By default every viewer reads and writes shared
- * documents and each viewer's own `data/users/<id>/` subtree is private.
+ * ACCESS RULES. By default everyone admitted reads shared documents,
+ * those at `interact` or above also write them, and each viewer's own
+ * `data/users/<id>/` subtree is private.
  * To change who may read or write where, declare rules keyed on the
- * viewer's sharing level — `interact` (can interact: uses the page and
- * changes its shared data), `admin` (can edit: also publishes versions
- * and assets; the share menu's "Can edit", Editor or Manager, or an editor
- * invited by email while the artifact is not also shared by link),
- * `owner`, plus `view`, the lowest level, for paths that should stay
- * readable by everyone the server admits (every signed-in viewer of a
- * db artifact is at least `interact`, so `view` only ever widens reads,
- * never writes) — as the minimum level for each action at a path and below:
+ * viewer's sharing level — `interact` (the share menu's Contributor: uses
+ * the page and changes its shared data), `admin` (the share menu's Editor
+ * or Owner: also publishes versions and assets; an Editor from outside
+ * the organization, invited by email, holds it only while the artifact
+ * is not also shared by link), `owner` (the artifact's own owner; not a
+ * person granted Owner), plus `view`, the lowest level, for paths that
+ * should stay readable by everyone the server admits (Viewers, Commenters
+ * and outside visitors hold `view`; it only ever widens reads, never
+ * writes) — as the minimum level for each action at a path and below:
  *   capabilities: { db: { rules: [
  *     { path: "", read: "interact", write: "admin" },
  *     { path: "data/users/{self}", write: "interact" },
  *   ] } }
- * reads "anyone who can open the page reads shared data, only editors
- * write it, and every viewer writes their own subtree". A rule applies
+ * reads "viewers at `interact` or above read shared data, only editors
+ * write it, and each of them writes their own subtree". A rule applies
  * to its path and everything below; a deeper rule overrides it there and
  * may be stricter or looser. A level left unset inherits from the nearest
  * rule above (the root defaults to read: "view", write: "interact").
  * An artifact created from a type often ships with that type's rules
  * already declared (commonly `write: "admin"` on shared data): read its
  * manifest before assuming the defaults.
+ * Inheritance reaches each viewer's own subtree too: with no
+ * `data/users/{self}` rule declared it inherits like any other path, so
+ * locking the root alone (`{ path: "", write: "admin" }`) also stops
+ * everyone below `admin` writing their own subtree. A page where only
+ * editors change shared data and each person at Contributor or above
+ * still fills in their own part also declares
+ * `{ path: "data/users/{self}", write: "interact" }` beside it (each
+ * part stays hidden from everyone else, the owner and editors included,
+ * unless a rule at `data/users` opens it, see below). Put data that only
+ * editors may change under its own path with a raised write level:
+ *   { path: "data/editors-only", write: "admin" }
+ * It lets everyone who reads shared data read it and only `admin` and
+ * above write it, there and below. `data/editors-only` is itself a
+ * document path, so keep collections below it, as in
+ * `data/editors-only/notes/n1`. Add `read: "admin"` and it reads as
+ * non-existent to everyone below `admin`, in `get`, queries and
+ * `onSnapshot` alike.
  * Writing implies reading: a rule's write level is never below its read
  * level. A path ending in `/{self}` names each viewer's own subtree under
  * that prefix: nobody else — the artifact's owner included — sees a
@@ -41,31 +65,46 @@
  * must be the last segment. `{self}` works under ANY prefix, not only
  * `data/users`: "everyone reads the votes, each viewer writes only
  * their own" is
- *   { path: "votes", read: "view", write: "admin" },
+ *   { path: "votes", read: "view", write: "owner" },
  *   { path: "votes/{self}", write: "interact" }
- * with each viewer writing `votes/<their id>` (or documents below it) —
- * a rule declared AT the prefix of a `{self}` rule (here `votes`) must
- * set BOTH `read` and `write`, or the declaration is rejected at
+ * with each viewer writing `votes/<their id>` (or documents below it)
+ * and only the owner able to change someone else's; `write: "admin"` on
+ * the prefix would also let every Editor, and anyone granted Owner, do
+ * so. A rule declared AT the prefix of a `{self}` rule (here `votes`)
+ * must set BOTH `read` and `write`, or the declaration is rejected at
  * publish; with no prefix rule, siblings' subtrees stay private as under
  * `data/users`. At most 64 rules; paths follow the
  * document-path grammar below. The owner meets every level, so level
  * rules never limit the owner; only `{self}` privacy does. Who holds
- * which level, in the share menu's words: "Can edit", Editor and Manager
- * hold `admin`, as does an editor invited by email (where the menu
- * offers that) unless the artifact is also shared by link. "Can
- * interact", on a person or on general access, holds `interact`, as
- * does a member of the organization who arrives by a public link. A
- * view-only member (Viewer or "Can view"; but on an older menu that
- * offers no view-only level, a person listed as Viewer and the
- * organization-wide "Can view" are `interact`) holds `view`, as does
- * every other signed-in visitor from outside the organization, by
- * public link or email invitation. A member who is a Commenter holds
- * `view` on shared data yet still writes their own `data/users/<id>/`
- * subtree; no other `view` holder writes anywhere. A signed-out visitor
- * has no data at all. So by default only `interact` and above write
- * shared documents. A call below
- * the minimum fails the same way as a sibling's `{self}` subtree: a read
- * sees a non-existent document and a write rejects `invalid_argument` —
+ * which level, in the share menu's words (Owner, Editor, Contributor,
+ * Commenter, Viewer): Editor and Owner hold `admin`; an Editor from
+ * outside the organization, invited by email (where the menu offers
+ * that), holds it unless the artifact is also shared by link. A person
+ * granted Owner in the share menu holds `admin`, not `owner`, and so do
+ * the members who can post in an added channel or project granted it:
+ * `owner` is only the artifact's own owner (`isOwner()`). On an artifact
+ * a person owns, that is one person; on an artifact Claude made in a
+ * channel or project, it is the members of that channel or project who
+ * can post in it. The share menu shows the artifact's own owner (that
+ * person, or that channel or project) first in its list of who has
+ * access, in a row that cannot be changed or removed, whatever level
+ * name that row shows.
+ * Contributor, on a person or on general access, holds `interact`, as
+ * does a member of the organization who arrives by a public link. Viewer
+ * and Commenter hold `view`, as does every signed-in visitor from
+ * outside the organization, by public link or email invitation, except
+ * the outside Editor above while the artifact is not shared by link. On
+ * an artifact a person owns, a member whom general access also admits
+ * (organization-wide, or by a public link) holds the higher of their own
+ * level and the level it gives, so being listed as Viewer or Commenter
+ * does not lower them. A person who stays at Commenter under that rule
+ * reads and comments and writes no data, their own `data/users/<id>/`
+ * subtree included. A signed-out visitor has no data at all. So by
+ * default only `interact` and above write shared documents or their own
+ * subtree, and a page where each person saves their own data needs them
+ * at Contributor or above. A call below the minimum fails the same way
+ * as a sibling's `{self}` subtree: a read sees a non-existent document
+ * and a write rejects `invalid_argument` —
  * so gate controls up front on what the `user` capability reports
  * (`can("data.write")` = may write shared documents under the root rule;
  * `canEdit()` = admin, for controls a rule reserves for admin;
@@ -107,12 +146,15 @@ type DbError = {
  *   active leases, or a query that scans too many documents. Slow
  *   down, subscribe to less, or narrow the query; tightening a loop
  *   on it cannot succeed.
- * - `quota_exceeded` — a count cap is full: documents in the
- *   collection, documents in this artifact's database, or the
- *   organization's databases (the message names which, and the cap
- *   when known). Not transient: creating documents fails until some
- *   are deleted, while writes to existing documents still succeed.
- *   Surface it to the viewer; retrying cannot succeed.
+ * - `quota_exceeded` — a cap is full: documents in the collection,
+ *   documents in this artifact's database, the organization's
+ *   databases, or the total size of this artifact's database (the
+ *   message names which). Not transient: at a count cap creating
+ *   documents fails until some are deleted, while writes to existing
+ *   documents still succeed; at the size cap creating documents can
+ *   fail, and so can a write that makes an existing document larger,
+ *   until documents are deleted or made smaller. Surface it to the
+ *   viewer; retrying cannot succeed.
  * - `unavailable` — a transient platform condition. Verbs: retry
  *   once after a short randomized delay. Subscriptions handle this
  *   INTERNALLY — delivery falls back to periodic refresh and
@@ -194,9 +236,9 @@ type DbErrorCode =
  * store recognizes exactly that id as this viewer, no other value
  * works. A null id means no private subtree: disable the per-viewer
  * feature for that visit rather than relocating its data to a
- * shared path; a view-only member has an id yet cannot write there
- * either, so treat a rejected write the same way. Another viewer's
- * documents under `data/users/`
+ * shared path; a view-only or comment-only member has an id yet cannot
+ * write there either, so treat a rejected write the same way. Another
+ * viewer's documents under `data/users/`
  * read as non-existent (`exists: false`, omitted from queries and
  * `onSnapshot`) — the "shared by its viewers" default does NOT
  * apply inside this prefix — and a write (`set`/`update`/`delete`)
@@ -443,7 +485,7 @@ type CollectionReference = Query & {
  *
  * DOCUMENT BODIES are plain-JSON OBJECTS (not arrays or scalars at
  * the top level): at most 256 KiB serialized and 32 levels deep.
- * CAPACITY: an artifact's database holds at most 5,000 documents in
+ * CAPACITY: an artifact's database holds at most 25,000 documents in
  * total. Don't map an unbounded, growing stream (events, log lines,
  * messages) to one document per item — aggregate many items into one
  * document or prune old ones — and when a create rejects with

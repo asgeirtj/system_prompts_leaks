@@ -183,7 +183,7 @@ An outcome-driven session is therefore a single call - pass one `user.define_out
 | `mcp_servers` | array    | No       | MCP server connections - standardized third-party capabilities (e.g. GitHub, Asana). Max 20, unique names. See `shared/managed-agents-tools.md` -> MCP Servers. |
 | `skills`      | array    | No       | Customized "best-practices" context with progressive disclosure. Max 500. See `shared/managed-agents-tools.md` -> Skills. |
 | `description` | string   | No       | Description of the agent (up to 2048 chars)    |
-| `multiagent`  | object   | No       | `{type: "coordinator", agents: [...]}` - roster this agent may delegate to. See `shared/managed-agents-multiagent.md`. |
+| `multiagent`  | object   | No       | `{type: "multiagent_20261001", subagents: {type: "enabled", predefined_agents: [...]}, workflows: {type: "enabled"}}` - roster this agent may delegate to, and dynamic workflows (on unless disabled; add the system-prompt line for runs). See `shared/managed-agents-multiagent.md`. |
 | `metadata`    | object   | No       | Arbitrary key-value pairs (max 16, keys <=64 chars, values <=512 chars) |
 
 ### Session budgets
@@ -233,7 +233,7 @@ The API is **flat** - `model`, `system`, `tools` etc. are top-level fields, not 
 | `mcp_servers`      | array    | No       | MCP server connections                             |
 | `skills`           | array    | No       | Skill references (max 500)                         |
 | `description`      | string   | No       | Description of the agent                           |
-| `multiagent`       | object   | No       | Coordinator roster - see `shared/managed-agents-multiagent.md` |
+| `multiagent`       | object   | No       | Subagents, dynamic workflows, advisor - see `shared/managed-agents-multiagent.md` |
 | `metadata`         | object   | No       | Arbitrary key-value pairs                          |
 
 ### Lifecycle: create once, run many, update in place

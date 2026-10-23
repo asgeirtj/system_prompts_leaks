@@ -64,7 +64,7 @@ By default the API **buffers and validates each tool-input parameter** before it
 }
 ```
 
-Tool runner: Python `@beta_tool(eager_input_streaming=True)` passes it through. TypeScript `betaZodTool()` has no option for it - spread the field onto the returned tool: `{ ...betaZodTool({ name, description, inputSchema, run }), eager_input_streaming: true }`. Go/Java/Ruby/C#/PHP: the field is on the tool param type (`EagerInputStreaming`, `.eagerInputStreaming(true)`, `eager_input_streaming:`).
+Tool runner: Python `@beta_tool(eager_input_streaming=True)` passes it through. TypeScript `betaZodTool()` and `betaTool()` take it as an option in `@anthropic-ai/sdk` 0.136.0 and later; on older versions use `const tool = { ...betaZodTool({...}), eager_input_streaming: true }`. Go/Java/Ruby/C#/PHP: the field is on the tool param type (`EagerInputStreaming`, `.eagerInputStreaming(true)`, `eager_input_streaming:`).
 
 **What you give up, and how to handle it.** Without buffering the API does not validate or coerce the parameter, so the accumulated `partial_json` can be (a) cut off at `max_tokens` mid-parameter or (b) invalid JSON the model emitted. Both SDKs accumulate it with a *tolerant* partial-JSON parser, so malformed input often comes back as a silently truncated object (an unescaped inner quote ends the string early; trailing garbage is dropped) rather than an exception. Do not rely on an exception. Always:
 
@@ -119,7 +119,7 @@ Any `tool_choice` value can also include `"disable_parallel_tool_use": true` to 
 - **Per-turn retries / param changes** - e.g. bump `max_tokens` and re-run a truncated turn; bound the whole loop with `max_iterations`.
 - **Streaming and automatic compaction** are both supported.
 
-These hooks are SDK helper features, not separate API parameters - for the exact method names and worked examples, WebFetch the per-language SDK repo listed in `shared/live-sources.md` -> *Claude API SDK Repositories* (the tool-runner helpers live in each repo's `tools.md` / `helpers.md`). The bundled `python/claude-api/tool-use.md` and `typescript/claude-api/tool-use.md` show the basic tool-runner setup.
+These hooks are SDK helper features, not separate API parameters - for the exact method names and worked examples, fetch the per-language SDK repo listed in `shared/live-sources.md` -> *Claude API SDK Repositories* (the tool-runner helpers live in each repo's `tools.md` / `helpers.md`). The bundled `python/claude-api/tool-use.md` and `typescript/claude-api/tool-use.md` show the basic tool-runner setup.
 
 **Don't drop to a manual loop because of these misconceptions:**
 
@@ -264,7 +264,7 @@ With standard tool use, each tool call is a round trip: Claude calls, the result
 
 Programmatic tool calling lets Claude compose those calls into a script. The script runs in the code execution container; when it invokes a tool, the container pauses, the call executes, and the result returns to the running code (not to Claude's context). The script processes it with normal control flow. Only the final output returns to Claude. Use it when chaining many tool calls or when intermediate results are large and should be filtered before reaching the context window.
 
-For full documentation, use WebFetch:
+For full documentation, fetch:
 
 - URL: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling`
 
@@ -274,7 +274,7 @@ For full documentation, use WebFetch:
 
 The tool search tool lets Claude dynamically discover tools from large libraries without loading all definitions into the context window. Use it when you have many tools but only a few are relevant to any given request. Discovered tool schemas are appended to the request, not swapped in - this preserves the prompt cache (see `agent-design.md` §Caching for Agents).
 
-For full documentation, use WebFetch:
+For full documentation, fetch:
 
 - URL: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool`
 
@@ -377,7 +377,7 @@ Optional toolset fields: `default_config` (defaults for all tools, e.g. `{"enabl
 
 You can provide sample tool calls directly in your tool definitions to demonstrate usage patterns and reduce parameter errors. This helps Claude understand how to correctly format tool inputs, especially for tools with complex schemas.
 
-For full documentation, use WebFetch:
+For full documentation, fetch:
 
 - URL: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/implement-tool-use`
 
@@ -387,11 +387,13 @@ For full documentation, use WebFetch:
 
 Computer use lets Claude interact with a desktop environment (screenshots, mouse, keyboard). It is a client-side tool - your application provides the environment and executes the actions Claude requests; Anthropic processes the screenshots and action requests in real time but does not host the environment or retain the data.
 
+Computer use requires a sandboxed computing environment, such as a dedicated virtual machine or container with minimal privileges (`https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool#security-considerations`).
+
 **Two request shapes.** The current one is the **computer toolset** - GA on the Claude API and Google Cloud, no beta header: one `tools` entry `{"type": "computer_toolset_20260801"}` with **no `name`** and no display dimensions, plus an optional `configs` map to turn member tools off (`{"zoom": {"enabled": false}}`; all 17 members, `zoom` included, are on by default). Claude's calls are `tool_use` blocks whose `name` is the member (`screenshot`, `left_click`, `type`, `zoom`, ...) carrying `"toolset_name": "computer"`, often several per turn; return one `tool_result` per call in the next `user` message, **each echoing `"toolset_name": "computer"`** (only `screenshot` / `zoom` need an image; `OK` suffices for the rest). Coordinates are in the pixel space of the full screenshots you return, also after a `zoom`, and screenshots must already fit the model's image limits. The earlier `computer_20251124` tool (beta `computer-use-2025-11-24`, a `name: "computer"` entry with `display_width_px` / `display_height_px`, actions in `input.action`) keeps working on the models and platforms that offer it - Bedrock, Claude Platform on AWS, and Foundry offer only the earlier beta versions today - and the two forms can't share a request. **Claude Opus 5.5 accepts only the toolset**: `computer_20251124` returns a 400 there (`shared/model-migration.md` -> Migrating to Claude Opus 5.5 -> Breaking change 4 has the request and agent-loop changes; test them on Claude Opus 5, which accepts both). **Claude Sonnet 5.5 accepts only the toolset on the Claude API and Google Cloud** (`computer_20251124` returns a 400 there; Amazon Bedrock still accepts it, and no platform accepts `computer_20250124`) - see `shared/model-migration.md` -> Migrating to Claude Sonnet 5.5 -> Breaking change 4.
 
-For full documentation (member reference, batch actions, scaling, the `computer_20251124` migration steps), use WebFetch:
+For full documentation (member reference, batch actions, scaling, the `computer_20251124` migration steps), fetch:
 
-- URL: `https://platform.claude.com/docs/en/agents-and-tools/computer-use/overview`
+- URL: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool.md`
 
 ---
 
@@ -401,7 +403,7 @@ Context editing clears stale tool results and thinking blocks from the transcrip
 
 **Beta.** Use `client.beta.messages.*` with beta `context-management-2025-06-27`. Configure via `context_management.edits` with a strategy type of `clear_tool_uses_20250919` (clear old tool results; optional `clear_tool_inputs: true` also clears the tool_use params) or `clear_thinking_20251015` (clear thinking blocks). These are **not** the compaction types - `compact_20260112` with beta `compact-2026-01-12` is the separate compaction feature.
 
-For full documentation, use WebFetch:
+For full documentation, fetch:
 
 - URL: `https://platform.claude.com/docs/en/build-with-claude/context-editing`
 
@@ -451,7 +453,7 @@ Optional fields on the tool definition:
 
 Call via `client.beta.messages.create(...)` with `betas=["advisor-tool-2026-03-01"]` (or the `anthropic-beta: advisor-tool-2026-03-01` header). In multi-turn conversations, append the full `response.content` - including any `advisor_tool_result` blocks - back to `messages` on the next turn. If you remove the advisor tool from `tools` on a later turn while the history still contains `advisor_tool_result` blocks, the API returns a 400.
 
-> **Advisor on Managed Agents:** CMA sessions support an advisor too, configured as a `{"type": "advisor", "model"}` entry in the agent's multiagent roster rather than as a tool definition - no `max_uses`/`max_tokens`/`caching` options, and advice is delivered as thread events on the session's event stream rather than `advisor_tool_result` blocks. See `shared/managed-agents-multiagent.md` -> Advisor.
+> **Advisor on Managed Agents:** CMA sessions support an advisor too, configured as the `advisor` member of the agent's `multiagent` block (`{"type": "enabled", "model": ...}`) rather than as a tool definition - no `max_uses`/`max_tokens`/`caching` options, and advice is delivered as thread events on the session's event stream rather than `advisor_tool_result` blocks. See `shared/managed-agents-multiagent.md` -> Advisor.
 
 ---
 
@@ -468,7 +470,7 @@ The memory tool enables Claude to store and retrieve information across conversa
 
 > **Security:** Never store API keys, passwords, tokens, or other secrets in memory files. Be cautious with personally identifiable information (PII) - check data privacy regulations (GDPR, CCPA) before persisting user data. The reference implementations have no built-in access control; in multi-user systems, implement per-user memory directories and authentication in your tool handlers.
 
-For full implementation examples, use WebFetch:
+For full implementation examples, fetch:
 
 - Docs: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool.md`
 
@@ -479,6 +481,8 @@ For full implementation examples, use WebFetch:
 The bash and text editor tools are **Anthropic-defined, schema-less** tools. Declare them by `type` and `name` only - the input schema is built into the model and cannot be modified. **Do not pass an `input_schema`**, and do not define a custom tool that happens to be named `"bash"` - that creates a user-defined tool without the built-in behavior.
 
 Both are **client-executed**: Claude returns a `tool_use` block, your code performs the action locally, and you send back a `tool_result`. The API is stateless; your application maintains the shell session or filesystem between turns.
+
+Anthropic hosts no sandbox for client-side tools. Any sandbox is yours to host, such as a container or a virtual machine for the bash tool (`https://platform.claude.com/docs/en/agents-and-tools/tool-use/bash-tool#security`).
 
 ### Bash tool declaration
 
@@ -572,6 +576,6 @@ The Python and TypeScript SDKs automatically handle unsupported constraints by r
 5. **Limit tool count**: Too many tools can confuse the model - keep the set focused
 6. **Test tool interactions**: Verify Claude uses tools correctly in various scenarios
 
-For detailed tool use documentation, use WebFetch:
+For detailed tool use documentation, fetch:
 
 - URL: `https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview`

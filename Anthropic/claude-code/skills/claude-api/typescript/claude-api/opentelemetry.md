@@ -66,3 +66,5 @@ await tracer.startActiveSpan("summarize_issues", async (span) => {
 Without the SDK (raw HTTP or another client), inject the active span's trace context into the request headers:
 
 `new W3CTraceContextPropagator().inject(context.active(), headers, defaultTextMapSetter)` (`@opentelemetry/core`, `@opentelemetry/api`)
+
+After the SDK setup, offer setting up Claude API tracing where `shared/opentelemetry.md` -> SDK tracing vs API tracing says to, if you didn't already.

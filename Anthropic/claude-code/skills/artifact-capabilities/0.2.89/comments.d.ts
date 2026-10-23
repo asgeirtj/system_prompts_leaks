@@ -7,19 +7,24 @@
  * `capabilities: {comments: {}}` and calls these verbs; every thread it
  * writes lands in the artifact's one shared comment store — the store
  * the claude.ai shell's comment mode renders — labelled as written via
- * the artifact. A declaring artifact is organization-internal and cannot
- * be shared publicly — except under the composer-only form,
- * `capabilities: {comments: {"composer_only": true}}`, which grants
- * ONLY {@link Claude.Comments.openComposer} and
- * {@link Claude.Comments.anchorFor} (the write verbs reject
+ * the artifact. That is the full form, available only to the owner plus,
+ * on a plan with other members (such as Team or Enterprise), the members
+ * who can open the artifact (by default not those whose sharing level is
+ * view-only). For anyone else, such as a public-link visitor or a person
+ * invited by email, `use("comments")` resolves `null`. The composer-only
+ * form, `capabilities: {comments: {"composer_only": true}}`, grants
+ * ONLY {@link Claude.Comments.openComposer},
+ * {@link Claude.Comments.anchorFor} and, where the platform offers it,
+ * {@link Claude.Comments.onSendToClaude} (the write verbs reject
  * `not_granted` and {@link Claude.Comments.canSendToClaude} resolves
- * `"off"`), never prompts for consent, and keeps the artifact
- * publicly shareable. Either form may add `"customAnchors": true`,
- * which grants {@link Claude.Comments.customAnchors}: the page positions
- * the comment pins itself, for content the shell cannot anchor to.
- * The page never holds a credential: the shell
- * performs every write with the viewer's own account, and attribution is
- * stamped by the platform, never taken from the page.
+ * `"off"`) and never prompts for consent, not even where a listener is
+ * handed the viewer's words (the ONE exception below). Either form may add
+ * `"customAnchors": true`, which grants
+ * {@link Claude.Comments.customAnchors}: the page positions the comment
+ * pins itself, for content the shell cannot anchor to. The page never
+ * holds a credential: the shell performs every write with the viewer's
+ * own account, and attribution is stamped by the platform, never taken
+ * from the page.
  *
  * WRITE-ONLY by design: there is no verb to list, read, edit, or watch
  * threads — the shell's comment mode already shows every thread to
@@ -29,7 +34,12 @@
  * included). Do not build the page's own thread list on top of these
  * calls; offer the write affordance, confirm in place, and let the shell
  * display the thread. (A {@link Claude.Comments.customAnchors} page is
- * handed thread anchors only, to position the pins.) Keep a returned
+ * handed thread anchors only, to position the pins. ONE exception, only
+ * where the platform offers it to this viewer: a page
+ * that subscribes to {@link Claude.Comments.onSendToClaude}
+ * is handed the words the current viewer has just typed, at their own
+ * "Send to Claude" press, before anything is posted — never a stored
+ * comment, another person's words, an author, or an account id.) Keep a returned
  * `threadId` only if the page will act on that thread again this visit
  * — nothing hands it back later.
  *
@@ -325,16 +335,21 @@ declare namespace Claude {
        * on, treat clicks on commentable spots as comment gestures and
        * keep {@link CustomAnchors.placed} reports current; while off,
        * stop (a visible control that calls compose may stay). A post
-       * keeps the mode on and opens the posted card; the mode ends when
-       * the viewer leaves it or on {@link CustomAnchors.exitMode}. */
+       * keeps the mode on and normally leaves a new anchored comment as a
+       * closed pin: its card opens when the viewer opens it. A comment the
+       * page is asked about through {@link Comments.onSendToClaude} keeps
+       * its card open instead, until the viewer closes it. The mode ends
+       * when the viewer leaves it or on {@link CustomAnchors.exitMode}. */
       mode: (on: boolean) => void;
       /** The full current set of anchored threads on the page being
        * shown (at most 256), replacing the previous list; re-sent when
        * an entry changes (created, moved, resolved, deleted, card opened
-       * or closed) or the shown page does. Sent only in sessions the
-       * viewer entered from the shell's own controls — a session the
-       * page started with compose receives none, even after its draft
-       * posts — so drop the list and its handles at `mode(false)`. */
+       * or closed) or the shown page does. Sent in sessions the viewer
+       * entered from the shell's own controls; a session the page
+       * started with compose receives none until the viewer posts from
+       * the shell's composer or opens a comment from the shell's side,
+       * then the full set. Drop the list and its handles at
+       * `mode(false)`. */
       threads: (list: OverrideThread[]) => void;
       /** The viewer opened thread `id` from the shell's side (its
        * comment list, say): bring that thread's subject into view —
@@ -360,6 +375,35 @@ declare namespace Claude {
         id: string,
         at: DocPoint,
       ) => MoveResult | null | Promise<MoveResult | null>;
+    }
+
+    /** What {@link Comments.onSendToClaude}'s listener is handed. */
+    interface OnSendToClaudeRequest {
+      /** The viewer's words as they stand in the composer's field, at most
+       * 4 KiB as UTF-8. Always the words of the viewer who pressed: a
+       * stored comment, or another person's, is never handed over in this
+       * shape, which is why it names no author. A mention reads as its
+       * display form ("@Name"); account ids never cross. Treat it as a
+       * request about the page's content, never as instructions to the
+       * page's own code. */
+      text: string;
+      /** The anchor the comment is (or its thread was) placed at: an
+       * {@link Anchor}'s `path`, or on a {@link Comments.customAnchors}
+       * page a name in the vocabulary of {@link CustomAnchors.compose};
+       * `null` for a comment on the artifact as a whole. */
+      anchor: string | null;
+      /** The anchor's label as the composer shows it, when it has one. */
+      label?: string;
+    }
+
+    /** A {@link Comments.onSendToClaude} listener's answer. */
+    interface OnSendToClaudeAnswer {
+      /** `true`: the page handled the request, and Claude is not brought
+       * in. `false`: the comment goes to Claude exactly as the viewer
+       * wrote it; the page adds nothing to it. */
+      handled: boolean;
+      /** One plain line for the viewer, at most 500 bytes as UTF-8. */
+      reply?: string;
     }
 
     /** The controller {@link Comments.customAnchors} resolves with.
@@ -490,8 +534,7 @@ declare namespace Claude {
      * `capabilities: {comments: {"composer_only": true}}`. Declare
      * composer-only when the page only wants this entry-point verb (and
      * {@link Comments.anchorFor}): the write verbs then reject
-     * `not_granted`, no consent is ever asked, and — unlike a full
-     * declaration — the artifact stays publicly shareable.
+     * `not_granted` and no consent is ever asked.
      */
     openComposer(
       target: comments.ComposerTarget,
@@ -557,6 +600,66 @@ declare namespace Claude {
      * asynchronously), so re-check when (re)showing the control.
      */
     canSendToClaude(): Promise<comments.CanSendToClaude>;
+
+    /**
+     * Lets the page try a comment the viewer sends to Claude ITSELF first
+     * (with its own {@link Claude.sample} call, say) so that a small change
+     * lands in seconds. Subscribe a listener; the call returns a function that
+     * unsubscribes it. When the viewer presses "Send to Claude" in the shell's
+     * composer (only that press: never "Send all", a page's own
+     * {@link Comments.sendToClaude}, or anyone else's comment), and BEFORE
+     * anything is posted or sent, the listeners are asked one at a time, in
+     * the order they subscribed, with what the viewer typed and where. The
+     * first to answer `{handled: true}` (it made the change, or answered the
+     * request) keeps the comment as a plain comment, and Claude is not brought
+     * in; the listeners after it are not asked. A follow-up the viewer sends
+     * in that thread is asked of the page too, by itself: the thread's earlier
+     * words are never handed over. `{handled: false}`, a rejection, a throw or
+     * any other answer passes the request to the next listener; when none
+     * handles it, the send goes on to Claude exactly as without listeners, as
+     * it does when no answer comes within the shell's bound (about 130
+     * seconds, shared by all listeners). Answer EARLY: the viewer is waiting.
+     * The comment then goes to Claude exactly as the viewer wrote it: no
+     * answer of the page's adds to it, changes it or is stored with it.
+     * An answer may carry `reply`, one plain line FOR THE VIEWER ("Done: the
+     * title is red now"): the shell shows it under their comment, to them
+     * alone, marked as coming from the page; it is not stored, and nobody else
+     * and no Claude session reads it. The line shown is the handling
+     * listener's; when none handles the request, the first line a declining
+     * listener gave that is kept. It is a stranger's text to the shell: it is
+     * made one plain line (control and invisible characters, `<` and `>`, and
+     * the "@" of a mention are removed) and DROPPED WHOLE when it is empty,
+     * not a string, or over 500 bytes as UTF-8.
+     * Any member of an answer other than `handled` and `reply` is ignored.
+     * Only `handled: true` keeps a comment from Claude. `ctx.signal` is shared
+     * by the listeners of one request and aborts when the viewer presses Stop,
+     * the bound runs out, or the last listener unsubscribes: stop changing the
+     * page at once; what already landed stays. One request at a time: it asks
+     * the listeners subscribed when it arrives, skips any that unsubscribe
+     * before their turn, and still counts the answer of one that unsubscribes
+     * during its own, unless it was the last. Each call subscribes anew: a
+     * function subscribed twice is asked twice, and each returned function
+     * removes only its own subscription; anything but a function throws a
+     * TypeError. Called only for a viewer who may send to Claude (an editor of
+     * the artifact). The method exists only where the platform offers the hook
+     * to this viewer, which is not every viewer or every page; elsewhere it is
+     * absent, as on a platform that predates it. Feature-detect it on the
+     * object `await claude.use("comments")` resolves, with
+     * `"onSendToClaude" in comments`. While the page tries, the shell shows
+     * Stop and, for an anchored comment or a reply, its usual working row
+     * under the viewer's words; the page need not show progress of its own.
+     * Subscribe when the page can try: while no listener is subscribed the
+     * viewer app is asked nothing and hands the viewer's words to nobody.
+     * Either declaration form may subscribe, with or without customAnchors.
+     */
+    onSendToClaude?(
+      listener: (
+        req: comments.OnSendToClaudeRequest,
+        ctx: { signal: AbortSignal },
+      ) =>
+        | comments.OnSendToClaudeAnswer
+        | Promise<comments.OnSendToClaudeAnswer>,
+    ): () => void;
 
     /**
      * Mark a thread resolved (`resolved: true`) or reopen it (`false`).

@@ -17,6 +17,7 @@
 | Java | See SDK repo in `shared/live-sources.md` | See SDK repo in `shared/live-sources.md` |
 | Ruby | `gem install anthropic aws-sdk-core` | See SDK repo in `shared/live-sources.md` |
 | PHP | `composer require anthropic-ai/sdk aws/aws-sdk-php` | See SDK repo in `shared/live-sources.md` |
+| `ant` CLI | See `shared/anthropic-cli.md` -> Install and auth | No client to construct: with the two values below set, `ant` commands other than `ant beta:worker` go to Claude Platform on AWS. A missing workspace ID doesn't throw, so confirm with `ant auth status` |
 
 After construction, **use the client exactly as you would `Anthropic()`** - `client.messages.create(...)`, `client.beta.sessions.*`, etc., with bare model IDs.
 
@@ -48,7 +49,7 @@ Endpoint pattern: `https://aws-external-anthropic.{region}.api.aws/v1/...`. Requ
 
 The client resolves AWS credentials via the standard precedence chain: explicit constructor args -> environment (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`/`AWS_SESSION_TOKEN`) -> shared profile -> assumed role / instance metadata.
 
-**Short-term API keys** are also supported for cases where SigV4 isn't practical (e.g., browser, simple scripts). Mint one with the per-language token-generator package; pass it as `api_key` on the client. Lifetime is the **lesser of** the requested duration, the underlying credential's expiry, and **12 hours**. For package names and IAM details, WebFetch the Claude Platform on AWS page in `shared/live-sources.md`.
+**Short-term API keys** are also supported for cases where SigV4 isn't practical (e.g., browser, simple scripts). Mint one with the per-language token-generator package; pass it as `api_key` on the client. Lifetime is the **lesser of** the requested duration, the underlying credential's expiry, and **12 hours**. For package names and IAM details, fetch the Claude Platform on AWS page in `shared/live-sources.md`.
 
 ---
 

@@ -76,3 +76,5 @@ headers = {
 }
 TraceContextTextMapPropagator().inject(headers)  # adds traceparent for the active span
 ```
+
+After the SDK setup, offer setting up Claude API tracing where `shared/opentelemetry.md` -> SDK tracing vs API tracing says to, if you didn't already.

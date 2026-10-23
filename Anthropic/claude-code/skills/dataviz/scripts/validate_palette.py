@@ -20,7 +20,7 @@ Checks 1 (fixed hue order) and 6 (values resolve to real ramp steps) are
 structural rules the skill enforces, not measurable from hexes alone.
 
 Usage:
-  python validate_palette.py "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7,#e34948" --mode light
+  python validate_palette.py "#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#6250d6,#e34948" --mode light
   python validate_palette.py "#256abf,#199e70,..." --mode dark --surface "#1a1a19"
 
 Exit code 0 unless a check hard-FAILs; 1 on any FAIL. WARN bands do not fail:
@@ -98,6 +98,43 @@ def relative_luminance(h):
 def contrast(h1, h2):
     a, b = sorted((relative_luminance(h1), relative_luminance(h2)), reverse=True)
     return (a + 0.05) / (b + 0.05)
+
+# Ported from Color.js 0.5.2, src/contrast/APCA.js, itself a port of github.com/Myndex/apca-w3,
+# under Color.js's MIT license:
+# MIT License
+#
+# Copyright (c) 2021 Lea Verou, Chris Lilley
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+def _apca_y(h):
+    r, g, b = (c ** 2.4 for c in hex2srgb(h))
+    y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b
+    return y if y >= 0.022 else y + (0.022 - y) ** 1.414
+
+# APCA 0.0.98G lightness contrast (Lc). Negative means light text on a dark background.
+# Color.js's argument order is (background, text); this one is (text, background).
+def apca(text, background):
+    t, b = _apca_y(text), _apca_y(background)
+    if abs(b - t) < 0.0005:
+        return 0.0
+    c = 1.14 * (b ** 0.56 - t ** 0.57 if b > t else b ** 0.65 - t ** 0.62)
+    return 0.0 if abs(c) < 0.1 else (c - (0.027 if c > 0 else -0.027)) * 100
 
 def lin2oklab(r, g, b):
     l = 0.4122214708*r + 0.5363325363*g + 0.0514459929*b
@@ -298,8 +335,8 @@ def main():
         print(f"\n  \u2192 {verdict}"
               "  (CVD in the 6\u20138 floor band is legal ONLY with secondary encoding:"
               " direct labels, gaps, or texture)")
-        print("  scope: categorical palettes only. For a lone status/text color check WCAG"
-              " text contrast; for a sequential ramp, lightness monotonicity.\n")
+        print("  scope: categorical palettes only. For a lone status/text color check"
+              " text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity.\n")
     sys.exit(0 if ok else 1)
 
 if __name__ == "__main__":

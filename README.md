@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Meta Muse agent (VM files)** | October 3, 2026 | [Muse agent system prompt](Meta/muse-agent/workspace/system/system_prompt.md) · [all VM files](Meta/muse-agent/) |
 | **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
 | **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
-| **Claude Sonnet 5.5** | September 29, 2026 | [Claude Sonnet 5.5 system prompt](Anthropic/claude-sonnet-5.5.md) |
 
 ---
 ## Anthropic — Claude
@@ -219,7 +219,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Grok 4.3 Beta | [Grok 4.3 Beta system prompt](xAI/grok-4.3-beta.md) |
 | Grok 4.2 | [Grok 4.2 system prompt](xAI/grok-4.2.md) |
 | Grok Expert | [Grok Expert system prompt](xAI/grok-expert.md) |
-| Grok Bot | [Grok Bot system prompt](xAI/grok-bot.md) |
+| Grok Bot | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) |
 
 <details><summary>Older versions</summary>
 
@@ -229,7 +229,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Grok 4 | [Grok 4 system prompt](xAI/grok-4.md) · [API](xAI/grok-api.md) |
 | Grok 3 | [Grok 3 system prompt](xAI/grok-3.md) |
 | Grok Account | [Grok account system prompt](xAI/grok-account.md) |
-| Grok Personas | [Grok persona prompts](xAI/grok-personas.md) |
+| Grok Personas | [Grok persona prompts](xAI/old/grok-personas.md) |
 | Safety Instructions | [Grok safety instructions](xAI/grok-4-with-new-safety-instructions.md) |
 
 </details>

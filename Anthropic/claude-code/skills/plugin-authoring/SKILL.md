@@ -1,10 +1,9 @@
 ---
 name: plugin-authoring
 description: |-
-  Make a mod: a change to Claude's own interface or behaviour, such as a live pane or panel, a band above the prompt, a status line, a toast, a slash command, or a hook on tool calls or prompts. Use to make, change or debug a mod or its hooks module.
+  Make a mod: a change to Claude's own interface or behaviour, such as a panel or pane that stays beside the chat and updates, a band, status line, toast, slash command, or hook on tool calls. Use to make, change or debug a mod or its hooks module.
 ---
-
-WHERE TO WRITE IT. Write each mod in its own child folder, `/Users/asgeirtj/.claude/dev-mods/7a1cc5d5-3f9b-4639-9e7a-7dd696eaf754/<mod-name>/`, three files written directly:
+WHERE TO WRITE IT. Write each mod in its own child folder, `/Users/asgeirtj/.claude/dev-mods/b505c579-b65d-4591-8774-774c7c99324e/<mod-name>/`, three files written directly:
 
 - `.claude-plugin/plugin.json`: `{ "name": "<mod-name>", "version": "0.1.0", "description": "<one line>" }`
 - `hooks/hooks.json`: `{ "modules": ["./register.tsx"] }`, one path, relative to that file
@@ -12,7 +11,7 @@ WHERE TO WRITE IT. Write each mod in its own child folder, `/Users/asgeirtj/.cla
 
 A mod that keeps values in `$.state` has a fourth file, `types/index.d.ts`: its type contract, declaring each value in `interface PluginState` under the mod's name, named in `plugin.json` as `"types": "./types/index.d.ts"`. The module imports its value types from `'../types'`, and `claude plugin validate` holds every `$.state` key the module names to that contract.
 
-WHERE THE TYPES ARE. The engine writes them; there is no command to run. Before the mod has loaded: `/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34af9c2bd950f10a5e1/plugin-authoring/types/claude-code.d.ts`, this build's API and built-in tools, written as this skill loaded (this process's own folder: after a restart the next load of this skill writes and names a new one). Once the engine has loaded the mod (from this mods folder, or a `--plugin-dir` folder it hot-reloads), `<mod folder>/.claude-plugin/types/` holds the same for the editor: `claude-code/index.d.ts`, the API; `claude-code-tools/index.d.ts`, so `e.tool === "Bash"` narrows `e`; `claude-code-mcp/index.d.ts`, the MCP tools connected when the mod last reloaded; each `dependencies` plugin's contract; and a `tsconfig.json` the mod's own extends, so `tsc -p <mod folder>` type-checks it. The API file carries every event's input and result, every noun and method on `$` with its doc comment and an example, and every element's props, in about 14,000 lines: grep it for the name at hand (`'tool.call'`, `Pane: {`, `export type ToolCallResult`).
+WHERE THE TYPES ARE. The engine writes them; there is no command to run. Before the mod has loaded: `/private/tmp/claude-501/bundled-skills/2.1.312/0a35bef3c29a2c84da274d8d586384d5/plugin-authoring/types/claude-code.d.ts`, this build's API and built-in tools, written as this skill loaded (this process's own folder: after a restart the next load of this skill writes and names a new one). Once the engine has loaded the mod (from this mods folder, or a `--plugin-dir` folder it hot-reloads), `<mod folder>/.claude-plugin/types/` holds the same for the editor: `claude-code/index.d.ts`, the API; `claude-code-tools/index.d.ts`, so `e.tool === "Bash"` narrows `e`; `claude-code-mcp/index.d.ts`, the MCP tools connected when the mod last reloaded; each `dependencies` plugin's contract; and a `tsconfig.json` the mod's own extends, so `tsc -p <mod folder>` type-checks it. The API file carries every event's input and result, every noun and method on `$` with its doc comment and an example, and every element's props, in about 14,000 lines: grep it for the name at hand (`'tool.call'`, `Pane: {`, `export type ToolCallResult`).
 
 WHAT HAPPENS WHEN THE TURN ENDS. Loading this skill through the Skill tool or its slash command starts the engine's watch on the folder that holds the mod folders. The first file written under it makes the engine ask the person, once, right then, while the turn goes on: "Turn on the mods Claude writes in this session?", with `How does this work?` first, then `Turn them on` and `Not now`. That question is the switch, and the person alone answers it: no permission mode, rule or hook does. On `Turn them on` the folder joins the session's plugin folders and the mod loads when the turn ends, whole, and each later edit reloads it when the turn that made the edit ends. The question stays up until answered. The answer reaches you as a notice at your next turn, which the engine may start for an enabling: enabled, with what the load came to; declined (the mods are written and load the next time this session starts; the person can ask for the question again); still open (dismissed or closed; asked again); or off, with the reason (nobody could be asked, as under `claude -p`; the question got no pick three times; an organization's policy; an untrusted workspace). A process that restarted loads an enabled folder again by itself; otherwise its watch starts the next time this skill loads, and a manifest already in the folder raises the question when that turn ends.
 
@@ -30,7 +29,7 @@ SHARING IT. The offer is the main session's, to the person at its prompt: a suba
 
 When a person asks for a panel, or for anything kept beside the chat, build a pane as a mod, not a page, even if what it shows is fixed. A page is for a document to read or send.
 
-Each example, in `/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34af9c2bd950f10a5e1/plugin-authoring/examples/`, is one complete hooks module; with the two JSON files above and any contract, it loads, validates and type-checks on this build.
+Each example, in `/private/tmp/claude-501/bundled-skills/2.1.312/0a35bef3c29a2c84da274d8d586384d5/plugin-authoring/examples/`, is one complete hooks module; with the two JSON files above and any contract, it loads, validates and type-checks on this build.
 
 | The person asks for | What it is | Shown in |
 | --- | --- | --- |
@@ -44,7 +43,7 @@ Each example, in `/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34
 | play a sound | `$.audio.play({ asset })` from any hook, the asset a file of the mod's | its doc in the types |
 | a slash command | `$.command.register({ name, description })` in `session.start`, answered by a `command.run` hook returning `{ text }` | `pane.tsx` |
 | values a drawing reads | `atom(ref, initial)`, `read($, atom)` while drawing, `update($, atom, fn)` from a handler or another event; the write redraws the readers; each value declared in the contract | `pane-state.d.ts` |
-| work on a timer, a tool the model calls, a subagent type, model calls, files, processes | `$.clock`, `$.tool`, `$.agent`, `$.model`, `$.fs`, `$.process` | `/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34af9c2bd950f10a5e1/plugin-authoring/reference.md` |
+| work on a timer, a tool the model calls, a subagent type, model calls, files, processes | `$.clock`, `$.tool`, `$.agent`, `$.model`, `$.fs`, `$.process` | `/private/tmp/claude-501/bundled-skills/2.1.312/0a35bef3c29a2c84da274d8d586384d5/plugin-authoring/reference.md` |
 
 ## Checking it and reading what the engine refused
 
@@ -52,4 +51,4 @@ Each example, in `/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34
 
 While the session hot-reloads a plugin folder the transcript carries one dim line naming the plugin, the event and the reason when a hook fails or a module does not load, and a hook whose tree does not validate is such a hook, skipped alone: `<plugin>: ui.render hook skipped: returned the wrong shape (a tree <Component> refuses: <reason>)`. A failed hook of a mod you wrote comes back to you as a notice at your next turn. In any other session those lines go to the debug log alone, as `<plugin>: <line>`. The debug log (`claude --debug`) carries a line for every occurrence and every result the engine refused.
 
-`/private/tmp/claude-501/bundled-skills/2.1.309/6c747db0d467c34af9c2bd950f10a5e1/plugin-authoring/reference.md` is the long form: the full event list, streaming events, `ui.render` in depth, `$.state` contracts, `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS` while developing, `userConfig` options, what a test holds, and Sharing a mod, the GitHub road, done when the person asks, or says yes where this skill offers it: `.claude-plugin/marketplace.json` in its repository and, in the README, `/plugin install <mod> --marketplace <owner>/<repo>`.
+`/private/tmp/claude-501/bundled-skills/2.1.312/0a35bef3c29a2c84da274d8d586384d5/plugin-authoring/reference.md` is the long form: the full event list, streaming events, `ui.render` in depth, `$.state` contracts, `--plugin-dir` and `CLAUDE_CODE_PLUGIN_DIRS` while developing, `userConfig` options, what a test holds, and Sharing a mod, the GitHub road, done when the person asks, or says yes where this skill offers it: `.claude-plugin/marketplace.json` in its repository and, in the README, `/plugin install <mod> --marketplace <owner>/<repo>`.

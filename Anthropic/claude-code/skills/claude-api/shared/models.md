@@ -81,32 +81,35 @@ curl https://api.anthropic.com/v1/models/claude-opus-4-8 \
 - **Claude Opus 4.8** - The most capable model in the Opus 4 series - highly autonomous, state-of-the-art on long-horizon agentic work, knowledge work, and memory; clearer, warmer writing. Same API surface as Opus 4.7 (adaptive thinking only; sampling parameters and `budget_tokens` removed). 1M context window at standard API pricing (no long-context premium). See `shared/model-migration.md` -> Migrating to Opus 4.8 - a 4.7 -> 4.8 move is a model-ID swap plus prompt re-tuning, no new breaking changes.
 - **Claude Opus 4.7** - Previous-generation Opus. Highly autonomous; strong on long-horizon agentic work, knowledge work, vision, and memory. Adaptive thinking only; sampling parameters and `budget_tokens` removed. 1M context window. See `shared/model-migration.md` -> Migrating to Opus 4.7.
 - **Claude Opus 4.6** - Older Opus. Supports adaptive thinking (recommended), 128K max output tokens (requires streaming for large outputs). 1M context window.
-- **Claude Sonnet 5** - The previous Sonnet; near-Opus quality on coding and agentic work. Adaptive thinking on by default (omitting `thinking` runs adaptive); manual `budget_tokens` removed; non-default sampling parameters rejected. `effort` supports `low`/`medium`/`high`/`xhigh`/`max`. New tokenizer (~30% more tokens for the same text vs Sonnet 4.6). High-resolution vision (2576px). 1M context window, 128K max output. See `shared/model-migration.md` -> Migrating to Claude Sonnet 5.
+- **Claude Sonnet 5** - The previous Sonnet; near-Opus quality on coding and agentic work. Adaptive thinking on by default (omitting `thinking` runs adaptive); manual `budget_tokens` removed; non-default sampling parameters rejected (on API version `2026-10-21`, any value is rejected). `effort` supports `low`/`medium`/`high`/`xhigh`/`max`. New tokenizer (~30% more tokens for the same text vs Sonnet 4.6). High-resolution vision (2576px). 1M context window, 128K max output. See `shared/model-migration.md` -> Migrating to Claude Sonnet 5.
 - **Claude Sonnet 5.5** - Successor to Claude Sonnet 5 in the Sonnet line, at the same prices ($2 / $10 per MTok; cache reads $0.20). Same tokenizer as Claude Sonnet 5; 1M context, 128K max output. Adaptive thinking on by default; effort default `high`, with recalibrated levels. Five breaking changes: `thinking: {type: "disabled"}` returns a 400 (send `{type: "between_tools"}` at effort `high` or below to turn thinking off), forced `tool_choice` 400s, thinking blocks are tied to the model and the conversation, computer use on the Claude API and Google Cloud needs the `computer_toolset_20260801` toolset, and the advisor tool rejects Claude Opus 4.8, Claude Opus 4.7, and Claude Sonnet 5 advisors. See `shared/model-migration.md` -> Migrating to Claude Sonnet 5.5.
 - **Claude Sonnet 4.6** - Previous-generation Sonnet. Supports adaptive thinking (recommended). 1M context window. 128K max output tokens.
-- **Claude Haiku 5.5** - The current Haiku and the default when the user asks for Haiku: the fast, low-cost model for high-volume, latency-sensitive work such as classification, routing, extraction, and sub-agent tasks. Successor to Claude Haiku 4.5 with a 1M context window and 128K max output, at $0.10 / $0.50 per MTok when the prompt is 100K tokens or fewer and $0.50 / $2.50 above that. Adaptive thinking only, on by default (`{type: "disabled"}` is accepted at effort `high` or below); `effort` from `low` through `max`, default `medium`. Breaking for code written for Claude Haiku 4.5: `budget_tokens`, non-default sampling parameters, and assistant prefill return a 400, on the Claude API and Google Cloud computer use needs the `computer_toolset_20260801` toolset, and editing earlier turns invalidates replayed thinking blocks (preserved thinking). Thinking text is omitted by default (`display: "summarized"` to see summaries). A newer tokenizer counts the same text as about 30% more tokens. Safety classifiers can return `stop_reason: "refusal"`, and there is no server-side fallback for this model. See `shared/model-migration.md` -> Migrating to Claude Haiku 5.5.
+- **Claude Haiku 5.5** - The current Haiku and the default when the user asks for Haiku: the fast, low-cost model for high-volume, latency-sensitive work such as classification, routing, extraction, and sub-agent tasks. Successor to Claude Haiku 4.5 with a 1M context window and 128K max output, at $0.10 / $0.50 per MTok when the prompt is 100K tokens or fewer and $0.50 / $2.50 above that. Adaptive thinking only, on by default (`{type: "disabled"}` is accepted at effort `high` or below); `effort` from `low` through `max`, default `medium`. Breaking for code written for Claude Haiku 4.5: `budget_tokens`, non-default sampling parameters (on API version `2026-10-21`, any value is rejected), and assistant prefill return a 400, on the Claude API and Google Cloud computer use needs the `computer_toolset_20260801` toolset, and editing earlier turns invalidates replayed thinking blocks (preserved thinking). Thinking text is omitted by default (`display: "summarized"` to see summaries). A newer tokenizer counts the same text as about 30% more tokens. Safety classifiers can return `stop_reason: "refusal"`, and there is no server-side fallback for this model. See `shared/model-migration.md` -> Migrating to Claude Haiku 5.5.
 - **Claude Haiku 4.5** - Previous-generation Haiku, still served. 200K context window, 64K max output, manual extended thinking with `budget_tokens`, no `effort` parameter.
 
 ## Legacy Models (still active)
 
+Statuses and dates in this table and the ones below are for the Claude API, Claude Platform on AWS and Microsoft Foundry; Amazon Bedrock and Google Cloud set their own schedules.
+
 | Friendly Name     | Alias (use this)    | Full ID                       | Status |
 |-------------------|---------------------|-------------------------------|--------|
 | Claude Opus 4.5   | `claude-opus-4-5`   | `claude-opus-4-5-20251101`    | Active |
-| Claude Opus 4.1   | `claude-opus-4-1`   | `claude-opus-4-1-20250805`    | Deprecated (retires 2026-08-05 - migrate to `claude-opus-5-5`) |
-| Claude Sonnet 4.5 | `claude-sonnet-4-5` | `claude-sonnet-4-5-20250929`  | Active |
 
 ## Deprecated Models (retiring soon)
 
 | Friendly Name     | Alias (use this)    | Full ID                       | Status     | Retires      |
 |-------------------|---------------------|-------------------------------|------------|--------------|
-| Claude Sonnet 4   | `claude-sonnet-4-0` | `claude-sonnet-4-20250514`    | Deprecated | TBD          |
-| Claude Opus 4     | `claude-opus-4-0`   | `claude-opus-4-20250514`      | Deprecated | TBD          |
-| Claude Haiku 3    | -                   | `claude-3-haiku-20240307`     | Deprecated | Apr 19, 2026 |
+| Claude Sonnet 4.5 | `claude-sonnet-4-5` | `claude-sonnet-4-5-20250929`  | Deprecated | Nov 30, 2026 |
+| Claude Mythos Preview | -               | `claude-mythos-preview`       | Deprecated | TBA          |
 
 ## Retired Models (no longer available)
 
 | Friendly Name     | Full ID                       | Retired     |
 |-------------------|-------------------------------|-------------|
+| Claude Opus 4.1   | `claude-opus-4-1-20250805`    | Aug 5, 2026 |
+| Claude Sonnet 4   | `claude-sonnet-4-20250514`    | Jun 15, 2026 |
+| Claude Opus 4     | `claude-opus-4-20250514`      | Jun 15, 2026 |
+| Claude Haiku 3    | `claude-3-haiku-20240307`     | Apr 20, 2026 |
 | Claude Sonnet 3.7 | `claude-3-7-sonnet-20250219`  | Feb 19, 2026 |
 | Claude Haiku 3.5  | `claude-3-5-haiku-20241022`   | Feb 19, 2026 |
 | Claude Opus 3     | `claude-3-opus-20240229`      | Jan 5, 2026 |
@@ -134,15 +137,15 @@ When a user asks for a model by name, use this table to find the correct model I
 | "opus 4.7"                                | `claude-opus-4-7`              |
 | "opus 4.6"                                | `claude-opus-4-6`              |
 | "opus 4.5"                                | `claude-opus-4-5`              |
-| "opus 4.1"                                | `claude-opus-4-1` (deprecated, retires 2026-08-05 - suggest `claude-opus-5-5`) |
-| "opus 4", "opus 4.0"                      | `claude-opus-4-0` (deprecated - suggest `claude-opus-5-5`) |
+| "opus 4.1"                                | Retired - suggest `claude-opus-5-5` |
+| "opus 4", "opus 4.0"                      | Retired - suggest `claude-opus-5-5` |
 | "sonnet", "balanced"                      | `claude-sonnet-5-5`           |
 | "sonnet 5"                                | `claude-sonnet-5`           |
 | "sonnet 5.5"                              | `claude-sonnet-5-5` |
 | "cheapest sonnet", "newest sonnet", "latest sonnet" (any attribute phrasing) | `claude-sonnet-5-5` |
 | "sonnet 4.6"                              | `claude-sonnet-4-6`            |
-| "sonnet 4.5"                              | `claude-sonnet-4-5`            |
-| "sonnet 4", "sonnet 4.0"                  | `claude-sonnet-4-0` (deprecated - suggest `claude-sonnet-5-5`) |
+| "sonnet 4.5"                              | `claude-sonnet-4-5` (deprecated, retires 2026-11-30 - suggest `claude-sonnet-5-5`) |
+| "sonnet 4", "sonnet 4.0"                  | Retired - suggest `claude-sonnet-5-5` |
 | "sonnet 3.7"                              | Retired - suggest `claude-sonnet-5-5` |
 | "sonnet 3.5"                              | Retired - suggest `claude-sonnet-5-5` |
 | "haiku", "fast", "cheap"                  | `claude-haiku-5-5`             |
@@ -150,4 +153,4 @@ When a user asks for a model by name, use this table to find the correct model I
 | "newest haiku", "latest haiku" (any attribute phrasing) | `claude-haiku-5-5` |
 | "haiku 4.5"                               | `claude-haiku-4-5`             |
 | "haiku 3.5"                               | Retired - suggest `claude-haiku-5-5` |
-| "haiku 3"                                 | Deprecated - suggest `claude-haiku-5-5` |
+| "haiku 3"                                 | Retired - suggest `claude-haiku-5-5` |

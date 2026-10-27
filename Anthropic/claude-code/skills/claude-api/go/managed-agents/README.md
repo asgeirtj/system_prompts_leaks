@@ -7,7 +7,7 @@
 ## Installation
 
 ```bash
-go get github.com/anthropics/anthropic-sdk-go
+go get github.com/anthropics/anthropic-sdk-go/v2
 ```
 
 ## Client Initialization
@@ -16,8 +16,8 @@ go get github.com/anthropics/anthropic-sdk-go
 import (
     "context"
 
-    "github.com/anthropics/anthropic-sdk-go"
-    "github.com/anthropics/anthropic-sdk-go/option"
+    "github.com/anthropics/anthropic-sdk-go/v2"
+    "github.com/anthropics/anthropic-sdk-go/v2/option"
 )
 
 // Default (uses ANTHROPIC_API_KEY env var)
@@ -70,13 +70,11 @@ The examples on this page turn both web tools off. Set `enabled` to true on `web
 agent, err := client.Beta.Agents.New(ctx, anthropic.BetaAgentNewParams{
     Name: "Coding Assistant",
     Model: anthropic.BetaManagedAgentsModelConfigParams{
-        ID:   "claude-opus-5-5",
-        Type: anthropic.BetaManagedAgentsModelConfigParamsTypeModelConfig,
+        ID: "claude-opus-5-5",
     },
     System: anthropic.String("You are a helpful coding assistant."),
     Tools: []anthropic.BetaAgentNewParamsToolUnion{{
         OfAgentToolset20260401: &anthropic.BetaManagedAgentsAgentToolset20260401Params{
-            Type: anthropic.BetaManagedAgentsAgentToolset20260401ParamsTypeAgentToolset20260401,
             DefaultConfig: anthropic.BetaManagedAgentsAgentToolsetDefaultConfigParams{
                 PermissionPolicy: anthropic.BetaManagedAgentsAgentToolsetDefaultConfigParamsPermissionPolicyUnion{
                     OfAuto: &anthropic.BetaManagedAgentsAutoPolicyParam{},
@@ -97,7 +95,6 @@ if err != nil {
 session, err := client.Beta.Sessions.New(ctx, anthropic.BetaSessionNewParams{
     Agent: anthropic.BetaSessionNewParamsAgentUnion{
         OfBetaManagedAgentsAgents: &anthropic.BetaManagedAgentsAgentParams{
-            Type:    anthropic.BetaManagedAgentsAgentParamsTypeAgent,
             ID:      agent.ID,
             Version: anthropic.Int(agent.Version),
         },
@@ -118,7 +115,7 @@ Updates create new versions; the agent object is immutable per version.
 
 ```go
 updatedAgent, err := client.Beta.Agents.Update(ctx, agent.ID, anthropic.BetaAgentUpdateParams{
-    Version: agent.Version,
+    Version: anthropic.Int(agent.Version),
     System:  anthropic.String("You are a helpful coding agent. Always write tests."),
 })
 if err != nil {
@@ -151,10 +148,8 @@ if err != nil {
 _, err = client.Beta.Sessions.Events.Send(ctx, session.ID, anthropic.BetaSessionEventSendParams{
     Events: []anthropic.BetaManagedAgentsEventParamsUnion{{
         OfUserMessage: &anthropic.BetaManagedAgentsUserMessageEventParams{
-            Type: anthropic.BetaManagedAgentsUserMessageEventParamsTypeUserMessage,
             Content: []anthropic.BetaManagedAgentsUserMessageEventParamsContentUnion{{
                 OfText: &anthropic.BetaManagedAgentsTextBlockParam{
-                    Type: anthropic.BetaManagedAgentsTextBlockTypeText,
                     Text: "Review the auth module",
                 },
             }},
@@ -180,10 +175,8 @@ defer stream.Close()
 if _, err := client.Beta.Sessions.Events.Send(ctx, session.ID, anthropic.BetaSessionEventSendParams{
     Events: []anthropic.BetaManagedAgentsEventParamsUnion{{
         OfUserMessage: &anthropic.BetaManagedAgentsUserMessageEventParams{
-            Type: anthropic.BetaManagedAgentsUserMessageEventParamsTypeUserMessage,
             Content: []anthropic.BetaManagedAgentsUserMessageEventParamsContentUnion{{
                 OfText: &anthropic.BetaManagedAgentsTextBlockParam{
-                    Type: anthropic.BetaManagedAgentsTextBlockTypeText,
                     Text: "Summarize the repo README",
                 },
             }},
@@ -206,7 +199,6 @@ for stream.Next() {
         if _, err := client.Beta.Sessions.Events.Send(ctx, session.ID, anthropic.BetaSessionEventSendParams{
             Events: []anthropic.BetaManagedAgentsEventParamsUnion{{
                 OfUserToolConfirmation: &anthropic.BetaManagedAgentsUserToolConfirmationEventParams{
-                    Type:      anthropic.BetaManagedAgentsUserToolConfirmationEventParamsTypeUserToolConfirmation,
                     ToolUseID: current.ID,
                     Result:    result,
                 },
@@ -327,7 +319,6 @@ session, err := client.Beta.Sessions.New(ctx, anthropic.BetaSessionNewParams{
     EnvironmentID: environment.ID,
     Resources: []anthropic.BetaSessionNewParamsResourceUnion{{
         OfFile: &anthropic.BetaManagedAgentsFileResourceParams{
-            Type:      anthropic.BetaManagedAgentsFileResourceParamsTypeFile,
             FileID:    file.ID,
             MountPath: anthropic.String("/data.csv"),
         },
@@ -344,7 +335,6 @@ if err != nil {
 // Attach an additional file to an open session
 resource, err := client.Beta.Sessions.Resources.Add(ctx, session.ID, anthropic.BetaSessionResourceAddParams{
     BetaManagedAgentsFileResourceParams: anthropic.BetaManagedAgentsFileResourceParams{
-        Type:   anthropic.BetaManagedAgentsFileResourceParamsTypeFile,
         FileID: file.ID,
     },
 })
@@ -421,18 +411,15 @@ if err != nil {
 agent, err := client.Beta.Agents.New(ctx, anthropic.BetaAgentNewParams{
     Name: "GitHub Assistant",
     Model: anthropic.BetaManagedAgentsModelConfigParams{
-        ID:   "claude-opus-5-5",
-        Type: anthropic.BetaManagedAgentsModelConfigParamsTypeModelConfig,
+        ID: "claude-opus-5-5",
     },
     MCPServers: []anthropic.BetaManagedAgentsURLMCPServerParams{{
-        Type: anthropic.BetaManagedAgentsURLMCPServerParamsTypeURL,
         Name: "github",
         URL:  "https://api.githubcopilot.com/mcp/",
     }},
     Tools: []anthropic.BetaAgentNewParamsToolUnion{
         {
             OfAgentToolset20260401: &anthropic.BetaManagedAgentsAgentToolset20260401Params{
-                Type: anthropic.BetaManagedAgentsAgentToolset20260401ParamsTypeAgentToolset20260401,
                 DefaultConfig: anthropic.BetaManagedAgentsAgentToolsetDefaultConfigParams{
                     PermissionPolicy: anthropic.BetaManagedAgentsAgentToolsetDefaultConfigParamsPermissionPolicyUnion{
                         OfAuto: &anthropic.BetaManagedAgentsAutoPolicyParam{},
@@ -446,7 +433,6 @@ agent, err := client.Beta.Agents.New(ctx, anthropic.BetaAgentNewParams{
         },
         {
             OfMCPToolset: &anthropic.BetaManagedAgentsMCPToolsetParams{
-                Type:          anthropic.BetaManagedAgentsMCPToolsetParamsTypeMCPToolset,
                 MCPServerName: "github",
             },
         },
@@ -460,7 +446,6 @@ if err != nil {
 session, err := client.Beta.Sessions.New(ctx, anthropic.BetaSessionNewParams{
     Agent: anthropic.BetaSessionNewParamsAgentUnion{
         OfBetaManagedAgentsAgents: &anthropic.BetaManagedAgentsAgentParams{
-            Type:    anthropic.BetaManagedAgentsAgentParamsTypeAgent,
             ID:      agent.ID,
             Version: anthropic.Int(agent.Version),
         },
@@ -494,7 +479,6 @@ credential, err := client.Beta.Vaults.Credentials.New(ctx, vault.ID, anthropic.B
     DisplayName: anthropic.String("Alice's Slack"),
     Auth: anthropic.BetaVaultCredentialNewParamsAuthUnion{
         OfMCPOAuth: &anthropic.BetaManagedAgentsMCPOAuthCreateParams{
-            Type:         anthropic.BetaManagedAgentsMCPOAuthCreateParamsTypeMCPOAuth,
             MCPServerURL: "https://mcp.slack.com/mcp",
             AccessToken:  "xoxp-...",
             ExpiresAt:    anthropic.Time(time.Date(2026, time.April, 15, 0, 0, 0, 0, time.UTC)),
@@ -505,7 +489,6 @@ credential, err := client.Beta.Vaults.Credentials.New(ctx, vault.ID, anthropic.B
                 RefreshToken:  "xoxe-1-...",
                 TokenEndpointAuth: anthropic.BetaManagedAgentsMCPOAuthRefreshParamsTokenEndpointAuthUnion{
                     OfClientSecretPost: &anthropic.BetaManagedAgentsTokenEndpointAuthPostParam{
-                        Type:         anthropic.BetaManagedAgentsTokenEndpointAuthPostParamTypeClientSecretPost,
                         ClientSecret: "abc123...",
                     },
                 },
@@ -522,7 +505,6 @@ _, err = client.Beta.Vaults.Credentials.Update(ctx, credential.ID, anthropic.Bet
     VaultID: vault.ID,
     Auth: anthropic.BetaVaultCredentialUpdateParamsAuthUnion{
         OfMCPOAuth: &anthropic.BetaManagedAgentsMCPOAuthUpdateParams{
-            Type:        anthropic.BetaManagedAgentsMCPOAuthUpdateParamsTypeMCPOAuth,
             AccessToken: anthropic.String("xoxp-new-..."),
             ExpiresAt:   anthropic.Time(time.Date(2026, time.May, 15, 0, 0, 0, 0, time.UTC)),
             Refresh: anthropic.BetaManagedAgentsMCPOAuthRefreshUpdateParams{
@@ -556,7 +538,6 @@ session, err := client.Beta.Sessions.New(ctx, anthropic.BetaSessionNewParams{
     Resources: []anthropic.BetaSessionNewParamsResourceUnion{
         {
             OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
-                Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
                 URL:                "https://github.com/org/repo",
                 MountPath:          anthropic.String("/workspace/repo"),
                 AuthorizationToken: "ghp_your_github_token",
@@ -575,7 +556,6 @@ Multiple repositories on the same session:
 resources := []anthropic.BetaSessionNewParamsResourceUnion{
     {
         OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
-            Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
             URL:                "https://github.com/org/frontend",
             MountPath:          anthropic.String("/workspace/frontend"),
             AuthorizationToken: "ghp_your_github_token",
@@ -583,7 +563,6 @@ resources := []anthropic.BetaSessionNewParamsResourceUnion{
     },
     {
         OfGitHubRepository: &anthropic.BetaManagedAgentsGitHubRepositoryResourceParams{
-            Type:               anthropic.BetaManagedAgentsGitHubRepositoryResourceParamsTypeGitHubRepository,
             URL:                "https://github.com/org/backend",
             MountPath:          anthropic.String("/workspace/backend"),
             AuthorizationToken: "ghp_your_github_token",

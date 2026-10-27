@@ -18,8 +18,8 @@
  * {@link Claude.Comments.onSendToClaude} (the write verbs reject
  * `not_granted` and {@link Claude.Comments.canSendToClaude} resolves
  * `"off"`) and never prompts for consent, not even where a listener is
- * handed the viewer's words (the ONE exception below). Either form may add
- * `"customAnchors": true`, which grants
+ * handed the viewer's words or selected model (the ONE exception below).
+ * Either form may add `"customAnchors": true`, which grants
  * {@link Claude.Comments.customAnchors}: the page positions the comment
  * pins itself, for content the shell cannot anchor to. The page never
  * holds a credential: the shell performs every write with the viewer's
@@ -38,10 +38,10 @@
  * where the platform offers it to this viewer: a page
  * that subscribes to {@link Claude.Comments.onSendToClaude}
  * is handed the words the current viewer has just typed, at their own
- * "Send to Claude" press, before anything is posted — never a stored
- * comment, another person's words, an author, or an account id.) Keep a returned
- * `threadId` only if the page will act on that thread again this visit
- * — nothing hands it back later.
+ * "Send to Claude" press, before anything is posted, and sometimes the id
+ * of the model they have selected — never a stored comment, another person's
+ * words, an author, or an account id.) Keep a returned `threadId` only if
+ * the page will act on that thread again this visit — nothing hands it back later.
  *
  * Consent is the viewer's, per artifact, asked at the FIRST write: the
  * shell holds that call and shows the viewer a prompt, so it may stay
@@ -394,6 +394,17 @@ declare namespace Claude {
       anchor: string | null;
       /** The anchor's label as the composer shows it, when it has one. */
       label?: string;
+      /** The id of the Claude model the viewer who pressed has selected in
+       * the conversation beside the artifact that this comment would go to,
+       * read at the press. Absent when the comment would go elsewhere, when
+       * that selection is unknown, and unless the viewer app knows that nobody
+       * outside the artifact owner's organization has written to it; never a
+       * guess. Other Claude sessions may answer on their own models. At most
+       * 128 visible ASCII characters, as the viewer app would send it; it may
+       * carry a tag or date {@link Claude.sample}'s `model` may not accept:
+       * compare it whole, never parse it, and never show it to anyone but
+       * this viewer. */
+      selectedModel?: string;
     }
 
     /** A {@link Comments.onSendToClaude} listener's answer. */
@@ -459,8 +470,20 @@ declare namespace Claude {
        * listening), and again after anything that moves the subjects —
        * re-render, relayout, pan, zoom, resize; window scroll is
        * re-projected for you.
+       *
+       * One more key, `composer`, places the new-comment composer this
+       * page opened with {@link CustomAnchors.compose}: a point moves it
+       * and its pin there, inside the artifact's area (a composer opened
+       * over a drawn area ignores points). `null` hides it and its pin
+       * while reports carry it; report it while the composer's spot is
+       * on a page, slide or tab inside the artifact that is not shown.
+       * Hidden, it keeps the viewer's text and comment mode stays on;
+       * exitMode() is still refused over unsent text, and Escape
+       * passes over it, usually ending comment mode. The shell hides it
+       * only once the viewer's keyboard has left it. Left out, it stays
+       * where it last was.
        */
-      placed(map: Record<string, DocPoint>): void;
+      placed(map: Record<string, DocPoint | null>): void;
       /**
        * For commentable spots that are real DOM elements: build
        * `[anchor, point]` for `el` in the CSS-path grammar the shell's

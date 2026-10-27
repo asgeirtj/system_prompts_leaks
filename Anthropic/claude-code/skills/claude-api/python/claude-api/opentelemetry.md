@@ -71,7 +71,7 @@ from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapProp
 
 headers = {
     "x-api-key": os.environ["ANTHROPIC_API_KEY"],
-    "anthropic-version": "2023-06-01",
+    "anthropic-version": "2026-10-21",
     "content-type": "application/json",
 }
 TraceContextTextMapPropagator().inject(headers)  # adds traceparent for the active span

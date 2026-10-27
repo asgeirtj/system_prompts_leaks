@@ -117,7 +117,7 @@ Any `tool_choice` value can also include `"disable_parallel_tool_use": true` to 
 - **Error interception** - inspect the tool result before it returns to Claude (`generate_tool_call_response()` / `generateToolResponse()`); stop early or handle it yourself.
 - **Result modification** - mutate the tool result before it goes back (e.g. add `cache_control` for prompt caching, or transform the output).
 - **Per-turn retries / param changes** - e.g. bump `max_tokens` and re-run a truncated turn; bound the whole loop with `max_iterations`.
-- **Streaming and automatic compaction** are both supported.
+- **Streaming and compaction** are both supported. For compaction, use server-side compaction (beta `compact-2026-01-12`, a `compact_20260112` edit in `context_management`), or compact when you choose with `compact_before_next_turn()` (`anthropic` 1.7.0 and later) / `compactBeforeNextTurn()` (`@anthropic-ai/sdk` 0.127.0 and later); these two need the beta `compact-2026-09-04` instead, which Amazon Bedrock does not offer. The runner's old client-side compaction option is gone from Python 1.0.0 and from the TypeScript and Ruby releases that send API version `2026-10-21`.
 
 These hooks are SDK helper features, not separate API parameters - for the exact method names and worked examples, fetch the per-language SDK repo listed in `shared/live-sources.md` -> *Claude API SDK Repositories* (the tool-runner helpers live in each repo's `tools.md` / `helpers.md`). The bundled `python/claude-api/tool-use.md` and `typescript/claude-api/tool-use.md` show the basic tool-runner setup.
 
@@ -144,7 +144,7 @@ if response.stop_reason == "pause_turn":
     )
 ```
 
-**Note:** the SDK tool runners do not auto-resume `pause_turn` (as of `@anthropic-ai/sdk` 0.110.0 / `anthropic` 0.116.0) - a paused turn ends the runner and is returned as the final message, with no error. In TypeScript you can resume inside the iteration body (push the paused assistant turn back onto the runner); in Python the runner cannot be resumed mid-loop - restart a new runner with the paused turn appended, or handle `pause_turn` in a manual loop. See each language's `tool-use.md` for the pattern.
+**Note:** the Python and TypeScript tool runners resume `pause_turn` by themselves from `anthropic` 1.1.0 and `@anthropic-ai/sdk` 0.121.0, and each resume counts toward `max_iterations`. Earlier releases end the runner on a paused turn and return it as the final message, with no error; handle `pause_turn` in a manual loop there. See each language's `tool-use.md`.
 
 Set a `max_continuations` limit (e.g., 5) to prevent infinite loops. For the full guide, see: `https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons`
 

@@ -19,7 +19,7 @@ declare namespace Claude {
      * Stable error codes; treat unknown codes as `"unavailable"`.
      * - `rejected_extension` — extension missing or outside the allowlist
      *   (`gif png jpg jpeg webp mp4 webm mov txt json md` and
-     *   `docx pptx epub csv ttf html svg pdf xlsx zip`). Offer the format the
+     *   `docx pptx epub csv ttf html svg pdf xlsx zip fig`). Offer the format the
      *   content wants (a plain table is a `csv`, a workbook an `xlsx`);
      *   do not pre-build fallbacks to other formats. For a `mov`: the app
      *   around the artifact is out of date; the viewer needs to reload or

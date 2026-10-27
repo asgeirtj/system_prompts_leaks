@@ -47,9 +47,10 @@ Use a web fetch tool or `curl` (docs URLs ending in `.md` return Markdown). Try 
 | Usage and Cost Admin API | `https://platform.claude.com/docs/en/manage-claude/usage-cost-api.md` | "Extract the usage_report and cost_report endpoints, Admin API key requirements, filter and group_by dimensions, token fields, and granularity limits" |
 | API versions | `https://platform.claude.com/docs/en/api/versioning.md` | "Extract each version's migration guide URL" |
 | Errors | `https://platform.claude.com/docs/en/api/errors.md` | "Extract HTTP error codes, meanings, and retry guidance" |
-| Amazon Bedrock | `https://platform.claude.com/docs/en/build-with-claude/claude-on-amazon-bedrock.md` | "Extract the AnthropicBedrockMantle client per language, `anthropic.`-prefixed model IDs, auth paths, feature availability, and regions" |
+| Amazon Bedrock | `https://platform.claude.com/docs/en/build-with-claude/claude-in-amazon-bedrock.md` | "Extract the AnthropicBedrockMantle client per language, `anthropic.`-prefixed model IDs, auth paths, feature availability, and regions" |
 | Claude Platform on AWS | `https://platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws.md` | "Extract the AnthropicAWS client per language, SigV4 auth, credential precedence, short-term API keys, workspace_id, and region requirements" |
 | Claude Platform on AWS - IAM actions | `https://platform.claude.com/docs/en/api/claude-platform-on-aws-iam-actions.md` | "Extract the IAM action names, resource ARNs, and policy examples required for each API capability" |
+| Claude Models on Google Cloud (Anthropic managed) | `https://platform.claude.com/docs/en/build-with-claude/claude-models-on-google-cloud/anthropic-managed.md` | "Extract the AnthropicGoogleCloud client per language, credentials, settings, and unsupported features" |
 
 ### OpenTelemetry
 

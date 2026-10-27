@@ -4,9 +4,11 @@ Recalculates all formulas in an Excel file using LibreOffice
 """
 
 import contextlib
+import io
 import json
 import os
 import platform
+import posixpath
 import re
 import shutil
 import subprocess
@@ -17,9 +19,6 @@ import zipfile
 from pathlib import Path
 
 from office.soffice import get_soffice_env, run_soffice
-
-from openpyxl import load_workbook
-from openpyxl.worksheet.formula import ArrayFormula
 
 MACRO_FILENAME = "Module1.xba"
 SOFFICE_MISSING = "soffice not found on PATH; LibreOffice is required to recalculate"
@@ -99,6 +98,9 @@ def external_links_at_risk(filename):
         return []
     if not any(n.startswith("xl/externalLinks/") for n in names):
         return []
+
+    from openpyxl import load_workbook
+    from openpyxl.worksheet.formula import ArrayFormula
 
     with contextlib.ExitStack() as stack:
         formulas = load_workbook(filename, data_only=False)
@@ -235,65 +237,189 @@ def _recalc_with_profile(filename, abs_path, timeout, profile_dir: Path):
             )
         }
 
-    try:
-        wb = load_workbook(filename, data_only=True)
+    return _report(filename)
 
-        excel_errors = [
-            "#VALUE!",
-            "#DIV/0!",
-            "#REF!",
-            "#NAME?",
-            "#NULL!",
-            "#NUM!",
-            "#N/A",
-        ]
-        error_details = {err: [] for err in excel_errors}
-        total_errors = 0
 
-        for sheet_name in wb.sheetnames:
-            ws = wb[sheet_name]
-            for cell in _existing_cells(ws):
-                if isinstance(cell.value, str):
-                    for err in excel_errors:
-                        if err in cell.value:
-                            location = f"{sheet_name}!{cell.coordinate}"
-                            error_details[err].append(location)
-                            total_errors += 1
-                            break
+EXCEL_ERRORS = ["#VALUE!", "#DIV/0!", "#REF!", "#NAME?", "#NULL!", "#NUM!", "#N/A"]
 
-        result = {
-            "status": "success" if total_errors == 0 else "errors_found",
-            "total_errors": total_errors,
-            "error_summary": {},
+_MAIN_NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+_REL_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+_CELL_REF_RE = re.compile(r"([A-Z]+)([0-9]+)")
+MAX_MERGE_CHECKS = 1_000_000
+_MERGE_RE = re.compile(rb'<(?:\w+:)?mergeCell\b[^>]*\bref="([^"]*)"')
+
+
+def _error_in(text):
+    if "#" in text:
+        for err in EXCEL_ERRORS:
+            if err in text:
+                return err
+    return None
+
+
+def _rich_text(node):
+    runs = node.findall(f"{_MAIN_NS}t") + node.findall(f"{_MAIN_NS}r/{_MAIN_NS}t")
+    return "".join(t.text or "" for t in runs)
+
+
+def _row_major(coordinate):
+    column, row = _CELL_REF_RE.fullmatch(coordinate).groups()
+    number = 0
+    for letter in column:
+        number = number * 26 + ord(letter) - ord("A") + 1
+    return int(row), number
+
+
+def _merged_ranges(sheet_xml):
+    ranges = []
+    for ref in _MERGE_RE.findall(sheet_xml):
+        first, _, last = ref.decode().partition(":")
+        ranges.append((*_row_major(first), *_row_major(last)))
+    return ranges
+
+
+def _hidden_by_a_merge(merged, row, column):
+    return any(
+        top <= row <= bottom and left <= column <= right and (row, column) != (top, left)
+        for top, left, bottom, right in merged
+    )
+
+
+def _scan_xml(filename):
+    from defusedxml.ElementTree import fromstring, iterparse
+
+    error_details = {err: [] for err in EXCEL_ERRORS}
+    formula_count = 0
+    merge_checks = 0
+
+    with zipfile.ZipFile(filename) as archive:
+        workbook = fromstring(archive.read("xl/workbook.xml"))
+        if workbook.tag != f"{_MAIN_NS}workbook":
+            raise ValueError("not a transitional OOXML workbook")
+        targets = {
+            rel.get("Id"): rel.get("Target")
+            for rel in fromstring(archive.read("xl/_rels/workbook.xml.rels"))
         }
 
-        for err_type, locations in error_details.items():
-            if locations:
-                entry = {"count": len(locations), "locations": locations[:MAX_LOCATIONS]}
-                if len(locations) > MAX_LOCATIONS:
-                    entry["locations_truncated"] = len(locations) - MAX_LOCATIONS
-                result["error_summary"][err_type] = entry
+        shared_errors, shared_equals = {}, set()
+        if "xl/sharedStrings.xml" in archive.namelist():
+            with archive.open("xl/sharedStrings.xml") as part:
+                index = 0
+                for _, node in iterparse(part):
+                    if node.tag != f"{_MAIN_NS}si":
+                        continue
+                    text = _rich_text(node).replace("x005F_", "")
+                    err = _error_in(text)
+                    if err:
+                        shared_errors[index] = err
+                    if text.startswith("="):
+                        shared_equals.add(index)
+                    index += 1
+                    node.clear()
 
-        wb.close()
+        for sheet in workbook.find(f"{_MAIN_NS}sheets"):
+            target = targets[sheet.get(f"{_REL_NS}id")]
+            if target.startswith("/"):
+                part_name = target.lstrip("/")
+            else:
+                part_name = posixpath.normpath(f"xl/{target}")
+            if "/worksheets/" not in part_name:  
+                continue
+            found = []
+            xml = archive.read(part_name)
+            merged = _merged_ranges(xml)
+            for _, node in iterparse(io.BytesIO(xml)):
+                if node.tag == f"{_MAIN_NS}row":
+                    node.clear()
+                if node.tag != f"{_MAIN_NS}c":
+                    continue
+                if node.get("r") is None:
+                    raise ValueError("a cell without its address")
+                formula = node.find(f"{_MAIN_NS}f")
+                is_formula = formula is not None and formula.get("t") != "dataTable"
+                err = None
+                cell_type = node.get("t", "n")
+                if cell_type == "s":
+                    index = int(node.findtext(f"{_MAIN_NS}v"))
+                    err = shared_errors.get(index)
+                    is_formula = is_formula or (formula is None and index in shared_equals)
+                elif cell_type not in ("n", "b", "d"):
+                    inline = node.find(f"{_MAIN_NS}is")
+                    text = node.findtext(f"{_MAIN_NS}v") if inline is None else _rich_text(inline)
+                    err = _error_in(text or "")
+                    is_formula = is_formula or (formula is None and (text or "").startswith("="))
+                if not is_formula and not err:
+                    continue
+                row, column = _row_major(node.get("r"))
+                merge_checks += len(merged)
+                if merge_checks > MAX_MERGE_CHECKS:
+                    raise ValueError("too many merged ranges for this many cells")
+                if _hidden_by_a_merge(merged, row, column):
+                    continue
+                formula_count += is_formula
+                if err:
+                    found.append(((row, column), err, node.get("r")))
+            for _, err, coordinate in sorted(found):
+                error_details[err].append(f"{sheet.get('name')}!{coordinate}")
 
-        wb_formulas = load_workbook(filename, data_only=False)
-        formula_count = 0
-        for sheet_name in wb_formulas.sheetnames:
-            ws = wb_formulas[sheet_name]
-            for cell in _existing_cells(ws):
-                v = cell.value
-                if isinstance(v, ArrayFormula):
-                    v = v.text
-                if isinstance(v, str) and v.startswith("="):
-                    formula_count += 1
-        wb_formulas.close()
+    return error_details, formula_count
 
-        result["total_formulas"] = formula_count
 
-        return result
+def _scan_with_openpyxl(filename):
+    from openpyxl import load_workbook
+    from openpyxl.worksheet.formula import ArrayFormula
 
-    except Exception as e:
+    error_details = {err: [] for err in EXCEL_ERRORS}
+    wb = load_workbook(filename, data_only=True)
+    for sheet_name in wb.sheetnames:
+        ws = wb[sheet_name]
+        for cell in _existing_cells(ws):
+            if isinstance(cell.value, str):
+                err = _error_in(cell.value)
+                if err:
+                    error_details[err].append(f"{sheet_name}!{cell.coordinate}")
+    wb.close()
+
+    wb_formulas = load_workbook(filename, data_only=False)
+    formula_count = 0
+    for sheet_name in wb_formulas.sheetnames:
+        ws = wb_formulas[sheet_name]
+        for cell in _existing_cells(ws):
+            v = cell.value
+            if isinstance(v, ArrayFormula):
+                v = v.text
+            if isinstance(v, str) and v.startswith("="):
+                formula_count += 1
+    wb_formulas.close()
+
+    return error_details, formula_count
+
+
+def _report(filename):
+    try:
+        try:
+            error_details, formula_count = _scan_xml(filename)
+        except Exception:  
+            error_details, formula_count = _scan_with_openpyxl(filename)
+    except Exception as e:  
         return {"error": str(e)}
+
+    total_errors = sum(len(locations) for locations in error_details.values())
+    result = {
+        "status": "success" if total_errors == 0 else "errors_found",
+        "total_errors": total_errors,
+        "error_summary": {},
+    }
+
+    for err_type, locations in error_details.items():
+        if locations:
+            entry = {"count": len(locations), "locations": locations[:MAX_LOCATIONS]}
+            if len(locations) > MAX_LOCATIONS:
+                entry["locations_truncated"] = len(locations) - MAX_LOCATIONS
+            result["error_summary"][err_type] = entry
+
+    result["total_formulas"] = formula_count
+    return result
 
 
 def main():

@@ -211,7 +211,7 @@ const agent = await client.beta.agents.create({
 
 In an `ant apply` agent file, the same `multiagent` block goes in the YAML frontmatter.
 
-**Use the SDK's own types.** The SDK release that adds dynamic workflows has types for the `multiagent_20261001` block (`BetaManagedAgentsMultiagent20261001Params` in Python and TypeScript) and for every `workflow_run.*` event. On an older release, ask the user to upgrade the SDK (Python 0.x to 1.x: `python/claude-api/sdk-upgrade.md`); if they decline, or no release has the types yet, build the request via cURL / `ant` and leave a note to upgrade. Don't cast the block or the events, or silence the type checker, to make an older SDK accept them.
+**Use the SDK's own types.** The SDK release that adds dynamic workflows has types for the `multiagent_20261001` block (`BetaManagedAgentsMultiagent20261001Params` in Python and TypeScript) and for every `workflow_run.*` event. On an older release, ask the user to upgrade the SDK (Python needs 1.13.0 or later; a 0.x project upgrades with `python/claude-api/sdk-upgrade.md`); if they decline, or no release has the types yet, build the request via cURL / `ant` and leave a note to upgrade. Don't cast the block or the events, or silence the type checker, to make an older SDK accept them.
 
 **With workflows on, always add a system-prompt line that says when to start a run.** You describe the work in a `user.message`; the agent writes the plan and decides whether to start a run, so there is no API call that starts one. Turning workflows on gives the agent the ability to start runs, but it should also be prompted to use it. The contract-review agent above uses this system prompt:
 

@@ -43,7 +43,7 @@ var parameters = new MessageCreateParams
             },
         },
     ],
-    Messages = [new() { Role = Role.User, Content = "Weather in Paris?" }],
+    Messages = [new UserMessageParam { Content = "Weather in Paris?" }],
 };
 ```
 
@@ -106,8 +106,8 @@ foreach (ContentBlock block in response.Content)
 List<MessageParam> followUpMessages =
 [
     .. parameters.Messages,
-    new() { Role = Role.Assistant, Content = assistantContent },
-    new() { Role = Role.User, Content = toolResults },
+    new AssistantMessageParam { Content = assistantContent },
+    new UserMessageParam { Content = toolResults },
 ];
 ```
 

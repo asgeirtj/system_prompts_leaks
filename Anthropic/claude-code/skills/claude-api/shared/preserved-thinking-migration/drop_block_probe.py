@@ -5,7 +5,7 @@ preserved thinking controls turned on, and report what the API drops and why.
 Dependency-free (Python 3.8+, urllib only). Credentials come from the environment and are never
 printed: ANTHROPIC_API_KEY (sent as x-api-key) or ANTHROPIC_AUTH_TOKEN (sent as
 "Authorization: Bearer ..."; for example the short-lived token an OAuth login provides). When both
-are set only the token is sent -- the API rejects a request carrying both headers. A bearer token
+are set only the token is sent -- with both headers the API would use the key. A bearer token
 also gets the oauth-2025-04-20 beta value, which the API requires for OAuth and workload-identity
 tokens.
 
@@ -411,14 +411,14 @@ def post_with_retries(base_url, path, body, betas, api_key, timeout, retries=3, 
 
 def read_credentials():
     """Credential headers from the environment, or None when neither variable is set. Values are
-    never printed by this script. Exactly one header is sent: the API rejects a request carrying
-    x-api-key and Authorization together, so when both variables are set the token wins."""
+    never printed by this script. Exactly one header is sent: with x-api-key and Authorization
+    together the API would use the key, so when both variables are set only the token is sent."""
     key = os.environ.get("ANTHROPIC_API_KEY")
     token = os.environ.get("ANTHROPIC_AUTH_TOKEN")
     if token:
         if key:
             sys.stderr.write("both ANTHROPIC_API_KEY and ANTHROPIC_AUTH_TOKEN are set; sending only the token"
-                             " (the API rejects a request carrying both headers)\n")
+                             " (with both headers the API would use the key)\n")
         return {"authorization": "Bearer " + token}
     if key:
         return {"x-api-key": key}

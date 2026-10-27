@@ -1,8 +1,8 @@
 # Managed Agents - Onboarding From a Bundled Quickstart
 
-> **Invoked via `/claude-api managed-agents-onboard <quickstart-name>`?** You're in the right place. The name is one of the templates on the Console's quickstart page, kept one per file in `shared/managed-agents-quickstarts/`. This flow builds the same agent, asks what the Console asks, in the same order, and does it with files under `agents/` and the `ant` CLI. A URL after the subcommand -> `shared/managed-agents-onboarding-from-url.md`. Nothing, or a description that fits no template -> `shared/managed-agents-onboarding.md`.
+> **Invoked via `/claude-api managed-agents-onboard <quickstart-name>`?** The name is one of the templates on the Console's quickstart page, kept one per file in `shared/managed-agents-quickstarts/`. This flow builds the same agent, asks what the Console asks, in the same order, and does it with files under `agents/` and the `ant` CLI. A URL after the subcommand -> `shared/managed-agents-onboarding-from-url.md`. Nothing, or a description that fits no template -> `shared/managed-agents-onboarding.md`.
 
-**This guide holds the questions. `shared/managed-agents-onboarding-from-url.md` holds the mechanics**: §3 the proposal checklist, §4 the file layout and `ant apply` filename rules, §5 apply, credentials, pause and smoke test, §6 hand-off. Read it too; "from-url §N" below points there. Same floor: **`ant` 1.34.0 or later** (1.40.0 when an agent file lists other agents' files by path, from-url §4), or 1.42.0 on Claude Platform on AWS.
+**This guide holds the questions. `shared/managed-agents-onboarding-from-url.md` holds the mechanics**: §3 the proposal checklist, §4 the file layout and `ant apply` filename rules, §5 apply, credentials, pause and smoke test, §6 hand-off. Read it too ("from-url §N" below). Same floor: **`ant` 1.34.0 or later** (1.40.0 when an agent file lists other agents' files by path, from-url §4), 1.42.0 on Claude Platform on AWS, or the latest (1.43.0 or later) on Claude Models on Google Cloud (Anthropic managed).
 
 **Which names exist: list the directory.** The stem of each file is a name, and the `console_key` in its frontmatter is accepted too. The argument has to equal one of those once lowercased, with spaces and `_` read as `-`: letters, digits and hyphens only. **Never join the argument into a path**, never answer from memory, and never build a "quickstart" that has no file. Anything else: show the names with their one-line descriptions, say which is closest, and ask.
 
@@ -102,7 +102,7 @@ Never ask for a secret in the chat. One is pasted anyway: don't write or repeat 
 
 ## 4. Apply, then ready check
 
-**Every path comes through here**, whichever of the environment and vault were picked or created, and whether or not step 3 ran. Nothing exists until this has happened, and step 5 needs the agent's ID.
+**Every path comes through here**, whichever of the environment and vault were picked or created. Nothing exists before this step, and step 5 needs the agent's ID.
 
 - **Apply what you have written and not yet applied** - always `agent.md`, plus `environment.yaml` and `vault.yaml` where you wrote them - by **from-url §5.1**: walk check, `--dry-run -v` naming the files, read out the organization and workspace, `--yes` only on the user's go-ahead. An apply fails: relay the error and stop.
 - **Ask only for a value the agent can't discover and can't do a meaningful run without.** The usual case: the prompt works on something it is "given" (a topic, a question, a document) that nothing supplies. A test run carries it in the first message, so don't ask here. **A schedule can't**: see 6.3.

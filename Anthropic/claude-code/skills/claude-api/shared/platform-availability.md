@@ -4,6 +4,8 @@ Which features work on which provider platform. **This table is the single sourc
 
 Columns: **1P** = first-party Claude API, **P-AWS** = Claude Platform on AWS (Anthropic-operated, same-day parity), **Bedrock** = Amazon Bedrock, **Vertex** = Google Cloud Vertex AI, **Foundry** = Microsoft Foundry. Yes = GA, beta = beta, No = not supported, unconfirmed = not verified either way when this was written.
 
+**Claude Models on Google Cloud (Anthropic managed)** has no column: see the section after the table. The docs call Claude on Vertex AI "Claude Models on Google Cloud (Google managed)".
+
 | Feature | 1P | P-AWS | Bedrock | Vertex | Foundry | Notes |
 |---|---|---|---|---|---|---|
 | Messages, streaming, tool use | Yes | Yes | Yes | Yes | Yes | Core API |
@@ -54,3 +56,25 @@ Columns: **1P** = first-party Claude API, **P-AWS** = Claude Platform on AWS (An
 | &nbsp;&nbsp;Cache diagnostics | beta | No | No | No | No | First-party API only |
 | &nbsp;&nbsp;Task budgets | beta | beta | No | No | No | Beta header `task-budgets-2026-03-13`; 3P availability not documented - assume unsupported |
 
+## Claude Models on Google Cloud (Anthropic managed)
+
+Anthropic operates this platform. The **Vertex** column and every "Google Cloud" in the Notes mean Google's Vertex AI, not this platform. Read availability from the **1P** column, except for the features below. Client setup: `shared/google-cloud-anthropic-managed.md`.
+
+Before relying on a feature marked unconfirmed, check its page in `shared/live-sources.md`. If it has no page there, or the page doesn't name this platform, tell the user it's unconfirmed and test it before relying on it.
+
+| Feature | Status here |
+|---|---|
+| OpenTelemetry tracing - API spans (destinations) | No |
+| Fast mode | Yes on Claude Opus 5.5: set `speed: "fast"` on a plain Messages request, without the `fast-mode-2026-02-01` beta flag. Other models are unconfirmed; Claude Opus 4.6 with `speed: "fast"` returns a 400 here |
+| Cache diagnostics | unconfirmed |
+| Turn-scoped (`clear_at`) system messages | unconfirmed |
+| Thinking block-binding controls | unconfirmed |
+| Per-message `effort` (system message `output_config`) | unconfirmed |
+| Managed Agents webhooks | unconfirmed |
+| MCP tunnels | No |
+| Computer use | beta; which tool versions it accepts is unconfirmed |
+| Self-hosted sandboxes | beta; write your own worker against the Environments Work endpoints, because `ant beta:worker` and the SDK worker helpers aren't supported. It authenticates with Google Cloud credentials, not an environment key, and its sessions can't use memory stores |
+| Server-side `fallbacks` | beta, including the `"default"` form on Claude Sonnet 5.5. If the API rejects the field, drop it and use the SDK's `BetaRefusalFallbackMiddleware` (`shared/model-migration.md`) |
+| Fine-grained tool streaming | Yes - if `eager_input_streaming` returns a 400, leave it off |
+| `inference_geo` (data residency) | Yes - `"global"` by default; for US-only inference, set `"us"` on each request (1.1x price). The workspace's geo settings are read-only |
+| User profiles | unconfirmed. SDK clients released through 2026-10-21 send these calls to a workspace route that returns 404 for most organizations; Ruby raises `NotImplementedError`, and Go's Google Cloud client has no top-level `UserProfiles`, only `client.Beta.UserProfiles`. Upgrade to the latest SDK and test before relying on it |

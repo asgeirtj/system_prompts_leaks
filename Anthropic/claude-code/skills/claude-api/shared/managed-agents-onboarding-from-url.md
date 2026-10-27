@@ -11,6 +11,8 @@ The job is five beats - **fetch -> extract -> propose -> write -> apply** - and 
 
 On Claude Platform on AWS both checks change. The floor is **`ant` 1.42.0**, the first version that signs with AWS credentials. `ant auth login` doesn't apply: the user sets `AWS_REGION` and `ANTHROPIC_AWS_WORKSPACE_ID` (`shared/anthropic-cli.md` -> Install and auth), and `ant auth status` must show AWS as the active credential, with the workspace they expect.
 
+On Claude Models on Google Cloud (Anthropic managed) both checks change too. Use the latest `ant` (1.43.0 or later). `ant auth login` doesn't apply: the user follows `shared/google-cloud-anthropic-managed.md` -> `ant` CLI, and `ant auth status` must show `Google Cloud` as the active credential, with the `workspace_id` they expect.
+
 ---
 
 ## 0. Which tier: first-party or third-party
@@ -199,7 +201,9 @@ ant apply agents/daily-brief/agent.md agents/daily-brief/environment.yaml agents
 
 **2. Credentials - the user runs these, in a terminal of their own, not through you.** (None? Skip, and drop `vault_ids` and `--vault-id`.) Print one block per row of the confirmed table, each under a line saying where the secret goes, and tell the user to **run them one at a time**: paste one block, type the secret at the silent prompt, wait for the created credential to print, then the next. Pasted together, the first `read -rs` takes the next block's first line as the secret and that credential is never created.
 
-On Claude Platform on AWS, that terminal may lack the AWS settings or hold a credential that outranks them, and the secret would then go to the Claude API. So start the `ant` command in every block with `env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u ANTHROPIC_PROFILE -u ANTHROPIC_AWS_BASE_URL AWS_REGION=<region> ANTHROPIC_AWS_WORKSPACE_ID=<workspace id>`, with both values filled in.
+On Claude Platform on AWS, that terminal may lack the AWS settings or hold a credential that outranks them, and the secret would then go to the Claude API or another platform. A leftover `ANTHROPIC_AWS_API_KEY` would be used in place of their AWS credentials, so tell them to unset it unless that key is how they sign in. For everything else, start the `ant` command in every block with `env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u ANTHROPIC_PROFILE -u ANTHROPIC_FEDERATION_RULE_ID -u ANTHROPIC_ORGANIZATION_ID -u ANTHROPIC_SERVICE_ACCOUNT_ID -u ANTHROPIC_IDENTITY_TOKEN -u ANTHROPIC_IDENTITY_TOKEN_FILE -u ANTHROPIC_AWS_BASE_URL -u ANTHROPIC_GOOGLE_CLOUD_PROJECT -u ANTHROPIC_GOOGLE_CLOUD_WORKSPACE_ID -u ANTHROPIC_GOOGLE_CLOUD_LOCATION AWS_REGION=<region> ANTHROPIC_AWS_WORKSPACE_ID=<workspace id>`, with both values filled in.
+
+On Claude Models on Google Cloud (Anthropic managed) the same risk applies, so start the `ant` command in every block with `env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN -u ANTHROPIC_PROFILE -u ANTHROPIC_WORKSPACE_ID -u ANTHROPIC_GOOGLE_CLOUD_BASE_URL -u ANTHROPIC_GOOGLE_CLOUD_LOCATION -u ANTHROPIC_FEDERATION_RULE_ID -u ANTHROPIC_ORGANIZATION_ID -u ANTHROPIC_SERVICE_ACCOUNT_ID -u ANTHROPIC_IDENTITY_TOKEN -u ANTHROPIC_IDENTITY_TOKEN_FILE ANTHROPIC_GOOGLE_CLOUD_PROJECT=<project> ANTHROPIC_GOOGLE_CLOUD_WORKSPACE_ID=<workspace id>`, with both values filled in.
 
 ```sh
 VAULT_ID=$(jq -r '.resources["./agents/daily-brief/vault.yaml"].id' claude-lock.json)

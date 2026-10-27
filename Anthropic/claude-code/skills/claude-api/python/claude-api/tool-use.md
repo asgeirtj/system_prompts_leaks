@@ -65,38 +65,7 @@ For async usage, use `@beta_async_tool` with `async def` functions.
 
 The runner's `tools` list accepts raw server-tool definitions (`web_search_20260209`, `web_fetch_20260209`, code execution) alongside decorated tools - pass the literal tool dict; server tools run on Anthropic's servers, so there is no function to implement.
 
-**Caution - the runner does not auto-resume `pause_turn` (as of `anthropic` 0.116.0).** A long-running server-tool turn can stop with `stop_reason: "pause_turn"`. The runner only continues after a client tool produces a result, so a paused turn ends the loop and is returned as the final message - no error, no warning, just a silently truncated answer. Unlike the TypeScript runner, the Python runner cannot be resumed mid-loop: it exits unconditionally when no client tool ran, and `runner.append_messages(...)` does not prevent the exit. To handle `pause_turn`, mirror the conversation history as you iterate, then restart the runner with the paused turn appended:
-
-```python
-messages = [{"role": "user", "content": user_input}]
-
-max_restarts = 5  # cap pause_turn restarts, mirroring max_continuations advice
-restarts = 0
-while True:
-    runner = client.beta.messages.tool_runner(
-        model="claude-opus-5-5",
-        max_tokens=16000,
-        tools=tools,  # may mix @beta_tool functions and server-tool definitions
-        messages=messages,
-    )
-    last = None
-    for message in runner:
-        last = message
-        # Mirror the history - the runner keeps its own copy and does not expose it
-        messages.append({"role": "assistant", "content": message.content})
-        tool_response = runner.generate_tool_call_response()  # cached; tools still run once
-        if tool_response is not None:
-            messages.append(tool_response)
-    if last is None or last.stop_reason != "pause_turn":
-        break
-    restarts += 1
-    if restarts > max_restarts:
-        raise RuntimeError("giving up: turn still paused after max_restarts")
-    # Paused mid-turn: `messages` already ends with the paused assistant
-    # turn, so the next runner resumes it
-```
-
-Alternatively, use the manual loop below, which handles `pause_turn` explicitly.
+**`pause_turn`:** a long-running server-tool turn can stop with `stop_reason: "pause_turn"`. From `anthropic` 1.1.0 the runner sends a paused turn back by itself so the server continues it; each resume counts toward `max_iterations`, so a capped run can still end paused - check `stop_reason` on the message `runner.until_done()` returns (or the last one the loop yields). Earlier releases end the loop on a paused turn and return it as the final message, with no error; upgrade, or use the manual loop below, which handles `pause_turn` explicitly.
 
 ---
 
@@ -205,12 +174,9 @@ while True:
     if response.stop_reason == "end_turn":
         break
 
-    # Server-side tool hit iteration limit; re-send to continue
+    # Server-side tool hit iteration limit; append the paused turn and re-send to continue
     if response.stop_reason == "pause_turn":
-        messages = [
-            {"role": "user", "content": user_input},
-            {"role": "assistant", "content": response.content},
-        ]
+        messages.append({"role": "assistant", "content": response.content})
         continue
 
     # Extract tool use blocks from the response

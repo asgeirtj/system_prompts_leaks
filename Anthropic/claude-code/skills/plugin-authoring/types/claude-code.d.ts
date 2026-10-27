@@ -1,4 +1,4 @@
-// Written by Claude Code 2.1.309.
+// Written by Claude Code 2.1.312.
 // Claude Code function hooks: the plugin API's TypeScript declarations.
 //
 // EARLY ACCESS: this surface may change between releases without notice.
@@ -2522,7 +2522,8 @@ declare module 'claude-code' {
            * @remarks Below that it waits undrawn (`$.ui.panes()`: `isPlaced` false)
            *   for their open or a wider terminal; with no surface attached, for one.
            * @param pane `id` (1-64 of letters, digits, `_`, `-`), `title`, `focus`,
-           *   `closeOnEscape` and `holdToasts` (a dialog), `rows` / `columns` wanted
+           *   `closeOnEscape` and `holdToasts` (a dialog), `backgroundColor` (what
+           *   is painted under its body), `rows` / `columns` wanted
            * @returns `{ isPlaced: true }` once drawn (or retitled), else `{ isPlaced:
            *   false, reason }` (UiOpenResult); `dock` or `inline` is on `Pane` props
            * @example
@@ -3058,6 +3059,17 @@ declare module 'claude-code' {
            * ($, e, next) => next({ ...e, context: [...(e.context ?? []), hunk] })
            */
           fill: (input: PromptFillArgs) => Promise<PromptFilled>;
+          /**
+           * Sets this plugin's own decorations over the draft and nothing else.
+           *
+           * No text, caret or undo entry, no `prompt.change` or `prompt.edit`. Hooks
+           * may rewrite or `{ deny }` it. `isPainted: false`, the box handed back,
+           * when the draft no longer reads `text`, or another plugin hooks its read.
+           *
+           * @example
+           * await $.prompt.paint({ text, decorations: [{ start, end, bold: true }] })
+           */
+          paint: (input: PromptPaintArgs) => Promise<PromptPainted>;
           /**
            * Proposes `input.text` as the prompt box's dim suggestion, Tab to take:
            * the event `prompt.suggest`, as the engine's own guess after a turn.
@@ -5455,8 +5467,9 @@ declare module 'claude-code' {
   /**
    * The props of `Image`, the terminal surface's picture leaf: pixels over a
    * box of cells where the terminal can (kitty and Ghostty, or iTerm2 3.5 and
-   * later for `png` and `rgba` bytes under fullscreen rendering), the `alt`
-   * elsewhere.
+   * later for `png` and `rgba` bytes under fullscreen rendering; inside tmux
+   * too, for bytes only, with tmux's `allow-passthrough` and `focus-events`
+   * on), the `alt` elsewhere.
    *
    * A leaf: no children, `hover` or `onPress`; the cells are text, so the
    * picture scrolls and clips as a word does. Drawn again with another `source`
@@ -6725,9 +6738,11 @@ declare module 'claude-code' {
        * Continues this dispatch at a tier: `next(e)` with every link between
        * this hook's own tier and that one skipped, by tier and narrowing only.
        *
-       * A managed hook's: prepend may name append, builtin or core, append core;
-       * it never skips a tier with more authority, so no user hook skips the
-       * org's. A literal on the hook's own `next`; skipped links are traced.
+       * A managed hook's: prepend may name user, append, builtin or core, append
+       * core; it never skips a tier with more authority, so no user hook skips
+       * the org's. `user` skips each prepend peer below the hook, never one
+       * above it, and an outer `next.to` to a deeper tier still wins. A literal
+       * on the hook's own `next`; skipped links are traced.
        */
       readonly to: {
           <T extends string>(e: E & ToolNamed<T>, tier: TargetTier): Promise<NextResultFor<N, O, T>>;
@@ -7128,6 +7143,10 @@ declare module 'claude-code' {
        */
       'prompt.read': NoArgs;
       /**
+       * The argument of `$.prompt.paint(...)`: the draft and this plugin's runs.
+       */
+      'prompt.paint': PromptPaintArgs;
+      /**
        * The argument of `$.tool.list()`.
        */
       'tool.list': NoArgs;
@@ -7427,6 +7446,10 @@ declare module 'claude-code' {
        * The box as it stands; the empty box where the session draws none.
        */
       'prompt.read': PromptBox;
+      /**
+       * Whether the runs were painted, and the box as it stands.
+       */
+      'prompt.paint': PromptPainted;
       'tool.list': ToolInfo[];
       'tool.register': {
           tool: string;
@@ -7634,6 +7657,18 @@ declare module 'claude-code' {
        *   Left out, toasts show. Every open sets it; a `ui.open` hook may drop it.
        */
       holdToasts?: true;
+      /**
+       * What the surface paints under the pane's body while it is the one shown, as
+       * a Box takes it: a theme key, a raw color, or `"transparent"`.
+       *
+       * `"transparent"` paints nothing, so what lies behind the pane shows through;
+       * a color stops at the body. Left out, the surface's own look stands. Anything
+       * else is refused. Each open sets it anew; a `ui.open` hook may drop it.
+       *
+       * @remarks A request, not a grant: a surface with no counterpart for a theme
+       *   key keeps its own look.
+       */
+      backgroundColor?: Color;
       /**
        * The body rows the pane's content wants while seated inline above the
        * prompt: it opens that tall, up to what the layout spares, not a third.
@@ -9399,6 +9434,58 @@ declare module 'claude-code' {
        * hook and provenance gate.
        */
       asUser?: true;
+  };
+
+  /**
+   * What a plugin's `$.prompt.paint(args)` takes, and a hook on `prompt.paint`
+   * sees as `e` and may rewrite.
+   *
+   * Whose runs they are is the caller's name, which no argument or hook sets.
+   */
+  export type PromptPaintArgs = {
+      /**
+       * The draft `decorations` were computed for: nothing paints unless the box
+       * reads exactly this. May be left out only with an empty list.
+       */
+      text?: string;
+      /**
+       * This plugin's runs over the draft (PromptDecoration), replacing those it
+       * painted before; an empty list clears them.
+       *
+       * Another plugin's stand, a later one winning per style key. The draft's next
+       * change drops them, but for a `prompt.edit` hook in the terminal.
+       *
+       * @example await $.prompt.paint({ text,
+       *   decorations: [{ start: 0, end: 4, underline: true }] })
+       */
+      decorations: PromptDecoration[];
+  };
+
+  /**
+   * What `$.prompt.paint` resolves to: whether the runs were painted, and the
+   * box as it stands (PromptBox).
+   *
+   * A mod whose text went stale computes again from `text`.
+   *
+   * The box goes to a plugin whose module calls `$.prompt.read`, through the
+   * hooks on it; one that never does, or is refused there, gets the empty box.
+   */
+  export type PromptPainted = {
+      /**
+       * True once the runs stand over the draft, or a clear took them off; false
+       * where the box does not read `text`, or no box can take them.
+       */
+      isPainted: boolean;
+      /**
+       * The draft as it stands, which the call did not change; `''` where no box
+       * is drawn or the caller may not read it (see above).
+       */
+      text: string;
+      /**
+       * Where the person types next: an offset into `text`, which the call did
+       * not move.
+       */
+      cursor: number;
   };
 
   /**
@@ -13124,10 +13211,11 @@ declare module 'claude-code' {
   type TagKeys<I, Among> = Among extends MatcherKeys<I> ? IsLiteralValued<MatcherValueOf<I, Among>> extends true ? IsDiscriminant<I, Among> extends true ? Among : never : never : never;
 
   /**
-   * A tier `next.to(e, tier)` may name: one a floor can reach past a tier of
-   * less authority to, so never `prepend` or `user`, which nothing skips to.
+   * A tier `next.to(e, tier)` may name: one a floor can reach past links of
+   * less authority to, so never `prepend`, which nothing skips to; `user` is
+   * for a prepend hook alone, and skips the peers below it.
    */
-  export type TargetTier = Exclude<Tier, 'prepend' | 'user'>;
+  export type TargetTier = Exclude<Tier, 'prepend'>;
 
   type TaskCompletedHookInput = BaseHookInput & {
       hook_event_name: 'TaskCompleted';
@@ -14381,7 +14469,11 @@ declare module 'claude-code' {
       model: string;
       /**
        * How hard the request asks the model to think: the session's setting or
-       * the model's default, absent for a model without effort; rewritable.
+       * the model's default, absent for a model without effort; rewritable. On a
+       * model that takes effort per message a level stands from one message with
+       * input to the next: a change waits through steps whose new input is tool
+       * results, and one made on a step with input stays for the tool steps after
+       * it. A number goes out at once.
        */
       effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max' | number;
       /**
@@ -14620,6 +14712,13 @@ declare module 'claude-code' {
        * draws its `alt` there. With no surface attached `no-surface` heads it.
        */
       deny?: string;
+      /**
+       * With `deny`, a stable code to key on instead of the words of `deny`.
+       * `tmux-passthrough`: tmux 3.3 or later holds back images the terminal
+       * outside it can draw, because `allow-passthrough` or `focus-events` is off;
+       * both must be on. Absent for every other cause.
+       */
+      fix?: 'tmux-passthrough';
   };
 
   /**
@@ -17005,8 +17104,8 @@ declare module 'claude-code' {
       code: string
     }
     Artifact: {
-      /** One of 'publish', 'list', 'read', 'read_page_data', 'delete', 'open', 'pin', 'unpin', 'quickstart'. Omitting it means 'publish'. **Calls** in the description says what each one does and takes, except as noted here. 'read_page_data' reads the declared data island from the published artifact at `url`, validates it against the interaction schema named by `schema` (available: 'workshop-decisions'), and returns only its validated typed entries, never page content. It refuses when the island does not match its contract. */
-      action?: "publish" | "list" | "read" | "read_page_data" | "delete" | "open" | "pin" | "unpin" | "quickstart"
+      /** One of 'publish', 'list', 'read', 'delete', 'open', 'pin', 'unpin', 'quickstart'. Omitting it means 'publish'. **Calls** in the description says what each one does and takes, except as noted here. */
+      action?: "publish" | "list" | "read" | "delete" | "open" | "pin" | "unpin" | "quickstart"
       /** publish: the local page Claude publishes (.html, or .md only when a skill says so). For an Artifact created from an Artifact type, it is one of that Artifact's data files. With `asset: true`, it is the local file Claude uploads. A short, distinctive basename also serves as the title when nothing else gives one. */
       file_path?: string
       /** publish with `url`: true uploads `file_path` (or each of `file_paths`) to that artifact's asset store instead of publishing it as the page — or, with `from_url` and `asset_ids` in place of `file_path`, copies those assets of another artifact into it server side (see **Calls**). */
@@ -17028,6 +17127,13 @@ declare module 'claude-code' {
         /** Servable media type; inferred from the extension for common types (css/js/json/png/…) — pass explicitly otherwise. */
         contentType?: string
       }> | {}
+      /** publish: small changes Claude makes to the file at `file_path` in this same call, instead of editing the file with Edit and publishing after. Use it on a page (add `url` to update an artifact from another conversation) or on one data file of an artifact made from a type (its `url`, with that file as `file_path`). Not allowed with `type_url` or `files`. Each old_str is text copied exactly from the file as it now stands and must occur in it exactly once; new_str takes its place (empty deletes it). The edits apply in order, all or none: the file is published with them and then saved with them on disk, so it stays the source for later changes; on a miss nothing is changed or published, and the result says which edit failed and why. */
+      edits?: Array<{
+        /** Text copied exactly from the file; must occur once. */
+        old_str: string
+        /** Its replacement; empty deletes old_str. */
+        new_str: string
+      }>
       /** The base directory that relative `files` sources resolve against, like a bundler root. It never changes the published path of a `files` entry. It is relative to the working directory, or absolute within it or within Claude's scratchpad directory. It requires `files`, except on an Artifact made from a type, where a data `file_path` is served at its path relative to `root`, unless a `files` map entry states its served path. Claude sends it with every such publish, set to the folder that holds the Artifact's files at their served paths. */
       root?: string
       /** publish only: true also pins the published artifact to the person's claude.ai sidebar once it is published. Claude passes it only when the person asked for that. A failed pin never fails the publish, and the result says so. */
@@ -17040,7 +17146,7 @@ declare module 'claude-code' {
       type_query?: string
       /** list only: the name of a published Artifact type, as a 'types' listing shows it (case does not matter). The listing then shows the Artifacts made from that type instead of the person's gallery. Claude passes this or `type_url`, not both. */
       type?: string
-      /** quickstart only (required): what is being made — 'document' (text to read or edit together), 'slides' (a deck or one slide), 'design' (a visual design or prototype on a canvas), 'other' (a dashboard that shows data, anything else, or unsure). */
+      /** quickstart only (required): what is being made — 'document' (writing people will keep editing or pass around as text, such as a memo, plan, spec, proposal or notes), 'slides' (a deck or one slide), 'design' (a visual design or prototype on a canvas), 'other' (a page to look at or use: an explainer, a diagram, anything interactive, a dashboard that shows data, anything else, or unsure). */
       intent?: "document" | "slides" | "design" | "other"
       /** quickstart only: false when a design system's link is already in hand (it is then read with its own call) or one was declined. Omitted or true, the result lists the design systems (not for a document) and, for slides or a design, attaches the default one's README. */
       design_systems?: boolean
@@ -17072,8 +17178,6 @@ declare module 'claude-code' {
       after?: string
       /** read only: true returns the rendered page in cases where a read otherwise returns something else. A typed Artifact's read leaves out the type's own page. */
       page?: boolean
-      /** The registered interaction schema to validate the page's data island against. Required for read_page_data (e.g. "workshop-decisions"), and meaningless for every other action. */
-      schema?: string
       /** publish: the runtime capabilities this page declares, as {name: config}. Claude loads the `artifact-capabilities` skill before passing it. On a redeploy Claude omits the field to keep what the page has, and {} clears it. */
       capabilities?: {}
       /** publish: the artifact's runtime version. Leaving it out keeps the current version (the default), 'latest' upgrades, and an exact version pins or rolls back. It changes how the published page behaves, so Claude passes it only when the author explicitly intends that change. */
@@ -17318,44 +17422,6 @@ declare module 'claude-code' {
     GetTask: {
       /** The taskId from the result that moved the command to the background */
       taskId: string
-    }
-    Glob: {
-      /** The glob pattern to match files against */
-      pattern: string
-      /** The directory to search in. If not specified, the current working directory will be used. IMPORTANT: Omit this field to use the default directory. DO NOT enter "undefined" or "null" - simply omit it for the default behavior. Must be a valid directory path if provided. */
-      path?: string
-    }
-    Grep: {
-      /** The regular expression pattern to search for in file contents */
-      pattern: string
-      /** File or directory to search in (rg PATH). Defaults to current working directory. */
-      path?: string
-      /** Glob pattern to filter files (e.g. "*.js", "*.{ts,tsx}") - maps to rg --glob */
-      glob?: string
-      /** Output mode: "content" shows matching lines (supports -A/-B/-C context, -n line numbers, head_limit), "files_with_matches" shows file paths (supports head_limit), "count" shows match counts (supports head_limit). Defaults to "files_with_matches". */
-      output_mode?: "content" | "files_with_matches" | "count"
-      /** Number of lines to show before each match (rg -B). Requires output_mode: "content", ignored otherwise. */
-      "-B"?: number
-      /** Number of lines to show after each match (rg -A). Requires output_mode: "content", ignored otherwise. */
-      "-A"?: number
-      /** Alias for context. */
-      "-C"?: number
-      /** Number of lines to show before and after each match (rg -C). Requires output_mode: "content", ignored otherwise. */
-      context?: number
-      /** Show line numbers in output (rg -n). Requires output_mode: "content", ignored otherwise. Defaults to true. */
-      "-n"?: boolean
-      /** Case insensitive search (rg -i) */
-      "-i"?: boolean
-      /** Print only the matched (non-empty) parts of each matching line, one match per output line (rg -o / --only-matching). Requires output_mode: "content", ignored otherwise. Defaults to false. */
-      "-o"?: boolean
-      /** File type to search (rg --type). Common types: js, py, rust, go, java, etc. More efficient than include for standard file types. */
-      type?: string
-      /** Limit output to first N lines/entries, equivalent to "| head -N". Works across all output modes: content (limits output lines), files_with_matches (limits file paths), count (limits count entries). Defaults to 250 when unspecified. Pass 0 for unlimited (use sparingly — large result sets waste context). */
-      head_limit?: number
-      /** Skip first N lines/entries before applying head_limit, equivalent to "| tail -n +N | head -N". Works across all output modes. Defaults to 0. */
-      offset?: number
-      /** Enable multiline mode where . matches newlines and patterns can span lines (rg -U --multiline-dotall). Default: false. */
-      multiline?: boolean
     }
     ListAgents: {
       /** Not available in this build; leave unset. */
@@ -17896,6 +17962,7 @@ declare module 'claude-code' {
         } | null
         fallback_credit?: unknown
       }
+      toolsUsed?: string[]
       toolStats?: {
         readCount: number
         searchCount: number
@@ -17967,6 +18034,8 @@ declare module 'claude-code' {
           data: string
         }>
       }>
+      /** The tools the script's artifact calls reached whose names this conversation's prompt did not yet carry: the tool_result opens with a tools-used-before-summary line naming them */
+      toolsUsed?: string[]
     }
     Artifact: {
       created_from_type: true
@@ -18239,6 +18308,7 @@ declare module 'claude-code' {
           tier?: string
         }
         match_of?: number
+        ask_first?: boolean
         types?: {
           title: string
           type_url: string
@@ -19107,6 +19177,7 @@ declare module 'claude-code' {
           tier?: string
         }
         match_of?: number
+        ask_first?: boolean
         types?: {
           title: string
           type_url: string
@@ -19975,6 +20046,7 @@ declare module 'claude-code' {
           tier?: string
         }
         match_of?: number
+        ask_first?: boolean
         types?: {
           title: string
           type_url: string
@@ -20843,6 +20915,7 @@ declare module 'claude-code' {
           tier?: string
         }
         match_of?: number
+        ask_first?: boolean
         types?: {
           title: string
           type_url: string
@@ -21509,6 +21582,8 @@ declare module 'claude-code' {
       backgroundedToDeliverMessage?: boolean
       /** Set when the command hit its timeout and was auto-backgrounded; the timeout value in ms */
       timedOutAfterMs?: number
+      /** @internal True if the async subagent foreground cap shortened the command's timeout */
+      subagentCapApplied?: true
       /** Model-facing note that the session cwd was not changed by a backgrounded command containing a directory-change builtin (cd/pushd/popd/chdir) */
       backgroundCwdHint?: string
       /** True when this backgrounded command is terminated at its caller's final response, so no completion notification can follow (a synchronous subagent's command, or a headless session that takes no further input and is not waiting for background commands); absent when the command survives */
@@ -21795,32 +21870,6 @@ declare module 'claude-code' {
       lastUpdatedAt: string
       status: "cancelled"
     }
-    Glob: {
-      /** Time taken to execute the search in milliseconds */
-      durationMs: number
-      /** Number of file paths returned (after any truncation) */
-      numFiles: number
-      /** Array of file paths that match the pattern */
-      filenames: string[]
-      /** Whether results were truncated (limited to 100 files) */
-      truncated: boolean
-      /** Total number of matching files before truncation. A lower bound when countIsComplete is false. Absent on results persisted by CLI versions predating this field. */
-      totalMatches?: number
-      /** Whether totalMatches is the exact total (true) or a floor because the underlying search truncated its own output (false). Absent on results persisted by CLI versions predating this field. */
-      countIsComplete?: boolean
-    }
-    Grep: {
-      mode?: "content" | "files_with_matches" | "count"
-      numFiles: number
-      filenames: string[]
-      content?: string
-      numLines?: number
-      numMatches?: number
-      totalFiles?: number
-      totalLines?: number
-      appliedLimit?: number
-      appliedOffset?: number
-    }
     ListAgents: {
       /** Formatted list of reachable agents */
       listing: string
@@ -21990,6 +22039,7 @@ declare module 'claude-code' {
           data: string
         }
       }>>
+      toolsUsed?: string[]
       provenance?: Array<{
         authority: "human-principal" | "human-other" | "peer-agent" | "world-event"
         senderId?: string
@@ -22004,6 +22054,7 @@ declare module 'claude-code' {
     Projects: {
       method: "project_info"
       notice?: string
+      local_file?: string
       name: string
       description: string
       instructions: string
@@ -22421,6 +22472,8 @@ declare module 'claude-code' {
       result: string
       /** True when the sub-agent was launched in the background: `result` describes the launch, and the skill outcome arrives later as a task notification. */
       background?: boolean
+      /** The tools-used-before-summary line the tool_result opens with: the tools the sub-agent called that this conversation's requests did not yet name */
+      toolsUsedLine?: string
     }
     SuggestConnectors: {
       connectors: {

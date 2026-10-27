@@ -58,7 +58,7 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 - Invalid API key format
 - Revoked or deleted API key
 - OAuth bearer token sent via `x-api-key` instead of `Authorization: Bearer`
-- Both `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` set - the SDK sends both headers and the API rejects the request
+- Both `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` set - the API key wins over the token (some older SDK majors send both headers), so a stale key fails even when the token is valid; unset the one you don't mean to use
 
 **Fix:** Set `ANTHROPIC_API_KEY`, or run `ant auth login` and leave the client constructor empty. For raw HTTP with an OAuth token, use `Authorization: Bearer <token>` (not `x-api-key:`).
 
@@ -83,7 +83,7 @@ A model your organization cannot use is normally a 404, not a 403 (see below). A
 **Causes:**
 
 - Typo in model ID (e.g., `claude-sonnet-4.6` instead of `claude-sonnet-4-6`)
-- Using deprecated model ID
+- Using a retired model ID (see `shared/models.md`)
 - A model ID that exists but is not available to your organization
 - Invalid API endpoint
 

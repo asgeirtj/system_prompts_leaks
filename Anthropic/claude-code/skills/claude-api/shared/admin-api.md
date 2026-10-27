@@ -2,7 +2,7 @@
 
 Read this file when the user wants to manage their Anthropic organization programmatically: members and roles, invites, workspaces and workspace members, API keys, rate limit reports, service accounts, workload identity federation (WIF), or customer-managed encryption keys (CMEK).
 
-The Admin API lives under `https://api.anthropic.com/v1/organizations/*`. It manages the organization itself - it does not send messages. As of **August 26, 2026** it is available in all seven SDKs (Python, TypeScript, C#, Go, Java, PHP, Ruby) under `client.beta.organization`, and in the `ant` CLI under `ant beta:organization`. Usage reports, cost reports, and the Claude Enterprise user-management and analytics endpoints are **not** in the SDKs - call those with raw HTTP.
+The Admin API lives under `https://api.anthropic.com/v1/organizations/*`. It manages the organization itself - it does not send messages. As of **August 26, 2026** it is available in all seven SDKs (Python, TypeScript, C#, Go, Java, PHP, Ruby) under `client.beta.organization`, and in the `ant` CLI under `ant beta:organization`. Current SDK releases also have endpoints for Claude Enterprise organizations: the Claude Enterprise Analytics API (`.analytics`), RBAC groups and roles (`.rbac_groups`, `.rbac_roles`) and spend limits (`.spend_limits`). Claude Enterprise organizations call them with a scoped key that the primary owner creates in claude.ai with the matching scopes (custom-role reads use `read:members`), not an `sk-ant-admin` key. Two early-access previews let some Console organizations use their admin credential here instead: setting, reading, listing and deleting spend limits on their organization and workspaces, and the token usage and cost reports `.analytics.usage` and `.analytics.cost`. The Admin API's own usage and cost reports (`GET /v1/organizations/usage_report/messages`, `GET /v1/organizations/cost_report`) are **not** in the SDKs - call those with raw HTTP.
 
 ## Authentication
 
@@ -10,9 +10,10 @@ Two kinds of credential, both read automatically by the default SDK client and t
 
 | Credential | Env var | HTTP header | Covers |
 | --- | --- | --- | --- |
-| Admin API key (`sk-ant-admin...`), or an organization-scoped API key linked to a user or service account | `ANTHROPIC_API_KEY` | `x-api-key` | Most endpoints |
+| Admin API key (`sk-ant-admin...`), or an organization-scoped API key linked to a user or service account | `ANTHROPIC_API_KEY` | `x-api-key` or `authorization: Bearer` | Most endpoints |
 | `org:admin` OAuth token | `ANTHROPIC_AUTH_TOKEN` | `authorization: Bearer` | Everything, including the OAuth-only endpoints |
 
+- **API key header:** the API accepts an API key in either header; the SDK and CLI releases that send API version `2026-10-21` send it as `authorization: Bearer`.
 - **OAuth-only endpoints:** service accounts, federation issuers, and federation rules reject API keys - they require an `org:admin` OAuth token.
 - **Precedence gotcha:** when both env vars are set, some clients prefer the API key. When using a bearer token, leave `ANTHROPIC_API_KEY` unset in that shell.
 - Admin API keys are created in the Claude Console by organization admins.
@@ -37,6 +38,22 @@ export ANTHROPIC_IDENTITY_TOKEN_FILE=/path/to/jwt  # or ANTHROPIC_IDENTITY_TOKEN
 ```
 
 **curl** also needs an `anthropic-version` header on every request (for example `2026-10-21`).
+
+## Fields removed in API version `2026-10-21`
+
+On API version `2026-10-21`, which the SDK and CLI releases under `shared/api-version-migration.md` -> Set the version send by default, the responses below no longer include the old field, and no error says so. Read the new field instead.
+
+| Endpoints | Old field | New field |
+| --- | --- | --- |
+| RBAC groups: create, list, retrieve, update | `roles` | `role_ids` |
+| RBAC group members: list, add, remove | `group_id` | `rbac_group_id` |
+| RBAC roles: list, retrieve | `name` | `display_name` |
+| Organization and workspace rate limits: list, and setting a workspace's limits | `group_type` | `group.type` |
+| API keys: list, retrieve, update | `workspace_id` | `scope` (different values, below) |
+| Claude Enterprise Analytics per-user usage and cost reports | `actor.email` | `actor.email_address` |
+| Claude Enterprise Analytics activity summaries | `summaries` | `data` |
+
+On `2023-06-01`, an API key's `workspace_id` is `null` both for a key in the Default Workspace and for an all-workspaces key. On `2026-10-21`, `scope.workspace_id` is the real ID of the key's workspace, the Default Workspace included, and an all-workspaces key has `scope: {"type": "organization"}` with no `workspace_id`. The `group_type` query parameter and the API key list's `workspace_id` filter are unchanged. To migrate existing code, follow change 4 in `shared/api-version-migration.md`.
 
 ## Endpoint Coverage
 
@@ -166,7 +183,8 @@ Owners and primary owners have all admin permissions and can also manage admins.
 ## Platform Restrictions
 
 - **Claude Platform on AWS:** only the workspace, CMEK external-key and telemetry destination endpoints work. Requests go through Amazon's gateway, signed with the user's AWS credentials (`shared/claude-platform-on-aws.md`; for destinations, `shared/opentelemetry.md`); Admin API keys and OAuth tokens don't work there. There is no external-key validate endpoint: a key is validated when it's attached to a workspace. Keys can also be registered and attached in the Claude Console. Members, workspace members, invites, API keys, and usage/cost/rate-limit reports are unavailable.
-- **Claude Enterprise (claude.ai orgs):** only members and invites from this surface, plus Enterprise-only endpoints (group and custom-role reads, spend limits) that are not in the SDKs.
+- **Claude Models on Google Cloud (Anthropic managed):** most of these endpoints are not offered, and Admin API keys don't work there. The usage report (`GET /v1/organizations/usage_report/messages`) goes through the organization-level base URL (this platform's docs page in `shared/live-sources.md`), with Google Cloud credentials and `roles/claude.admin`. There is no cost report: use the Claude Console's Cost page. Register, verify and attach CMEK keys in the Claude Console, and manage workspaces there too.
+- **Claude Enterprise (claude.ai orgs):** members and invites, plus Enterprise-only endpoints (groups and group members, read and write; custom-role reads; spend limits; the Claude Enterprise Analytics API), all called with the scoped claude.ai key described at the top of this file. Current SDK releases have them under `client.beta.organization`.
 
 ## Live Docs
 

@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
-| **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
 
 ---
 ## Anthropic — Claude
@@ -245,7 +245,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Model | Prompt |
 |-------|--------|
 | **Perplexity** | [**Perplexity search system prompt**](Perplexity/perplexity-search.md) · [no-search mode](Perplexity/perplexity-no-search.md) |
-| **Perplexity Computer** | [**Perplexity Computer system prompt**](Perplexity/perplexity-computer.md) |
+| **Perplexity Computer** | [**Perplexity Computer system prompt**](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) · [May 2026](Perplexity/old/perplexity-computer.md) |
 | **Deep Research** | [**Perplexity Deep Research system prompt**](Perplexity/deep-research.md) |
 | Comet Browser | [Comet browser assistant system prompt](Perplexity/comet-browser-assistant.md) |
 | Voice Assistant | [Perplexity voice assistant system prompt](Perplexity/voice-assistant.md) |

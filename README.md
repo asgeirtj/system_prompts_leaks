@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
 | **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
-| **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 
 ---
 ## Anthropic — Claude
@@ -340,7 +340,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Gizmo AI | [Gizmo AI system prompt](Misc/gizmo-ai.md) |
 | Hermes | [Hermes system prompt](Misc/hermes.md) |
 | Indus AI | [Indus AI system prompt](Misc/indus-ai.md) |
-| Kagi Assistant | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
+| Kagi Assistant | [Kagi assistant system prompt](Misc/kagi-assistant.md) · [July 2025](Misc/old/kagi-assistant.md) |
 | Pi (Inflection) | [Pi system prompt](Pi/instructions.md) |
 | Proton Lumo AI | [Proton Lumo AI system prompt](Misc/proton-lumo-ai.md) |
 | Raycast AI | [Raycast AI system prompt](Misc/raycast-ai.md) |

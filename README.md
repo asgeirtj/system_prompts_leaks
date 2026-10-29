@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
 | **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
 | **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
 | **ChatGPT Dots** | October 5, 2026 | [Dreamer system prompt](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [all prompts](OpenAI/dots/) · [skills](OpenAI/dots/skills/) |
-| **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
 
 ---
 ## Anthropic — Claude
@@ -315,6 +315,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Docker Gordon AI | [Docker Gordon AI system prompt](Misc/docker-gordon-ai.md) |
 | ElevenLabs Voice Agent | [ElevenLabs voice agent system prompt](Misc/elevenlabs-voice-agent.md) |
 | Emergent.sh | [Emergent greeting agent system prompt](Misc/emergent.sh.md) |
+| **LM Studio Bionic** | [**LM Studio Bionic system prompt and tools**](Misc/lm-studio-bionic.md) |
 | Reddit Answers | [Reddit Answers system prompt](Misc/reddit-answers.md) |
 | Warp 2.0 Agent | [Warp 2.0 agent system prompt](Misc/warp-2.0-agent.md) |
 | Zed AI | [Zed AI system prompt](Misc/zed.md) |

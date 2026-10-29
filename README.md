@@ -44,18 +44,18 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
 | **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
+| **Cursor cloud agent** | October 20, 2026 | [Cursor cloud agent prompt sections and subagents](Cursor/cloud-agent/) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
 | **ChatGPT Dots** | October 5, 2026 | [Dreamer system prompt](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [all prompts](OpenAI/dots/) · [skills](OpenAI/dots/skills/) |
 | **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
 | **Meta Muse agent (VM files)** | October 3, 2026 | [Muse agent system prompt](Meta/muse-agent/workspace/system/system_prompt.md) · [all VM files](Meta/muse-agent/) |
-| **Grok 4.7** | October 3, 2026 | [Grok 4.7 system prompt (grok.com)](xAI/grok-4.7.md) |
-| **GPT-6.1-Sol Codex** | September 29, 2026 | [GPT-6.1-Sol Codex system prompt](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 
 ---
 ## Anthropic — Claude
@@ -180,9 +180,9 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **Gemini 4 Argon** | [**Antigravity IDE system prompt**](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [Antigravity CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) · [API (AI Studio)](Google/gemini-4-argon-api-ai-studio.md) |
 | **Gemini 3.8 Flash** | [**Gemini 3.8 Flash system prompt**](Google/gemini-3.8-flash.md) |
 | **Gemini 3.1 Pro** | [**Gemini 3.1 Pro system prompt**](Google/gemini-3.1-pro.md) · [API](Google/gemini-3.1-pro-api.md) |
-| **Antigravity CLI** | [**Antigravity CLI system prompt**](Google/antigravity-cli.md) |
 | Gemini 3.7 Flash | [Gemini 3.7 Flash system prompt](Google/gemini-3.7-flash.md) |
 | Gemini 3.5 Flash | [Gemini 3.5 Flash system prompt](Google/gemini-3.5-flash.md) · [AI Studio](Google/gemini-3.5-flash-ai-studio.md) |
 | Nano / Banana 2 | [Nano Banana 2 system prompt](Google/nano-banana-2-api.md) |
@@ -257,6 +257,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Product | Prompt |
 |---------|--------|
 | Cursor | [Cursor system prompt](Cursor/cursor.md) |
+| Cursor cloud agent | [Cursor cloud agent prompt sections and subagents](Cursor/cloud-agent/) |
 
 ## Mistral
 

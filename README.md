@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
 | **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
 | **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
 | **ChatGPT Dots** | October 5, 2026 | [Dreamer system prompt](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [all prompts](OpenAI/dots/) · [skills](OpenAI/dots/skills/) |
 | **Muse Spark 1.3 Muse Code** | October 4, 2026 | [Muse Code system prompt (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
-| **Meta Muse agent (VM files)** | October 3, 2026 | [Muse agent system prompt](Meta/muse-agent/workspace/system/system_prompt.md) · [all VM files](Meta/muse-agent/) |
 
 ---
 ## Anthropic — Claude
@@ -136,6 +136,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | ChatGPT Atlas | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
 | ChatGPT 4.5 | [ChatGPT 4.5 system prompt](OpenAI/chatgpt-4.5.md) |
 | ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/chatgpt-4o-deprecation-preparedness-prompt.md) |
+| **GPT-Live-1.1** | [**ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)**](OpenAI/gpt-live-1.1.md) |
 | Voice modes | [ChatGPT advanced voice mode system prompt](OpenAI/gpt-4o-advanced-voice-mode.md) · [Legacy voice mode](OpenAI/gpt-4o-legacy-voice-mode.md) |
 | **ChatGPT Dots** | [**Dreamer system prompt**](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [Tools](OpenAI/dots/tools.md) · [Available skills](OpenAI/dots/available-skills.md) · [28 skills](OpenAI/dots/skills/) |
 | Personalities | [ChatGPT personality instructions](OpenAI/chatgpt-personality-instructions.md) |

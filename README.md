@@ -217,6 +217,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Grok 4.2 | [Grok 4.2 system prompt](xAI/grok-4.2.md) |
 | Grok Expert | [Grok Expert system prompt](xAI/grok-expert.md) |
 | Grok Bot | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) |
+| Grok Translator (X) | [Grok translator system prompt](xAI/grok-translator.md) |
 
 <details><summary>Older versions</summary>
 

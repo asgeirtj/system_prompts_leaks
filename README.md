@@ -49,7 +49,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
-| **Cursor cloud agent** | October 20, 2026 | [Cursor cloud agent prompt sections and subagents](Cursor/cloud-agent/) |
+| **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
@@ -145,14 +145,10 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
-| **GPT-6.1 Codex** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
-| **GPT-6 Codex** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6-astra-chatgpt-work-local.md) |
+| **GPT-6.1 Codex** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [Terra](OpenAI/Codex/gpt-6.1-terra.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
+| **GPT-6 Codex** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) |
 | GPT-5.6 Codex | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) |
-| GPT-5.5 Codex | [Codex GPT-5.5 system prompt](OpenAI/Codex/gpt-5.5.md) · [Full prompt](OpenAI/Codex/codex-full.md) · [Friendly](OpenAI/Codex/personality_friendly_gpt-5.5.md) · [Pragmatic](OpenAI/Codex/personality_pragmatic_gpt-5.5.md) |
-| GPT-5.4 Codex | [Codex GPT-5.4 system prompt](OpenAI/Codex/gpt-5.4.md) · [Mini](OpenAI/Codex/gpt-5.4-mini.md) |
-| Codex Spark | [Codex Spark system prompt](OpenAI/Codex/gpt-5.3-codex-spark.md) |
-| Codex modes | [Plan mode](OpenAI/Codex/plan_mode.md) · [Auto-review](OpenAI/Codex/codex-auto-review.md) · [Computer use](OpenAI/Codex/computer-use.md) · [Control Chrome](OpenAI/Codex/control-chrome.md) · [In-app browser](OpenAI/Codex/control-in-app-browser.md) |
-| Personas | [Friendly](OpenAI/Codex/personality_friendly.md) · [Pragmatic](OpenAI/Codex/personality_pragmatic.md) |
+| Codex modes | [Plan mode](OpenAI/Codex/plan-mode.md) · [Auto-review](OpenAI/Codex/auto-review.md) |
 
 ### API-injected prompts
 
@@ -257,7 +253,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Product | Prompt |
 |---------|--------|
 | Cursor | [Cursor system prompt](Cursor/cursor.md) |
-| Cursor cloud agent | [Cursor cloud agent prompt sections and subagents](Cursor/cloud-agent/) |
+| Cursor Cloud Agents | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
 
 ## Mistral
 

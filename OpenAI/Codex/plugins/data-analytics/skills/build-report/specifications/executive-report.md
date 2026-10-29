@@ -1,0 +1,9 @@
+# Decision-focused reports
+
+Use this reference when readers need to decide, prioritize, or communicate a result. It is not a required outline.
+
+Lead with the answer and why it matters. For a decision-focused report with several findings, comparisons, or visuals, default to a visible `Executive Summary` immediately after the title. It should stand on its own, answer the user's question directly, and include a few concrete numbers or comparisons that make the strongest supported findings and implications credible. Usually use 2-4 concise bullets or short mini-paragraphs. Do not make it an evidence-free verdict or a methodology recap. A brief one-answer report may use a concise opening instead. This is a reading aid, not a required outline. Use plain language and give each important finding enough context to understand its magnitude, comparison, and consequence. Do not put a dense methodology, source, freshness, provenance, or reproducibility blurb in the hero, subtitle, Executive Summary, or first section; keep methods out of the main reading path unless the method itself is the question or a methodological caveat changes the decision.
+
+Possible shapes include an answer with one decisive chart, a KPI operating review, a diagnostic memo, or a recommendation with alternatives and tradeoffs. Use metric cards for distinct headline measures when useful, and tables when readers need exact lookup. Neither is mandatory. A recommendation should name a feasible next action and follow from the evidence; monitoring or an unresolved question may be the right ending.
+
+Check that a busy reader can understand the result by scanning the title, opening, and section headings, and can inspect the evidence without relying on hidden process notes. Avoid duplicate summaries, generic advice, and claims stronger than the analysis.

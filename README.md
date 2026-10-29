@@ -314,6 +314,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Devin CLI | [Devin CLI system prompt](Misc/devin-cli.md) |
 | Docker Gordon AI | [Docker Gordon AI system prompt](Misc/docker-gordon-ai.md) |
 | ElevenLabs Voice Agent | [ElevenLabs voice agent system prompt](Misc/elevenlabs-voice-agent.md) |
+| Emergent.sh | [Emergent greeting agent system prompt](Misc/emergent.sh.md) |
 | Reddit Answers | [Reddit Answers system prompt](Misc/reddit-answers.md) |
 | Warp 2.0 Agent | [Warp 2.0 agent system prompt](Misc/warp-2.0-agent.md) |
 | Zed AI | [Zed AI system prompt](Misc/zed.md) |

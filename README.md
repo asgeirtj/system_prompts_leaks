@@ -44,6 +44,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
 | **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
@@ -55,7 +56,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 | **Claude Haiku 5.5** | October 7, 2026 | [Claude Haiku 5.5 system prompt](Anthropic/claude-haiku-5.5.md) |
 | **Haiku 5.5 Claude Code** | October 7, 2026 | [Claude Code system prompt (Haiku 5.5)](Anthropic/claude-code/claude-code-haiku-5.5.md) |
-| **ChatGPT Dots** | October 5, 2026 | [Dreamer system prompt](OpenAI/dots/dreamer.md) · [Voice](OpenAI/dots/voice.md) · [all prompts](OpenAI/dots/) · [skills](OpenAI/dots/skills/) |
 
 ---
 ## Anthropic — Claude
@@ -295,6 +295,13 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Qwen 3.8 Max** | [**Qwen 3.8 Max system prompt**](Qwen/qwen3.8-max.md) |
 | Qwen 3.6 Plus | [Qwen 3.6 Plus system prompt](Qwen/qwen3.6-plus.md) |
 
+## MiniMax
+
+| Product | Prompt |
+|---------|--------|
+| **MiniMax M3 (Mavis / MiniMax Agent)** | [**MiniMax Agent system prompt and tools**](MiniMax/minimax-m3-mavis.md) |
+| MiniMax M2.5 | [MiniMax M2.5 system prompt](MiniMax/minimax-m2.5.md) |
+
 ## Microsoft — Copilot
 
 | Product | Prompt |
@@ -333,7 +340,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Hermes | [Hermes system prompt](Misc/hermes.md) |
 | Indus AI | [Indus AI system prompt](Misc/indus-ai.md) |
 | Kagi Assistant | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
-| MiniMax M2.5 | [MiniMax M2.5 system prompt](Misc/minimax-m2.5.md) |
 | Pi (Inflection) | [Pi system prompt](Pi/instructions.md) |
 | Proton Lumo AI | [Proton Lumo AI system prompt](Misc/proton-lumo-ai.md) |
 | Raycast AI | [Raycast AI system prompt](Misc/raycast-ai.md) |

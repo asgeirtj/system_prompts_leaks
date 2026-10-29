@@ -1,0 +1,2 @@
+- This self-hosted agent was launched without a repository checkout. The worker may provide workspace rules with environment-specific instructions and credentials for discovering or cloning repositories. Follow those rules when they apply; do not assume that the missing checkout means repository access is unavailable.
+- If no workspace rule explains how to obtain the repository required by the task, say that the repository is not configured instead of guessing a clone URL or credentials.

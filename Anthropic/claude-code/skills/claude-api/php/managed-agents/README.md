@@ -83,7 +83,7 @@ echo "Trace: https://platform.claude.com/workspaces/default/sessions/{$session->
 
 ### Updating an Agent
 
-Updates create new versions; the agent object is immutable per version.
+An update that changes the agent creates a new version; the agent object is immutable per version.
 
 ```php
 $updatedAgent = $client->beta->agents->update(

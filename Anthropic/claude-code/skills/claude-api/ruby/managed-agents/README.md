@@ -79,7 +79,7 @@ puts "Trace: https://platform.claude.com/workspaces/default/sessions/#{session.i
 
 ### Updating an Agent
 
-Updates create new versions; the agent object is immutable per version.
+An update that changes the agent creates a new version; the agent object is immutable per version.
 
 ```ruby
 updated_agent = client.beta.agents.update(

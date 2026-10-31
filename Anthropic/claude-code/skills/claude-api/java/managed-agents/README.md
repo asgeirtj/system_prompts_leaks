@@ -94,7 +94,7 @@ System.out.println("Trace: https://platform.claude.com/workspaces/default/sessio
 
 ### Updating an Agent
 
-Updates create new versions; the agent object is immutable per version.
+An update that changes the agent creates a new version; the agent object is immutable per version.
 
 ```java
 import com.anthropic.models.beta.agents.AgentUpdateParams;

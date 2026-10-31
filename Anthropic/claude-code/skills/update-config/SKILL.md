@@ -2,6 +2,7 @@
 name: update-config
 description: 'Use this skill to configure the Claude Code harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, suggest the /config command.'
 ---
+
 # Update Config Skill
 
 Modify Claude Code configuration by updating settings.json files.
@@ -331,7 +332,6 @@ echo '{"systemMessage": "Session complete!"}'
 Given an event, matcher, target file, and desired behavior, follow this flow. Each step catches a different failure class — a hook that silently does nothing is worse than no hook.
 
 1. **Dedup check.** Read the target file. If a hook already exists on the same event+matcher, show the existing command and ask: keep it, replace it, or add alongside.
-
 2. **Construct the command for THIS project — don't assume.** The hook receives JSON on stdin. Build a command that:
    - Extracts any needed payload safely — use `jq -r` into a quoted variable or `{ read -r f; ... "$f"; }`, NOT unquoted `| xargs` (splits on spaces)
    - Invokes the underlying tool the way this project runs it (npx/bunx/yarn/pnpm? Makefile target? globally-installed?)
@@ -346,13 +346,11 @@ Given an event, matcher, target file, and desired behavior, follow this flow. Ea
    Check exit code AND side effect (file actually formatted, test actually ran). If it fails you get a real error — fix (wrong package manager? tool not installed? jq path wrong?) and retest. Once it works, wrap with `2>/dev/null || true` (unless the user wants a blocking check).
 
 4. **Write the JSON.** Merge into the target file (schema shape in the "Hook Structure" section above). If this creates `.claude/settings.local.json` for the first time, add it to .gitignore — the Write tool doesn't auto-gitignore it.
-
 5. **Validate syntax + schema in one shot:**
 
    `jq -e '.hooks.<event>[] | select(.matcher == "<matcher>") | .hooks[] | select(.type == "command") | .command' <target-file>`
 
    Exit 0 + prints your command = correct. Exit 4 = matcher doesn't match. Exit 5 = malformed JSON or wrong nesting. A broken settings.json silently disables ALL settings from that file — fix any pre-existing malformation too.
-
 6. **Prove the hook fires** — only for `Pre|PostToolUse` on a matcher you can trigger in-turn (`Write|Edit` via Edit, `Bash` via Bash). `Stop`/`UserPromptSubmit`/`SessionStart` fire outside this turn — skip to step 7.
 
    For a **formatter** on `PostToolUse`/`Write|Edit`: introduce a detectable violation via Edit (two consecutive blank lines, bad indentation, missing semicolon — something this formatter corrects; NOT trailing whitespace, Edit strips that before writing), re-read, confirm the hook **fixed** it. For **anything else**: temporarily prefix the command in settings.json with `echo "$(date) hook fired" >> /tmp/claude-hook-check.txt; `, trigger the matching tool (Edit for `Write|Edit`, a harmless `true` for `Bash`), read the sentinel file.
@@ -360,7 +358,6 @@ Given an event, matcher, target file, and desired behavior, follow this flow. Ea
    **Always clean up** — revert the violation, strip the sentinel prefix — whether the proof passed or failed.
 
    **If proof fails but pipe-test passed and `jq -e` passed**: the settings watcher isn't watching `.claude/` — it only watches directories that had a settings file when this session started. The hook is written correctly. Tell the user to open `/hooks` once (reloads config) or restart — you can't do this yourself; `/hooks` is a user UI menu and opening it ends this turn.
-
 7. **Handoff.** Tell the user the hook is live (or needs `/hooks`/restart per the watcher caveat). Point them at `/hooks` to review, edit, or disable it later. The UI only shows "Ran N hooks" if a hook errors or is slow — silent success is invisible by design.
 
 
@@ -644,8 +641,20 @@ If a hook isn't running:
           ]
         },
         "blockReadsOutsideWorkingDirectories": {
-          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
+          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
           "type": "boolean"
+        },
+        "blockWritesOutsideWorkingDirectories": {
+          "description": "Refuse file-tool writes (Write, Edit, NotebookEdit) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Files that Claude Code keeps for the session are not refused: its plan files, scratchpad and background job folder, and the auto-memory of this project, unless a repository settings file points it elsewhere. Nothing runs them unless the model asks. Also refuses file-tool writes to Claude Code settings files, inside the working directories too, and takes EnterWorktree and ExitWorktree, which move the working directory, out of the tools on offer. Does not limit shell commands, MCP tools, the programs that hooks run, or the memory tools. Cloud sessions (Claude Code on the web), whose file tools run in a container that is itself the boundary, may not apply it.",
+          "type": "boolean"
+        },
+        "blockReadsExemptPaths": {
+          "description": "For the program that starts Claude Code: read only from --settings and from settings that program sends while the session runs; ignored in user, project, local and managed settings. Absolute paths, each a folder with all below it or one file, that blockReadsOutsideWorkingDirectories lets through beside the working directories. It allows nothing: an allow rule, the permission mode or the user still decides each read, as with that setting off, and a shell command that hands such a path to a program is still asked about unless a Read allow rule covers it. The paths do not become working directories, so blockWritesOutsideWorkingDirectories refuses writes to them, and they are not told to MCP servers or to the model. Each path counts as written: a link in it is not followed and a pattern is not expanded, so list every spelling that a read may arrive by. Ignored: an entry that starts with ~, has a ".." segment or has white space at either end (as written or once normalized), a relative or network path, and the root of a filesystem. Does not change what sandboxed commands may read (sandbox.filesystem.allowRead does).",
+          "type": "array",
+          "items": {
+            "default": "",
+            "type": "string"
+          }
         },
         "disableAutoMode": {
           "description": "Disable auto mode",
@@ -1325,7 +1334,7 @@ If a hook isn't running:
       ]
     },
     "bashEditDiffEnabled": {
-      "description": "Whether the Bash tool shows a diff of the files a Bash command changed (PostToolUse Bash hooks get the changed-file list in tool_response). Set to false to turn that off. Default: on when the Bash tool handles file edits. Only user, flag or policy settings can turn it on outside auto and bypassPermissions modes.",
+      "description": "Whether the Bash tool shows a diff of the files a Bash command changed (PostToolUse Bash hooks get the changed-file list in tool_response). Set to false to turn that off. Default: off, except in auto and bypassPermissions modes when the Bash tool handles file edits or the model's configuration turns it on. Only user, flag or policy settings can turn it on in other modes.",
       "type": "boolean"
     },
     "bashOutputMaxChars": {
@@ -2070,6 +2079,20 @@ If a hook isn't running:
           "autoUpdate": {
             "description": "Whether to automatically update this marketplace and its installed plugins on startup",
             "type": "boolean"
+          },
+          "pluginDigests": {
+            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         },
         "required": [
@@ -2610,6 +2633,20 @@ If a hook isn't running:
           "autoUpdate": {
             "description": "Whether to automatically update this marketplace and its installed plugins on startup",
             "type": "boolean"
+          },
+          "pluginDigests": {
+            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         },
         "required": [
@@ -4348,7 +4385,7 @@ If a hook isn't running:
               "type": "boolean"
             },
             "allowMachLookup": {
-              "description": "macOS only: Additional XPC/Mach service names to allow looking up. Supports trailing-wildcard prefix matching (e.g., "com.apple.coresimulator.*"). Needed for tools that communicate via XPC such as the iOS Simulator or Playwright. Merged across settings sources. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, values from project settings (.claude/settings.json and .claude/settings.local.json) are ignored.",
+              "description": "macOS only: Additional XPC/Mach service names to allow looking up. Supports trailing-wildcard prefix matching (e.g., "com.apple.CoreSimulator.*"). Needed for tools that communicate via XPC such as the iOS Simulator or Playwright. Each entry lets sandboxed commands reach services outside the sandbox, and the sandbox does not confine what those services do for them. Merged across settings sources. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, values from project settings (.claude/settings.json and .claude/settings.local.json) are ignored.",
               "type": "array",
               "items": {
                 "type": "string"
@@ -4628,7 +4665,7 @@ If a hook isn't running:
           "type": "boolean"
         },
         "allowNestedUserNamespaces": {
-          "description": "Linux/WSL only: Let sandboxed commands create user namespaces of their own, which the sandbox refuses by default. Needed by tools that sandbox themselves that way, such as Chromium's and Electron's sandbox, rootless podman or buildah, a nested bubblewrap, and `unshare`. **Removes code-execution isolation** — in any folder a hostile command may write, it can then bypass filesystem.denyWrite, filesystem.denyRead, credentials.files entries and the paths the sandbox always write-protects (such as .claude/settings.json, git hooks and git config), and so plant code that later runs outside the sandbox; while autoAllowBashIfSandboxed is on, the command that plants it needs no approval. Default: false. Only honored from user, managed/policy, or CLI (--settings) settings — true from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (false there still applies).",
+          "description": "Linux/WSL only: Let sandboxed commands create user namespaces of their own, which the sandbox refuses by default. Needed by tools that sandbox themselves that way, such as Chromium's and Electron's sandbox, a nested bubblewrap, and `unshare`. **Removes code-execution isolation** — in any folder a hostile command may write, it can then bypass filesystem.denyWrite, filesystem.denyRead, credentials.files entries and the paths the sandbox always write-protects (such as .claude/settings.json, git hooks and git config), and so plant code that later runs outside the sandbox; while autoAllowBashIfSandboxed is on, the command that plants it needs no approval. Default: false. Only honored from user, managed/policy, or CLI (--settings) settings — true from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (false there still applies).",
           "type": "boolean"
         },
         "enableWeakerNetworkIsolation": {
@@ -4640,7 +4677,7 @@ If a hook isn't running:
           "type": "boolean"
         },
         "excludedCommands": {
-          "description": "Command patterns (Bash permission-rule syntax) that always run outside the sandbox. A convenience, not a security boundary: excluded commands still go through the permission flow. Merged across settings sources. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, values from project settings (.claude/settings.json and .claude/settings.local.json) are ignored.",
+          "description": "Command patterns (Bash permission-rule syntax) for commands to run outside the sandbox. An entry takes a call out of the sandbox only when every command in the call matches an entry: in a Bash pipe or a chain such as `a && b`, each part needs its own match. Some calls stay sandboxed whatever the entries, such as one with a `cd`, a command substitution, or a redirect other than a file-descriptor duplication like `2>&1`, a heredoc included. A convenience, not a security boundary: excluded commands still go through the permission flow. Merged across settings sources. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, values from project settings (.claude/settings.json and .claude/settings.local.json) are ignored.",
           "type": "array",
           "items": {
             "type": "string"
@@ -5198,6 +5235,10 @@ If a hook isn't running:
         ]
       }
     },
+    "sshHostCommands": {
+      "description": "SSH connections in Claude Desktop on macOS and Linux whose host comes from a command. A list of entries, each with `id`, `name` and `command`, and optionally `sshIdentityFile` and `startDirectory`. When you ask Desktop to create or replace an entry's host, it runs `command` on this computer: a program name or absolute path, followed by plain arguments. There is no shell, so quotes, pipes, variables and a leading `~` do not work. The command must print only the host on standard output: `host` or `user@host` on one line, or a JSON object with `sshHost` and, optionally, `sshPort` and `startDirectory`. Desktop reads this key only from user settings and from this computer's managed settings. Claude Code itself does not use it.",
+      "type": "array"
+    },
     "claudeMd": {
       "description": "CLAUDE.md-style instructions injected as organization-managed memory. Only honored from managed/policy settings.",
       "type": "string"
@@ -5284,7 +5325,7 @@ If a hook isn't running:
       "type": "boolean"
     },
     "idleCompaction": {
-      "description": "Set to false to stop Claude Code from compacting a long conversation while the session is idle. Setting it to true does not turn idle compaction on.",
+      "description": "Set to false to stop Claude Code from compacting a long conversation while the session is idle. Defaults to true.",
       "type": "boolean"
     },
     "switchModelsOnFlag": {

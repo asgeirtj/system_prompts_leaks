@@ -195,7 +195,7 @@ Write a JSON file with this structure:
   - **total**: Total expectations evaluated
   - **pass_rate**: Fraction passed (0.0 to 1.0)
 - **execution_metrics**: Copied from executor's metrics.json (if available)
-  - **output_chars**: Total character count of output files (proxy for tokens)
+  - **output_chars**: Total character count of output files
   - **transcript_chars**: Character count of transcript
 - **timing**: Wall clock timing from timing.json (if available)
   - **executor_duration_seconds**: Time spent in executor subagent

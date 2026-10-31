@@ -37,7 +37,7 @@ the method consumes them unchanged. A **validated default palette** is the
 reference instance, fully specified in `references/palette.md`. To target your
 brand, read that file's structure and substitute its values - touch nothing else.
 
-> The single most important habit: **the color part is computable, so compute it.**
+> The single most important habit: **the color part is computable, so compute it.**  
 > Never eyeball whether a palette is colorblind-safe - run `scripts/validate_palette.js`.
 
 ## The procedure - do these in order
@@ -97,6 +97,7 @@ of what goes wrong. If your chart matches an entry, it's wrong.
   obligates visible labels or a table view - it is not dismissable.
 - **Thin marks; a legend always present for >= 2 series (none for one), with
   selective direct labels (never a number on every point); recessive grid/axes.**
+  One exception, legend kept: the tall segmented bar (*Figures* in `references/marks-and-anatomy.md`).
 - **Text wears text tokens, never the series color** - values, labels, and legends
   stay in primary/secondary/muted ink; a colored mark beside them carries identity.
 - **Status colors are reserved** (good/warning/serious/critical) and never reused

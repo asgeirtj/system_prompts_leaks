@@ -21,6 +21,7 @@ portable (and is, itself, this skill).
 - **Line chart** - multi-series, soft-fill area variant, accessibility markers.
 - **Stat tile** - value + delta + optional sparkline (the figure contract).
 - **Meter / progress track** - same-ramp tracks.
+- **Segmented bar** - one whole split into parts: thin beside its figures, tall with its values printed where they fit.
 
 ## Tier 2 - Rounding out the kit
 - **Area chart** (stacked, band-edge = line) · **Sparkline** · **Heatmap**
@@ -32,6 +33,7 @@ portable (and is, itself, this skill).
 - **Chart-type heuristic** - pick the form (choosing-a-form.md).
 - **Table-view generator** - the WCAG-clean equivalent of any chart.
 
-Notes: part-to-whole rides on the stacked bar chart; donut stays deprioritized.
+Notes: part-to-whole rides on bars - ranked or segmented for one whole, the stacked bar
+chart over time or across several wholes; donut stays deprioritized.
 Small multiples is a layout pattern over these, not a separate piece. Scatter
 joins Tier 2 if scatter-heavy surfaces land.

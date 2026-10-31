@@ -380,11 +380,11 @@ Output from Benchmark mode. Located at `benchmarks/<timestamp>/benchmark.json`.
   - `eval_name`: Human-readable eval name (used as section header in the viewer)
   - `configuration`: The name of the run's configuration directory, such as `"with_skill"`, `"without_skill"` or `"old_skill"` (the viewer groups runs by this string)
   - `run_number`: Integer run number (1, 2, 3...)
-  - `result`: Nested object with `pass_rate`, `passed`, `total`, `time_seconds`, `tokens`, `errors`
+  - `result`: Nested object with `pass_rate`, `passed`, `total`, `time_seconds`, `tokens`, `errors`; `time_seconds` and `tokens` are each `null` when the run recorded no value for it
 - `run_summary`: Statistical aggregates per configuration
-  - `with_skill` / `without_skill`: Each contains `pass_rate`, `time_seconds`, `tokens` objects with `mean` and `stddev` fields
-  - `delta`: The first configuration minus the second, as strings like `"+0.50"`, `"+13.0"`, `"+1700"`; each is `null` when there is only one configuration
-- `notes`: Freeform observations from the analyzer
+  - `with_skill` / `without_skill`: Each contains `pass_rate`, `time_seconds`, `tokens` objects with `mean` and `stddev` fields. `time_seconds` and `tokens` cover only the runs that recorded a value, and are `null` when none did
+  - `delta`: The first configuration minus the second, as strings like `"+0.50"`, `"+13.0"`, `"+1700"`. All three are `null` when there is only one configuration. `time_seconds` or `tokens` is also `null` when a run of either of the two recorded no value
+- `notes`: Freeform observations from the analyzer, and the notes that `aggregate_benchmark.py` writes when a run recorded no time or token count
 
 **Important:** The viewer reads these field names exactly. Using `config` instead of `configuration`, or putting `pass_rate` at the top level of a run instead of nested under `result`, will cause the viewer to show empty/zero values. Always reference this schema when generating benchmark.json manually.
 

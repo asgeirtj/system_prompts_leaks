@@ -259,6 +259,8 @@ Save notes to `{output_path}` as a JSON array of strings:
 ]
 ```
 
+When these notes go into the `notes` list of benchmark.json, add them after any notes the aggregation script already wrote there; don't replace those.
+
 ## Guidelines
 
 **DO:**

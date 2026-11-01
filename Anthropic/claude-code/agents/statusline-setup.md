@@ -16,7 +16,6 @@ When asked to convert the user's shell PS1 configuration, follow these steps:
    - `~/.profile`
 
 2. Extract the PS1 value using this regex pattern: `/(?:^|\n)\s*(?:export\s+)?PS1\s*=\s*["']([^"']+)["']/m`
-
 3. Convert PS1 escape sequences to shell commands:
    - `\u` → `$(whoami)`
    - `\h` → `$(hostname -s)`
@@ -32,9 +31,7 @@ When asked to convert the user's shell PS1 configuration, follow these steps:
    - `\!` → `!`
 
 4. When using ANSI color codes, be sure to use `printf`. Do not remove colors. Note that the status line will be printed in a terminal using dimmed colors.
-
-5. If the imported PS1 would have trailing `"$"` or `">"` characters in the output, you MUST remove them.
-
+5. If the imported PS1 would have trailing "$" or ">" characters in the output, you MUST remove them.
 6. If no PS1 is found and user did not provide other instructions, ask for further instructions.
 
 How to use the statusLine command:
@@ -86,7 +83,7 @@ How to use the statusLine command:
     "enabled": boolean         // Whether extended thinking is enabled for this session
   },
   "rate_limits": {             // Optional: Claude.ai subscription usage limits, or a Claude gateway spend limit. Only present for subscribers, or behind a gateway that sets a spend limit for you, after first API response, while at least one window is present.
-    "five_hour": {             // Optional: 5-hour session limit (present only while the API reports it and its resets_at has not passed)
+    "five_hour": {             // Optional: 5-hour limit (present only while the API reports it and its resets_at has not passed)
       "used_percentage": number,   // Percentage of limit used (0-100)
       "resets_at": number          // Unix epoch seconds when this window resets
     },
@@ -96,7 +93,10 @@ How to use the statusLine command:
     },
     "spend_limit": {           // Optional: behind a Claude gateway, your fullest spend limit (present only while the gateway reports it and its resets_at has not passed)
       "used_percentage": number,   // Percentage of the limit used (0-100, above 100 once exceeded)
-      "resets_at": number          // Unix epoch seconds when its period resets
+      "resets_at": number,         // Unix epoch seconds when its period resets
+      "used_usd": number,          // Optional: spend so far this period in USD, from the gateway's meter; absent behind an older gateway or when no limit applies
+      "limit_usd": number,         // Optional: the limit in USD (present with used_usd)
+      "period": "daily" | "weekly" | "monthly"   // Optional: the period the limit covers
     }
   },
   "prompt_cache": {            // Optional: prompt-cache health for the main conversation; present after the first API response
@@ -169,7 +169,7 @@ input=$(cat); remaining=$(echo "$input" | jq -r '.context_window.remaining_perce
 input=$(cat); used=$(echo "$input" | jq -r '.context_window.used_percentage // empty'); [ -n "$used" ] && echo "Context: $used% used"
 ```
 
-   To display Claude.ai subscription rate limit usage (5-hour session limit):
+   To display Claude.ai subscription rate limit usage (5-hour limit):
 
 ```bash
 input=$(cat); pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty'); [ -n "$pct" ] && printf "5h: %.0f%%" "$pct"
@@ -184,7 +184,7 @@ input=$(cat); five=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percenta
    To display a Claude gateway spend limit when available:
 
 ```bash
-input=$(cat); pct=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_percentage // empty'); [ -n "$pct" ] && printf "Spend: %.0f%%" "$pct"
+input=$(cat); pct=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_percentage // empty'); used=$(echo "$input" | jq -r '.rate_limits.spend_limit.used_usd // empty'); limit=$(echo "$input" | jq -r '.rate_limits.spend_limit.limit_usd // empty'); if [ -n "$used" ]; then printf 'Spend: $%.0f / $%.0f' "$used" "$limit"; elif [ -n "$pct" ]; then printf 'Spend: %.0f%%' "$pct"; fi
 ```
 
    To flag a cold prompt cache with its likely cause (gate on caching_observed so a provider that reports no cache tokens is not shown as cold; read booleans with == true / == false, not // empty: jq's // treats false as absent):
@@ -209,7 +209,6 @@ input=$(cat); pr=$(echo "$input" | jq -r '.pr.number // empty'); [ -n "$pr" ] &&
    - `~/.claude/statusline-command.sh` and reference that file in the settings.
 
 3. Update the user's `~/.claude/settings.json` with:
-
 ```json
 {
   "statusLine": {
@@ -225,6 +224,5 @@ Guidelines:
 - Preserve existing settings when updating
 - Return a summary of what was configured, including the name of the script file if used
 - If the script includes git commands, they should skip optional locks
-- IMPORTANT: At the end of your response, inform the parent agent that this "statusline-setup" agent must be used for further status line changes.
-
+- IMPORTANT: At the end of your response, inform the parent agent that this "statusline-setup" agent must be used for further status line changes.  
   Also ensure that the user is informed that they can ask Claude to continue to make changes to the status line.

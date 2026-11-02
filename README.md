@@ -1,22 +1,3 @@
-<p align="center">
-  <sub>Thanks to</sub>  
-</p>
-
-<p align="center">
-  <a href="https://go.asgeirtj.workers.dev/latitude">
-    <img src=".github/latitude-dark.png" alt="Latitude Logo" width="700"/>
-  </a>
-</p>
-
-<div align="center" markdown="1">
-
-### [Open Source Agent Analytics](https://go.asgeirtj.workers.dev/latitude)  
-[Understand your agents in production](https://go.asgeirtj.workers.dev/latitude)
-
-</div>
-
----
-
 <div align="center">
 
 # System Prompts Leaks

@@ -150,7 +150,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Old policies | [Image safety](OpenAI/Old/prompt-image-safety-policies.md) · [Image safety (2026)](OpenAI/Old/image-safety-policies.md) · [Automation context](OpenAI/Old/prompt-automation-context.md) |
 | GPT-5 personalities | [Listener](OpenAI/gpt-5-listener-personality.md) · [Nerdy](OpenAI/gpt-5-nerdy-personality.md) · [Robot](OpenAI/gpt-5-robot-personality.md) |
 | GPT-5.1 personalities | [Efficient](OpenAI/gpt-5.1-efficient.md) · [Professional](OpenAI/gpt-5.1-professional.md) · [Nerdy](OpenAI/gpt-5.1-nerdy.md) |
-| Deprecated features | [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
+| Deprecated features | [Deep research tool](OpenAI/tool-deep-research.md) · [Deep Research connector context (2025, redacted)](OpenAI/tool-deep-research-connectors-2025.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
 
 </details>
 

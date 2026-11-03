@@ -13,10 +13,10 @@ Requires React 18+. Playwright + chromium are **required** for this shape (the c
 2. **Build the reference storybook ONCE into `.design-sync/sb-reference/`** - NOT under `ds-bundle/` (the converter wipes `--out` on every rebuild, and storybook builds take minutes; the reference must survive the fix loop):
 
    ```bash
-   npx storybook build -c <storybookConfigDir> -o .design-sync/sb-reference
+   npx --no-install storybook build -c <storybookConfigDir> -o .design-sync/sb-reference
    ```
 
-   Run it from the directory whose `package.json` has the storybook devDependencies - usually the one containing `.storybook/`; monorepos often have several storybooks, so pick the one covering the package you're syncing. **Make `-o` the repo-root path** (e.g. `-o "$(git rev-parse --show-toplevel)/.design-sync/sb-reference"`): the converter and compare resolve `.design-sync/` from the repo root, so a cwd-relative `-o` in a subpackage puts the reference where nothing will find it. Use `npx storybook build` directly, **not** the repo's `npm run build-storybook` script (wrong output dir). Then check `.design-sync/sb-reference/iframe.html` exists and is >10KB - `index.json` alone can exist with a failed build.
+   Run it from the directory whose `package.json` has the storybook devDependencies - usually the one containing `.storybook/`; monorepos often have several storybooks, so pick the one covering the package you're syncing. **Make `-o` the repo-root path** (e.g. `-o "$(git rev-parse --show-toplevel)/.design-sync/sb-reference"`): the converter and compare resolve `.design-sync/` from the repo root, so a cwd-relative `-o` in a subpackage puts the reference where nothing will find it. Use `npx --no-install storybook build` directly, **not** the repo's `npm run build-storybook` script (wrong output dir); `--no-install` stops npx from installing anything: it runs a storybook that is already installed, normally the repo's own, or ends in an error. If it stops because storybook is missing ("npx canceled due to missing packages"), you are in the wrong directory or the repo's dependencies are not installed: install those with the repo's own package manager, and never add `--yes` or install storybook by itself. Then check `.design-sync/sb-reference/iframe.html` exists and is >10KB - `index.json` alone can exist with a failed build.
 
    Long builds: background them **through your shell tool's background mode only** and wait for the completion notification. Never a bare `&` (untracked - the notification never comes), and never a `pgrep -f '<script>'` poll loop (it matches its own command line and spins to timeout). Headless / `-p` sessions: run long commands synchronously instead - there is no task-notification re-invocation there, so a backgrounded run is never resumed.
 
@@ -33,7 +33,6 @@ Requires React 18+. Playwright + chromium are **required** for this shape (the c
    | `titleMap` | `{title: ExportName}` when story titles don't match export names; `{title: null}` excludes a non-visual/internal component from the sync entirely |
    | `overrides` | `{<Name>: {skip: [storyIds], cardMode: "single"\|"column", primaryStory: "<Export>", viewport: "WxH"}}` - `skip` for stories that can't render statically; `cardMode: "single"` for overlay components (§4a.5, §5), `"column"` for stories wider than a grid cell (the `[GRID_OVERFLOW]` row in §3) |
    | `provider` | usually unnecessary for **previews** - `.storybook/preview` decorators are auto-bundled; set only when that fails. Before §6 upload, distill decorator-provided context into `cfg.provider` - README/prompt.md wrap guidance is generated from config only (decorator-only wrapping ships a generic note). **Setting it also replaces the decorators as the preview wrapper on the next build**: scoped-compare a themed component after the switch - an incomplete distillation regresses previews the decorators rendered fine, and carried-forward grades won't catch it. Format: `{"component": "ThemeProvider", "props": {...}, "inner": {...}}` - a nested chain, outermost first; each `component` must be a bundle export. Literal `props` are for small scalars (`"theme": "light"`) and stable snippets. For data that already exists in the repo - a locale JSON, a theme object - **prefer `{"$ref": "<export>"}`** backed by a 2-line module added via `cfg.extraEntries` (e.g. `export { default as previewI18n } from '../locales/en.json'`): a `$ref` emits `window.<Global>.<export>`, so the data lives once in the bundle and re-reads from its source file on every build. Inlining a copy is acceptable for something tiny and stable, but know the cost - a literal duplicates into every card's html and silently rots when the source file changes, so anything sizable or evolving belongs behind a `$ref`. Path forms for `extraEntries`: a bare name resolves from `node_modules`; a repo-owned module needs an explicit `./`/`../` package-relative path (workspace-bounded - the build logs `! extraEntries: ... skipped` if it escapes). |
-
 4. **Stage scripts + install converter deps** (isolated in `.ds-sync/`, repo lockfile untouched):
 
    ```bash
@@ -98,7 +97,7 @@ Captures are stabilized for grading comparability (animations fast-forwarded, re
 
 **Grading is done by whoever is working the component** - you in the solo phase, each subagent for its own components in fan-out. After each compare run: Read the sheet (and raw PNGs when in doubt), judge each story **from the images alone**, Write the verdicts to `.design-sync/.cache/compare/<Name>.grade.json` (campaign-local working state - what makes a verdict durable is the upload: the uploaded `_ds_sync.json` anchors verified-by-upload skips on every future sync, any machine):
 
-```json
+```yaml
 {"stories": {"Default": {"verdict": "match"}, "Compact": {"verdict": "match", "basis": "sibling-trusted"}}}
 {"stories": {"Loading": {"verdict": "mismatch", "note": "spinner missing - story uses MSW mock"}}}
 ```

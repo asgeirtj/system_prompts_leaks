@@ -21,6 +21,7 @@ Columns: **1P** = first-party Claude API, **P-AWS** = Claude Platform on AWS (An
 | Fine-grained tool streaming | Yes | Yes | Yes | Yes | Yes | Bedrock: `eager_input_streaming` on the newer serving stack only (Opus 4.7/4.8/5, Fable 5, Sonnet 4.6/5); older deployments (Opus 4.5/4.6, Sonnet 4.0/4.5, Haiku 4.5) 400 on the field |
 | Compaction | beta | beta | beta | beta | beta | |
 | Context editing | beta | beta | beta | beta | beta | |
+| Message threads | beta | beta | No | No | beta | Beta `message-threads-2026-08-12`; server-side `fallbacks` with a thread are documented for the Claude API only |
 | Context windows (1M) | Yes | Yes | Yes | Yes | Yes | |
 | `inference_geo` (data residency) | Yes | Yes | No | No | No | |
 | **Server-side tools** | | | | | | |

@@ -253,7 +253,7 @@ All classes extend `Anthropic.APIError` with a typed `status` field. Check from 
 
 ## Multi-Turn Conversations
 
-The API is stateless - send the full conversation history each time. Use `Anthropic.MessageParam[]` to type the messages array:
+The API is stateless - send the full conversation history each time (unless you use a message thread: `shared/message-threads.md`). Use `Anthropic.MessageParam[]` to type the messages array:
 
 ```typescript
 const messages: Anthropic.MessageParam[] = [

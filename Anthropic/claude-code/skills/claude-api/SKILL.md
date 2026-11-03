@@ -5,7 +5,6 @@ description: |-
   TRIGGER — read BEFORE opening the target file; don't skip because it "looks like a one-liner" — whenever: the prompt names Claude/Anthropic in any form (Claude, Anthropic, Fable, Opus, Sonnet, Haiku, `anthropic`, `@anthropic-ai`, `claude-*`, `us.anthropic.*`, `[1m]`); the user asks about an LLM (pricing/model choice/limits/caching) — never answer from memory; OR the task is LLM-shaped with provider unstated (agent/MCP/tool-definition/multi-agent/RAG/LLM-judge/computer-use; generate/summarize/extract/classify/rewrite/converse over NL; debugging refusals/cutoffs/streaming/tool-calls/tokens).
   SKIP only when another provider is being worked on (overrides all triggers): OpenAI/GPT/Gemini/Llama/Mistral/Cohere/Ollama named in the query; OR `grep -rE 'openai|langchain_openai|google.generativeai|genai|mistralai|cohere|ollama'` over the project hits (run this grep FIRST if no provider named — don't Read the file).
 ---
-
 # Building LLM-Powered Applications with Claude
 
 This skill helps you build LLM-powered applications with Claude. Choose the right surface based on your needs, detect the project language, then read the relevant language-specific documentation.
@@ -278,6 +277,12 @@ See `{lang}/claude-api/README.md` (Compaction section) for code examples. Full d
 
 ---
 
+## Message Threads (Quick Reference)
+
+**Beta (`message-threads-2026-08-12`); not Managed Agents session threads.** With a `thread` field on the request, the API keeps the conversation for a short time, so each later request sends only the new messages. In long multi-turn loops (agent tool loops, long chats) that means smaller requests and lower time to first token, at the same price. Threads are best-effort: keep your own copy of the conversation and replay it when the API can't continue the thread; the SDK thread helper (`client.beta.messages.thread(...)`) does this for you. **Threads can't be combined with compaction**, most context editing, Message Batches or token counting; to compact, start a new thread from a summary you write. Message threads are not ZDR eligible. Using this feature does not affect your use of other ZDR eligible features. Availability: `shared/platform-availability.md`. Read `shared/message-threads.md` before writing thread code.
+
+---
+
 ## Prompt Caching (Quick Reference)
 
 **Prefix match.** Any byte change anywhere in the prefix invalidates everything after it. Render order is `tools` -> `system` -> `messages`. Keep stable content first (frozen system prompt, deterministic tool list), put volatile content (timestamps, per-request IDs, varying questions) after the last `cache_control` breakpoint.
@@ -518,6 +523,9 @@ After you build a large job, read `tool-use.md`'s top.
 
 **Long-running conversations (may exceed context window):**  
 -> Read `{lang}/claude-api/README.md` - see Compaction section
+
+**Long multi-turn loops: smaller requests, lower time to first token (`thread` field):**  
+-> Read `shared/message-threads.md`
 
 **Migrating to a newer model (Haiku 5.5 / Sonnet 5.5 / Opus 5.5 / Fable 5.1 / Fable 5 / Opus 5 / Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 5 / Sonnet 4.6), replacing a retired model, or translating `budget_tokens` / prefill patterns to the current API:**  
 -> Read `shared/model-migration.md`

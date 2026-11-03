@@ -3,7 +3,6 @@ name: design-sync
 description: Push a React design system to claude.ai/design. This runs a converter that bundles the real component code (from Storybook or a bare package) and uploads it. Use when the user runs /design-sync or says "sync my design system to Claude Design".
 disable-model-invocation: true
 ---
-
 Before anything else, tell the user this, as written: "Standalone Claude Design (claude.ai/design) closes by December 14, 2026. Claude Design now lives in Claude." Then carry on.
 
 # Sync a design system to claude.ai/design
@@ -29,6 +28,16 @@ The converter builds all of the above deterministically from the repo's own `dis
 
 You have a `DesignSync` tool that reads and writes the user's claude.ai/design projects. If a tool call fails with an authorization error, relay its guidance to the user verbatim - the tool's message is environment-aware (in an interactive terminal it names `/design-login`; in headless sessions like claude.ai/code it points at a path that works there) - and retry after they've acted on it.
 
+A long run gets compacted, and the conversation then keeps only the first part of this text, ending in a note that it was truncated for compaction. The whole text is at `<skill-base-dir>/SKILL.md` (the sub-skills call it the base SKILL.md): when you see that note, `Read` that file, and the sub-skill you were following, before your next step.
+
+## First, on a re-sync: has this design system moved to Claude?
+
+If `.design-sync/config.json` (or `design-sync.config.json`, its old name) holds both a `projectId` and a `pkg` - a re-sync, by §0's test - call `DesignSync(get_project)` on that project first, before moving that file, installing, or building anything (if `DesignSync` isn't in your tool list, load it via `ToolSearch(query: "select:DesignSync")`). §1 uses this result instead of calling again (a "not found" here is §1's "gone" case; after a sign-in error, make the call again once the user has dealt with it). A result with a `moveState` means the design system has moved, or is moving, to Claude, and the server refuses uploads to it: give the user the result's `notice` exactly as written, add "This sync stopped before building or uploading anything." (true, since nothing has run yet), then stop. Build, plan and upload nothing.
+
+The same holds whenever `get_project` returns a `moveState` later in a run - a `projectId` left by a run that never finished (§1, pinned), an existing project the user names or redirects the run to (§1, re-adopted), or a write the server refuses because the project has moved or is moving (call `get_project` once more, for the `notice`, which then stands in for the server's message): give the `notice` as written, say plainly what this run has already built, written or uploaded, and stop.
+
+Don't offer a new project, dropping the pinned `projectId`, or deleting anything in Claude as a way round: none of them gets the user's code into the design system that moved, and each leaves them with a second design system or with work lost. If the user asks for one of these outright, first tell them what it costs them, as just said, and go on only if they still want it; a new project is then a first-time sync (§0, §1 fresh), whose `projectId` replaces the old one in the config.
+
 ## 0. First sync? Set expectations before any work
 
 A completed sync always leaves `.design-sync/config.json` holding both a `projectId` and a `pkg`. If both are present, this is a re-sync - skip this section (§2 covers honoring prior state). (If `design-sync.config.json` exists instead - the config's old name and location - move it: `mkdir -p .design-sync && mv -n design-sync.config.json .design-sync/config.json`, commit the move, then apply the same test.) Anything less - no config at all, or a partial one left by a run that never finished - gets first-time treatment: tell the user up front, before doing anything else:
@@ -47,7 +56,7 @@ Then confirm they want to proceed - this process can use a significant number of
 
 If `DesignSync` isn't already in your tool list, load it via `ToolSearch(query: "select:DesignSync")` first. A target gets picked one of three ways, in precedence order:
 
-- **Pinned**: `.design-sync/config.json` has a `projectId` -> that's the target. `DesignSync(get_project)` to confirm it still exists and is `PROJECT_TYPE_DESIGN_SYSTEM`, mention which project you're syncing to, and re-ask only if it's gone or the user redirects.
+- **Pinned**: `.design-sync/config.json` has a `projectId` -> that's the target. `DesignSync(get_project)` (on a re-sync, already called above) to confirm it still exists and is `PROJECT_TYPE_DESIGN_SYSTEM`, mention which project you're syncing to, and re-ask only if it's gone or the user redirects.
 - **Fresh - the first-time default**: no pin -> **create a new project**. A fresh project is the only target whose entire contents this run owns; that ownership is what makes the incremental upload (§3) safe to approve in one shot, and it's why existing projects are never offered here - pouring a first import into a project that already has files would show a half-imported mix to anyone using it, with no sync anchor to tell its files apart from this run's. Use `DesignSync(list_projects)` to pick a NON-colliding name (a duplicate gets rejected and costs a round-trip), confirm the name via `AskUserQuestion`, and only then call `DesignSync(create_project)` - it raises its own permission prompt, and an unconfirmed creation can stall an unattended session. If that prompt is denied, stop and ask the user what to do differently; never retry unasked, never continue without a target. One salvage case: a project evidently left by a prior aborted run of this repo (it has the name this skill would propose - `list_files` it to confirm it's actually empty, since `list_projects` shows no file counts) may be offered for reuse instead of creating another, or noted as safe to delete.
 - **Re-adopted - on the user's explicit ask only**: the user names an existing project (by name or UUID; typically re-adopting the project a previous sync uploaded to, after the config was lost). `DesignSync(get_project)`, check `type` is `PROJECT_TYPE_DESIGN_SYSTEM`, then warn them in plain language (no tool jargon) that syncing can overwrite or delete files already in it - e.g. "Heads up: syncing into that existing project means I may replace or remove files it already contains so it ends up matching this repo. If anything in there isn't from this repo, it could be lost - want me to continue, or create a fresh project instead?" - and proceed only on their confirmation. This explicit ask is the ONLY way an unpinned run ends up in a pre-existing project.
 

@@ -25,6 +25,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
@@ -36,7 +37,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
 | **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
-| **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 
 ---
 ## Anthropic — Claude
@@ -76,6 +76,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Claude Code (older models) | [Opus 4.7](Anthropic/claude-code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/claude-code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/claude-code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/claude-code/claude-code-haiku-4.5.md) |
 | Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
 | Advisor tool | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
+| Auto mode classifier | [Auto mode safety classifier prompt](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/commands) |
 | Docs assistant | [docs.claude.com assistant instructions](Anthropic/claude-code/claude-code-docs-assistant.md) |
 

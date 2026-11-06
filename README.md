@@ -197,7 +197,7 @@ Used as the definitive source in:
 | Model | Prompt |
 |-------|--------|
 | **Grok 4.7** | [**Grok 4.7 system prompt** (grok.com)](xAI/grok-4.7.md) · [Grok CLI](xAI/grok-4.7-cli.md) |
-| Grok Build | [Grok.com Build system prompt)(xAI/grok-build.md) |
+| Grok Build | [Grok.com Build system prompt](xAI/grok-build.md) |
 | Grok 4.6 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | Grok 4.5 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
 | Grok 4.3 Beta | [Grok 4.3 Beta system prompt](xAI/grok-4.3-beta.md) |

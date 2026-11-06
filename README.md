@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
 | **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
-| **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
 
 ---
 ## Anthropic — Claude
@@ -101,6 +101,7 @@ Used as the definitive source in:
 
 | Product | Prompt |
 |---------|--------|
+| **Claude Tag (Slack)** | [**Claude Tag channel-session system prompt**](Anthropic/claude-tag.md) |
 | **Claude Projects** | [**Claude Projects - Thread Claude system prompt**](Anthropic/claude-projects-thread-claude.md) |
 | **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Claude Cowork** | [**Claude Cowork system prompt**](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |

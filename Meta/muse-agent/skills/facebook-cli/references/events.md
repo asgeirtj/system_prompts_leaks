@@ -1,88 +1,59 @@
-# Facebook Events
+# Facebook events
 
-Search Facebook Events and read a single event's details.
+- Find Facebook Events connected to the account or discover popular Events near a location. These commands provide context about an Event's schedule, location, attendance, privacy, and online access.
 
-## Commands
+## Search events
 
-### Search Events
-
-```bash
-facebook-cli events search [--scope <scope>] [--keywords <text>] [--location <place>] [--latitude <lat> --longitude=<lng>] [--radius-in-miles <n>] [--category <category>] [--start-date <YYYY-MM-DD>] [--end-date <YYYY-MM-DD>] [--limit <n>] [--after <cursor>]
+```sh
+/opt/hatch/bin/facebook-cli events search [--scope <connected (the default) or discover>] [--keywords '<keywords>'] [--location '<place>'] [--category <category, such as MUSIC_AND_AUDIO, SPORTS or FOODS>] [--start-date <YYYY-MM-DD>] [--end-date <YYYY-MM-DD>] [--limit <1 to 20, default 20>] [--after '<paging.cursors.after from the previous response, with the same scope and filters>']
+/opt/hatch/bin/facebook-cli events search --scope discover --latitude <latitude> --longitude <longitude> [--radius-in-miles <miles, default 25>] [--keywords '<keywords>'] [--category <category>] [--start-date <YYYY-MM-DD>] [--end-date <YYYY-MM-DD>] [--limit <1 to 20, default 20>] [--after '<paging.cursors.after from the previous response, with the same scope and filters>']
 ```
 
-**Options:**
-- `--scope` (optional): `connected` (default) — events you are connected to (going, interested, invited, hosting); `discover` — popular nearby events from the recommendation backend
-- `--keywords` (optional): Free-text search, e.g. `"music"`, `"farmers market"`
-- `--location` (optional): Place string, e.g. `"Seattle"`. Discover scope searches near this place instead of your location. The server geocodes it to a **city center**, so it cannot express a neighborhood or an address
-- `--latitude` / `--longitude` (optional, discover scope only): Exact WGS-84 search center. Pass both or neither; one alone is an error. The pair takes precedence over `--location`. Use this whenever you have real coordinates — it is more accurate than any place string
-- `--radius-in-miles` (optional, needs the coordinate pair): Search radius around the coordinates. Defaults to 25 miles
-- `--category` (optional): Event category name, e.g. `MUSIC_AND_AUDIO`
-- `--start-date` / `--end-date` (optional): Calendar dates (`YYYY-MM-DD`); start must not be after end
-- `--limit` (optional): Maximum events per page (default 10, max 25)
-- `--after` (optional): Pagination cursor from the previous response (`paging.cursors.after`). Cursors are bound to their search scope — do not reuse a cursor with a different scope
+- `events search` finds Events. `--scope connected`, the default, returns only Events the user is going to, interested in, invited to, or hosting. These can include public Events. `--scope discover` finds popular public Events near the effective search location; see **Choose the search location** below.
 
-**Examples:**  
-```bash
-# My upcoming events
-facebook-cli events search
+- `--keywords` searches Event names with `--scope connected` and finds nearby Events related to the keywords with `--scope discover`.
 
-# Keyword search across popular nearby events
-facebook-cli events search --scope discover --keywords "music" --limit 5
+- `--start-date` and `--end-date` limit results to Events that start within the specified date range. Both dates are inclusive, and the start cannot be after the end.
 
-# Events near a place on/after a date (city-center accuracy)
-facebook-cli events search --scope discover --location "Seattle" --start-date 2026-07-31 --limit 5
+- When `paging.cursors.after` is present, pass it as `--after` with the same scope and filters. Follow cursors until none remains before saying no Events match, or say which pages were searched. A cursor used with another scope is rejected.
 
-# Events near exact coordinates, within 5 miles (preferred when coordinates are known)
-facebook-cli events search --scope discover --latitude 37.5072 --longitude=-122.2605 --radius-in-miles 5 --limit 5
+- When `events search` returns no Events, tell the user which scope, dates and place you searched, and report only Events that `events search` or `events details` returned.
 
-# Next page (pass the cursor from the previous response)
-facebook-cli events search --scope discover --keywords "music" --after "<cursor_from_previous_response>"
+- The response contains a `data` list. Use an Event's `id` for `events details` and its `permalink_url` as the Facebook Event link. `permalink_url` has the form `https://www.facebook.com/events/<id>/`.
+
+### Choose the search location
+
+- With `--scope connected`, `--location` filters the Event's location text. Use `--latitude`, `--longitude`, and `--radius-in-miles` only with `--scope discover`.
+
+- For the user's own Events in a region, keep `--scope connected` and any requested dates. Use `--location` only when the venue text will name the place; otherwise omit it and filter the returned `location` values, such as keeping San Francisco and Oakland Events for "the Bay Area".
+
+- With `--scope discover`, `--location` is geocoded to a city center and searches within the 25-mile radius. Use it for a city-level search.
+
+- With `--scope discover`, `--latitude` and `--longitude` set an exact search center and must be passed together. They override `--location`. For a neighborhood or address, get the coordinates with `map.geocode`. `--radius-in-miles` sets the radius around this center.
+
+- When the conversation already provides coordinates for a `--scope discover` search, pass them directly to `--latitude` and `--longitude` to preserve the exact search center.
+
+- Without a search location, `--scope discover` uses a server-selected location that is not identified in the response. Pass `--location` or coordinates when the search should use a specific location.
+
+- If nothing establishes the location, ask the user before a discover search.
+
+## Read event details
+
+```sh
+/opt/hatch/bin/facebook-cli events details --event-id '<numeric id from events search, also the number in permalink_url>'
 ```
 
-**Choosing a location:**
-1. If the turn context already carries the user's coordinates (for example a `message_location`
-   tag), pass them straight to `--latitude` / `--longitude`. Do not reverse-geocode them into a
-   place name first — that throws away the precision this command exists to use.
-2. If the user named a place, geocode it with `map.geocode` and pass the coordinates, or pass the
-   place string to `--location` when city-level accuracy is enough.
-3. If nothing establishes a location, ask the user. Discover scope with no location falls back to
-   a server-side guess, and the response never says which place it used.
+- `events details` reads one Event. The response contains all fields returned by `events search`, plus these details-only fields:
+  - `online_url`: the URL where an online Event is hosted, or null when none is available
+  - `rsvp_style`: `public` uses `going`, `interested`, and `declined`; `private` uses `going`, `maybe`, and `not_going`
+  - `viewer_response`: the account's current response in the `rsvp_style` vocabulary, or null when it has not responded
 
-**Negative coordinates:** write `--longitude=-122.2605` with the `=`. A bare `--longitude -122.2605`
-is misread as another flag and fails with `error: unexpected argument '-1' found`. The same applies
-to `--latitude` in the southern hemisphere.
+- `permalink_url` is the Facebook Event page. It is distinct from `online_url`, which identifies where an online Event is hosted.
 
-**Response fields per event:**
-- `id`: Numeric raw event ID (global, not app-scoped — matches the ID in `permalink_url`)
-- `name`: Event name
-- `permalink_url`: Shareable link, always `https://www.facebook.com/events/<id>/`
-- `description`: Event description (may be null)
-- `start_time` / `end_time`: Timestamps with offset (e.g. `2026-08-01T11:00:00-0400`)
-- `location`: Venue or address text (may be null)
-- `category`: Category name (may be null)
-- `going_count` / `interested_count`: Attendance counts
-- `timezone`: IANA timezone (may be null)
-- `privacy`: `public`, `private`, etc. (may be null)
-- `is_online`: Whether the event is online
-- `online_url`: Third-party URL where an online event is hosted. Details responses only — search results omit this key entirely rather than sending null
+- Give `online_url` as the join link for an online Event, without checking whether it loads.
 
-The response is paginated: events live under `data`, with the next cursor at `paging.cursors.after` when more pages exist.
+- `start_time` and `end_time` include the Event's UTC offset. `timezone`, when available, identifies the Event's IANA time zone.
 
-### Read Event Details
+- When presenting an Event, include its `permalink_url` and, when `start_time` is available, its Event-local start time.
 
-```bash
-facebook-cli events details --event-id <id>
-```
-
-**Options:**
-- `--event-id` (required): Raw numeric event ID — the `id` from search results, or the number embedded in the event's `permalink_url`
-
-This is the only events route that populates `online_url`. A malformed ID returns 400; an event that does not exist or is not visible to you returns 404 (the two cases are indistinguishable by design).
-
-**Examples:**  
-```bash
-# Read one event (ID taken from a search result)
-facebook-cli events details --event-id 1679757800076464
-```
-
-**Response fields:** same as search, plus `online_url` (null when the event has no third-party online URL).
+- A malformed Event ID returns an error. An Event that is missing or not visible to the account returns the same not-found error, so tell the user the Event isn't visible to them, for example because it's private, rather than saying it was deleted or doesn't exist.

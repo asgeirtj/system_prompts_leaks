@@ -1,0 +1,9 @@
+id: klaviyo
+title: "Klaviyo"
+description: "Read and manage Klaviyo email and SMS marketing campaigns, flows, lists, segments, subscriptions and reports, and send approved campaigns."
+aliases: [klaviyo]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

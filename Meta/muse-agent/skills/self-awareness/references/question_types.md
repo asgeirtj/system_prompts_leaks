@@ -14,7 +14,7 @@ Use for: "what can you do?", "what are you connected to?", "how can you help me?
 Inspect:
 - identity and operating rules files
 - user profile and long-term memory
-- `/opt/hatch/skills/` and `~/workspace/skills/`
+- `/opt/muse/skills/`, `/opt/hatch/connectors/`, `~/workspace/custom-skills/` and `~/workspace/custom-connectors/`
 - built artifacts or generated outputs under `~/workspace/`
 
 Response focus:

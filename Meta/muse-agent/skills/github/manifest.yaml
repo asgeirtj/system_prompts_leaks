@@ -1,4 +1,13 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # The OAuth client id is expected-public. The matching client_secret belongs in
+  # CAGI (see `brokers_provider` in Jarvis's `hatch-authd/src/cagi_oauth.rs`), the
+  # same as Slack's and QuickBooks's secrets.
+  client_id: "Iv23liEtViApzsAlAKre"
+  provider: github
+  required: true
 connector: github
 category: business
 display_name: GitHub
@@ -27,6 +36,7 @@ actions:
     response_guard: verification_codes
     methods:
       mcp.write:
+        approval_policy: fresh_consent_only
         label: Change GitHub repository content
         approval_phrase: perform this action on your GitHub account
 commands:
@@ -42,6 +52,9 @@ commands:
   # New, unknown, and mutating tools intentionally remain on the write-capable
   # path so a provider catalogue change cannot silently widen access.
   call-tool: mcp.write
+  # Packages caller-selected local files for GitHub's advertised push_files
+  # tool without exposing the connector credential to git or the shell.
+  push-files: mcp.write
 consent_screen:
   bullets:
     - icon: data_types

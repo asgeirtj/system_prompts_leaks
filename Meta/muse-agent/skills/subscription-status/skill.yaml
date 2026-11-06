@@ -1,0 +1,7 @@
+name: subscription_status
+title: "Subscription Status"
+description: "Answer questions about the user's Muse subscription, plan, usage, tokens, reset timing, or available plans and prices, or verify information that references the Muse subscription."
+category: "Finance"
+include_in_prompt: true
+availability:
+  confidential_vm: false

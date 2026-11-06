@@ -1,7 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: tessie
+  required: true
+cli:
+  binary: tessie-api
+  skill: tessie
 connector: tessie
+category: productivity
 display_name: Tessie
 description: Monitor, control and manage your Tesla vehicle remotely
+icon: tessie
 request_quota:
   mode: enforce
   workers:
@@ -59,6 +69,21 @@ actions:
       api.write.other:
         label: Make other changes through Tessie API
         approval_phrase: make other changes through the Tessie API
+commands:
+  authorize-url: null
+  set-token: null
+  disconnect: null
+  verify: null
+  vehicles: vehicles.list
+  status: vehicles.list
+  state: vehicles.list
+  # vehicle.honk (honk), vehicle.flash_lights (flash), vehicle.boombox
+  # (remote_boombox) or vehicle.software_update (schedule_software_update,
+  # cancel_software_update) instead for those --command values.
+  command: vehicle.command.other
+  # api.read instead for `--method GET`; telemetry.configure instead for the
+  # fleet_telemetry_config --path.
+  request: api.write.other
 
 consent_screen:
   bullets:

@@ -1,178 +1,90 @@
-# Campaign review and execution
+# Review and create the paused campaign
 
-Read this only after delivery strategy and creative are accepted, or while
-recovering partial creation. Recheck coherence; material drift returns to the
-earliest affected planning stage. Final review authorizes only the unchanged
-paused hierarchy and never publication.
+- Read this only after the strategy and creative are accepted, or while recovering a partial creation. Material drift returns to the earliest affected planning stage, and the final review authorizes only the unchanged paused hierarchy, never publication.
 
-## Ground the executable request
+## Ground the exact request
 
-Before final review, obtain the live input schemas for
-`ads_create_campaign`, `ads_create_ad_set`, `ads_create_creative`, and
-`ads_create_ad` with one `describe-tool --input-only` command per selected tool.
-Reuse a schema fetched during the current creative stage unless a failure or
-capability update made it stale. Fetch the upload schema too when approved new media must be uploaded.
-Use only names present in the conversation's current compact discovery result.
+- Before final review, fetch the live input schemas for `ads_create_campaign`, `ads_create_ad_set`, `ads_create_creative` and `ads_create_ad`, one `describe-tool --input-only` command per tool, plus the upload schema when new media must be uploaded. Reuse a schema from the current creative stage unless a failure or capability change made it stale, and use only names in the conversation's discovery result.
 
-Build each intended argument object strictly from those schemas. Before final
-review, read and apply the pre-write gate in
-`campaign-delivery-compatibility.md` to the
-exact hierarchy and arguments, including every conditional or mutually
-exclusive rule in the live field descriptions rather than only each schema's
-`required` list. Never guess a
-field, enum, conditional requirement, destination URL, identity, or media
-reference, and never use a write or a validation failure to discover the
-contract. A field absent from a selected schema is unsupported for this plan.
-Optional fields default to absent. A known value does not authorize every
-optional field that could carry it; include only the reviewed setting's mapped
-field or a schema-required dependency.
-Do not carry a field from another Ads tool merely because it is common there.
-An existing object's read response cannot prove that a create-schema field is
-optional; if current reads and the live create contract conflict, stop at that
-contract gap rather than approving or probing a write.
-If a required value cannot be obtained from the advertiser or a successful
-read, return to the earliest open decision before requesting final approval.
-Copy field names and enum values exactly from the live schema; never translate a
-human label into a guessed provider value. An identifier is not a URL. Do not
-construct a URL pattern from an ID unless the live schema explicitly defines
-that transformation, or the ad set's `destination_type` is `MESSENGER`,
-`WHATSAPP`, or `INSTAGRAM_DIRECT`, where `campaign-creative.md` gives the link.
+- Build each argument object strictly from those schemas, then apply [delivery compatibility](campaign-delivery-compatibility.md) to the exact hierarchy and arguments, including every conditional or mutually exclusive rule in the field descriptions. Never guess a field, enum, condition, URL, identity or media reference, and never use a write or a validation failure to discover the contract.
 
-Only when that tool's schema exposes `advertiser_request`, use the advertiser's
-complete current multi-turn wording required by `SKILL.md`; never add an
-assistant-written reconstruction.
+- A field absent from a selected schema is unsupported for this plan, and optional fields stay absent unless they carry a reviewed setting or the schema requires them for it. Never carry a field over from another Ads tool because it is common there.
 
-Keep all campaign decisions and execution state in conversation context. Do
-not call memory tools or persist campaign settings, IDs, media references,
-attempts, or failures to `MEMORY.md` or another durable store.
+- A read of an existing object cannot prove a create field optional. If current reads and the live create contract conflict, stop at that gap rather than approve or probe a write.
 
-The campaign, ad-set, and ad create tools enforce `PAUSED` server-side; a
-creative has no delivery status. Follow each live schema and do not add a
-`status` field when it is not exposed. Keep a private mapping from every
-reviewed value to the exact argument that will create it, including:
+- If a required value cannot come from the advertiser or a successful read, return to the earliest open decision before asking for final approval. Copy field names and enum values exactly from the schema, never translating a label into a guessed provider value.
 
-- account, Page and optional Instagram identity;
-- objective, optimization, destination, targeting, placements, and required
-  special-ad-category declarations and countries, including
-  `targeting_as_signal: 0` on every ad set of a housing, employment, or
-  financial products and services campaign (why: the Special Ad Category
-  section of `references/writes.md`);
-- hierarchy, budget, currency and schedule;
-- creative format, source, copy, CTA and disclosure; and
-- all parent/reference dependencies that will come from successful results.
+- An identifier is not a URL. Never build a URL from an ID unless the schema defines that conversion or the ad set's destination is Messenger, WhatsApp or Instagram Direct, where [creative preparation](campaign-creative.md) gives the link.
 
-On every budget- or bid-bearing write whose schema exposes `account_currency`,
-pass the exact currency returned for the selected account. Never infer it from
-geography or silently convert an amount. Write budget at exactly one hierarchy
-level: when the campaign carries its budget, omit ad-set budget fields; when ad
-sets carry budget, omit campaign budget fields.
+- When a schema exposes `advertiser_request`, pass the advertiser's complete current wording across turns, never your reconstruction. Keep all decisions and execution state in the conversation, never in memory or another durable store.
 
-`render-campaign-summary --summary-json` accepts exactly `campaign_name`,
-`goal`, `optimization`, `destination`, `structure` (`ad_set_count` and
-`ad_count`), `budget`, `schedule`, `audience_and_geography`,
-`audience_description`, and `placements`. Schedule declares an
-`after_publishing` or scheduled start and a `no_end` or scheduled end, with a
-time only for a scheduled boundary. Placements declares exactly one mode:
-`automatic`, `platform_restricted` with platforms, or `manual` with positions.
-Its values must describe the intended create arguments; do not use the renderer
-to introduce or omit a material setting. Creative, category, and paused state
-were already reviewed elsewhere and do not appear as summary rows.
+- The campaign, ad-set and ad create tools enforce `PAUSED` on the server, and a creative has no delivery status, so add no `status` field the schema does not expose. Keep a private map from every reviewed value to the argument that creates it:
+  - account, Page and optional Instagram identity
+  - objective, optimization, destination, targeting, placements and required Special Ad Category declarations and countries, including `targeting_as_signal: 0` on every ad set of a housing, employment or financial campaign
+  - structure, budget, currency and schedule
+  - creative format, source, copy, call to action and disclosure
+  - every parent and media reference that will come from a successful result
 
-Use this JSON shape, replacing only the values:
+- On budget- or bid-bearing writes whose schema exposes `account_currency`, pass the selected account's returned currency, never inferred or converted. Write the budget at exactly one level, omitting ad-set budget fields when the campaign holds it and campaign budget fields when the ad sets hold it.
+
+## Render the final review
+
+- `render-campaign-summary --summary-json` accepts exactly `campaign_name`, `goal`, `optimization`, `destination`, `structure` with integer `ad_set_count` and `ad_count`, `budget`, `schedule`, `audience_and_geography`, `audience_description` and `placements`. Its values describe the intended create arguments without introducing or omitting a material setting, and creative, category and paused state were reviewed elsewhere.
+
+- `schedule` has `start` as `after_publishing` or `scheduled` and `end` as `no_end` or `scheduled`, with `start_time` or `end_time` only for a scheduled boundary. A scheduled time must be an explicit date or time, never words like "immediately" or "on publish".
+
+- `placements` has exactly one `mode`, which is `automatic`, `platform_restricted` with `platforms`, or `manual` with `positions`.
+
+- Use this shape, replacing only the values:
 
 ```json
 {"campaign_name":"Holiday workshop","goal":"Awareness","optimization":"Impressions","destination":"https://example.com/workshop","structure":{"ad_set_count":1,"ad_count":1},"budget":"$10/day at campaign level","schedule":{"start":"scheduled","start_time":"December 1, 2026","end":"scheduled","end_time":"December 23, 2026"},"audience_and_geography":"United States","audience_description":"Broad Advantage+ audience","placements":{"mode":"automatic"}}
 ```
 
-## Render final review
+- Call the renderer once with the settled values, and pass the `data` object inside its returned `widget` unchanged as the arguments of `widget.create_html_file_widget`. Then create `muse.create_options` with exactly these choices:
+  - `Yes, create paused campaign`
+  - `No, make changes`
 
-Call `meta-ads-cli render-campaign-summary` once with those exact settled
-values, then pass its compact widget `kind` and `data` unchanged to  
-`widget.create`.  
-Create these exact options with `muse.create_options`:
+- In the final response, place the review token first, ask "Proceed with this campaign? It will be created paused. After success I'll give you a direct Ads Manager link.", then place the options token, with no duplicate summary or second question.
 
-- `Yes, create paused campaign`
-- `No, make changes`
-
-In the final response, place the review token first, ask `Proceed with this
-campaign? It will be created paused. After success I'll give you a direct Ads
-Manager link.`, then place the options token. Add no duplicate summary or
-second question. The exact affirmative option or an unambiguous typed
-instruction to create the unchanged reviewed hierarchy accepts this decision;
-do not treat agreement to another decision as final approval.
+- The exact affirmative option, or an unambiguous typed instruction to create the unchanged reviewed hierarchy, accepts this decision. Agreement to any other decision does not.
 
 ## Create after approval
 
-After that affirmative acceptance, execute only the reviewed arguments:
+- Execute only the reviewed arguments, in this order:
+  - first upload each approved new asset with `ads_creative_upload_media` and keep only its returned account media reference, finishing and verifying every upload before the first Ads object write, since media preparation is a gate rather than work to run alongside creation
+  - then call `ads_create_campaign` once and keep its returned campaign ID
+  - then call `ads_create_ad_set` exactly once per reviewed ad set with that campaign ID, and `ads_create_creative` exactly once per reviewed creative with its approved identity and media, running only independent calls in parallel
+  - finally call `ads_create_ad` exactly once per reviewed ad, only after its ad-set and creative IDs exist
 
-1. Upload each approved new asset with `ads_creative_upload_media`; retain only
-   its returned account-owned media reference. Existing Ads references need no
-   upload. Complete and verify every required upload before the first Ads-object
-   write; media preparation is a gate, not work to parallelize with campaign
-   creation.
-2. Call `ads_create_campaign` once and retain its returned campaign ID.
-3. Call `ads_create_ad_set` exactly once for each reviewed ad set with that
-   campaign ID, and `ads_create_creative` exactly once for each reviewed
-   creative with its approved identity/media. Run only dependency-independent
-   calls in parallel.
-4. Call `ads_create_ad` exactly once for each reviewed ad, only after its
-   paired ad-set and creative IDs exist.
+- Creation succeeds when every campaign, ad set and ad result returns its ID and `status` `PAUSED`, and every creative returns its ID. Those results are the verification, so never read the hierarchy back after a clean create, and never infer a child's state from a paused parent.
 
-Creation succeeds when every expected campaign, ad set and ad create result
-returns its ID and `status` `PAUSED`, and every creative create returns its ID.
-Those successful create results are the verification; do not read the hierarchy
-back after a clean create. Never infer a child's safe state from a paused
-ancestor: each object's own result must show `PAUSED`. A `DRAFT` result is
-staged, not created, and is reported under `references/writes.md`. An
-unexpectedly `ACTIVE` create result is an immediate stop: pause it when an
-exposed update can, then reconcile and report without creating descendants.
-When a result that reports success lacks its ID or status, make one fresh read
-of that object with the live read tool, fetching its schema first; that read is
-reconciliation, not a retry. A missing object or non-`PAUSED` status after that
-read blocks the success card and publication options.
+- A `DRAFT` result is staged, not created, and is reported as [write operations](writes.md) describes. An unexpectedly `ACTIVE` result is an immediate stop, so pause it through an exposed update, reconcile and report, and create no descendants.
 
-Run every Ads operation as its own `exec` call. Never retry a create merely to
-recover missing output. If an argument or material decision changes after
-approval, stop, update only affected decisions, reprice when required, and
-render a new final review.
+- When a success result lacks its ID or status, make one fresh read of that object with the live read tool, fetching its schema first, as reconciliation rather than a retry. A missing object or a non-paused status after that read blocks the success card and the publish options.
 
-`render-campaign-success --success-json` accepts exactly `campaign_name`,
-`ad_set_count`, `ad_count`, and optional `ads_manager_url`. After verified
-success, call it, pass its returned list widget unchanged to `widget.create`,
-then show one `muse.create_options` menu.
-Put `Publish it so it can start spending at <budget and schedule>` first and add
-up to three currently executable paused edits supported by the discovered tools
-and prerequisites. Do not offer `Keep it paused`; leaving the menu untouched
-keeps it paused. In the final response, state in one short evidence-backed
-sentence that creation completed and the hierarchy remains paused and is not
-spending, then embed the Ads Manager card and the options consecutively. End
-after the options. Do not repeat settings, hierarchy counts, IDs, the link, or
-the option labels. Use a collective phrase such as `the campaign hierarchy`
-rather than joining returned names and type labels. A prose invitation such as
-`ask anytime`, `let me know`, or `say the word` never replaces the options.
+- Run every Ads operation as its own `muse.exec` call, and never retry a create to recover missing output. If an argument or material decision changes after approval, stop, update only the affected decisions, reprice when required and render a new final review.
 
-## Failure and recovery
+## Hand off the paused campaign
 
-On failure, reconcile current Ads state before deciding whether another write
-is safe. Report only objects proved to exist and their verified status, plus the
-first incomplete stage. If local or generated media exists but no campaign,
-ad set, creative, or ad exists, say `No Ads objects were created`, not `nothing
-was created`.
+- After verified success, call `render-campaign-success --success-json` with exactly `campaign_name`, integer `ad_set_count` and `ad_count`, and an optional returned HTTPS Ads Manager URL as `ads_manager_url`. Pass the `data` object inside its returned `widget` unchanged as the arguments of `widget.create_list_widget`.
 
-Describe the returned failure without assigning an unproved provider, outage,
-or infrastructure cause. Say when reconciliation occurred rather than claiming
-each attempt was verified. Account-owned uploaded media is existing state even
-when no delivery object was created.
+- Then create one `muse.create_options` menu with `Publish it so it can start spending at <budget and schedule>` first and up to three paused edits the discovered tools and prerequisites currently support. Never offer `Keep it paused`, because leaving the menu untouched keeps it paused.
 
-Never say `everything validated`, `the last step`, or equivalent unless every
-schema, identity, asset, argument, approval, write, and verification required by
-that statement actually completed. A validation, schema, unsupported-shape,
-missing-input, policy, or eligibility rejection requires corrected grounded
-input or a supported revision; do not offer an unchanged retry. A local
-pre-dispatch validation failure may be corrected from its exact diagnostic and
-reissued because no write occurred. For an explicitly transient write failure,
-or an ambiguous failure reconciled to no object, make at most one additional
-dispatch for that intended object in the current turn. Reconciliation is the
-safety prerequisite, not another retry allowance. If that retry fails, stop;
-a later explicit request or changed environment may begin a new attempt only
-after current state is reconciled.
+- In the final response, say in one short evidence-backed sentence that creation completed and the campaign hierarchy is paused and not spending, then show the Ads Manager card and the options together, and end. Repeat no settings, counts, IDs, link or option labels, and use a collective phrase such as "the campaign hierarchy" rather than joining returned names and type labels.
+
+- A prose invitation such as "ask anytime", "let me know" or "say the word" never replaces the options. Later actions follow [handoff](campaign-handoff.md).
+
+## Recover from failures
+
+- On failure, reconcile current Ads state before deciding whether another write is safe. Report only objects proved to exist with their verified status, plus the first incomplete stage.
+
+- Uploaded account media is existing state even when no delivery object exists. When media exists but no campaign, ad set, creative or ad does, say "No Ads objects were created", not "nothing was created".
+
+- Describe the returned failure without an unproved provider, outage or infrastructure cause, and say when reconciliation happened rather than claiming every attempt was verified. Never say "everything validated" or "the last step" unless every schema, identity, asset, argument, approval, write and verification behind it completed.
+
+- Some rejections name something only the advertiser can fix, such as no payment method or unaccepted Lead Ads terms. Tell them what it is and where to fix it, as [write operations](writes.md) describes. When they say they've fixed it, read the account or Page again before retrying.
+
+- A validation, schema, unsupported-shape, missing-input, policy or eligibility rejection needs corrected grounded input or a supported revision, never an unchanged retry. A local validation failure before dispatch may be corrected from its exact message and sent again, because no write happened.
+
+- After an explicitly transient write failure, or an ambiguous one reconciled to no object, make at most one more dispatch for that object, tracking attempts across turns as [write operations](writes.md) describes. Reconciliation is the safety step, not another retry, and if that retry fails, stop until a later explicit request or a changed environment, after reconciling again.

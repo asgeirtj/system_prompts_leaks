@@ -1,4 +1,13 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Shopify registers Muse as an OAuth public client. Shopify's authorization
+  # metadata advertises PKCE S256 and token_endpoint_auth_method=none, so this
+  # identifier is expected-public and there is no client secret in the binary.
+  client_id: "9f0495eb5319a794a7f080445a095ca6"
+  provider: shopify
+  required: true
 connector: shopify
 category: business
 display_name: Shopify
@@ -23,8 +32,8 @@ actions:
         approval_phrase: search Shopify documentation and validate GraphQL operations
         response_guard: verification_codes
       planning.read:
-        label: Read sample catalogs, business names, available domains, and storefront previews
-        approval_phrase: read Shopify store planning suggestions and storefront previews
+        label: Read sample catalogs, business names, and available domains
+        approval_phrase: read Shopify store planning suggestions
         response_guard: verification_codes
       catalog.read:
         label: Read products, collections, inventory, and store details
@@ -54,9 +63,6 @@ actions:
       store.switch:
         label: Switch the connected store
         approval_phrase: switch the connected Shopify store
-      storefront.claim:
-        label: Confirm a storefront preview selection and reset the store connection
-        approval_phrase: confirm your Shopify storefront preview selection and reset the store connection
       admin.manage:
         label: Change other Shopify Admin data with GraphQL
         approval_phrase: change other Shopify Admin data with GraphQL

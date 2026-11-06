@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: threads_messages
+  required: true
+cli:
+  binary: threads-messages-cli
+  skill: threads_messages
 connector: threads_messages
 category: social
 display_name: Threads Messages
 description: Catch up on your Threads messages
+icon: threads
 actions:
   read:
     default: allow
@@ -16,9 +25,15 @@ actions:
     label: Write permissions
     methods:
       messages.send:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Send messages
         approval_phrase: send this message on Threads
+commands:
+  # Credential-free connect link; no connector authorization.
+  connect-url: null
+  inbox: messages.read
+  thread: messages.read
+  send: messages.send
 
 consent_screen:
   bullets:
@@ -31,5 +46,10 @@ consent_screen:
     - icon: caution
       title: "Keep an eye on things"
       text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
   footer_paragraphs:
-    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://www.facebook.com/privacy/genai/)"
+      variants:
+        confidential_vm:
+          text: "Threads is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout

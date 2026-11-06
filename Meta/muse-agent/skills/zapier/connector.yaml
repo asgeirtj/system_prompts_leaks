@@ -1,0 +1,9 @@
+id: zapier
+title: "Zapier"
+description: "Run Zapier actions to automate work across the apps the user connected to Zapier, including apps with no connector of their own, manage which actions are enabled, and build and manage workflows."
+aliases: [zapier]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

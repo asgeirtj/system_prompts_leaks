@@ -1,7 +1,11 @@
 version: 1
+metadata:
+  visible_in_settings: false
+auth: none
 connector: ticketmaster
 display_name: Ticketmaster
-description: Search live events and get ticket listings, prices, and seat views.
+icon: ticketmaster
+description: Find events and manage tickets
 actions:
   read:
     default: allow
@@ -11,3 +15,29 @@ actions:
         label: Access event details
       tickets.read:
         label: Access ticket listings
+commands:
+  # Event search runs without connector authorization.
+  search-events: null
+  event-details: events.read
+  top-picks: tickets.read
+  # Local HTML rendering from top-picks output; does not call Ticketmaster.
+  seat-view-carousel: null
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Ticketmaster"
+      text: "Muse will access things like event listings, venues, ticket availability and orders."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "Ticketmaster works by connecting through Meta, which means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout
+    - "Muse will exchange info with Ticketmaster. To learn more, view their [terms](https://legal.ticketmaster.com/terms-of-use/) and [privacy policy](https://privacy.ticketmaster.com/privacy-policy)."

@@ -1,0 +1,10 @@
+id: threads
+title: "Threads"
+description: "Read Threads profiles, posts, replies, feeds, activity, insights, trends and search, publish posts and tune feed ranking."
+aliases: [threads]
+include_in_prompt: true
+onboarding: true
+availability:
+  confidential_vm: true
+auth:
+  confidential_vm_consent: true

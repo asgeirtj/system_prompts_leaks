@@ -1,8 +1,15 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-9hqcd6sb4opkueb11db2fqeffrfp1jek.apps.googleusercontent.com"
+  provider: google_docs
+  required: true
 connector: google_docs
 category: productivity
 display_name: Google Docs
 description: Draft, edit and collaborate on documents
+icon: google_docs
 request_quota:
   mode: enforce
   workers:
@@ -27,11 +34,23 @@ actions:
       documents.create:
         default: allow
         label: Create documents
+        approval_buttons:
+          allow_once: "Create"
+          deny: "Don't create"
+          deny.task: "Don't create"
       documents.batch_update.private:
         default: allow
         label: Edit private documents
+        approval_buttons:
+          allow_once: "Edit"
+          deny: "Don't edit"
+          deny.task: "Don't edit"
       documents.batch_update.shared:
         label: Edit shared documents
+        approval_buttons:
+          allow_once: "Edit"
+          deny: "Don't edit"
+          deny.task: "Don't edit"
 commands:
   status: null
   disconnect: null

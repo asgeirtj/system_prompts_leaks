@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: threads
+  required: true
+cli:
+  binary: threads-cli
+  skill: threads
 connector: threads
 category: social
 display_name: Threads
 description: Stay in the loop on trending topics and conversations.
+icon: threads
 request_quota:
   mode: shadow
   workers:
@@ -31,6 +40,58 @@ actions:
         label: Edit your algorithm
         approval_phrase: update your Threads algorithm
       content.post:
-        require_fresh_approval: true
-        label: Post content
-        approval_phrase: post this content to Threads
+        approval_policy: fresh_consent_only
+        label: Post and edit content
+        approval_phrase: post or edit your content on Threads
+commands:
+  # Credential-free URL helpers handled by the binary before clap parsing.
+  connect-url: null
+  disconnect-url: null
+  # Account discovery; not policy-gated.
+  accounts: null
+  profile: content.read
+  activity-feed: content.read
+  top-posts: content.read
+  user-profile: content.read
+  profile-threads: content.read
+  profile-replies: content.read
+  profile-media: content.read
+  post: content.read
+  trends: content.read
+  search: content.read
+  feed: content.read
+  liked-media: interactions.read
+  saved-posts: interactions.read
+  insights-overview: interactions.read
+  post-insights: interactions.read
+  followers: interactions.read
+  following: interactions.read
+  fetch-post-comments: interactions.read
+  fetch-post-likers: interactions.read
+  feedback-hub-overview: interactions.read
+  feedback-hub-tab: interactions.read
+  pending-replies: interactions.read
+  dear-algo-whisper: algorithm.update
+  # Hidden from --help, but the skill and connector docs teach it.
+  publish-post: content.post
+  hide-reply: content.post
+  review-pending-reply: content.post
+
+# The daemon sends this screen only on a confidential VM, the only place
+# Threads needs consent (auth.confidential_vm_consent in connector.yaml).
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Threads"
+      text: "Muse will access things like posts and media."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "Threads is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+      placement: callout
+    - "Muse will exchange info with Threads. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

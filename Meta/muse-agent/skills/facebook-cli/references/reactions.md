@@ -1,31 +1,23 @@
-# Facebook Reactions
+# Fetching Facebook reactions
 
-Read the reaction summary on Facebook posts.
+- The `post reactions` commands are useful for fetching and analyzing reactions on a Facebook post.
 
-## Command
-
-```bash
-facebook-cli post reactions read --post-id <post-id>
+```sh
+/opt/hatch/bin/facebook-cli post reactions read --post-id '<post_id from a timeline, feed or group posts>'
 ```
 
-**Options:**
-- `--post-id` (required): Post ID to read reactions from
+- Responses include:
+  - Total reaction count through `summary.total_count`
+  - A list of `reaction_type` and `count` pairs through `summary.reaction_counts`
 
-The endpoint returns the reaction **summary** only (total count and per-type
-counts). An individual reactor list is not available from this command.
+- The specific list of users who reacted is not available through this command.
 
-## Response Fields
+- Counts are each post's current reaction totals and cannot be filtered by reaction time.
 
-The response carries the aggregates under `summary`:
-- `summary.total_count`: Total number of reactions on the post
-- `summary.reaction_counts`: Array of `{ reaction_type, count }` — breakdown by type (Like, Love, Wow, Haha, Sad, Angry, Thankful, Care)
+- When selecting posts by date, state the date range used and explain that the counts are current totals.
 
-`data` is an empty array (no individual reactor list is returned).
+## Present reactions
 
-## Operating Rules
+- Include the post's link with every reaction summary. When comparing posts, give each post's reaction counts and link. When listing comments, include each comment's `comment_url`, including in follow-up answers.
 
-1. When presenting reactions, include the breakdown by type (Like, Love, Haha, Wow, Sad, Angry) from `summary.reaction_counts`, plus the total from `summary.total_count`. Always include the post permalink — never show raw post IDs. Individual reactor names ("who reacted"/"who liked it") are not available from this command; if the user asks who reacted, say that the reactor list isn't available and offer the per-type counts instead.
-2. When the user asks about "recent" or "latest" reactions, always state the date range you used in your response (e.g., "Here are posts with reactions from the past 7 days").
-3. When comparing reactions across posts, present clear numerical comparisons grounded in actual data. Include post links for each post being compared.
-4. Do not use subjective language like "very popular" or "went viral" without grounding in specific numbers.
-5. When the user asks to filter reactions by type using informal terms (e.g., "funny ones", "sad reactions", "the laughing ones"), clarify which Facebook reaction type they mean before proceeding. Map common terms: "funny" / "laughing" → Haha, "sad" → Sad, "angry" / "mad" → Angry, "hearts" / "love" → Love. If the mapping is ambiguous, ask the user to confirm.
+- Map common words to reaction types without prompting the user, for example, funny or laughing maps to the Haha reaction type, angry or mad maps to Angry, etc.

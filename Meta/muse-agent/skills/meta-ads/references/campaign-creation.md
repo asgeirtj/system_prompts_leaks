@@ -1,135 +1,79 @@
-# Meta Ads — complete campaign creation
+# Create a complete Meta campaign
 
-Use this controller for a new campaign hierarchy. Adding one child to an
-existing hierarchy is a standalone write under `references/writes.md`.
+- Use this sequence for a new campaign with its ad sets, creatives and ads. Adding one child to an existing campaign is a standalone change under [write operations](writes.md).
 
-## Route only the current stage
+## Load only the current stage
 
-Full research is the default. Before capability discovery or identity
-resolution, ensure the current request explains what is being advertised or
-tested well enough to proceed without inventing how it works. Otherwise ask only
-the necessary product- or test-scope questions in one natural turn. Minimize
-intake only after this gate passes. `campaign-planning.md` owns identity,
-advertiser-owned blockers, and evidence-backed outcome, optimization, target, or
-spend choices. Use guided mode only when explicitly requested; never ask which
-mode. Retain valid decisions across mode changes.
+- Full research is the default. Before discovery, make sure the request explains what is being advertised or tested well enough to proceed without inventing how it works, and otherwise ask only the needed product or test questions in one natural turn.
 
-| Current need | Read now | Stage complete when |
-|---|---|---|
-| Full-research product brief, identity, research, delivery plan, or plan approval | `campaign-planning.md`; load `campaign-budget.md` after non-amount pricing inputs and advertiser constraints stabilize | All delivery decisions were presented together and accepted. |
-| Explicit step-by-step planning or its separate budget steer | `campaign-guided.md`; load `campaign-budget.md` only when it directs | Its current steer was answered; budget is accepted before creative. |
-| Creative plan, source preparation, or media approval | `campaign-creative.md` | The complete plan authorized its source action and every prepared ad passed the media gate. |
-| Final review, paused creation, initial Ads Manager handoff, or partial recovery | `campaign-execution.md` | Every reviewed object exists, the campaign is verified paused, and the handoff is shown. |
-| A selected post-create publish or editing action | `campaign-handoff.md` | The requested delivery-state or follow-up action is complete, or the campaign remains paused. |
-| The account rejected writes as not available, or the advertiser will build it in Ads Manager | `campaign-manual-setup.md`, in place of `campaign-execution.md` and `campaign-handoff.md` | The accepted plan was handed over as a setup guide. |
+- Use guided planning only when the advertiser explicitly asks to go step by step, and never ask which mode they want. Keep valid decisions when the mode changes.
 
-Load only the first incomplete stage. A strategy-only request stops after its
-plan is accepted unless the advertiser asks to continue.
+- Load the first incomplete stage and nothing later:
+  - the product brief, identity, research, delivery plan or plan approval uses [planning](campaign-planning.md), with [budget](campaign-budget.md) once the non-budget pricing inputs are stable, and ends when the whole plan is accepted
+  - explicit step-by-step planning uses [guided planning](campaign-guided.md) and ends when its current choice is answered, with the budget accepted before creative
+  - the creative plan, source preparation and media approval use [creative preparation](campaign-creative.md) and end when every prepared ad has passed the media gate
+  - final review, paused creation, the first Ads Manager handoff and partial recovery use [execution](campaign-execution.md) and end when every reviewed object exists, is verified paused and the handoff is shown
+  - a publish or edit action chosen after creation uses [handoff](campaign-handoff.md)
+  - an account listed with `is_ads_mcp_write_disabled: true`, an account that rejected writes or a campaign the advertiser builds themselves uses [manual setup](campaign-manual-setup.md) in place of execution and handoff
 
-## Decision and interaction contract
+- A strategy-only request stops once its plan is accepted, unless the advertiser asks to continue.
 
-Keep one `next_open_decision`. Full research may stop only for a product brief,
-identity, binding constraint, advertiser-owned blocker, whole-plan approval,
-creative source, media approval, or final-create approval. Guided mode resolves
-one consequential setting at a time.
+## Ask one decision at a time
 
-Use `muse.create_options` for every bounded choice. Call it before writing any
-advertiser-facing text (`SKILL.md` rule 19); text written before the call is
-hidden commentary. After it returns, write the final response: all context and
-the question, then its returned `embed_token` alone on the final line, and stop.
-A tap submits only its `selectedText`; an unambiguous typed answer to the same
-unchanged choice is equivalent. Neither answers another question. Ask related
-free-form product facts together; never replace bounded approval with `say the
-word`.
+- Keep one open decision. Full research stops only for a product brief, identity, a binding constraint, an advertiser-owned blocker, whole-plan approval, the creative source, media approval or final creation approval, and guided mode settles one consequential setting at a time.
 
-Render options only after every selected read, background command, browser task,
-and todo for that decision is terminal. Once the token is sent, leave no pending
-work that can resume before the advertiser answers. Never invent, abbreviate, or
-print an `<embed_token placeholder>`; if `muse.create_options` fails, no options
-were shown.
+- Use `muse.create_options` for every bounded choice. Ask related free-form facts together in plain text, and never replace a bounded approval with "say the word".
 
-Complete entity resolution and every other tool first. Call
-`muse.create_options` alone as the final tool call, never in parallel. After it
-succeeds, compose the response with its exact token and call nothing else. A
-polled background result is not terminal for this purpose; wait for its automatic
-completion notification before creating the widget.
+- Finish every read, background command, browser task and to-do for the decision first, and wait for a background result's automatic notification, because a polled result is not finished. Then call `muse.create_options` alone as the final tool call, never in parallel with another.
 
-These approvals remain distinct:
+- After it returns, write the whole response, with all context and the question, then the returned `embed_token` alone on the last line, and stop. Never invent, abbreviate or print a placeholder token, and if the call fails, no options were shown.
 
-- identity does not approve research or budget;
-- strategy approval accepts only the shown delivery plan;
-- a creative-axis choice does not approve the complete creative plan;
-- a source action authorizes only that preparation;
-- media approval accepts only the shown media paired with the unchanged plan;
-- final review authorizes only the unchanged paused hierarchy; and
-- publication is a later spending decision.
+- A tap submits only its `selectedText`, and an unambiguous typed answer to the same unchanged choice is equivalent. Neither answers any other question.
 
-## Capability and research ordering
+- These approvals stay distinct:
+  - identity does not approve research or budget
+  - strategy approval accepts only the delivery plan shown
+  - a choice on one creative question does not approve the whole creative plan
+  - a source action authorizes only that preparation
+  - media approval accepts only the media shown, paired with the unchanged plan
+  - final review authorizes only the unchanged paused hierarchy
+  - publication is a later spending decision
 
-Follow the discovery contract in `SKILL.md`: names once, only current-stage
-descriptors, and `--agent-output` on normal calls. Do not fetch later-stage
-create descriptors during research.
+## Confirm capabilities in order
 
-For full research, establish the product brief before discovery. Then resolve
-identity sequentially: fetch the account descriptor, run the exact protected
-account command required by `SKILL.md`, select the account, fetch the Page
-descriptor, and read `ads_get_ad_account_pages` for that account. Later reads
-may proceed only after this scope is known. Targeting resolution follows
-objective and compliance; budget pricing follows the final audience,
-geography, placements, and hierarchy.
+- Follow the discovery rules in the [connector doc](../CONNECTOR.md), with names once, descriptors only for the current stage and `--agent-output` on ordinary calls. Never fetch create schemas during research.
 
-Ads Manager creation requires:
+- For full research, settle the product brief before discovery. Then resolve identity in order, with the account descriptor, the exact protected account listing, the account choice, the Page descriptor and then `ads_get_ad_account_pages` for that account, and only then the other reads.
 
-- `ads_get_ad_accounts` and `ads_get_ad_account_pages`;
-- `ads_targeting_search` for a creation-bound interest, place, or language that
-  is not already canonical;
-- `ads_create_campaign`, `ads_create_ad_set`, `ads_create_creative`, and
-  `ads_create_ad`, with every selected input schema current before final review;
-  a creative schema read during the current creative stage may be reused;
-- every identity, destination, format, and source required by those schemas;  
-  and
-- `ads_creative_upload_media` for each new accepted asset after final approval.
-  Existing Ads references need no upload.
+- Resolve targeting after the objective and compliance, and price the budget after the final audience, geography, placements and structure.
 
-If a required creation capability is absent, create no partial hierarchy and
-do not render final-create review or its approval options. Keep the flow at plan
-or creative review, explain that execution is unavailable, and offer only a
-supported revision.
-When an accepted placement-specific static-image plan is unavailable, explain
-the supported single-image alternative without exposing internal field names
-and ask whether to revise. Never silently downgrade the accepted plan.
-Capability does not authorize generation or upload; `campaign-creative.md`
-owns those gates.
+- Creation needs `ads_get_ad_accounts`, `ads_get_ad_account_pages`, `ads_targeting_search` for any targeting not yet canonical, current input schemas for `ads_create_campaign`, `ads_create_ad_set`, `ads_create_creative` and `ads_create_ad`, and `ads_creative_upload_media` for new media after final approval. A creative schema read during the current creative stage can be reused, and existing Ads media references need no upload.
 
-## Private strategy ledger
+- If a required creation capability is missing, create nothing and show no final review or its options. Stay at plan or creative review, explain that creation is unavailable and offer only a supported revision.
 
-Keep the ledger only in conversation state—never `MEMORY.md`, a file, database
-record, persisted strategy object, or runtime API. Track independently:
+- When an accepted placement-specific image plan is unavailable, explain the supported single-image alternative in plain words and ask whether to revise. Never downgrade the accepted plan silently, and remember that a capability never authorizes generation or upload.
 
-- account, Page, and Instagram identity;
-- goal, objective, optimization, destination, and tracking;
-- compliance, geography, audience, placements, and hierarchy;
-- budget amount and cadence, derivation basis, cost source/confidence,
-  projected volume, schedule, planning mode, and strategy approval;
-- creative plan, source, prepared media, and media approval; and
-- final approval, returned Ads IDs, handoff, and delivery state.
+## Track decisions in the conversation
 
-Classify each decision as `settled` (value, basis, provenance), `assumed` (safe
-default and reason), or `open` (exact decision and who or what can resolve it).
-Settle only fields explicitly supplied by the advertiser or supported by a
-successful result. A supported skill-owned default remains `assumed` and must
-be shown for approval; it is not evidence. An answer to one question leaves
-omitted sibling fields open, and any execution-critical field with neither a
-settled value nor a safe executable default blocks strategy or final approval.
-Failed research is unavailable evidence, not a negative advertiser fact.
+- Keep the plan only in conversation state, never in memory, a file, a database record or a runtime API. Track these independently:
+  - the account, Page and Instagram identity
+  - goal, objective, optimization, destination and tracking
+  - compliance, geography, audience, placements and structure
+  - budget amount and cadence with its basis, cost source and confidence, projected volume, schedule, planning mode and strategy approval
+  - the creative plan, source, prepared media and media approval
+  - final approval, returned IDs, handoff and delivery state
 
-Invalidate only dependants:
+- Mark each decision settled, assumed or open. Settled values come from the advertiser or a successful result, a supported default stays assumed and is shown for approval, and an answer to one question leaves its siblings open.
+
+- An execution-critical field with neither a settled value nor a safe default blocks strategy or final approval. Failed research is missing evidence, never a negative fact about the advertiser.
+
+- When something changes, reopen only the decisions downstream of it:
 
 ```text
-identity/destination
-  -> tracking + objective
+identity and destination
+  -> tracking and objective
   -> compliance
-  -> audience + structure + placements
+  -> audience, structure and placements
   -> budget
   -> strategy approval
   -> creative plan
@@ -137,8 +81,6 @@ identity/destination
   -> final approval
 ```
 
-Retain unaffected siblings and upstream work. Material execution drift returns
-to the earliest invalidated decision; reprice only after new inputs stabilize.
-A DRAFT is staged, not created. Sentinel remains the native write gate after
-either form of conversational acceptance; no widget, artifact, typed reply, or
-conversation state replaces it.
+- Keep unaffected work. Material drift during execution returns to the earliest invalidated decision, and repricing waits until the new inputs are stable.
+
+- A draft is staged, not created. Conversational approval never overrides the runtime's own approval rules for each write.

@@ -1,0 +1,16 @@
+id: outlook_mail
+title: "Outlook Mail"
+description: "Search, read and send Outlook and Microsoft 365 email, reply, mark messages read or unread and move them to Deleted Items."
+aliases: [outlook-mail, outlook_mail, hotmail]
+include_in_prompt: false
+onboarding: true
+domain: email
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli
+sync:
+  fetch_kind: connector_sync_outlook_mail
+  cadence_minutes: 30
+  read_methods: [messages.list, messages.get]
+  content_hints: [email]

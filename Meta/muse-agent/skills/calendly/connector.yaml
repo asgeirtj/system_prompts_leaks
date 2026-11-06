@@ -1,0 +1,10 @@
+id: calendly
+title: "Calendly"
+description: "Read Calendly scheduling links, event types, available times, booked meetings and invitees, create single-use booking links and cancel meetings with approval."
+aliases: [calendly]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"
+  disconnect: cli

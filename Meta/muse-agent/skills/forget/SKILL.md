@@ -1,121 +1,73 @@
----
-name: "forget"
-description: "Remove a personal fact, preference, relationship detail, topic, or prior event from Muse's active memory and stop existing copies or automations from bringing it back. Use for explicit requests such as 'forget that', 'don't remember this about me', or 'remove that from your memory'. Do not use when 'forget it' merely means cancel the current task."
-metadata: { "includeInPrompt": true }
----
+# Forgetting Personal Information
 
-# Forget
+## Prepare the cleanup
 
-Treat forgetting as cleanup across Muse, not as editing one memory note.
-Information may also live in conversation history, other notes, preferences,
-goals, scheduled work, created items, search results, or active work that can
-write it back.
+- Distinguish forgetting personal information from cancelling a task. Treat forgetting as cleanup across Muse rather than an edit to one memory note. The information can also live in conversation history, other notes, preferences, goals, scheduled work, created items, search results or active work that can write it back.
 
-Use everyday language with the user and do not expose internal machinery. Say
-"memory," "reminders," "created items," "shared items," "logs," or "backups"
-instead of file names, database tables, indexes, projections, telemetry
-systems, tool names, agent types, or runtime machinery. Keep exact locators and
-technical details inside the private work. Get technical only when the user
-does or when they explicitly ask how the cleanup works.
+- Call `forget.plan` once with `{}`. It identifies the subject from the conversation, so do not repeat sensitive text in the arguments.
 
-## Make a plan
+- Wait for the planner's handoff instead of polling or running a parallel search. The planner stays read-only and follows the [artifact inventory](references/artifact-inventory.md). Its plan covers what it found, what should change, how the cleanup will be verified and what Muse cannot erase.
 
-Call `forget.plan` once with `{}`. It starts an ordinary untyped subagent with
-the normal tool catalog that derives the subject from the current conversation,
-so do not repeat sensitive text in tool arguments. Wait for its handoff instead
-of polling or doing a parallel search. Muse pins this child to muse-special, or
-to private Avocado on a confidential VM, independently of the active model
-selection.
+- Keep the work discreet. Refer to the subject as "that information" and never copy it into a new memory, todo, filename or report.
 
-The planner reads
-[references/artifact-inventory.md](references/artifact-inventory.md), stays
-read-only, and checks:
+- Speak to the user in everyday categories such as memory, reminders, created items, shared items, logs and backups. Keep file names, database tables, indexes, tool names and other internal machinery in the private work unless the user gets technical or asks how the cleanup works.
 
-- original places and copies with the same meaning;
-- memory, search results, conversation context, and summaries made from it;
-- reminders, scheduled or active work, and outside sources that can recreate
-  the information;
-- shared or published copies and anything Muse cannot erase.
+- Present the plan's scope, irreversible actions and important limits in those terms, then ask one direct confirmation question. Describe any permanent removal as irreversible before the user approves it.
 
-It returns a concise plan covering what it found, what should change, how it
-will verify the cleanup, and known limits. Keep the handoff discreet; refer to
-"that information" instead of copying it into a new memory, todo, filename, or
-report. Use conversations privately to find downstream copies and future
-activity, but do not present the continued visibility or retention of the chat
-itself as a cleanup limit.
+- Treat silence, ambiguity, partial approval or a changed scope as no confirmation. After a later clear approval, call `forget.confirm` with `{}`. It rereads the latest plan and approval from the conversation, so there is no planning agent ID to pass.
 
-## Ask, then execute
+## Follow the confirmed plan
 
-Show the user the plan's scope, irreversible actions, and important limits,
-translated into the everyday categories above, then ask one direct confirmation
-question. Silence, ambiguity, partial approval, or a changed scope is not
-confirmation.
+- Stop without changing anything when you cannot identify one clear recent plan and a later approval of it. Report the blocker so a new plan can be made.
 
-After a later clear approval, call `forget.confirm` with `{}`. It starts a fresh
-ordinary untyped subagent with the same model policy and reads the latest plan
-and confirmation from the inherited conversation. There is no planning-agent
-id to preserve or pass.
+- Revalidate the plan against current state before acting. Stop approved work that could recreate the information before removing its output.
 
-The executor must stop without mutation if it cannot identify one clear recent
-plan and its approval. Otherwise it revalidates current state, stops approved
-work before removing its outputs, uses the tools that own each item, preserves
-unrelated content, refreshes anything derived from what changed, and verifies
-from fresh state. For shopping preferences, check `~/memory/shopping/PROFILE.md`
-directly, edit or remove matching entries, and verify no staged, queued,
-running, or scheduled shopping-profile run can restore them. If the
-situation has materially changed or there is no safe way to clean up one
-place, make a revised plan instead of broadening the cleanup.
+- Use the tool or product action that owns each item and preserve unrelated content. Refresh anything derived from what changed and verify from fresh state.
 
-Do not send approved cleanup targets to recoverable trash. For an exact local
-file that should disappear entirely, use `rm -- <exact-path>` through `exec`;
-never use `rm -r` or another recursive shell deletion. Revalidate the path
-immediately before removal, never use a glob or a broad target, and edit
-mixed-content files instead of deleting them. Clean up directories through the
-product action that owns them; if there is no safe owning action, make a revised
-plan. If an owning product action archives a definition in trash as part of its
-cleanup, permanently remove an exact matching standalone-file tombstone. The
-plan must describe permanent removal as irreversible before the user approves
-it.
+- Preserve platform configuration and migration bookkeeping even when the user asks to forget everything. Do not bulk-truncate files or replace structured state with `{}`; clean approved personal content through its owning action.
 
-Before finishing, the executor stages what it removed from memory so the
-runtime can retract the matching memory claims and everything derived from
-them: it writes `~/workspace/memory/forget/pending.json` as
-`{"claims":[...],"citations":[...]}`, listing the claim ids it saw in
-`memory_explain` or `memory_search` metadata and the exact `MEMORY.md#L<line>`
-or `memory/<date>.md#L<line>` locators it removed or rewrote. Ids and locators
-only, never the forgotten text; the file is written even when both lists are
-empty.
+- Make a revised plan instead of broadening the cleanup when the situation has materially changed or there is no safe way to clean up one place.
 
-After the executor finishes successfully, Muse retracts the staged claims and
-refreshes memory search, and waits for both before relaying the result. If the refresh fails, report
-the cleanup as incomplete instead of claiming the information is no longer
-searchable. Perform the cleanup directly in this executor rather than
-delegating it to another subagent. If delegated work is still settling when the
-executor finishes, Muse reports the cleanup as incomplete so later changes
-cannot outrun the refresh. The executor should still verify the other affected
-places; it does not need to refresh memory search a second time.
+- For shopping preferences, check `~/memory/shopping/PROFILE.md` directly and edit or remove the matching entries. Verify that no staged, queued, running or scheduled shopping-profile run can restore them.
 
-If either tool fails, do not fall back to unplanned manual deletion or claim
-success. Explain the failure and make a new plan if the user still wants to
-continue.
+- For travel preferences, do the same with `~/memory/travel/PROFILE.md` and travel-profile runs.
 
-## Report honestly
+- Do not send approved cleanup targets to recoverable trash. Remove an exact standalone file with `rm -- <exact-path>` through `muse.exec`, revalidating the path immediately before removal.
 
-Tell the user which categories were cleaned up, which reminders or other future
-activity were stopped, and what remains. Do not repeat the forgotten
-information.
+- Never use `rm -r`, another recursive deletion, a glob or a broad target. Edit a mixed-content file instead of deleting it, and clean a directory through the product action that owns it or make a revised plan.
 
-Say "forgotten" only when fresh verification finds no active memory, derived
-copy, or future activity that can bring the information back. Outside services,
-shared or published items, logs, backups, or other retained copies may remain;
-name the everyday category and whether Muse can keep it out of active use.
+- When an owning product action archives a definition in trash as part of its cleanup, permanently remove the exact matching standalone-file tombstone.
 
-Do not tell the user that their original messages may remain visible in the
-chat, and do not frame that as something Muse failed to erase. Visible
-conversation text is not a cleanup target or a completion blocker. Inspect it
-privately only to find and clean up memory, derived material, or future activity
-that used it.
+- Perform the cleanup directly instead of delegating it to another subagent. If delegated work is still settling when you finish, Muse reports the cleanup as incomplete so later changes cannot outrun the memory refresh.
 
-The request does not authorize deleting outside email, calendar data, device
-records, shared publications, or another person's copy. Those actions need
-their own user approval.
+- Before finishing, write `~/workspace/memory/forget/pending.json` as `{"claims":[...],"citations":[...]}`, even when both lists are empty. List the claim IDs you saw in `muse.memory_explain` or `muse.memory_search` metadata and the exact `MEMORY.md#L<line>` or `memory/<date>.md#L<line>` locators you removed or rewrote.
+
+- Put only IDs and locators in that file, never the forgotten text. Muse retracts those claims and everything derived from them, then refreshes memory search, so do not refresh it a second time.
+
+## Verify and explain the result
+
+- Report the cleanup as incomplete if the memory refresh fails, instead of saying the information is no longer searchable. Muse finishes the claim retraction and the refresh before it relays the result.
+
+- Say "forgotten" only when fresh verification finds no active memory, derived copy or future activity that can bring the information back. Report which categories were cleaned up and which reminders or other future activity stopped, without repeating the information.
+
+- Name what remains, such as outside services, shared or published items, logs, backups or other retained copies, by its everyday category. Say whether Muse can keep it out of active use.
+
+- Do not tell the user that their original messages may remain visible in the chat, and do not frame that as something Muse failed to erase. Visible conversation text is not a cleanup target or a completion blocker. Inspect it privately only to find memory, derived material or future activity that used the information.
+
+- If `forget.plan` or `forget.confirm` fails, do not fall back to unplanned manual deletion or claim success. Explain the failure and make a new plan if the user still wants to continue.
+
+- Get separate approval before deleting outside email, calendar data, device records, shared publications or another person's copy. A request to forget does not authorize those actions.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.
+
+## Alternatives for better results
+
+- If the user wants to correct an inaccurate fact or replace a preference, identify that narrower intent. A clear request to forget should proceed through the forgetting plan.
+
+- For material outside the supported cleanup, identify the service that holds it and its deletion process. Report what remains without implying that local cleanup removed every copy.

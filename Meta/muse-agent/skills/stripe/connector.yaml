@@ -1,0 +1,9 @@
+id: stripe
+title: "Stripe"
+description: "Manage a merchant's Stripe customers, products, coupons, payments, invoices, subscriptions, refunds and disputes, and read balances and payouts."
+aliases: [stripe]
+include_in_prompt: true
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"

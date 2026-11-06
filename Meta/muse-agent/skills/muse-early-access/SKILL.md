@@ -1,10 +1,3 @@
----
-name: "muse_early_access"
-title: "Muse early access"
-description: "Use for questions about Muse's general early access program, requests to join it, checking or withdrawing a join request, and admission updates."
-metadata: { "includeInPrompt": true }
----
-
 # Muse early access
 
 The Muse team selects people from the general early access group for early
@@ -15,10 +8,10 @@ feature tests. Membership does not guarantee feature access or testing priority.
 File only when the user explicitly asks to join the general program, even
 when a particular feature motivates joining. Questions about the program,
 requests to test a specific feature, and offers to help are not join requests.
-Use `/opt/hatch/skills/muse-feedback/SKILL.md` for other feedback.
+Use `/opt/muse/skills/muse-feedback/SKILL.md` for other feedback.
 
-1. Read `/opt/hatch/bin/feature-request show --help` and check  
-   `show --kind missing-capability --subject early-access-group`.  
+1. Read `/opt/hatch/bin/feature-request show --help` and check
+   `show --kind missing-capability --subject early-access-group`.
    Explain any existing status following the help. Do not file again if
    delivery is confirmed or a withdrawal is recorded. An unconfirmed request
    can be retried on a fresh join request in a later conversation; the CLI
@@ -48,5 +41,13 @@ An `addressed` request means the user has joined the group. Other states do
 not confirm membership. Do not promise a timeline or other notification channels.
 
 Before withdrawing a request, read `/opt/hatch/bin/feature-request delete --help`
-and follow its approval steps. Do not claim that withdrawal changes membership.  
+and follow its approval steps. Do not claim that withdrawal changes membership.
 A later join request needs the user's fresh, explicit instruction.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

@@ -1,0 +1,16 @@
+id: gmail
+title: "Gmail"
+description: "Search, read and count Gmail emails and attachments, draft, send, reply and forward with approval, and label, archive, trash or unsubscribe."
+aliases: [gmail]
+include_in_prompt: true
+onboarding: true
+domain: email
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth gmail authorize-url"
+sync:
+  fetch_kind: connector_sync_gmail
+  cadence_minutes: 60
+  read_methods: [users.messages.list, users.messages.get]
+  content_hints: [email]

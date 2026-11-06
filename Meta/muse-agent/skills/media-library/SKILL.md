@@ -1,9 +1,3 @@
----
-name: "media_library"
-description: "Search and inspect the user's photo library, including connected device galleries. Use for photo requests and whenever a photo could ground or personalize a response; lookups of uploaded photos are cheap, so check opportunistically and move on if nothing fits."
-metadata: { "includeInPrompt": true }
----
-
 # Media Library
 
 ## Purpose
@@ -49,3 +43,11 @@ The `path` field in results is relative to the home directory.
 8. **People.** Use physical descriptions ("woman in red dress"), not names.
 9. **Memory.** Cross-reference memory for dates and locations when the user mentions events or trips.
 10. **When finding a specific photo**, show what you found and confirm it's the right one.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

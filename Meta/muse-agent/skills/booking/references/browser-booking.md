@@ -1,77 +1,33 @@
-# Browser booking
+# Book through a website
 
-Use the browser when no connected native path can complete the booking, or
-when the provider's authenticated site is needed for loyalty, credits, saved
-profile data, or inventory unavailable elsewhere.
+- Use a website when it offers a suitable option or a better way to finish the booking. Airlines, hotels, venues, agencies and booking platforms can differ in inventory, total price, terms and benefits.
 
-Before starting checkout on a website, ask whether the user has an account
-there and wants to sign in; explain briefly that signing in can reuse profile
-details and expose member pricing, loyalty benefits, credits, points, or booking
-history. If they do, start with the site's supported sign-in flow. If they do
-not, continue as a guest when the site permits it. Do not ask when an authorized
-signed-in session is already available, and do not require account creation.
+- Use an existing authorized session when one is available. Offer sign-in when it can unlock or verify member pricing, credits, points or saved details. Continue as a guest when that meets the need, and never require a new account.
 
-## Keep one checkout alive
+- Follow [checkout](checkout.md) for the final refresh, worse terms, approval, an uncertain result and confirmation.
 
-Start one browser task for the selected option and keep its task identifier
-through review, changes, submission, and verification. Do not create competing
-checkouts on the same site or start over after the user approves. Carts,
-holds, and authentication state belong to the original session.
+## Research offers
 
-Give the browser task the exact provider URL and all known non-sensitive
-choices. Tell it to use an existing authenticated session when available,
-prepare the booking through final review, and stop before the action that
-creates a reservation, charge, deposit, points transfer, or cancellation
-penalty. Do not place passport, traveler-security, loyalty, or payment numbers
-in the task text. Let the site, wallet, or user provide them at the appropriate
-field.
+- Give a research task started with `browser.browse` and `task_id: "new"` the exact dates, party with ages, room or seats, and the terms that matter. Ask it to return the complete offer, current total, terms, seller URL and time checked, without starting a checkout or holding inventory.
 
-Do not ask the user to paste a card number, expiry, security code, passport
-number, traveler-security number, loyalty number, or account password into
-chat. Use an approved secure wallet, credential flow, provider form, or browser
-handoff. If no secure input path is available, state that checkout is blocked
-and leave the exact option prepared; do not downgrade to collecting the secret
-in conversation.
+## Run one checkout
 
-This remains true when a connector card or browser handoff fails to render for
-the user. Do not offer chat entry as a fallback. Do not type a credential
-received in chat into the website. Give the exact non-secret itinerary or cart
-handoff and explain what secure surface must become available.
+- Start one `browser.browse` task with `task_id: "new"` for the selected option and keep its `task_id` through review, changes, submission and verification. Continue it with `browser.browse` and that `task_id`. Carts, holds and sign-in belong to that session, so never start a competing checkout or start over after approval.
 
-## Final review and approval
+- Give the task the exact seller URL and every known non-sensitive choice. When the booking takes payment or requires a card guarantee, ask it to book; its checkout shows the user the payment approval before committing the booking. Otherwise, ask it to prepare the booking, hand back the verified final review and stop before anything that creates a reservation, charge, deposit, points transfer or cancellation penalty. It may place a free, cancellable hold that protects this booking. Tell the user about the hold and its expiry right away.
 
-At final review, obtain the exact item, date and time, traveler or party count,
-selected seats/room/rate/variant, itemized charges, full total, amount due
-later, credits or points used, and cancellation/refund/no-show terms.
+- Keep passport, traveler-security and membership numbers out of the task text. The website or user enters them in the secure field. A payment card the user supplies for this booking may go to the browser task as text with `wallet: null`, following `~/docs/chat/payments-and-purchases.md`. The user still approves the payment in the payment approval; keep card details out of notes, memory and files.
 
-Show those terms to the user and ask for confirmation without repeating full
-birth dates, contact details, identity documents, loyalty numbers, or payment
-data. Continue the same task only after approval of the exact terms. If
-anything material changes, stop and re-confirm the changed term.
+## Handle website snags
 
-## Verification and duplicate protection
+- Give custom date and party pickers the exact values in words.
 
-Treat the booking as complete only when the task sees a confirmation number,
-ticket, reservation record, or unmistakable booked state. If the result is  
-ambiguous:
+- On a seat map, report the exact section, row, seat numbers and any obstructed-view note.
 
-1. Do not submit again.
-2. Check the signed-in provider account for the booking.
-3. Search connected email narrowly for a matching confirmation.
-4. Retry only after establishing that no booking was created.
+- Treat totals shown before the final review as provisional. If a hold expires before approval, refresh the inventory and terms.
 
-## Common browser failures
+- Use the supported sign-in or one-time-code path. Never bypass a site's controls.
 
-- Custom date and party selectors: provide the exact date and count in words.
-- Seat maps: report the exact section, row, seat numbers, and any obstructed
-  view notation.
-- Late fees: totals shown before final review are provisional.
-- Hold timers: if approval arrives after expiry, refresh inventory and terms.
-- Login, CAPTCHA, or one-time-code walls: use the supported authentication or
-  consent path. Do not bypass controls.
-- Blocked automation: try another authorized provider, then
-  `phone.place_call` when available, then a precise handoff. Do not report a
-  blocked checkout as complete.
+- The browser solves CAPTCHAs without asking. Never ask the user to solve one. A site it cannot get past counts as blocked automation.
 
-Do not quietly downgrade the booking to a different date, venue, property,
-seat, room, rate, or price because the first checkout was difficult.
+- If automation is blocked, try another authorized seller, a call when the phone tools are available, or a precise handoff with the exact link, the choices already made and what remains. A difficult checkout never justifies a different date, venue, property, seat, room, rate or price.

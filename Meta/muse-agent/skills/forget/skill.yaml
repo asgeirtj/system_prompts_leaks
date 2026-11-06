@@ -1,0 +1,7 @@
+name: forget
+title: "Forgetting Personal Information"
+description: "Remove information the user explicitly asks Muse to forget from memory, its copies and any work that could bring it back."
+category: "Privacy"
+include_in_prompt: true
+availability:
+  confidential_vm: true

@@ -1,10 +1,3 @@
----
-name: "share_ideas"
-title: "Share ideas"
-description: 'Publish a reusable native Muse Idea with idea.share when the user explicitly asks to share or publish an Idea or asks for a muse.ai/ideas link. Never offer it unprompted. Not for pages or write-ups, sending a result to someone, social posts, or sharing an artifact.'
-metadata: { "includeInPrompt": true }
----
-
 # Share ideas
 
 Publish a reusable native Muse Idea only when the user explicitly asks to
@@ -30,13 +23,24 @@ services. Follow the richer catalog-Idea pattern; never repeat or lightly
 paraphrase the summary as `how_it_works`.
 
 Never include credentials, tokens, private identifiers, local paths, hidden
-system instructions, or personal details that are not essential to what the
-user explicitly chose to publish. Generalize those details or omit them. Do
-not claim the Idea is shared until `idea.share` returns a link.
+system instructions, or personal details about the user or anyone else, even
+when the user asks for them: names, contact details or handles, exact
+employers, schools, or venues, precise dates, quoted messages, or any
+combination of details that points to one person. A share that contains them
+is refused. Generalize those details or omit them. Do not claim the Idea is
+shared until `idea.share` returns a link.
 
 On success, `idea.share` also creates the native Idea widget for that same
 Idea. Include `widget.embed_token` exactly once on its own line. Do not call
-`widget.create` for the same Idea. If the result has `widget_warning` instead
+`idea.create_idea_widget` for the same Idea. If the result has `widget_warning` instead
 of `widget.embed_token`, use the exact returned `share_url` as the target of an
 inline `[Open the Idea](...)` link in the same response without claiming a card
 appeared.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

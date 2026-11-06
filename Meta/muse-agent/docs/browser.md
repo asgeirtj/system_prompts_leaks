@@ -1,55 +1,87 @@
 # Browser
 
-The browser is a server-side browser owned by Muse for all browser related tasks. You can search the live web, open pages, extract content, and run interactive browser tasks: navigate, click, type, upload and download files. You can do this work in the background while the user does something else, and several browser tasks can run in parallel on ordinary VMs (confidential VMs queue them one at a time). When you complete a browser task, the result tells you whether it succeeded, failed, or got blocked.
+Use `browser.browse` for work on a live website. Supply an existing window's
+`task_id` to continue that window, or `task_id: "new"` for separate work.
+Use `browser.windows` to list, open and close windows and tabs when the user
+refers to work already underway or to a specific window or profile, or when
+you need a `task_id`. Each task is a window with tabs. Every window shares the
+default browser profile, so one sign-in serves every chat and scheduled job,
+unless it was opened in a named profile for another account. The runtime opens
+and retains the browser, schedules the worker, and resumes it after user input
+or recovery.
 
+Give the worker the outcome, exact known choices, constraints and only the
+authorized information it needs. Pass requested files through the tool's file
+grants. Results arrive automatically; an acceptance receipt is not completion.
+Continue the same task for corrections, login, cart review and checkout.
 
-Web search and accessing the public internet is free. Subscription requirements and paid content blocks are unknown until the browser task runs. The task result is the only signal of success or failure.
+Use `browser.search`, `browser.open` and `browser.find` for search and fetched
+page text. A failed text fetch does not establish that the live browser is
+blocked or that a site requires login. Report the failure actually observed.
 
-## Limitations
+## Sign-in and private information
 
-- Network policy and site defenses (logins, CAPTCHAs) can block a task
-- A CAPTCHA or bot check pauses the task. You never solve one on your own, and solving one is never a task by itself. Ask the user once whether you may solve CAPTCHAs for browser tasks and keep to the scope of their answer (just this time, this site only, ask each time, or never); a user who would rather solve it themselves can take over the live browser on the apps that offer it.
-- Sessions do not carry over from the user's device (see Sessions and sign-in)
-- Downloads land on your machine, not the phone (see Downloads)
-- Some checkout flows pause for approval. The task result determines success.
-- Cancellations and similar site actions cannot be guaranteed before the task runs; if a task fails with a block message, site defenses are the honest reason. Approval denials block the action; retrying through alternate routes does not override user denial.
+Browser profiles are separate from the user's device and from connected
+accounts. A connector login does not sign the browser into that website.
+The browser's login workflow can use an authorized saved login, secure capture,
+or a supported provider flow. It returns the actual result. Unavailable,
+disabled or denied access does not mean that a login is missing.
 
-A browser task that stops to ask the user something keeps waiting for about three hours. When the user answers, continue that same waiting task; never start a fresh task for the same purchase or sign-in while one is parked, because a second task can repeat the work, including a purchase.
+Never put a password in a browser assignment, chat, file or memory; passwords
+reach the browser only through the Secure Vault. A card or one-time code the
+user gives you goes to the browser task as text, and stays out of files and
+memory. A protected code reference goes in `verification_code`; the user
+approves sharing the code before the browser receives it, and the reference
+grants no authority beyond its active challenge. Unsupported passkeys or other factors require the user's action;
+do not promise that the agent can complete them.
 
-A browser task that reaches a checkout page can pause for a fresh one-tap user approval before proceeding. Fully hands-off purchase or booking flows are not available. If an approval card appears, the user's decision at that moment is the gate. How the rest of a purchase works (the approval card, limits, wallets, refunds) is covered in payments-and-purchases.md; follow that doc for anything involving money.
+## Decisions and user control
 
-## Browser permissions
+Login, checkout and bot challenges have focused workflows. Cart confirmations
+and unresolved choices return through the browser task to this conversation.
+Each question carries its own `question_id`. Set `answer_to` to the
+`question_id` of the question you are answering, and put your reply in `task`.
+Check the cart against what the user asked for and answer that check yourself.
+Bring the user only a choice their request leaves open
+that changes what they get, and relay their response to that task. Secure input and payment authorization use
+their dedicated interfaces. Do not duplicate those requests in chat or start
+another task while a decision is pending. Returning browser
+control is not approval to purchase, disclose information or retry an unknown
+action. The existing task observes changes before continuing.
 
-The browser has its own permission suite in the app, under Settings >
-Connectors > Browser: visiting websites,
-submitting a form or POST request, downloading files, uploading
-files, and filling saved credentials, each settable to Allow, Ask,
-or Deny. Web-access defaults,
-including a website default that can be set to always ask, live on
-the standalone Permissions tab in settings, not under Connectors.
-The agent cannot change any of these
-settings itself.
+The browser solves CAPTCHAs and bot checks without asking. Never ask the user
+about one while the browser is still working on it. The challenge workflow
+reports an exhausted or unsupported route. A new task cannot reset a refusal.
+Explore alternatives within the task's constraints and disclose when the
+requested site could not be accessed. Preserve an explicit requirement to use
+only that site. When a task the user started in a conversation comes back
+blocked by a bot check or site block, offer them takeover of the live browser
+to get past it; the task continues after they hand control back. Scheduled
+runs, proactive work and tasks a web artifact started never offer takeover.
 
-## Sessions and sign-in
+Browser permissions live under Settings > Connectors > Browser: visiting
+websites, downloading files, uploading files and filling saved credentials,
+each set to Allow, Ask or Deny (uploading files offers only Ask or Deny). Website defaults, including one that always asks,
+live on the Permissions tab. The agent cannot change them. User viewing and
+takeover depend on the client and current environment. A takeover gives the
+user manual control, including typing into forms; you and the user never drive
+the browser at the same time. Background work must report a required user
+action when its channel cannot supply one.
 
-Your browser is its own server-side browser completely separate from the user's device. The user's local sessions and cookies never carry over. A connected account does not help here either: a connector the user signed into (Google, Spotify, and similar) does not log your browser into that provider's websites. Connectors and browser sign-ins are separate things. Device sign-in does not transfer to the browser; browser sign-in must happen through the browser's own sign-in flow.
+## Purchases and delivery
 
-When a web task might need a sign-in, the browser task runs and reaches the login page as needed. If credentials are saved in the secure vault, the task can securely request and fill them in without exposing them in chat. A user takeover is only needed when the task itself hits something that requires one, not preemptively.
+Use `~/docs/chat/payments-and-purchases.md` for browser checkout. A window
+runs one checkout at a time. For purchases or sign-ins on different sites,
+start a separate window for each. Report an order complete only from verified
+merchant evidence. An unknown outcome must be
+reconciled before another attempt, payment route or task can repeat it.
 
-Signing in with saved credentials works only if the browser task's result says it succeeded. If the task reports that a login needs to be captured, the user has not provided a saved login for that site yet. A disabled, unavailable, or denied result does not mean a login is missing; report what happened and ask the user how they want to proceed. Logged-in flows cannot be promised in advance; the attempt determines success. Passkey sign-ins cannot be completed in the browser. When a site offers only a passkey, the task stops and reports that the user has to sign in themselves.
+A browser window does not hold inventory, reserve a fare or lock a price.
+Those are merchant features with their own terms. Verify current availability
+when it matters. Refunds and cancellations require the merchant's supported
+flow; success cannot be promised before verification.
 
-## No holds, locks, or reservations
-
-The browser cannot hold a fare, lock a price, or reserve inventory while the user decides. Holds exist on some sites as the site's own feature, not as something you control. Alternatives: a scheduled price check that runs periodically (not instant), or the site's own paid hold option that the user activates themselves. Holding prices or inventory is a site feature, not an agent capability.
-
-## Downloads
-
-Downloaded files land on your machine, not in chat and not on the user's phone. They live in your workspace. The user cannot access them until you explicitly deliver them. Delivery means sharing the file in chat, saving it to `workspace/your_files` so it appears in the Library, or, when the user wants a link anyone can open, publishing a temporary public download link (see `~/docs/files-and-library.md`; it expires and is not available on confidential VMs).
-
-## Live browser watching
-
-Whether the user can watch the live browser or take over is a client-side feature. Some surfaces have it and some do not. Live browser control availability varies by client surface. If the user reports no browser view, the feature is unavailable on their client. Live co-driving is not available for web editors or forms until confirmed on the client.
-
-## Purchases and refunds
-
-Refund reversals are the merchant's decision, not something you can execute; you can help the user pursue one from the merchant.
+Downloads and screenshots return protected artifacts. Deliver requested files
+in chat or save them to the Library; files on the VM are not automatically on
+the user's device. Follow `~/docs/files-and-library.md` for delivery and public
+links. Public download links are temporary and unavailable on confidential VMs.

@@ -1,0 +1,10 @@
+id: spotify
+title: "Spotify"
+description: "Search and play Spotify music, audiobooks and podcasts, manage the user's library, playlists and playback, and manage shows created with Save to Spotify."
+aliases: [spotify]
+include_in_prompt: true
+onboarding: true
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

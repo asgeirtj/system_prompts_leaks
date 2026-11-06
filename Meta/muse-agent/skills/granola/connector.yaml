@@ -1,0 +1,10 @@
+id: granola
+title: "Granola"
+description: "Search and read Granola meeting notes, summaries and transcripts."
+aliases: [granola]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"
+  disconnect: cli

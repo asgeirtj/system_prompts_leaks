@@ -1,0 +1,9 @@
+id: philips_hue
+title: "Philips Hue"
+description: "Connect the user's Hue Bridge, list lights, rooms, zones, scenes, sensors and buttons, and control lights, groups and scenes."
+aliases: [philips-hue, philips_hue]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"

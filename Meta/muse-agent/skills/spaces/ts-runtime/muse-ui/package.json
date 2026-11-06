@@ -1,0 +1,39 @@
+{
+  "name": "@hatch/muse-ui",
+  "version": "0.1.0",
+  "description": "Button, icon button, dialog, menu, toolbar, tab bar and sidebar for Muse-template Spaces, built on @hatch/base-ui and styled with the template's semantic roles.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "package.json",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@hatch/base-ui": "0.1.0",
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "peerDependenciesMeta": {
+    "@hatch/base-ui": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@hatch/base-ui": "workspace:*",
+    "@hatch/space-sdk": "workspace:*",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "typescript": "5.6.3"
+  }
+}

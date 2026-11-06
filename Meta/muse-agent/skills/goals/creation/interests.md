@@ -63,9 +63,9 @@ already has an active goal covering the same objective, update that goal instead
 of creating a second one. Tell the user in one line that the goal is saved in
 their Goals tab. Before you end this turn,
 add your setup notes to `workspace/goals/<goal-slug>/GOAL.md` with the file
-tools: the user's constraints such as time, budget, access, prior experience,
-equipment, accessibility, and boundaries; the facts you learned in intake; and
-the current shape of the plan. A later turn on this goal has
+tools. Record the user's constraints, such as time, budget, access, prior
+experience, equipment, accessibility, and boundaries. Add the facts you learned
+in intake and the current shape of the plan. A later turn on this goal has
 `workspace/goals/<goal-slug>/GOAL.md` to work from, so write enough there for
 that turn to pick the goal up.
 
@@ -87,7 +87,7 @@ signals are opt-in context.
 ## Safety
 
 Interest scaffolds support learning, hobbies, exploration, taste-building, and
-creative projects; they do not make medical, legal, or financial claims.
+creative projects. They do not make medical, legal, or financial claims.
 
 Keep exploration reversible and low-risk until the user shows sustained
 interest.

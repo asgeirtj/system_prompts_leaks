@@ -1,0 +1,15 @@
+id: instagram_messages
+title: "Instagram Messages"
+description: "Read, send, and manage the user's Instagram messages and message requests."
+aliases: [instagram-messages, instagram_messages]
+include_in_prompt: false
+domain: chat
+availability:
+  confidential_vm: true
+auth:
+  connect: companion
+sync:
+  fetch_kind: connector_sync_instagram_messages
+  cadence_minutes: 30
+  read_methods: [messages.read]
+  content_hints: [messaging]

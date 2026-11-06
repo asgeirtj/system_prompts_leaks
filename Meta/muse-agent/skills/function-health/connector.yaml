@@ -1,0 +1,10 @@
+id: function_health
+title: "Function Health"
+description: "Read the user's Function Health lab and blood test biomarker results and clinician notes, with their dates, units and reference ranges."
+aliases: [function-health, function_health]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+  restricted_regions: disconnect_only
+auth:
+  authorize: "{bin} authorize-url"

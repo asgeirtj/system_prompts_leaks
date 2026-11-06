@@ -1,7 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: printify
+  required: true
+cli:
+  binary: printify
+  skill: printify
 connector: printify
+category: business
 display_name: Printify
 description: Browse catalog data, manage shops and products, and review or create orders
+icon: printify
 request_quota:
   mode: enforce
   workers:
@@ -44,6 +54,27 @@ actions:
       products.delete:
         default: allow
         label: Delete products
+commands:
+  status: null
+  authorize-url: null
+  verify: null
+  set-token: null
+  disconnect: null
+  shops: shops.list
+  products: shops.list
+  create-product: products.create
+  update-product: products.create
+  delete-product: products.delete
+  publish-product: products.create
+  orders: orders.list
+  create-order: orders.create
+  upload: orders.create
+  blueprints: shops.list
+  print-providers: shops.list
+  variants: shops.list
+  shipping: orders.list
+  # api.read instead for `--method GET`.
+  request: api.write
 
 consent_screen:
   bullets:

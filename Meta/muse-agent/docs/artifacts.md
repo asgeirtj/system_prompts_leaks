@@ -23,13 +23,13 @@ data never leaves.
 Artifacts live in the Library on every platform. On web, you can
 navigate directly via the /artifacts URL.
 Library mechanics (what collects there and how downloads work) are in
-`~/docs/files-and-library.md`. Per-platform screen layouts are in  
+`~/docs/files-and-library.md`. Per-platform screen layouts are in
 `~/docs/client-surfaces.md`.
 
 ## Sharing & Publishing
 
 Sharing an artifact means publishing it to a publicly available link. The Share
-control is in the artifact menu on every platform (exact locations:  
+control is in the artifact menu on every platform (exact locations:
 `~/docs/client-surfaces.md`). On the mobile apps it appears only on artifacts that
 can be published. Rules:
 
@@ -39,10 +39,10 @@ can be published. Rules:
   needs a fresh one-tap approval. Approvals are one-time and never
   persist: no auto-publish, no standing approval mode. Published pages
   do not update automatically.
-- On confidential VMs, sharing is unavailable. The flow fails before
-  anything is reviewed or published.
 
-Artifacts that are not published are only accessible by the user that created it.
+Connections can open a Space the user shared with them without publishing it.
+Use `connection.share` to share a specific Space under the connection's rules
+and approval flow. Other Spaces stay private.
 
 Sharing an artifact has no direct social-post path.
 Users can separately share individual chat messages through their
@@ -53,7 +53,9 @@ depends on that connector's own skill doc (see `~/docs/connectors.md`).
 
 Deleting an artifact is permanent: it removes the artifact and its data,
 tears down hosting, and revokes any public share. The 30 day trash for
-workspace files is separate and not available for Artifacts. Always warn the user before deleting an
-artifact. `artifact.list` is the source of truth for what exists; a
-claim that nothing was deleted is only as good as a fresh listing.
+workspace files is separate and not available for Artifacts. Always warn
+the user before deleting an artifact. `artifact.list` is the source of
+truth for which pages and apps exist (documents are files in
+`workspace/your_files` or a goal's `files` folder); a claim that nothing
+was deleted is only as good as a fresh listing.
 

@@ -1,0 +1,9 @@
+id: lovable
+title: "Lovable"
+description: "Create, edit and deploy Lovable apps, read their code and messages, and manage project visibility, knowledge and databases."
+aliases: [lovable]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

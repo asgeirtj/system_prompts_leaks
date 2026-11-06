@@ -1,0 +1,9 @@
+id: linear
+title: "Linear"
+description: "Find and manage Linear issues, projects, comments and labels, and read cycles and documents."
+aliases: [linear]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

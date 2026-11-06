@@ -1,8 +1,15 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-9hqcd6sb4opkueb11db2fqeffrfp1jek.apps.googleusercontent.com"
+  provider: google_slides
+  required: true
 connector: google_slides
 category: productivity
 display_name: Google Slides
 description: Create and manage presentation slides
+icon: google_slides
 request_quota:
   mode: enforce
   workers:
@@ -27,11 +34,23 @@ actions:
       presentations.create:
         default: allow
         label: Create presentations
+        approval_buttons:
+          allow_once: "Create"
+          deny: "Don't create"
+          deny.task: "Don't create"
       presentations.batch_update.private:
         default: allow
         label: Edit private presentations
+        approval_buttons:
+          allow_once: "Edit"
+          deny: "Don't edit"
+          deny.task: "Don't edit"
       presentations.batch_update.shared:
         label: Edit shared presentations
+        approval_buttons:
+          allow_once: "Edit"
+          deny: "Don't edit"
+          deny.task: "Don't edit"
 commands:
   status: null
   disconnect: null

@@ -10,7 +10,7 @@ novelty, source quality, format, and cadence in the goal's entries. Write them
 as plain sentences.
 
 For a learning goal, let the "why" shape the curriculum. Personalize it by
-prior knowledge, task, and feedback. For a creative goal, put discovery first.  
+prior knowledge, task, and feedback. For a creative goal, put discovery first.
 Build on the activities, ideas, and examples the user has enjoyed before.
 
 Relevant context may include personal tastes, newsletters, media libraries,

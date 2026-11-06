@@ -19,12 +19,11 @@ covered in `~/docs/devices/mac_app.md`; it is a separate device capability.
 
 ## Connection flow
 
-Use the provider guide's official secure app link. The app's existing
-Messaging Channels screen uses this same flow and may retain that label until
-the client updates. QR codes, pairing artifacts, and Connect buttons belong to
-the app. Status and disconnect use `chat.connection_status` and
-`chat.disconnect`, with `provider` as the argument. Supported preferences use
-`chat.configure_connection` from the user's own Muse chat.
+Use the provider guide's official secure app link. The app's Settings >
+Messaging channels screen uses this same flow. QR codes, pairing
+artifacts, and Connect buttons belong to the app. Status and disconnect
+use `chat.connection_status` and `chat.disconnect`, with `provider` as
+the argument. Supported preferences use `chat.configure_connection`.
 
 ## Message ownership
 
@@ -32,8 +31,9 @@ A reply belongs to the chat that admitted the user message. The runtime
 captures that UUID and the current binding authority before execution; the
 model does not choose the reply surface. `chat.send_message` cannot push a
 one-off message into a provider conversation from another chat. A scheduled
-task created in a provider side chat delivers there; a main-chat task stays in
-main chat. Reconnection cannot redirect queued work to a replacement account.
+task delivers to the chat that created it unless its delivery names another
+chat. A reply already queued for an account stays with that account; a later
+scheduled result uses the chat's current connection.
 
 Provider capabilities differ. The WhatsApp connection is one-to-one and does
 not expose the user's other messages or personal sending identity. Consult

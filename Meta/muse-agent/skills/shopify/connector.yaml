@@ -1,0 +1,9 @@
+id: shopify
+title: "Shopify"
+description: "Set up and run a Shopify store, including products, collections, inventory, orders, customers, discounts, reports and sample catalogs."
+aliases: [shopify]
+include_in_prompt: true
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

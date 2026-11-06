@@ -1,88 +1,31 @@
-# Event tickets
+# Find and book event tickets
 
-Use this reference for sports, concerts, theater, comedy, and other ticketed
-events.
+## Identify the event and party
 
-## Resolve the event before asking
+- Resolve the exact event, venue, city and local date and time from current official schedules. For "the Patriots' next game", check whether the context means the next game anywhere or the next home game, and ask when both remain plausible and lead to different purchases.
 
-Use authorized context, calendar, ticketing accounts, email, and live schedules
-to resolve:
+- Use relevant history for seating and price preferences. A usual party size is only a hint, and a ticket count left unanswered after another question is still unresolved.
 
-- exact team, artist, show, or event
-- the next relevant occurrence and its local date/time
-- home versus away, venue, city, and competition/season when ambiguous
-- prior ticketing platforms, favorite sections, price comfort, and seat-view  
-  preferences
-- memberships, season-ticket access, presales, fan-club benefits, or cardholder  
-  offers
-- usual party size only as a hint; do not assume companions are attending
+- Never infer accessibility needs or exceed an established budget.
 
-For "the Patriots' next game," verify the official schedule and whether "next"
-means the next game overall or the next home game in the current context. Ask
-only if both remain plausible and lead to different purchases.
+- Check known memberships, presales or card offers when they could help. Never open a paid membership, season plan or credit account just to unlock inventory.
 
-## Minimum search facts
+## Compare available tickets
 
-The exact event occurrence and ticket count are required. Seating and budget
-can be inferred as search preferences from reliable history, but they are not
-permission to exceed a stated or established ceiling. Accessibility seating
-must be explicit. Do not infer it. An unanswered ticket-count question remains
-unresolved even if the user answers another part of the question. Never call
-seat inventory such as `top-picks` until the exact count is known; ask again.
+- Start with the venue's official ticket link or a suitable primary seller, then compare reputable, verified resale when it is useful and legal. Label primary and resale tickets clearly.
 
-## Search and route
+- If sales have not opened, report the verified onsale time. A future sale is not sold out. Avoid speculative or unverified listings.
 
-Check official schedules first. Search primary inventory through the venue or
-an available provider such as `ticketmaster`, including authenticated presales
-or account offers. Then compare reputable verified resale inventory when it is
-legal and useful. Clearly label primary versus resale.
+- For each ticket group, compare the count, section, row, assigned seats and how many sit together, the sightline and any stated view restriction, the seller and its guarantee, every fee and the full total, delivery timing and format, transfer rules, refund or postponement terms, and any verified membership or presale benefit.
 
-Before using Ticketmaster, read `/opt/hatch/skills/ticketmaster/SKILL.md` for
-its command contract. Ticketmaster is a provider within this booking flow, not
-a replacement for it.
+- Present the shortlist as [booking presentation](/opt/muse/assets/booking/references/presentation.md) describes.
 
-Search output or a buy link is not a completed booking. Use the authenticated
-browser to choose exact seats and reach final review. If an onsale has not
-opened, report the verified onsale time; do not pretend inventory is sold out.
+- A venue map alone does not establish availability, and a section name does not establish shade, roof cover or weather exposure. Those need evidence for the actual section or ticket group, and general venue information supports only a labeled estimate, never a guarantee.
 
-Do not use speculative or unverified ticket listings. Do not create a paid fan
-club membership, season plan, or credit-card application to unlock inventory.
+- Keep the requested date, venue, performance, party size and seat constraints. Present a material change as a choice for the user.
 
-## Rank on the exact seats and delivered price
+## Review and confirm
 
-Compare:
+- The final review shows the event, venue, local time, count, section, row, seats, seller, itemized fees, full total, delivery method and material terms. Use the secure saved profile or wallet for identity and payment.
 
-- section, row, exact seats, and how many are together
-- sightline, distance, side/angle, and obstructed or limited-view notation
-- primary versus resale and the seller/marketplace guarantee
-- itemized ticket price, service/facility/order fees, taxes, and delivered total
-- ticket format, delivery timing, transfer restrictions, and resale policy
-- refund/postponement/cancellation terms
-- material membership, presale, or cardholder benefit
-
-Do not recommend seats from a venue map alone when actual inventory is
-available. Do not silently move to a different date, venue, performance, ticket
-count, seating area, or resale listing.
-
-Treat shade, roof coverage, weather exposure, and obstructed view as
-listing-specific claims. Do not infer them from a side or section name. Without
-a current source that explicitly supports the attribute for that section or
-ticket group, say it is unverified; general venue facts may support only a
-labeled best-likelihood recommendation, never a guarantee.
-
-## Prepare and book
-
-Seat holds expire quickly. Keep the same checkout alive, show the hold expiry,
-and refresh the exact seats and total if approval arrives late.
-
-At final review include event, venue, local date/time, ticket count, exact
-section/row/seats, primary or resale status, itemized fees, delivered total,
-delivery method, transfer restrictions, and refund/postponement terms.
-
-Use the saved ticketing profile and secure wallet at checkout. Do not expose
-full membership or payment numbers.
-
-Verify with an order number and tickets or a delivery record visible in the
-account. Return the event details, seats, total, safe order reference, delivery
-state, and any deadline. If tickets will arrive later, say so plainly; an order
-confirmation is not the same as tickets already delivered.
+- Return the safe order reference, event and seat details, total and delivery state. If the tickets arrive later, give the expected delivery date or the next deadline.

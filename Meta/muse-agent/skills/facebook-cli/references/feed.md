@@ -1,78 +1,37 @@
-# Facebook Feed
+# Facebook feeds
 
-Browse your ranked Facebook feeds — the algorithmic newsfeed and the friends-only feed.
+- These commands help the user catch up on their ranked Facebook feed or posts from friends.
 
-## Commands
-
-### Newsfeed
-
-Fetch the ranked algorithmic newsfeed (organic stories only, no ads).
-
-```bash
-facebook-cli feed newsfeed [--limit <n>] [--after <cursor>]
+```sh
+/opt/hatch/bin/facebook-cli feed newsfeed
+/opt/hatch/bin/facebook-cli feed newsfeed --limit 10 --after '<next_cursor>'
+/opt/hatch/bin/facebook-cli feed friends --limit 5
 ```
 
-| Flag | Required | Description |
-|------|----------|-------------|
-| `--limit` | No | Maximum stories to return (default 10, max 10) |
-| `--after` | No | Pagination cursor from a previous response's `next_cursor` (`--cursor` accepted as a back-compat alias) |
+- `feed newsfeed` returns the ranked newsfeed of organic stories, without ads. `feed friends` returns ranked stories from friends only.
 
-**Examples:**  
-```bash
-# Fetch your newsfeed
-facebook-cli feed newsfeed
+- Both commands return a `social_posts_v1` collection, with at most 10 stories. When `has_next_page` is true, pass `next_cursor` as `--after` to continue with paging.
 
-# Fetch up to 10 stories (the max)
-facebook-cli feed newsfeed --limit 10
+- Use `post_id` for follow-up reads and `url` to link the story. See [Reading posts](/opt/hatch/connectors/facebook_cli/references/reading-posts.md) for presenting and interpreting post content.
 
-# Fetch next page
-facebook-cli feed newsfeed --limit 10 --after <after_cursor_from_previous>
-```
+## Present a feed
 
-### Friends Feed
+- Stories are ranked by relevance, so present stories in the same order. For each story, include the `url`.
 
-Fetch the ranked friends-only feed (stories from friends only).
+- Surface each post and story's timestamp so they may judge recency.
 
-```bash
-facebook-cli feed friends [--limit <n>] [--after <cursor>]
-```
+- If the user requests a specific time window, select matching stories using those timestamps, preserving their ranked order, and state the window used.
 
-| Flag | Required | Description |
-|------|----------|-------------|
-| `--limit` | No | Maximum stories to return (default 10, max 10) |
-| `--after` | No | Pagination cursor from a previous response's `next_cursor` (`--cursor` accepted as a back-compat alias) |
+- For requests without a time window, state the window you're using or ask for clarifications.
 
-**Examples:**  
-```bash
-# Fetch friends feed
-facebook-cli feed friends
+- If there is another page available to fetch, offer to read more stories.
 
-# Fetch 5 stories from friends
-facebook-cli feed friends --limit 5
-```
+- Keep a feed browse faithful to the stories. For a requested analysis, be clear in distinguishing your interpretation from the post text and available media descriptions.
 
-## Response Fields
+## References
 
-Both commands return the compact `social_posts_v1` collection shared with
-social search:
+- Read [Reading posts](/opt/hatch/connectors/facebook_cli/references/reading-posts.md) when presenting captions and available media context.
 
-- `posts`: Ranked feed stories with `post_id`, `url`, `platform`, `created_at`,
-  `username`, `post_caption`, `header_text`, and available media/engagement
-  fields. `post_caption` prefers authored text, then a media summary, then the
-  provider-generated story header also emitted as `header_text`. Treat a media
-  summary or story header as a description, never as the author's quoted words.
-- `next_cursor`: Cursor for the next page (pass as `--after`)
-- `has_next_page`: Whether another page is available
+- To read comments, use [Comments](/opt/hatch/connectors/facebook_cli/references/reading-comments.md).
 
-Read `posts[]` directly. Do not guess a provider response path or pipe the
-command through `jq`. A provider schema mismatch fails instead of returning an
-empty collection.
-
-## Operating Rules
-
-1. Use `feed newsfeed` for the standard ranked feed. Use `feed friends` for friends-only content.
-2. Always check `next_cursor` — if present, more pages are available. Offer to fetch the next page.
-3. Feed stories produce `post_id` values that can be used with `post comments read` and `post reactions read`.
-4. Present stories in the order returned (they are ML-ranked by relevance).
-5. Do not editorialize or add subjective commentary on post content.
-6. When presenting stories, always include `url` so the user can view them on Facebook.
+- To read reactions, use [Reactions](/opt/hatch/connectors/facebook_cli/references/reactions.md).

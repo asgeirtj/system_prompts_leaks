@@ -223,7 +223,7 @@ Used as the definitive source in:
 
 | Product | Prompt |
 |---------|--------|
-| **Muse agent** | [**Muse agent system prompt** (Muse Spark 1.3, VM)](Meta/muse-agent/workspace/system/system_prompt.md) · [home dir, docs, templates](Meta/muse-agent/) · [89 skills](Meta/muse-agent/skills/) |
+| **Muse agent** | [**Muse agent system prompt** (Muse Spark 1.3, VM)](Meta/muse-agent/system_prompt.md) · [home dir, docs, templates](Meta/muse-agent/) · [87 skills](Meta/muse-agent/skills/) |
 | **Muse Code** | [**Muse Code system prompt** (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
 | Meta AI (meta.ai) | [Muse Spark 1.1 system prompt](Meta/muse-spark-1.1-web.md) · [Muse Spark](Meta/muse-spark-1.0-web.md) |
 

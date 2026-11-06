@@ -1,0 +1,9 @@
+id: peloton
+title: "Peloton"
+description: "Find Peloton on-demand and live workout classes, share class links, and add, move or remove classes on the user's Peloton schedule."
+aliases: [peloton]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"

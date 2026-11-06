@@ -1,27 +1,97 @@
 version: 1
+gating:
+  allowed_countries: [US, PR, CA]
+metadata:
+  visible_in_settings: false
+auth: none
 connector: duffel
-display_name: Duffel Flight Booking
-description: Search, validate, book, review, and cancel flights through Duffel.
+cli:
+  binary: duffel
+  skill: duffel
+display_name: Duffel
+description: Search and book flights and rental cars
+icon: duffel
 actions:
   read:
     default: allow
-    label: Read Duffel flight data
+    label: Read Duffel travel data
     methods:
       flight.read:
         label: Read seat choices, bookings, and cancellation details
       flight.quote:
         label: Search, compare, and validate flight offers
+      flight.bags:
+        label: Read paid bags sold with flight offers
+      car.read:
+        label: Read rental car reservations
+      car.quote:
+        label: Search, compare, and quote rental cars
   write:
     default: ask
-    label: Create or change Duffel flight bookings
+    label: Create or change Duffel travel bookings
     methods:
       booking.cancel:
         label: Cancel a flight booking
+      # Each reservation and cancellation is approved on its own: Allow once or
+      # Deny, never a standing grant.
+      car.book:
+        label: Reserve a rental car
+        approval_policy: fresh_consent_only
+        approval_phrase: book a car with Duffel
+      car.cancel:
+        label: Cancel a rental car reservation
+        approval_policy: fresh_consent_only
+        approval_phrase: cancel this rental car reservation with Duffel
+commands:
+  search: flight.quote
+  seat-options: flight.read
+  bag-options: flight.bags
+  validate-booking: flight.quote
+  # The single purchase approval is the Stripe Link checkout spend, not a
+  # Duffel connector method.
+  book: null
+  booking-status: flight.read
+  cancellation-quote: flight.read
+  cancel-booking: booking.cancel
+  places: flight.read
+  car-search: car.quote
+  car-quote: car.quote
+  # Postpaid: nothing is charged now, so the reservation approval is this
+  # connector method rather than a checkout spend.
+  car-book: car.book
+  car-booking-status: car.read
+  car-cancel: car.cancel
 cli_subcommands:
   - search
   - seat-options
+  - bag-options
   - validate-booking
   - book
   - booking-status
   - cancellation-quote
   - cancel-booking
+  - places
+  - car-search
+  - car-quote
+  - car-book
+  - car-booking-status
+  - car-cancel
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Duffel"
+      text: "Muse will access things like flights, rental cars, traveler and driver details, and booking information."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "Duffel works by connecting through Meta, which means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout
+    - "Muse will exchange info with Duffel. To learn more, view their [terms](https://duffel.com/booking-terms-and-conditions) and [privacy policy](https://duffel.com/traveller-privacy-notice)."

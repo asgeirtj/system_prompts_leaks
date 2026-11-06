@@ -2,12 +2,12 @@
 
 **Last verified:** 2026-09-14 on a Lutron Smart Bridge 2 (firmware 8.28.0, non-Pro)
 
-Use this guide when fresh discovery identifies a Lutron Smart Bridge with  
+Use this guide when fresh discovery identifies a Lutron Smart Bridge with
 HomeKit/HAP and the user asks to control lights or shades.
 
 ## Recommended Path
 
-1. Re-discover the bridge and use its advertised HAP endpoint through the Home  
+1. Re-discover the bridge and use its advertised HAP endpoint through the Home
    Link CONNECT proxy. Do not assume LIP/telnet or web access.
 2. Use a maintained HAP client. If discovery advertises `ff=1`, select
    `PairSetupWithAuth`; plain `PairSetup` can fail at M2 with

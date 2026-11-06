@@ -1,0 +1,9 @@
+id: asana
+title: "Asana"
+description: "Read and manage Asana projects, tasks, owners, due dates, comments and project status updates."
+aliases: [asana]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

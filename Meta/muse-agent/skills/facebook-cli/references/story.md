@@ -1,36 +1,11 @@
-# Facebook Stories
+# Facebook stories
 
-Fetch your story feed (story tray) to see recent stories from friends and pages you follow.
+- `story feed` reads the user's story tray, the recent stories from friends and Pages they follow.
 
-## Commands
-
-### Fetch Story Feed
-
-```bash
-facebook-cli story feed [--limit <n>]
+```sh
+/opt/hatch/bin/facebook-cli story feed [--limit <1 to 50 author buckets, default 20>]
 ```
 
-**Options:**
-- `--limit` (optional): Maximum number of story buckets to return (default 20, max 50)
+- Results come back as one bucket per author, each with its `stories`.
 
-**Examples:**  
-```bash
-# Fetch your story feed
-facebook-cli story feed
-
-# Fetch a smaller set
-facebook-cli story feed --limit 5
-```
-
-**Response fields:**
-
-Each story bucket represents stories from one author:
-- `owner_name`: Name of the story author
-- `owner_id`: Profile ID of the story author
-- `seen`: Whether the bucket has been viewed
-- `cards`: Array of individual story cards, each containing:
-  - `story_id`: Unique story ID
-  - `creation_time`: When the story was posted (Unix timestamp)
-  - `expiry_time`: When the story expires (Unix timestamp)
-  - `message`: Story text content (if any)
-  - `story_url`: Direct link to the story
+- Each bucket has `owner_name`, `owner_id` and `is_seen`. Describe each story by the owner's name, whether it's been seen, its `message_text` and a clickable link to its `story_url`. Keep IDs internal.

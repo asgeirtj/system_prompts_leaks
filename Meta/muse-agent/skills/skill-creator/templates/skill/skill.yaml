@@ -1,0 +1,24 @@
+# The template for a learned skill's descriptor. Save it beside the skill's
+# SKILL.md as ~/workspace/custom-skills/<skill_name>/skill.yaml, fill it in
+# and delete these comments.
+#
+# - name: a snake_case identity of lowercase letters, digits and underscores
+#   that matches the folder name. System skill names are reserved, so choose
+#   a distinct one.
+# - title: the task's plain name.
+# - description: one sentence naming the outcome and when to use it. It is
+#   what the model sees in the skill list.
+# - category: an existing category such as "Travel and local plans",
+#   "Shopping", "Work and knowledge" or "Health and fitness", so the skill is
+#   listed beside related skills.
+# - include_in_prompt: true lists the skill in every conversation; false
+#   leaves it to muse.skill_search. Keep the existing value when you improve
+#   a skill.
+# - Skills published by the self-improvement review also carry
+#   skill_improvement with managed: true and status: active. Keep that field
+#   as it is when you edit one.
+name: "<skill_name>"
+title: "<Skill Title>"
+description: "<One sentence: the outcome this skill produces and when to use it.>"
+category: "<Category>"
+include_in_prompt: true

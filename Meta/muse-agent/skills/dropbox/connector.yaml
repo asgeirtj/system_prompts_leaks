@@ -1,0 +1,9 @@
+id: dropbox
+title: "Dropbox"
+description: "Find, read, upload, download, organize and share Dropbox files and folders, and collect files from others with file requests."
+aliases: [dropbox]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

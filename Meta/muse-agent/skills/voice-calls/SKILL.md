@@ -1,1 +1,0 @@
-../voice-selector/SKILL.md

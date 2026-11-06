@@ -1,0 +1,9 @@
+id: google_tasks
+title: "Google Tasks"
+description: "Find and manage the user's Google Tasks lists and tasks, including due dates, subtasks, ordering and completion."
+aliases: [google-tasks, google_tasks]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_tasks authorize-url"

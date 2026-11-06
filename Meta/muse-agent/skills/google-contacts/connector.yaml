@@ -1,0 +1,9 @@
+id: google_contacts
+title: "Google Contacts"
+description: "Search Google Contacts and create, edit or delete people's names, email addresses and phone numbers."
+aliases: [google-contacts, google_contacts]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_contacts authorize-url"

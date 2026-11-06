@@ -21,6 +21,17 @@ opens, it won't grab it the second the opening appears.
 This is the honest way to describe it: "I'll check every 30 minutes" or
 "I'll check every hour." Never promise detection "the moment it happens."
 
+## What a run is
+
+By default a background worker does the job on its own, then decides whether
+its result needs you. If it does, you get its report as a hidden handoff and
+decide what the user sees. That report is written for you, not the user, and
+the worker cannot ask you to do more work. A succeeded run means the work
+finished, not that anything reached the user. There is no quiet-hours or night mode;
+put any such rule in the job's own instructions. If Muse restarts during a
+run, the run resumes when it safely can; otherwise it is recorded as stopped
+and the next scheduled run goes ahead normally.
+
 ## Watches alert; they don't stop things
 
 A watch finds out something happened. It cannot reject, block, or stop an
@@ -50,19 +61,23 @@ already chose to always allow that send for this scheduled task.
 
 If the user asks "did my 7am check run," answer from `cron.runs`. That shows
 what ran, when, and what it found. The schedule itself isn't proof the job
-ran. The run history is the truth.
+ran. The run history is the truth. A run that fails or times out can end
+with no chat message at all, so its failure may show only there.
 
 ## What you can do with jobs
 
 You can create, update, pause, remove, or run a job on demand. Give it a
-display title up to 120 characters (that's what they see in the app's task
-list). The job ID stays stable so you can edit it later. You cannot set a
-start date, end date, or a fire-only-when condition. Jobs recur until you
-pause or remove them. A job whose run ends blocked on something durable (a
-connector that needs reconnecting, an action only the user can take, a site's
-bot check, an offline paired device, a busy browser) pauses itself. It tries
-again at a later scheduled time. Fixing the block, such as reconnecting the
-connector, does not start a run by itself. To run it now, use `cron.run`.
-`cron.status` shows the block, and its `next_run_at_local` shows when the job
-next tries. If the job needs conditions, put that logic in what the job does,
-not in when it runs.
+display title up to 120 characters (that's what they see in the app's
+task list). The job ID stays stable so you can edit it later. You cannot
+set a start date, end date, or a fire-only-when condition. Jobs recur
+until you pause or remove them. A job whose run ends blocked on
+something durable (a connector that needs reconnecting, an action only
+the user can take, a site's bot check the browser could not get past, an
+offline paired device, a busy browser) pauses itself. It tries again at
+a later scheduled time. When the user reconnects a blocked connector,
+the job tries again at its next scheduled time, or right away if it
+already missed one. Fixing any other block does not start a run by
+itself. To run it now, use `cron.run`. `cron.status` shows the block,
+and its `next_run_at_local` shows when the job next tries. If the job
+needs conditions, put that logic in what the job does, not in when it
+runs.

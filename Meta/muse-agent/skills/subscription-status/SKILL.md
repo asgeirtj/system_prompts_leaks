@@ -1,9 +1,3 @@
----
-name: "subscription_status"
-description: "Answer questions about the user's Muse subscription, plan, usage, tokens, reset timing, or available plans and prices, or verify information that references the Muse subscription."
-metadata: { "includeInPrompt": true }
----
-
 # Subscription Status
 
 Use this skill only when the user directly asks about their Muse subscription, current plan, usage allowance, tokens, reset timing, or available subscription plans and prices, or to verify information that references the Muse subscription.
@@ -19,3 +13,11 @@ The command output is a safe, agent-facing factual brief. Use it to answer the u
 When verifying information, distinguish what the brief confirms from what it cannot check.
 
 If exact token counts are requested, explain that Muse reports usage against the subscription allowance rather than an exact token balance.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

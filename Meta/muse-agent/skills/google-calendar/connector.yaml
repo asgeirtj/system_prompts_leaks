@@ -1,0 +1,18 @@
+id: google_calendar
+title: "Google Calendar"
+description: "Read Google calendars and free or busy times, and schedule, change or cancel events and meetings, with Google Meet links and the right guest notifications."
+aliases: [google-calendar, google_calendar]
+include_in_prompt: true
+onboarding: true
+domain: calendar
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_calendar authorize-url"
+sync:
+  fetch_kind: connector_sync_google_calendar
+  cadence_minutes: 60
+  # calendars.get resolves the single-account identity; the manifest polices it
+  # as calendar_list.list.
+  read_methods: [events.list, calendar_list.list]
+  content_hints: [calendar]

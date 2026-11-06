@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: facebook
+  required: true
+cli:
+  binary: facebook-cli
+  skill: facebook_cli
 connector: facebook_cli
 category: social
 display_name: Facebook
-description: Get highlights from friends, groups, Marketplace listings and more.
+description: Read Facebook highlights and publish personal text posts, comments and replies.
+icon: facebook
 # Valid CLI subcommand paths, consumed by jarvis runtime-event logging to enrich
 # tool-variant telemetry (e.g. `facebook-cli/marketplace/search`). Source of
 # truth for this list; the `subcommand_paths_match_manifest` test in the
@@ -17,9 +26,14 @@ description: Get highlights from friends, groups, Marketplace listings and more.
 # the daemon, and connect-url / disconnect-url are credential-free URL helpers
 # handled by the binary entrypoint before clap parsing.
 cli_subcommands:
+  - "guidance"
   - "me"
   - "me friends"
   - "post read"
+  - "post audiences"
+  - "post crossposting"
+  - "post create"
+  - "post comments add"
   - "pages list"
   - "pages access"
   - "pages account-insights"
@@ -48,6 +62,12 @@ cli_subcommands:
   - "marketplace listing publish"
   - "marketplace listing create"
   - "marketplace listing edit"
+  # Hidden copies of the listing commands one level up (`marketplace details`).
+  - "marketplace details"
+  - "marketplace delete"
+  - "marketplace publish"
+  - "marketplace create"
+  - "marketplace edit"
   - "groups details"
   - "groups search"
   - "groups posts"
@@ -60,15 +80,79 @@ cli_subcommands:
   - "saved remove"
   - "saved collections list"
   - "saved collections create"
+# Hidden clap aliases of the paths above, each mapped to the path it stands for
+# (an alias of a hidden copy maps to that copy), so a call spelled with an alias
+# still gets that command's tool variant. A group with a default subcommand
+# (`FacebookCliTool::default_subcommands`) maps to that subcommand's path.
+# manifest_tests.rs keeps this map equal to the binary's aliases and defaults.
+cli_subcommand_aliases:
+  "pages posts": "pages posts list"
+  "marketplace listings": "marketplace my-listings"
+  "marketplace mylistings": "marketplace my-listings"
+  "marketplace seller": "marketplace seller-info"
+  "marketplace listing": "marketplace listing details"
+  "marketplace listing get": "marketplace listing details"
+  "marketplace listing show": "marketplace listing details"
+  "marketplace listing read": "marketplace listing details"
+  "marketplace listing detail": "marketplace listing details"
+  "marketplace listing view": "marketplace listing details"
+  "marketplace listing info": "marketplace listing details"
+  "marketplace listing update": "marketplace listing edit"
+  "marketplace get": "marketplace details"
+  "marketplace show": "marketplace details"
+  "marketplace read": "marketplace details"
+  "marketplace detail": "marketplace details"
+  "marketplace view": "marketplace details"
+  "marketplace info": "marketplace details"
+  "marketplace item": "marketplace details"
+  "marketplace lookup": "marketplace details"
+  "marketplace listing-details": "marketplace details"
+  "marketplace listing-detail": "marketplace details"
+  "marketplace item-details": "marketplace details"
+  "marketplace listing-info": "marketplace details"
+  # One argv element, `'listing details'`, which scripts pass for the canonical
+  # path; it matches the hidden copy's alias, not the two words below `listing`.
+  "marketplace listing details": "marketplace details"
+  "marketplace update": "marketplace edit"
+  "post comments": "post comments read"
+  "post comments list": "post comments read"
+  "post comments get": "post comments read"
+  "post comments fetch": "post comments read"
+  "post comments create": "post comments add"
+  "post reactions": "post reactions read"
+  "profile read": "profile info"
+  "profile get": "profile info"
+  "profile show": "profile info"
+  "profile view": "profile info"
+  "groups info": "groups details"
+  "groups get": "groups details"
+  "groups show": "groups details"
+  "groups detail": "groups details"
+  "groups list": "groups search"
+  "events get": "events details"
+  "events read": "events details"
+  "events show": "events details"
 actions:
   read:
     default: allow
     label: Read permissions
     methods:
+      guidance:
+        label: Read your account status
+        approval_phrase: read your account status
+        response_guard: disabled
       pages.read:
         label: Read posts and analytics from your Pages
         approval_phrase: read posts and analytics from your Facebook Pages
         response_guard: verification_codes
+      post.audiences.read:
+        label: Read your current Facebook posting audience and choices
+        approval_phrase: read your Facebook posting audience and choices
+        response_guard: disabled
+      post.crossposting.read:
+        label: Read where your Facebook posts are also shared
+        approval_phrase: read where your Facebook posts are also shared
+        response_guard: disabled
       facebook.search:
         label: Search
         approval_phrase: search Facebook
@@ -76,25 +160,107 @@ actions:
     default: ask
     label: Write and delete permissions
     methods:
+      post.create:
+        approval_policy: fresh_consent_only
+        label: Publish text posts to your profile
+        approval_phrase: post to your Facebook profile
+      comment.add:
+        approval_policy: fresh_consent_only
+        label: Add text comments and replies
+        approval_phrase: add this Facebook comment or reply
       pages.posts.write:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Draft, publish, or schedule page posts
         approval_phrase: create, edit, schedule, publish, and delete posts and drafts on your Facebook Pages
       marketplace.listing.draft:
         label: Create draft Marketplace listings
         approval_phrase: save this Marketplace listing as a draft on Facebook
       marketplace.listing.publish:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Publish Marketplace listings
         approval_phrase: publish this Marketplace listing on Facebook
       marketplace.listing.update:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Update Marketplace listings
         approval_phrase: update this Marketplace listing on Facebook
       marketplace.listing.delete:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Delete Marketplace listings
         approval_phrase: delete this Marketplace listing from Facebook
       saved.write:
         default: allow
         label: Save items
+commands:
+  # Credential-free URL helpers handled by the binary before clap parsing.
+  connect-url: null
+  disconnect-url: null
+  guidance: guidance
+  # Bare `me` is the identity / account-linking probe and is not policy-gated.
+  me: null
+  "me friends": facebook.search
+  "post read": facebook.search
+  "post audiences": post.audiences.read
+  "post crossposting": post.crossposting.read
+  "post create": post.create
+  "post comments add": comment.add
+  "post comments read": facebook.search
+  "post reactions read": facebook.search
+  "pages list": pages.read
+  "pages access": pages.read
+  "pages account-insights": pages.read
+  "pages posts list": pages.read
+  "pages posts get": pages.read
+  "pages posts create": pages.posts.write
+  "pages posts reschedule": pages.posts.write
+  "pages posts cancel-schedule": pages.posts.write
+  "pages drafts create": pages.posts.write
+  "pages drafts show": pages.read
+  "pages drafts publish": pages.posts.write
+  "pages drafts edit": pages.posts.write
+  "pages drafts delete": pages.posts.write
+  "link-sharing decode-url": facebook.search
+  "profile info": facebook.search
+  "timeline fetch": facebook.search
+  "story feed": facebook.search
+  "marketplace search": facebook.search
+  "marketplace saved": facebook.search
+  "marketplace seller-info": facebook.search
+  "marketplace my-listings": facebook.search
+  "marketplace listing details": facebook.search
+  # marketplace.listing.draft instead when the photos, condition, category or
+  # location are missing, so the listing cannot go live yet.
+  "marketplace listing create": marketplace.listing.publish
+  "marketplace listing edit": marketplace.listing.update
+  "marketplace listing publish": marketplace.listing.publish
+  "marketplace listing delete": marketplace.listing.delete
+  "groups details": facebook.search
+  "groups search": facebook.search
+  "groups posts": facebook.search
+  "feed newsfeed": facebook.search
+  "feed friends": facebook.search
+  "events search": facebook.search
+  "events details": facebook.search
+  "saved list": facebook.search
+  "saved add": saved.write
+  "saved remove": saved.write
+  "saved collections list": facebook.search
+  "saved collections create": saved.write
+
+# The daemon sends this screen only on a confidential VM, the only place
+# Facebook needs consent (auth.confidential_vm_consent in connector.yaml).
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Facebook"
+      text: "Muse will access things like posts, comments and friends."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "Facebook is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+      placement: callout
+    - "Muse will exchange info with Facebook. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

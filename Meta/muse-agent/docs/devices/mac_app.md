@@ -24,10 +24,10 @@ advertises. They do not make an unavailable command available.
 
 The live catalog can include these capability families:
 
-- native Mac apps, windows, programs, environment details, and local  
+- native Mac apps, windows, programs, environment details, and local
   notifications;
 - web work in the user's own browser on the Mac, in their normal signed-in
-  profile (for Chrome, a separate window Muse opens in that same profile);
+  profile (for Chrome, a new tab in one of the user's existing windows);
 - files and folders on the Mac;
 - screen captures and camera photos;
 - Notes through `notes.*`, Messages (the Mac's iMessage app) through
@@ -45,14 +45,20 @@ not substitute `computer.control` to reach the same protected data or effect.
 
 - Use `computer.control` for native Mac apps and windows, and for web work on
   the Mac. Web work runs in the user's own installed browser and their normal
-  signed-in profile. For Chrome, Muse opens a separate window in that same
-  profile; the user's existing windows stay on their desktop, and there is no
-  second profile and no new sign-in. The browser on your computer is a
-  separate browser with none of the Mac's sign-ins.
+  signed-in profile. For Chrome, Muse opens a new tab in one of the user's
+  existing Chrome windows, not the one in front when there are several, and
+  there is no second profile and no new sign-in. The browser on your computer
+  is a separate browser with none of the Mac's sign-ins.
+- Control works in the background in the selected window, so the user can keep
+  using the Mac. It never brings an app to the front. A preview card in the Mac
+  app shows the controlled window, and Stop in the chat composer ends the task.
 - Treat the action names inside `computer.control` as parameters, not as
   command names.
 - The Mac has no shell or program runner, so a script or terminal command
   cannot be run on the Mac.
+- Control always skips the Muse app itself, WhatsApp, Messages, terminal and
+  scripting apps, password managers, and iPhone Mirroring. The user can block
+  more apps in the Mac app's Settings under Computer use.
 - Use `environment.describe` to inspect the Mac's current environment. Do not
   capture the screen or camera only to discover which capabilities are present.
 
@@ -85,15 +91,18 @@ not substitute `computer.control` to reach the same protected data or effect.
   Mac the permission it asks for.
 - Reading can be set to allow, ask each time, or off.
 - Sending a message or an email asks the user. For a message or an email to
-  one person, the user can choose Allow once, always allow it for that
-  recipient, or Deny; an always-allow covers only that recipient from that
-  account, never the whole app, and later sends to that person go through
-  without asking. A group message, a text (SMS), or a recipient the Mac
-  cannot resolve asks each time unless the user has set that app to allow
-  writes.
+  one person, including a text (SMS) to one phone number, the user can choose
+  Allow once, always allow it for that recipient, or Deny; an always-allow
+  covers only that recipient from that account, never the whole app, and
+  later sends to that person go through without asking. An always-allow for
+  iMessages to a number does not cover texts to it, or the reverse. A group
+  message or a recipient the Mac cannot resolve asks each time unless the
+  user has set that app to allow writes.
 - Controlling apps and windows on the Mac needs the Mac's Accessibility and
   Screen Recording permissions. Control asks the user for approval first,
-  unless they set it to always allow in the Mac app's Settings.
+  unless they set it to always allow in the Mac app's Settings. The card lists
+  the steps it covers. The user can allow or deny it, and an allow can cover
+  the rest of that task.
 
 ## User-Facing Language
 

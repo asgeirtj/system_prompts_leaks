@@ -1,0 +1,7 @@
+name: image_search
+title: "Image Search"
+description: "Search the web by text query for image URLs and source pages for feeds, artifacts, and visual references. Does not identify a supplied image or person."
+category: "Creation"
+include_in_prompt: true
+availability:
+  confidential_vm: true

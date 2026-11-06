@@ -1,0 +1,7 @@
+name: share_ideas
+title: "Share ideas"
+description: "Publish a reusable native Muse Idea with idea.share when the user explicitly asks to share or publish an Idea or asks for a muse.ai/ideas link. Never offer it unprompted. Not for pages or write-ups, sending a result to someone, social posts, or sharing an artifact."
+category: "Communication"
+include_in_prompt: true
+availability:
+  confidential_vm: false

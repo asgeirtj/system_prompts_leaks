@@ -1,0 +1,9 @@
+id: google_docs
+title: "Google Docs"
+description: "Read, create and edit the user's Google documents, including the notes and shared notebooks they keep as Docs."
+aliases: [google-docs, google_docs]
+include_in_prompt: true
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_docs authorize-url"

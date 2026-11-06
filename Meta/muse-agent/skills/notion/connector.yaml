@@ -1,0 +1,10 @@
+id: notion
+title: "Notion"
+description: "Search, read and edit pages, databases, notes and comments in the user's Notion workspace."
+aliases: [notion]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"
+  disconnect: cli

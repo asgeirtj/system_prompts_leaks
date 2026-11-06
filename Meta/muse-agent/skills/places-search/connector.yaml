@@ -1,0 +1,9 @@
+id: places
+title: "Places Search"
+description: "Find physical places and businesses, read their addresses, hours, ratings, reviews, photos and other details, or identify a place from photos."
+icon: places
+aliases: [places-search, places_search]
+presentation_key: places_search
+include_in_prompt: true
+availability:
+  confidential_vm: true

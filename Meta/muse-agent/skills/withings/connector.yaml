@@ -1,0 +1,9 @@
+id: withings
+title: "Withings"
+description: "Read the user's Withings weight and other body measurements, blood pressure, heart rate, steps, activity, sleep, workouts, ECG recordings and devices."
+aliases: [withings]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"

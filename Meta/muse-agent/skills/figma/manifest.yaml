@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: figma
+  required: true
 connector: figma
 category: business
 display_name: Figma

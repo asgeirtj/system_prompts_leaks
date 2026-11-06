@@ -1,9 +1,3 @@
----
-name: "image_search"
-description: "Search the web by text query for image URLs and source pages for feeds, artifacts, and visual references. Does not identify a supplied image or person."
-metadata: { "includeInPrompt": true }
----
-
 # Image Search
 
 Use the bundled CLI to find public images by text query:
@@ -57,16 +51,16 @@ For an Artifact, choose a download-safe locator before starting any fetch:
    curl -fsSL --connect-timeout 10 --max-time 60 -A 'Mozilla/5.0' -H 'Accept: image/png,image/jpeg,image/gif,image/webp,image/*;q=0.5' -o '<dest-file>' '<image-url>'
    ```
 
-   Accept only a final `2xx` whose content type and file magic are an image,  
-   then copy those bytes into Artifact-owned storage. Prefer PNG or JPEG:  
-   WEBP is fine except in a Word document, and AVIF except on a web page,  
-   which refuses it at share time with no retry that fixes it. Convert a HEIC  
-   to JPEG anywhere. Reject hotlink-blocked, expiring, redirecting, 403/404,  
-   non-image, watermarked, or unstable URLs. The referer matters: a  
-   hotlink-protected host serves a plain fetch but refuses requests that look  
-   like they come from someone else's page, so a URL that fails this probe  
-   breaks after the Artifact ships even though it loads for you today. The  
-   same preflight applies to any external image URL an Artifact uses, however  
+   Accept only a final `2xx` whose content type and file magic are an image,
+   then copy those bytes into Artifact-owned storage. Prefer PNG or JPEG:
+   WEBP is fine except in a Word document, and AVIF except on a web page,
+   which refuses it at share time with no retry that fixes it. Convert a HEIC
+   to JPEG anywhere. Reject hotlink-blocked, expiring, redirecting, 403/404,
+   non-image, watermarked, or unstable URLs. The referer matters: a
+   hotlink-protected host serves a plain fetch but refuses requests that look
+   like they come from someone else's page, so a URL that fails this probe
+   breaks after the Artifact ships even though it loads for you today. The
+   same preflight applies to any external image URL an Artifact uses, however
    it was found.
 3. If no simple `media_url` succeeds, consider a query-bearing `media_url` or
    `thumbnail_cdn_url`. Use the returned locator byte-for-byte; never remove or
@@ -79,3 +73,11 @@ substitute an unrelated local image when a fetch fails.
 
 This is text-to-image search, not reverse-image identification. Do not use it
 to identify an unknown person from a supplied photograph.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

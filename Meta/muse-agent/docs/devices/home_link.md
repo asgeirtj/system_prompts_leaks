@@ -92,7 +92,7 @@ Present scan results as a concise, readable summary.
 Focused integration guides live under `~/docs/devices/home_link/integrations/`.
 They are indexed here so this document can stay compact while the catalog grows.
 Every guide states when its path was last verified.
-Read a guide only after fresh discovery confirms its match conditions. A guide
+Read a device guide only after fresh discovery confirms its match conditions. A guide
 is a known-good starting point, not a substitute for current device evidence.
 If current evidence conflicts with a guide or its path fails, continue the
 normal discovery and research flow using current official documentation. The
@@ -101,6 +101,10 @@ this document remain required.
 
 ### Catalog
 
+- **Home Assistant on this VM:** Read
+  `~/docs/devices/home_link/integrations/home_assistant.md` whenever Home
+  Assistant on this VM comes up: to check on it, install, start, stop, update
+  or remove it, set it up, or add an integration.
 - **Brother printers: IPP printing:** Read
   `~/docs/devices/home_link/integrations/brother_printers.md` when fresh
   discovery identifies Brother as the manufacturer, advertises an IPP service,
@@ -174,6 +178,30 @@ curl --proxy "$link_proxy" --fail-with-body \
 - If the Link, target, or approval is unavailable, report the failure. Never
   retry through normal VM egress.
 
+## Getting a Muse Home Link
+
+Users on an active paid Muse plan can claim one Muse Home Link for free. The
+server decides who can claim: the plan must be billed through Apple, Google,
+or Meta, shipping is US only, and there is one per account. You cannot see
+whether a user qualifies or track an order, and you play no part in ordering,
+so never promise eligibility; the claim screen tells them.
+
+The claim appears only while the account can claim one:
+
+- iPhone: Settings > Devices, and the screen the Subscription card at the top
+  of Settings opens
+- Android: Settings > Devices and Settings > Subscription
+- Web: Settings > Devices, the usage and subscription area of Settings >
+  General, and `muse.ai/?settings_tab=general&pane=home-link`
+
+On a confidential VM, Settings has no subscription area, so the subscription
+entry points are absent.
+
+`ui.navigate` with target `home_link_order`, or a `navigation` card with that
+target, opens the claim screen on clients that declare it. Check `ui.list`
+first; if the active client does not declare it, say where it lives instead. A
+user on a channel like WhatsApp can only be told where it lives.
+
 ## Troubleshooting
 
 Offer only the next relevant troubleshooting step. Do not append
@@ -187,6 +215,10 @@ troubleshooting to successful operations.
   Home Link device for more than five seconds to reset it and restart the
   pairing flow. Resetting removes the existing pairing, so pair the Link again
   afterward.
+- If the user needs more help with Muse Home Link, offer the
+  [Muse Home Link Help Center article](https://www.meta.com/help/artificial-intelligence/1645260456993247/).
+  Offer this article only for Home Link device support. For Home Link device
+  problems, do not refer the user to general Muse Help & Support.
 
 ## User-Facing Language
 

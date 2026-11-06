@@ -1,0 +1,9 @@
+id: google_slides
+title: "Google Slides"
+description: "Read and edit the user's Google Slides presentations, or put a finished deck into a presentation."
+aliases: [google-slides, google_slides]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_slides authorize-url"

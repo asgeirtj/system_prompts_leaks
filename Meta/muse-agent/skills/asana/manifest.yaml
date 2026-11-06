@@ -1,9 +1,33 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # The client ID is public. CAGI supplies the confidential client secret
+  # only for token exchange and refresh, so it never enters the Muse VM.
+  client_id: "1218807804607913"
+  provider: asana
+  required: true
+  authorization_query:
+    display_ui: always
+  identity:
+    cli:
+      subcommand: identity
+    provider_account_id_composite:
+      fields: [data.gid, data.workspaces.0.gid]
+      separator: ":"
+    display_name_fields:
+      - data.workspaces.0.name
 connector: asana
 category: business
 display_name: Asana
 description: Plan and track projects and tasks
 icon: asana
+multi_account:
+  backend: oauth
+  domains:
+    - mcp.asana.com
+    - app.asana.com
+  expose_routing_metadata: true
 request_quota:
   mode: shadow
   workers: [asana]
@@ -54,6 +78,7 @@ actions:
         approval_phrase: post project status updates in Asana
 commands:
   status: null
+  accounts: null
   authorize-url: null
   exchange-code: null
   refresh: null

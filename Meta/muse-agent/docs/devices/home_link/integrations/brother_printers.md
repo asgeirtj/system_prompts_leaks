@@ -9,7 +9,7 @@ the user asks to print.
 
 1. Query current IPP capabilities. When advertised, prefer
    `image/pwg-raster` before PDF or JPEG.
-2. Generate PWG Raster with standard CUPS tools such as `imagetoraster` and  
+2. Generate PWG Raster with standard CUPS tools such as `imagetoraster` and
    `rastertopwg`.
 3. Match media, resolution, printable area, and other print options to the
    printer's advertised values. Scale the layout and text for that resolution.

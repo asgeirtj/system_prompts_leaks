@@ -1,0 +1,17 @@
+id: messenger_read
+title: "Messenger"
+description: "Read, search and send messages in the user's personal Facebook Messenger account, including call history, reactions, edits and Marketplace threads."
+aliases: [messenger, messenger_read, "facebook messenger"]
+wire_id: messenger
+include_in_prompt: true
+domain: chat
+availability:
+  confidential_vm: true
+auth:
+  connect: companion
+  disconnect: cli
+sync:
+  fetch_kind: connector_sync_messenger
+  cadence_minutes: 30
+  read_methods: [messages.read]
+  content_hints: [messaging, end_to_end_encrypted]

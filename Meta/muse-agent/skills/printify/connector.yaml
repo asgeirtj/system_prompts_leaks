@@ -1,0 +1,9 @@
+id: printify
+title: "Printify"
+description: "Browse Printify's print-on-demand catalog and manage products, artwork uploads, publishing and fulfillment orders in the user's shops."
+aliases: [printify]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  connect: api_key

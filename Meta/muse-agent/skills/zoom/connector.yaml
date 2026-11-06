@@ -1,0 +1,9 @@
+id: zoom
+title: "Zoom"
+description: "Schedule, update and cancel Zoom meetings, read their recordings, transcripts and summaries, and use Team Chat, Canvas, Tasks, Whiteboard and Revenue Accelerator through Zoom's official servers."
+aliases: [zoom]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

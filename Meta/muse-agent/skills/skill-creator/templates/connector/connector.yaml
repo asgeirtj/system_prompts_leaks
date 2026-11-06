@@ -1,0 +1,20 @@
+# The template for a custom connector's descriptor. Save it beside its doc as
+# ~/workspace/custom-connectors/custom.<provider>/connector.yaml, fill it in and
+# delete these comments.
+#
+# - id: equal to the folder name, the same lowercase slug you gave
+#   credentials.request_api_access.
+# - title: the service's own name, which search also matches.
+# - description: one sentence on what the user can do through this connector.
+#   It is what the model sees in the connector list.
+# - include_in_prompt: true lists the connector in every conversation; false
+#   keeps it out of the list while muse.connector_search still finds it.
+# - require_auth: true hides the connector from the list while its credential
+#   is not connected. Use false for a public API that needs no credential.
+# - aliases: add a list such as ["Other Name"] when users call the service
+#   something else, so search and lookups find it under that name too.
+id: "custom.<provider>"
+title: "<Provider Name>"
+description: "Use <Provider Name> through its registered API."
+include_in_prompt: true
+require_auth: true

@@ -1,0 +1,9 @@
+id: slack
+title: "Slack"
+description: "Search and read Slack messages, channels, threads and canvases, and send, schedule or draft messages as the user."
+aliases: [slack]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

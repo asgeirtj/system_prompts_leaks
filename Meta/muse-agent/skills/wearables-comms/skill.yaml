@@ -1,0 +1,8 @@
+name: wearables_comms
+title: "Calls and Texts from Glasses"
+description: "Place a native call or text from the user's glasses to the right person, or answer, decline or cancel a call on them."
+category: "Communication"
+include_in_prompt: false
+availability:
+  confidential_vm: true
+  devices: [audio-wearable, mcu-wearable, display-wearable]

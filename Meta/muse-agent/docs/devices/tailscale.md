@@ -14,7 +14,7 @@ This device requests the name `muse` on your Tailscale network.
 
 Tailscale is a private network joining this VM to the user's own machines. Once
 connected, they are reachable at their tailnet addresses, which Tailscale
-assigns from `100.64.0.0/10` — anything from `100.64.` to `100.127.`, not just  
+assigns from `100.64.0.0/10` — anything from `100.64.` to `100.127.`, not just
 `100.64.`.
 
 This device joins as a client only: it makes outgoing connections and accepts
@@ -103,6 +103,11 @@ server is unavailable, the request can try another server configured for that
 same DNS route. A blocking or negative answer does not switch DNS providers.
 These settings apply to requests through the Tailscale proxy. The connector
 does not offer exit-node selection.
+
+Reaching a tailnet machine does not by itself reach the local network behind
+it. A machine on that network is reachable only through a subnet route that a
+tailnet device advertises. `tailscale status` lists each device's advertised
+routes.
 
 `tailscale status` says whether an address is on the network. There is no
 reachability probe; test the service with a TCP connection through the proxy.

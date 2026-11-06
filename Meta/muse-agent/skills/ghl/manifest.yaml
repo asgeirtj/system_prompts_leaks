@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: ghl
+  required: true
 connector: ghl
 category: business
 display_name: HighLevel
@@ -144,12 +149,15 @@ actions:
         label: Manage opportunities
         approval_phrase: create or update opportunities and followers in HighLevel
       appointments.manage:
+        approval_policy: fresh_consent_or_task_allow
         label: Manage appointments
         approval_phrase: manage appointments, blocked time, and appointment notes in HighLevel
       automations.manage:
+        approval_policy: fresh_consent_or_task_allow
         label: Manage automations
         approval_phrase: add or remove campaign and workflow enrollments in HighLevel
       messaging.manage:
+        approval_policy: fresh_consent_only
         label: Manage messaging
         approval_phrase: manage conversations or send, schedule, or cancel messages in HighLevel
       ads.manage:
@@ -337,8 +345,11 @@ commands:
   refresh: null
   disconnect: null
   list-tools: crm.read
+  # Lists the local pinned operation catalog.
   list-operations: null
-  call-tool: null
+  call-tool: crm.read
+  # The method comes from the pinned operation's permission (list-operations);
+  # an uncatalogued operation ID needs a one-shot write approval.
   execute-operation: null
 consent_screen:
   bullets:

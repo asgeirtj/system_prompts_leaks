@@ -1,0 +1,15 @@
+id: facebook_cli
+title: "Facebook"
+description: "Read the user's Facebook friends, profiles, timelines, posts, comments, reactions, feeds, stories, groups, events and saved items, post and comment as the user, report insights and publish or schedule posts on Pages they manage, buy and sell on Marketplace, and shop products shown in Reels."
+aliases: [facebook-cli, facebook_cli, facebook-marketplace, facebook_marketplace]
+wire_id: facebook
+include_in_prompt: true
+onboarding: true
+availability:
+  confidential_vm: true
+auth:
+  confidential_vm_consent: true
+sync:
+  fetch_kind: connector_sync_facebook_marketplace
+  cadence_minutes: 60
+  read_methods: [facebook.search]

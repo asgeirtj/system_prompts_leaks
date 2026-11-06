@@ -1,0 +1,7 @@
+id: apple_healthkit
+title: "Apple Health"
+description: "Read the user's iPhone-synced Apple Health metrics, raw samples, sleep and workouts, check sync coverage, and delete approved records."
+aliases: [apple-healthkit, apple_healthkit]
+include_in_prompt: true
+availability:
+  confidential_vm: true

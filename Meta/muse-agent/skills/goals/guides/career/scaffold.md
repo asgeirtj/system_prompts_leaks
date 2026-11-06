@@ -13,10 +13,10 @@ Ground the support in what the user actually needs to do day-to-day.
 Research the relevant field when current requirements or industry practices
 would change the advice.
 
-Relevant context may include: calendar or Calendly for meeting load and time
-allocation; email for recruiter and internal-role signal; job postings and
-wide research for market demand; docs and slides for resumes and work
-artifacts; task tools for project context. Work data is sensitive. Ask the
+Relevant context may include the calendar or Calendly for meeting load and
+time allocation, email for recruiter and internal-role signal, job postings and
+wide research for market demand, docs and slides for resumes and work
+artifacts, and task tools for project context. Work data is sensitive. Ask the
 user for permission before you read private work context, recruiter messages,
 performance material, or work documents. Ask the user for permission before
 you send any outbound workplace message.

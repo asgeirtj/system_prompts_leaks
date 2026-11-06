@@ -1,8 +1,14 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: granola
+  required: true
 connector: granola
 category: productivity
 display_name: Granola
 description: Find and review your meeting notes
+icon: granola
 cli:
   binary: granola-cli
   skill: granola
@@ -18,6 +24,7 @@ actions:
     label: Read permissions
     response_guard: verification_codes
     methods:
+      # Exact hosted MCP names; the CLI filters tools/list to this allowlist.
       query_granola_meetings:
         label: Search meeting notes
       list_meetings:
@@ -30,6 +37,19 @@ actions:
         label: Access meeting transcripts
       get_account_info:
         label: Check account access
+commands:
+  status: null
+  authorize-url: null
+  exchange-code: null
+  refresh: null
+  disconnect: null
+  # Lists the remote MCP tools that match a declared method, without a
+  # connector authorization check. --all also lists undeclared remote tools
+  # so manifest drift stays visible.
+  list-tools: null
+  # call-tool accepts only exact method names declared above and authorizes the
+  # selected manifest policy.
+  call-tool: null
 
 consent_screen:
   bullets:

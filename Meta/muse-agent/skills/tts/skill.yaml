@@ -1,0 +1,8 @@
+name: spoken_audio
+title: "Spoken Audio"
+description: "Send the user a voice note or voice message, narrate text for an artifact or scheduled task, or read supplied text aloud as an audio file."
+category: "Media"
+include_in_prompt: true
+availability:
+  confidential_vm: true
+  needs_speech: true

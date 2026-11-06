@@ -1,7 +1,18 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "670103e0-c9c9-41f5-913c-68a474246cab"
+  provider: philips_hue
+  required: true
+cli:
+  binary: philips-hue
+  skill: philips_hue
 connector: philips_hue
+category: productivity
 display_name: Philips Hue
 description: Control smart lights, set scenes and automate your lighting
+icon: hue_lights
 request_quota:
   mode: enforce
   workers:
@@ -28,6 +39,23 @@ actions:
         approval_phrase: control lights and groups in Philips Hue
       scene.activate:
         label: Activate scenes
+commands:
+  status: null
+  authorize-url: null
+  disconnect: null
+  # Connection setup: pairs the Hue Bridge without a connector authorization
+  # check.
+  link-bridge: null
+  list-lights: lights.list
+  list-rooms: lights.list
+  list-zones: lights.list
+  list-scenes: lights.list
+  list-devices: devices.list
+  list-sensors: devices.list
+  list-buttons: devices.list
+  light: light.control
+  group: light.control
+  scene: scene.activate
 
 consent_screen:
   bullets:

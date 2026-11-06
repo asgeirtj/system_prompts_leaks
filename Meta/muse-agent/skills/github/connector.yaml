@@ -1,0 +1,9 @@
+id: github
+title: "GitHub"
+description: "Search and work with the user's GitHub repositories, files, issues and pull requests through GitHub's official MCP server."
+aliases: [github]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

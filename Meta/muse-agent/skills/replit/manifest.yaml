@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: replit
+  required: true
 connector: replit
 category: business
 display_name: Replit

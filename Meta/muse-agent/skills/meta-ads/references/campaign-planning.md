@@ -1,319 +1,144 @@
-# Campaign planning — full research
+# Plan a complete Meta campaign
 
-Use this reference for the default full-research path. Apply account scope and
-evidence; read analysis, policy, response style, or general tool routing only
-when the decision requires them. Explicit step-by-step requests use
-`campaign-guided.md` instead.
+- Use this full-research path by default. An explicit step-by-step request uses [guided planning](campaign-guided.md) instead, and [account scope](account-scope.md) and [evidence](evidence.md) apply throughout.
 
-## Delivery strategy before creative
+## Settle strategy before creative
 
-Strategy connects advertiser intent to executable delivery settings. Resolve:
+- Strategy turns the advertiser's intent into executable delivery settings. Resolve them in this order:
+  - signals and tracking
+  - objective and optimization
+  - destination
+  - compliance
+  - geography and audience
+  - structure and placements
+  - budget and schedule
 
-1. signals and tracking;
-2. objective and optimization;
-3. destination;
-4. compliance;
-5. geography and audience;
-6. hierarchy and placements; and
-7. budget and schedule.
+- The current request overrides memory. Earlier conversations may supply stable facts the advertiser did not replace, never an old budget, objective, destination, promotion or one-off asset.
 
-The current request overrides memory. Prior conversations may support stable
-facts the advertiser did not replace, never an old budget, objective,
-destination, promotion, or one-off asset.
-
-This review may name the ad count needed for structure or pricing, but it does
-not include creative format, concept, composition, copy, button wording,
-in-image text, or production source. Those belong to `campaign-creative.md`
-after strategy approval.
+- The strategy may name the number of ads needed for structure or pricing. Creative format, concept, copy, button wording, in-image text and production source belong to [creative preparation](campaign-creative.md) after strategy approval.
 
 ## Establish the product brief
 
-Before discovery, decide whether the conversation explains what is being
-advertised or tested well enough to research it without adding facts. If
-describing what the audience receives, how the offering is delivered, or what a
-requested test changes would require invention, the brief is incomplete.
-Account names, campaign labels, and history cannot fill that gap unless the
-advertiser explicitly asks to reuse or duplicate a prior setup. A name, date,
-audience, or price alone does not establish the substance of the offering. Ask
-the natural product- or test-scope questions needed to remove the actual
-ambiguity, grouped into one brief turn. Do not supply example answers or preview
-any campaign setting. The response contains only a short reason and the
-questions; do not mention research, pricing, planning, or future workflow.
-Research—not the advertiser—will recommend goal, destination type, audience,
-placements, hierarchy, and schedule. It also recommends budget when the
-advertiser leaves affordability open; exact execution inputs still require
-advertiser or tool provenance.
+- Before discovery, decide whether the conversation explains what is being advertised or tested well enough to research without adding facts. If describing what the audience receives, how it is delivered or what a test changes would need invention, the brief is incomplete.
 
-Ask now only for facts needed to understand the advertised offering or to run
-delivery research. A detail needed only to write or render the ad belongs in
-the creative stage and must not block strategy research. This turn contains only
-offering or test-scope questions plus the budget question below; account, Page,
-destination, and other delivery-setting decisions belong to later stages. When
-this clarification turn is already required and no spend constraint is known,
-it must include one natural budget question. Let the advertiser leave budget
-open for the estimator; never require them to invent an amount.
+- Account names, campaign labels and history cannot fill that gap unless the advertiser asks to reuse or duplicate a setup. A name, date, audience or price alone does not establish what the offering is.
 
-The brief is sufficient only when remaining unknown advertiser-owned facts
-cannot change a delivery decision or how budget should be interpreted. The
-instruction to minimize intake applies only after this test passes. Ask only for
-facts that resolve such a dependency, without anchoring the answer to another
-product; otherwise continue and state the resulting limitation.
+- Ask the natural product or test questions together in one brief turn, with a short reason and no example answers, campaign settings or talk of research and later stages. Research, not the advertiser, recommends the goal, destination type, audience, placements, structure and schedule, and the budget when they leave it open.
 
-Use options only when one bounded question is sufficient. When several related
-facts are missing, ask them together in plain text. Begin discovery and the
-first research call in the same turn after the brief is complete. One brief,
-natural status is fine while research continues; the final response contains a
-finding, blocker, or decision rather than troubleshooting narration.
+- A detail needed only to write or render the ad waits for the creative stage. When this clarification turn is needed anyway and no spending limit is known, include one natural budget question that lets the advertiser leave it open, never requiring them to invent an amount.
 
-An omitted budget alone does not create an upfront clarification turn. When the
-brief is otherwise sufficient, continue; after other pricing inputs stabilize,
-call `ads_budget_estimate` without a seed and resolve its returned basis under  
-`campaign-budget.md`.
+- The brief is complete only when the remaining unknown facts cannot change a delivery decision or how the budget should be read. Ask only for facts that resolve such a dependency, without anchoring the answer to another product, and otherwise continue and state the limitation.
+
+- An omitted budget alone never creates a clarification turn. When the brief is otherwise enough, continue, and call `ads_budget_estimate` without a seed once the other pricing inputs are stable.
+
+- Use options only when one bounded question is enough. Once the brief is complete, begin discovery and the first research call in the same turn, and the final response carries a finding, a blocker or a decision, never troubleshooting narration.
 
 ## Resolve identity
 
-Apply `account-scope.md`. Silently use the sole enabled account or one clear
-name/context match; otherwise show one named account picker and stop. If no
-account is available, continue plan-only and state that Ads Manager execution
-is unavailable.
+- Use the sole enabled account or one clear match by name or context. Otherwise show one named account picker and stop, and with no account available, continue plan-only and say Ads Manager creation is unavailable.
 
-Read Pages with `ads_get_ad_account_pages` for the selected account. Use a Page
-the advertiser chose or one clear compatible match. If several are plausible,
-ask with one picker. If the Page name materially differs from the verified
-destination brand, show the exact pairing and ask only `Use <Page name>` /
-`Choose another Page`; ignore cosmetic name differences. Never use
-`ads_get_pages_for_business` without a returned `business_id` and a real need
-for business scope. That list is the account's promoted Pages, not the set the
-advertiser may advertise from: `ads_create_creative` takes a `page_id` and
-accepts any Page they hold advertising rights to. So when it is empty or holds
-no match, widen to `ads_get_user_pages`, which needs no id, and resolve from
-there; a Page found only in the wider scope is valid for creation. An empty or
-non-matching `ads_get_ad_account_pages` never blocks creation, and is never
-reported to the advertiser as something they must fix — do not tell them to
-attach a Page in Business Settings.
+- Read Pages with `ads_get_ad_account_pages` for the selected account, and use the Page the advertiser chose or one clear compatible match. With several plausible Pages, ask with one picker.
 
-That widening is for the Page only. Resolve Instagram before recommending an
-Instagram-only placement or automatic placements that may deliver on Instagram,
-use only an Instagram identity returned for the selected account, and never
-assume Page identity also covers Instagram. If no usable Instagram identity
-exists, revise the placement recommendation or state the limitation rather than
-recommending or pricing Instagram placements. Do the same if no Page is usable
-at all.
+- When the Page name materially differs from the verified destination brand, show the pairing and offer only `Use <Page name>` and `Choose another Page`. Ignore cosmetic differences.
 
-Reuse stable, same-context choices by name. Refresh a prior campaign through
-`ads_get_ad_entities` only when the request refers to that campaign. Do not
-carry one-off offers, URLs, seasons, assets, IDs, capability results, or live
-delivery state into a new context. Carried choices are defaults, not standing
-permission to spend. Never use history to complete an insufficient current
-brief; a prior reference authorizes carry-forward only when the advertiser asks
-to reuse or duplicate it.
+- That list holds the account's promoted Pages, not every Page the advertiser may advertise from. When it is empty or has no match, widen to `ads_get_user_pages`, which takes no ID, because `ads_create_creative` accepts any Page they hold advertising rights to.
+
+- An empty or unmatched account Page list never blocks creation and is never reported as something to fix, such as attaching a Page in Business Settings. Use `ads_get_pages_for_business` only with a returned `business_id` and a real need for business scope.
+
+- Resolve Instagram with `ads_get_ig_accounts` before recommending placements that may deliver on Instagram, using only an identity returned for the selected account. An Instagram-only placement, Instagram Direct or an Instagram profile destination needs that account.
+
+- Without a usable Instagram account, revise those placements or state the limitation, saying no Instagram account is linked to the ad account and that linking one would show their Instagram profile on ads delivered there. Revise the plan the same way when no Page is usable at all.
+
+- Reuse stable same-context choices by name, and refresh a prior campaign through `ads_get_ad_entities` only when the request refers to it. One-off offers, URLs, seasons, assets, IDs, capability results and live delivery state never carry into a new context, and carried choices are defaults, not permission to spend.
 
 ## Run decision-bearing research
 
-`Plan only` suppresses writes, not discovery or decision-bearing reads; run the
-same research needed to ground the recommendation.
+- A plan-only request suppresses writes, not research. Run the same reads needed to ground the recommendation.
 
-Use normal `call-tool --agent-output` reads and consume their JSON directly.
-Describe only selected tools in the current lane, one tool per `describe-tool`
-command; independent descriptor calls may run together. Do not preload creation
-schemas. A failed lane is unavailable evidence, not a negative advertiser
-finding, and degrades only that lane.
+- Use ordinary `call-tool --agent-output` reads, one tool per `describe-tool` command, with independent descriptors run together and no creation schemas yet. A failed lane is missing evidence for that lane only, never a negative fact.
 
-Complete the needed lanes without interim questions or partial findings:
+- Complete the lanes that matter before asking anything:
+  - account context first, from `ads_insights_advertiser_context` when exposed, reading `ads_get_ad_entities` history only when that summary is absent, lacks a fact that could change a decision or the request names an object
+  - tracking, reading only the dataset, event, quality, pixel and custom-conversion facts that can change the objective or optimization
+  - audience, inspecting an existing audience only when the request or account context makes it a plausible choice
+  - destination and brand, verifying only the public facts needed for delivery settings
+  - performance and benchmarks, called only when their inputs are grounded and the result can change the plan
+  - policy or help, called only when the category or a proposed setting needs it
 
-- **Account context first:** call `ads_insights_advertiser_context` when exposed.
-  Treat it as the primary account/history summary. Call `ads_get_ad_entities`
-  for history only when context is absent, lacks a fact that could change a
-  concrete delivery decision, or the request names an entity that must be
-  resolved. Read only compatible product/objective/destination/audience/season
-  entities; do not retrieve or average unrelated history.
-- **Tracking:** read only the dataset, event, quality, pixel, and custom-
-  conversion facts that can change objective or optimization. Individual reads
-  combine into evidence; they are not a fictional unified health tool.
-- **Audience:** inspect an existing audience only when the request or account
-  context makes it a plausible buildable choice. Use returned IDs only.
-- **Destination and brand:** verify the destination and only the public facts
-  needed to choose delivery settings. Defer creative-market patterns, asset
-  inventory, and all Ad Library research to `campaign-creative.md`.
-- **Performance and benchmark:** call a trend or one relevant benchmark only
-  when its inputs are grounded and its result can change the plan. Never infer a
-  trend or benchmark from absent data.
-- **Policy/help:** call live policy or help only when the category or proposed
-  setting materially requires it.
+- Leave creative-market patterns, asset inventory and all Ad Library research for the creative stage. Read only compatible history, matching the product, objective, destination, audience type and season, and never average unrelated history.
 
-Call research complete only after every selected lane has returned or been
-recorded as unavailable. Describe exactly what was checked; never upgrade a
-small subset of account reads into `everything is verified`. Collection names
-and IDs are leads, not evidence for absent fields: follow the smallest useful
-set of plausibly compatible objects into detail or trend reads when they could
-change a decision, or omit that history. Empty, failed, names-only, or unmatched
-results never prove the advertiser lacks history or has never run something.
+- Call research complete only when every selected lane has returned or been recorded unavailable, and describe exactly what was checked rather than calling everything verified. Names and IDs in a listing are leads, not evidence, and empty, failed or unmatched results never prove the advertiser lacks history.
 
-Apply these disciplines:
+- Every cited fact changes a setting or explains why a candidate was rejected. Resolve conflicts with compliance first, then the advertiser's explicit preference, compatible first-party evidence and safe Advantage+ defaults.
 
-- Every cited fact changes a setting or explains why a candidate was rejected.
-- History is evidence only when product, objective, destination, audience type,
-  and relevant season are compatible.
-- Resolve conflicts in this order: compliance, explicit advertiser preference,
-  compatible first-party evidence, then safe Advantage+ defaults.
-- Current intent always grounds the plan; history may support but never replace
-  it.
+- Missing or failed evidence may rule out a setting but never establishes its replacement. Recommend the objective, destination and audience from stated intent, affirmative evidence or a supported default shown as an assumption, and otherwise keep the decision open.
 
-Evidence constrains choices: missing or failed evidence may rule out a setting,
-but does not establish an alternative. Recommend objective, destination, and
-audience from stated intent, affirmative evidence, or a supported safe default
-shown as an assumption; otherwise keep the decision open. Execution-bound URLs
-and targeting values must come from the advertiser or a tool result. The chosen
-destination is stable for pricing only when its required URL or object identity
-is supplied or returned; never price a hypothetical destination.
-Describe the audience as only what the executable targeting encodes; personas or
-interests used only to shape messaging are creative direction, not configured
-targeting.
+- Execution-bound URLs and targeting values come from the advertiser or a tool result. Price a destination only once its URL or object identity is supplied or returned, never a hypothetical one.
 
-An empty or failed summary establishes only that its lane supplied no usable
-evidence. It does not prove the advertiser lacks history, assets, audiences,
-demand, or prior performance unless an authoritative, correctly scoped
-collection explicitly returns empty. Use the documented fallback read when a
-missing fact could change a concrete decision.
+- Describe the audience as only what the executable targeting encodes. Personas used to shape messaging are creative direction, not targeting.
 
-Choose objective and optimization only after destination and tracking facts,
-then read and apply `campaign-delivery-compatibility.md` before either decision is
-settled, priced, or shown as a recommendation. Never silently replace the
-requested outcome. If its measurement event is unavailable, finish useful
-non-pricing research and go directly to the binding-constraint checkpoint
-before pricing an alternative.
-Then apply compliance and resolve any creation-bound targeting. A country code
-is already canonical. For any interest, language, or other location, read
-`campaign-targeting.md` before the first lookup, then call
-`ads_targeting_search` once with the grounded batch. A successful partial result
-is final for that decision round; do not retry by varying spelling, type,
-radius, or nearby areas without new advertiser evidence. Carry only returned
-objects into pricing and creation. An unresolved requested place remains open:
-do not price a partial audience, substitute a nearby place, widen its radius,
-or omit geography from executable targeting. Price only after every requested
-geography resolves or the advertiser accepts a revised geography.
+## Choose objective, targeting and budget
 
-Evaluate whether each campaign or ad set earns its own budget; prefer
-consolidation to unsupported fragmentation. After all pricing inputs,
-identities, and required capabilities stabilize, price the whole structure once
-under `campaign-budget.md`. An estimate that prompts an optimization change is
-feasibility evidence, not final pricing. Any accepted input change invalidates
-it; reprice only the final structure.
+- Choose the objective and optimization only after the destination and tracking facts, applying [delivery compatibility](campaign-delivery-compatibility.md) before settling, pricing or recommending either. Never silently replace the requested outcome.
 
-Finally check coherence across all seven settings, including the complete
-delivery tuple in `campaign-delivery-compatibility.md`. Repair
-evidence-resolvable conflicts. If one genuinely advertiser-owned blocker
-remains, finish available research, explain that blocker, and ask only for it
-instead of presenting an approvable plan.
+- If the outcome's measurement event is unavailable, finish the useful non-pricing research and go to the binding constraint below before pricing any alternative.
 
-After research, end with exactly one controller state: a binding-choice widget,
-one genuinely unbounded next question, or the complete strategy with embedded
-approve/revise options—even for plan-only requests. Never stop at an
-informational campaign or budget summary.
+- Then apply compliance and resolve targeting. A country code is already canonical, and any interest, language or other location goes through [targeting](campaign-targeting.md) in one grounded `ads_targeting_search` batch.
 
-## Resolve a binding constraint before full review
+- A partial targeting result is final for that round, so carry only returned objects forward. An unresolved requested place stays open, and never price a partial audience, substitute a nearby place, widen a radius or drop the geography.
 
-Before complete review, stop when evidence makes the request unexecutable or
-creates a material outcome, optimization, target, or spend fork. Name the first
-constraint correctly: an unavailable measurement event is tracking; a buildable
-event whose projected volume or required spend conflicts with the advertiser's
-target or limit is budget feasibility.
+- Check whether each campaign or ad set earns its own budget, preferring consolidation to unsupported fragmentation. Once pricing inputs, identities and capabilities are stable, price the whole structure once with [campaign budget](campaign-budget.md).
 
-Show only evidence → consequence → one recommendation, followed by one bounded
-widget under the interaction contract. Keep the requested outcome as an option
-when executable, name alternatives clearly, include a spend or target revision
-when it resolves the constraint, and order the recommendation first. Do not
-preview the complete plan or ask for strategy approval.
+- An estimate that prompts an optimization change is feasibility evidence, not final pricing. Any accepted input change invalidates it, and only the final structure is repriced.
 
-The selection settles only the disputed path. Collect any required free-form
-value next, rerun affected research, price the final stable structure once, then
-show the complete strategy with its accepted learning tradeoff.
+- Check coherence across all seven settings, including the delivery combination. Repair what evidence can resolve, and when one advertiser-owned blocker remains, finish research and ask only about it.
+
+- Research ends in exactly one state, a binding-choice widget, one genuinely open question, or the complete strategy with approve and revise options, even for a plan-only request. Never stop at an informational campaign or budget summary.
+
+## Resolve a binding constraint
+
+- Stop before the complete review when evidence makes the request unexecutable or creates a material fork in outcome, optimization, target or spend. An unavailable measurement event is a tracking constraint, while a buildable event whose volume or cost conflicts with the advertiser's target or limit is budget feasibility.
+
+- Show only the evidence, its consequence and one recommendation, followed by one bounded widget. Keep the requested outcome as an option when executable, add a spend or target revision when it resolves the constraint, and list the recommendation first.
+
+- Do not preview the complete plan or ask for strategy approval here. The selection settles only the disputed path, so collect any free-form value next, rerun affected research, price the final structure once and then show the complete strategy.
 
 ## Recommend the complete plan
 
-Lead with the forward recommendation, not a research log. Choose one form:
+- Lead with the recommendation, not a research log. A beginner gets the outcome and timing, destination, audience, structure and placements, budget and expectations in business language, and an experienced advertiser gets the seven setting names, with only unfamiliar or disputed choices explained.
 
-- For a beginner, answer in plain business language: intended outcome and
-  timing, destination, audience, structure/placements, budget, and expectation.
-- For an experienced advertiser, use the seven delivery-setting labels above,
-  explaining only unfamiliar or disputed choices.
+- Give each setting its planned value and a concise basis, and surface the two to four findings that changed decisions, first-party evidence first. Use sparse links for external claims, never raw IDs, and state only assumptions or gaps that materially bound the plan.
 
-For each setting, state the planned value and concise basis. Surface only two
-to four findings that materially changed decisions, leading with first-party
-evidence. Use sparse clickable links for any external claims and never expose
-raw IDs. State only assumptions or missing evidence that materially bound the
-recommendation. Do not include a creative plan, render `campaign-summary`,
-prepare media, upload, or write Ads objects. Ask `Proceed with this strategy?`,
-then show exactly:
+- Include no creative plan, campaign summary, prepared media, upload or Ads write at this stage.
 
-- `Approve this strategy`
-- `No, make changes`
+- Ask "Proceed with this strategy?" and say in the same short paragraph that approving settles these delivery settings and moves to the creative, while nothing is created and nothing spends until the final review is approved. Create `muse.create_options` first with exactly these choices:
+  - `Approve this strategy`
+  - `No, make changes`
 
-Put the complete plan, approval question, and both options in one final response
-under the interaction contract. Commentary may contain status only, never plan
-settings or recommendations.
-Call `muse.create_options` before writing the plan, then write the plan and
-question with its returned `embed_token` alone on the final line; calling the
-tool without embedding the token does not display the choice.
+- Then write the complete plan and question with the returned token alone on the last line. Commentary carries status only, never plan settings.
 
-The approval accepts every shown delivery value, including budget and
-hierarchy, but no creative or write. After `No, make changes`, ask what to
-revise. Retain unaffected evidence, rerun only affected lanes, reprice once only
-if a pricing input changed, and present the complete revised strategy again.
-On approval, do not rerun strategy research; route to `campaign-creative.md`.
+- Approval accepts every shown delivery value, including budget and structure, but no creative or write. After `No, make changes`, ask what to revise, rerun only affected lanes, reprice once if a pricing input changed and show the complete revised strategy, and after approval go to creative preparation without repeating research.
 
 ## Recommendation rules
 
-Campaigns separate objectives. Ad sets separate material delivery mechanics
-such as budget, audience, geography, schedule, placement, or optimization. Ads
-separate messages and creative concepts. Multiple ads are not a controlled A/B
-test without an experiment. Do not fragment beyond what the priced budget can
-support.
+- Campaigns separate objectives, ad sets separate material delivery mechanics such as budget, audience, geography, schedule, placement or optimization, and ads separate messages and concepts. Several ads are not a controlled test without an experiment, and never fragment beyond what the priced budget supports.
 
-Never invent an exact URL, spending constraint, offer, claim, or service
-geography. Do not derive geography from account currency, timezone, Page
-language or location, a destination domain, prior campaigns, or market
-convention. It must come from the advertiser or verified service-area evidence;
-otherwise ask one geography question before pricing. Do not ask about
-evidence-backed defaults. Unless constrained, use
-auction buying, campaign-level daily budgeting, broad Advantage+ Audience,
-automatic placements, no end date, and compatible billing/optimization. Keep
-native messaging destinations native. Name the executable placement choice
-precisely: automatic placements means all surfaces eligible for the final
-setup, while a platform-restricted set is not automatic.
+- Never invent an exact URL, spending limit, offer, claim or service geography. Geography comes from the advertiser or verified service-area evidence, never from the account currency, timezone, Page language or location, a destination domain, old campaigns or market convention, so ask one geography question before pricing.
 
-**Bounded delivery is the exception to the no-end-date default.** That default
-is for delivery meant to run on. When the advertiser's own goal ends — the unit
-is let, the event happens, the offer closes — a daily budget with no end date
-keeps spending past the thing it was for. Raise it before the complete review
-and settle it as an **end date**, which is the only stop this surface can
-actually set. A lifetime budget requires one either way.
+- A business people visit, or one serving a local area, needs its service area, meaning the city, neighborhood or a radius around the address. When the advertiser gives only a state, region or country, ask once whether customers really come from all of it, and resolve the answer through [targeting](campaign-targeting.md).
 
-**A stopping rule is not an end date, and must not be accepted as one.** "Pause
-it once the unit is leased" names a condition nothing here watches: there is no
-scheduled task, no trigger, and safety rule 5 forbids offering one. Writing it
-into the plan and moving on leaves the campaign spending while the advertiser
-believes it will stop by itself. If that is the shape they want, say plainly
-that stopping is a manual step they take, and offer a date as a backstop so the
-spend has a floor under it if they forget. Where they do mean it to run on,
-leave the field out rather than inventing a date to fill it.
+- With Advantage+ Audience on, suggest two or three interests the business itself supports, such as Japanese cuisine or sushi for a Japanese restaurant, look them up in the same `ads_targeting_search` batch, and say they guide delivery rather than limit who sees the ads.
 
-**Do not promise measurement the account cannot do.** Before telling the
-advertiser you can optimise for or report applications, purchases or any other
-offsite conversion, read the account's datasets with `ads_get_datasets`. With no
-usable dataset, say so plainly and say what the campaign will measure
-instead — a click-optimised campaign counts visits to the page, not completed
-applications. That difference is often what decides between Traffic and a
-conversion objective, so it belongs in the recommendation, not in a caveat
-afterwards.
+- Unless constrained, use auction buying, a campaign-level daily budget, broad Advantage+ Audience, automatic placements, no end date and compatible billing and optimization. Keep native messaging destinations native, and call a platform-restricted placement set by that name, never automatic placements.
+
+- No end date suits delivery meant to run on. When the advertiser's own goal ends, such as a let unit, an event or a closing offer, raise it before the complete review and settle an end date, the only stop this connector can set, and a lifetime budget needs one either way.
+
+- A stopping rule is not an end date. "Pause it once the unit is leased" names a condition nothing here watches, so say stopping is a manual step and offer a date as a backstop, and when they mean it to run on, leave the end date out rather than inventing one.
+
+- Before promising optimization or reporting for applications, purchases or another offsite conversion, read `ads_get_datasets`. With no usable dataset, say so and say what the campaign will measure instead, such as visits to the page rather than completed applications, as part of the recommendation.
 
 ## Optional strategy artifact
 
-Create an unshared `artifact.create_web_static` strategy only when explicitly
-requested or after the advertiser accepts a brief nonblocking offer prompted by
-a material finding. Use the campaign name plus `campaign strategy`, the exact
-request as `verbatim_request`, and `capabilities: {public_web_read: false,
-connectors: []}`. Let the builder use parent-conversation evidence; do not force
-a recap through `artifact.send_input`. It may explain evidence,
-recommendations, assumptions, and links, but never raw IDs, signed URLs,
-unsupported claims, or approval controls. It does not replace final review.
+- Create an unshared `artifact.create_web_static` strategy only when the advertiser asks, or after they accept a brief offer prompted by a material finding. Name it with the campaign name plus "campaign strategy", pass the exact request as `verbatim_request` and set `capabilities` to `{public_web_read: false, connectors: []}`.
+
+- The builder can use the conversation's evidence, so do not force a recap through `artifact.send_input`. The artifact may explain evidence, recommendations, assumptions and links, never raw IDs, signed URLs, unsupported claims or approval controls, and it never replaces the final review.

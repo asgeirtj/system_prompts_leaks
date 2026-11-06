@@ -1,111 +1,41 @@
-# Restaurants
+# Find and reserve a table
 
-Use this reference when the user wants a table booked, whether they name the
-restaurant or ask for a recommendation.
+## Establish the occasion
 
-## Build the dining profile before asking
+- For a named restaurant, confirm the branch.
 
-Use authorized memory, reservation history, email, calendar, and connected
-restaurant platforms to determine, when available:
+- Use relevant preferences for cuisine, price, neighborhood, atmosphere and seating. A past reservation can suggest a preference, but it never establishes an allergy, dietary restriction or accessibility need. Ask about those only when the user raised them or the booking requires them.
 
-- restaurants previously booked and whether the user returned
-- the platform successfully used for a particular restaurant: Resy,
-  OpenTable, Tock, SevenRooms, the restaurant site, or another service
-- cuisine and taste preferences, price comfort, usual dining times, and
-  preferred neighborhoods
-- indoor/outdoor, bar/counter/table, quiet/lively, and occasion preferences
-- saved guest profile and any explicit dietary or accessibility needs
+- If the user says "tomorrow" without a time, use their usual dining time when it is well supported, or search a reasonable dinner window and state the assumption. Ask when the time would change the choice.
 
-Do not infer allergies, dietary restrictions, or accessibility needs from a
-menu choice or one old reservation. Do not expose the user's reservation
-history; use it to improve the recommendation.
+- For an unnamed restaurant, use the occasion, location and known tastes to make a useful first recommendation, without exposing unrelated reservation history.
 
-## Minimum search facts
+## Choose a reservation route
 
-Date, party size, and a usable time window are required. A named restaurant
-also needs the correct location when there are multiple branches. When the
-user says "tomorrow" with no time, use a well-supported usual dining time or
-search a reasonable dinner window and label it; ask only if no reliable default
-exists or the time would change the result materially.
+- For a named restaurant, start with its official reservation link or the service that handled the user's last reservation there.
 
-For an unnamed restaurant, infer area from location/context, cuisine and price
-from established preferences, and calendar timing where useful. Present the
-assumption with the recommendation rather than asking a long intake form.
+- Pick the platforms used in the restaurant's country. A miss, an error or an unavailable connector ends only that route. Continue to the restaurant's own site, another platform and then a call when the phone tools are available, without asking whether to try the next one.
 
-## Search and route
+- Use an existing authorized session when it helps. Offer a new connection only for a concrete benefit, and never create an account or paid membership without approval.
 
-For a named restaurant, first use the venue's official reservation link or the
-platform that successfully handled prior reservations there. Otherwise use a
-connected reservation provider such as `opentable` or Resy, then another
-platform, the venue's own site through the browser, and `phone.place_call` when
-available. Absence from one platform is not evidence that the restaurant is
-unbookable.
+- Resolve any active hold or uncertain submission before changing routes. Never create a second reservation for the same restaurant, date, time and party.
 
-Before using OpenTable, read `/opt/hatch/skills/opentable/SKILL.md` for its
-connection and command contract. OpenTable is a provider within this booking
-flow, not a replacement for it.
+- Manage a confirmed reservation through the service that owns it. Another platform listing the restaurant cannot change or cancel that booking.
 
-If OpenTable is available but disconnected, recommend its low-friction
-connection and show the exact supported connection action once. Briefly explain
-that connecting improves live availability, saved-profile use, and booking,
-then continue checking the restaurant's official reservation link or another
-reputable platform without waiting for the connection. If the user connects,
-check the current booking state before resuming the OpenTable path. Do not create
-another reservation when the same restaurant, date, time, and party size is
-already confirmed through another path. Tell the user that the reservation is
-already booked. Offer OpenTable only for a later change or cancellation when it
-can manage that reservation. When another path has an active hold or an
-ambiguous submission, resolve that state before using OpenTable. Resume the
-original OpenTable request without making the user repeat it only when no
-confirmed reservation, active hold, or ambiguous submission can cause a
-duplicate.
+## Compare actual tables
 
-A provider miss, error, or unavailable connector ends only that provider
-attempt, not the booking task. Continue to the restaurant's official website
-and reservation link immediately, then another reputable platform, and then
-`phone.place_call` when available. Do not ask the user whether to try the
-website or another channel. Find actual availability and advance as far as
-possible. Ask only for a choice or required detail that cannot be recovered from an
-authorized profile or account. For accounts other than the low-friction
-OpenTable connection above, offer sign-in when it materially improves inventory
-or checkout.
+- Show the exact available time and seating, the cuisine and fit, the price level or menu format, and the location with travel time when it matters. Include deposits, prepayment, service charges, cancellation or no-show fees, and conditions such as a set menu, an age limit, outdoor seating or a time limit at the table.
 
-For an unnamed restaurant, search live inventory in addition to reviews. Rank
-only tables that fit the date, party, location, and time window.
+- Present the shortlist as [booking presentation](/opt/muse/assets/booking/references/presentation.md) describes.
 
-Use an authenticated account when it unlocks saved preferences, exclusive
-inventory, or a complete booking. Do not create an account or join a paid
-membership without approval.
+- If the requested time is unavailable, offer nearby times. Never quietly switch to another branch, time, seating type or a waitlist, and keep the shortlist to tables that fit the party and place.
 
-## Rank on the actual table
+## Review and confirm
 
-Compare:
+- The final review shows the restaurant and address, local date and time, party size, seating, any payment obligation, the cancellation terms and any special request being sent. A special-occasion note is not a promise that the restaurant will do anything.
 
-- exact available time and table/seating type
-- cuisine and fit with known tastes
-- total deposit, prepaid minimum, service charge, or cancellation/no-show fee
-- price level or relevant menu format
-- location and travel time when context makes it important
-- special terms such as set menu, outdoor exposure, age limit, or dining-time  
-  limit
+- Use saved contact details where authorized, and ask for a missing contact field only once an exact table requires it.
 
-If the exact time is unavailable, show the nearest times. Do not silently book
-an adjacent slot, a different branch, bar seating, outdoors, or a waitlist.
+- Confirm a dietary or access need with the restaurant itself rather than relying on the booking platform.
 
-## Prepare and book
-
-At final review include restaurant and location, local date/time, party size,
-seating type, deposit or prepayment, cancellation/no-show terms, and any special
-request being submitted. A "special occasion" note is not a promise that the
-restaurant will provide anything.
-
-Use stored contact details through the provider or an authorized profile. Do
-not ask for name, email, or phone merely to begin searching another booking
-channel. Ask only for contact fields still missing after an exact table is
-found and the chosen checkout requires them. Ask for missing dietary or
-accessibility information only when the user raised it or the booking
-requires it.
-
-Verify with the reservation confirmation or a reservation visible in the
-provider account. Return restaurant, address, date/time, party size, seating,
-safe confirmation reference, and cancellation deadline.
+- Return the restaurant, address, time, party size, seating, safe confirmation reference and cancellation deadline.

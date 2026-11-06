@@ -1,0 +1,7 @@
+name: muse_db
+title: "Muse Db"
+description: "Inspect database-backed Muse records for diagnosis and cross-table tracing when purpose-built product tools do not expose the needed state."
+category: "Work and knowledge"
+include_in_prompt: false
+availability:
+  confidential_vm: true

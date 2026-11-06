@@ -10,7 +10,7 @@
 <dependency>
     <groupId>com.anthropic</groupId>
     <artifactId>anthropic-java</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
@@ -139,7 +139,6 @@ client.beta().sessions().events().send(session.id(), EventSendParams.builder()
 ```java
 import com.anthropic.models.beta.sessions.events.BetaManagedAgentsAgentEvaluatedPermission;
 import com.anthropic.models.beta.sessions.events.BetaManagedAgentsUserToolConfirmationEventParams;
-import com.anthropic.models.beta.sessions.events.BetaManagedAgentsStreamSessionEvents;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
@@ -163,7 +162,8 @@ try (var stream = client.beta().sessions().events().streamStreaming(session.id()
             .build())
         .build());
 
-    for (var event : (Iterable<BetaManagedAgentsStreamSessionEvents>) stream.stream()::iterator) {
+    // Iterating the stream directly needs Java SDK 3.3.0+
+    for (var event : stream) {
         if (event.isAgentMessage()) {
             event.asAgentMessage().content().forEach(block -> block.text().ifPresent(textBlock -> System.out.print(textBlock.text())));
         } else if (event.isAgentToolUse()) {
@@ -204,7 +204,7 @@ try (var stream = client.beta().sessions().events().streamStreaming(session.id()
     }
 
     // Tail live events, skipping anything already seen
-    for (var event : (Iterable<BetaManagedAgentsStreamSessionEvents>) stream.stream()::iterator) {
+    for (var event : stream) {
         Optional<Map<String, JsonValue>> obj = event._json().orElseThrow().asObject();
         if (!seenEventIds.add(obj.orElseThrow().get("id").asStringOrThrow())) continue;
         if (event.isAgentMessage()) {

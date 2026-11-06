@@ -192,7 +192,9 @@ agent = client.beta.agents.create(
     name="Contract Reviewer",
     model="claude-opus-5-5",
     system="You review contracts. When you're asked to review more than a few contracts, start a workflow run that reads them in parallel and combines the findings. Review one or two contracts yourself, without a run.",
-    tools=[{"type": "agent_toolset_20260401"}],
+    tools=[{"type": "agent_toolset_20260401",
+            "default_config": {"permission_policy": {"type": "auto"}},
+            "configs": [{"name": n, "enabled": False} for n in ("web_fetch", "web_search")]}],
     multiagent={"type": "multiagent_20261001", "workflows": {"type": "enabled"}},
 )
 ```
@@ -204,7 +206,11 @@ const agent = await client.beta.agents.create({
   name: "Contract Reviewer",
   model: "claude-opus-5-5",
   system: "You review contracts. When you're asked to review more than a few contracts, start a workflow run that reads them in parallel and combines the findings. Review one or two contracts yourself, without a run.",
-  tools: [{ type: "agent_toolset_20260401" }],
+  tools: [{
+    type: "agent_toolset_20260401",
+    default_config: { permission_policy: { type: "auto" } },
+    configs: [{ name: "web_fetch", enabled: false }, { name: "web_search", enabled: false }],
+  }],
   multiagent: { type: "multiagent_20261001", workflows: { type: "enabled" } },
 });
 ```
@@ -259,7 +265,7 @@ To adapt it, name the kinds of tasks in the agent's domain that call for a run, 
 
 **When the work is done.** While a run is running the session stays `running` (no `session.status_idle` except one with `requires_action` when no thread is working and one waits on your client), but a paused run doesn't keep the session `running`, so the idle break gate in `shared/managed-agents-client-patterns.md` Pattern 5 can still fire with paused runs open - and a `retries_exhausted` idle (the agent gave up on an error) can come before or after it read a run's notice, and the idle itself doesn't say which: don't count it as done; if the session goes `running` again on its own, the agent is taking its turn on a notice, so wait for the next idle; otherwise treat it as a failed agent turn - send a `user.message` to let the agent go on, or read each run's result from its `workflow_run.status_ended`. After each run's `workflow_run.status_ended`, the agent takes a turn on the run's ending notice (the notice isn't an event, but the turn's events are; a run ended by the session being archived or terminated gets no notice and no turn - `session.status_terminated` follows instead). The session emits no `session.status_idle` with `stop_reason` `end_turn` until the agent has read the notice, so the work is done at the first such idle with no run open. `requires_action`, `budget_reached`, or `retries_exhausted` idles say nothing about the notice, and an idle your own request causes (an interrupt, for example) doesn't count: if a run ended since the last idle that counted, wait for the next one - after an interrupt, count only an idle that comes after your next `user.message` or `user.define_outcome`; otherwise treat it like any other idle. The agent can start another run in its turn, so check again. With an outcome defined, no evaluation starts while a run is running; the agent's turn on the run's ending notice can start one. A run your interrupt paused is still open, so the work isn't done while it's paused. A run that ends while the session is paused at its budget gets the agent's turn only after you raise or remove the budget.
 
-**A loop that follows runs.** Open the stream, then send the message (`task`: the text of the request). Track each run from `workflow_run.created` to `workflow_run.status_ended`; a `workflow_run.error` is not the end of a run. Answer a custom tool call when it arrives; if the server refuses the answer (a 400), log it and go on. Stop at an idle with `end_turn` when no run is open, or when the session terminates. The loop keeps waiting at every other idle, so handle `budget_reached` and `retries_exhausted` in your own code (see "When the work is done").
+**A loop that follows runs.** Open the stream, then send the message (`task`: the text of the request). Track each run from `workflow_run.created` to `workflow_run.status_ended`; a `workflow_run.error` is not the end of a run. Answer a custom tool call when it arrives; if the server refuses the answer (a 400), log it and go on. The loop below doesn't answer calls that pause for confirmation (`always_ask`, or `auto` with no determination), so a paused call waits indefinitely: add a branch that answers each `agent.tool_use` or `agent.mcp_tool_use` whose `evaluated_permission` is `ask` (§ Tool permissions and custom tools from subagent threads shows the answer; deny when unattended), and never one that allows every call, which would turn `always_ask` into always allow. Stop at an idle with `end_turn` when no run is open, or when the session terminates. The loop keeps waiting at every other idle, so handle `budget_reached` and `retries_exhausted` in your own code (see "When the work is done").
 
 ```python
 open_runs: set[str] = set()

@@ -73,7 +73,7 @@ Control whether server-executed tools (agent toolset + MCP) run automatically, w
   "type": "agent_toolset_20260401",
   "default_config": {
     "enabled": true,
-    "permission_policy": { "type": "always_allow" }
+    "permission_policy": { "type": "auto" }
   },
   "configs": [
     { "name": "bash", "permission_policy": { "type": "always_ask" } },
@@ -184,7 +184,9 @@ To enable only specific tools, flip the default off and opt-in per tool:
 
 ### Web search & web fetch settings (domain filters)
 
-`web_search` and `web_fetch` run on Anthropic's servers regardless of environment type. With `limited` networking, `allowed_hosts` also applies to them: `web_fetch` returns an error result for a URL on a host that `allowed_hosts` does not match, `web_search` omits results from such hosts, and when `allowed_hosts` lists no hosts neither returns a page or a search result. A host added to `allowed_hosts` for these tools is also open to the sandbox. `unrestricted` networking and self-hosted environments do not limit them (see `shared/managed-agents-environments.md` -> Networking). To control what they can reach whatever the environment, set `allowed_domains` (only these hosts) **or** `blocked_domains` (never these hosts) - never both on one entry - on the tool's `configs` entry. Each tool carries its own list. Organization-level web search/fetch settings in the Console apply to the Messages API only, not to Managed Agents sessions.
+`web_search` and `web_fetch` run on Anthropic's servers regardless of environment type. With `limited` networking, `allowed_hosts` also applies to them: `web_fetch` returns an error result for a URL on a host that `allowed_hosts` does not match, `web_search` omits results from such hosts, and when `allowed_hosts` lists no hosts neither returns a page or a search result. A host added to `allowed_hosts` for these tools is also open to the sandbox. `unrestricted` networking and self-hosted environments do not limit them (see `shared/managed-agents-environments.md` -> Networking). To control what they can reach whatever the environment, set `allowed_domains` (only these hosts) **or** `blocked_domains` (never these hosts) - never both on one entry - on the tool's `configs` entry. Each tool carries its own list.
+
+The organization's web search and web fetch settings on the Console's **Capabilities** page (`https://platform.claude.com/settings/capabilities`) also apply in sessions: if an admin turns a tool off, its calls return an error result to the agent and the session continues. With organization domain restrictions set, `web_search` returns only results that both the organization's list and the tool's own list allow, and `web_fetch` returns an error result for a URL, or any URL a redirect leads to, that either list excludes. The Web Search & Fetch Restrictions page in `shared/live-sources.md` has the full rules.
 
 ```json
 {
@@ -317,13 +319,13 @@ This keeps secrets out of reusable agent definitions. Each vault credential is t
 **Vaults** store credentials that Anthropic manages on your behalf. Two credential categories:
 
 - **MCP credentials** (`mcp_oauth`, `static_bearer`) - keyed by `mcp_server_url`. When the agent connects to a server at that URL, the token is injected automatically. **Matching is normalized, not byte-exact:** scheme and host are lowercased, and default ports and trailing slashes are stripped, so host casing, an explicit default port, or a trailing slash won't break the match. A different path, subdomain, or *non-default* port will. If nothing matches, the connection is attempted unauthenticated. `mcp_oauth` tokens are auto-refreshed via the standard OAuth 2.0 `refresh_token` grant. This is the only way to authenticate MCP servers.
-- **Environment variables** (`environment_variable`) - keyed by `secret_name` (the env var name). The sandbox sees only an **opaque placeholder**; the real secret is substituted into the outbound request **at egress**. Use this for any service that authenticates through an environment variable: CLIs (`aws`, `gcloud`, `stripe`), SDKs, or direct `curl` calls from the `bash` tool.
+- **Environment variables** (`environment_variable`) - keyed by `secret_name` (the env var name). The sandbox sees only an **opaque placeholder**; the real secret is substituted into the outbound request **at egress**. Use this for any service that authenticates through an environment variable: CLIs, SDKs, or direct `curl` calls from the `bash` tool, as long as the client sends the secret verbatim in the request (see the caveats below).
 
 Secret fields you supply (`token`, `access_token`, `refresh_token`, `client_secret`, `secret_value`) are write-only - never returned in API responses.
 
 #### Credentials and the sandbox
 
-Vaults store credentials; those credentials **never enter the sandbox**. This is a deliberate security boundary - code running in the sandbox (including anything the agent writes) cannot read or exfiltrate a vaulted credential, even under prompt injection. Instead, credentials are injected by Anthropic-side proxies **after** a request leaves the sandbox:
+Vaults store credentials; those credentials **are never placed in the sandbox**. This is a deliberate security boundary - code running in the sandbox (including anything the agent writes) cannot read a vaulted credential, even under prompt injection, unless a service sends it back (an endpoint that echoes request headers, for example: responses reach the sandbox unredacted, so allow only hosts you trust). Instead, credentials are injected by Anthropic-side proxies **after** a request leaves the sandbox:
 
 - **MCP tool calls** are routed through an Anthropic-side proxy that fetches the credential from the vault and adds it to the outbound request.
 - **Git operations on attached GitHub repositories** (`git pull`, `git push`, GitHub REST calls) are routed through a git proxy that injects the `github_repository` resource's `authorization_token` the same way.
@@ -378,15 +380,16 @@ Omit `refresh` entirely if you only have an access token with no refresh capabil
 
 ```json
 {
-  "display_name": "Twilio API key for sandbox",
+  "display_name": "Notion API key for sandbox",
   "auth": {
     "type": "environment_variable",
-    "secret_name": "TWILIO_API_KEY",
-    "secret_value": "sk-your-secret-here",
+    "secret_name": "NOTION_API_KEY",
+    "secret_value": "ntn_your-secret-here",
     "networking": {
       "type": "limited",
-      "allowed_hosts": ["api.twilio.com", "*.twilio.com"]
-    }
+      "allowed_hosts": ["api.notion.com"]
+    },
+    "injection_location": { "header": true, "body": false }
   }
 }
 ```
@@ -402,11 +405,11 @@ Omit `refresh` entirely if you only have an access token with no refresh capabil
 
 A credential must have at least one location enabled; a create or update that would disable both returns 400, as does explicit `null` for the object or either field (omit instead). The response always returns both fields with their resolved values.
 
-> Warning: **Credentials created in the Console are header-only by default** - unlike the API, where omitting the field enables both. If your client sends the secret in the request body (a form-encoded token request, for example), the placeholder passes through literally and the service rejects it with its own authentication error. Tick body injection in the Console form, or `POST` the credential with `{"injection_location": {"body": true}}`.
+> Warning: **Credentials created in the Console are header-only by default** - unlike the API, where omitting the field enables both. If your client sends the secret in the request body (an API that reads the key from a form or JSON field, say), the placeholder passes through literally and the service rejects it with its own authentication error. Tick body injection in the Console form, or `POST` the credential with `{"injection_location": {"body": true}}`.
 
 > Warning: **Two networking layers, both required.** `networking.allowed_hosts` on the credential controls which requests *use the secret*, not which requests are *allowed*. The agent must also be able to reach the domain at the **environment level** (`unrestricted`, or the host listed in the environment's `allowed_hosts` - see `shared/managed-agents-environments.md`). A domain missing from either layer means the secret-substituted request fails.
 
-> Warning: **Client-side validation caveat.** Substitution happens at egress, not inside the sandbox - clients that validate the credential *format* locally before making a network request (e.g. a CLI that checks the key starts with `sk-`) will see the opaque placeholder and may fail at startup. If a client rejects the credential before any network call, that's why.
+> Warning: **Client-side caveats.** Substitution happens at egress, not inside the sandbox - clients that validate the credential *format* locally before making a network request (e.g. a CLI that checks the key starts with `sk-`) will see the opaque placeholder and may fail at startup. If a client rejects the credential before any network call, that's why. For the same reason a client that computes a request signature from the secret (AWS SigV4, for example) signs with the placeholder and the service rejects the request. Substitution is also outbound only, so a client that exchanges the secret for a session token (an OAuth client-credentials grant) receives that token in the sandbox unredacted: do such exchanges yourself and store the resulting token in the vault instead.
 
 > Tip: **Scope the key minimally.** The agent can do anything the key allows; a key with broader permissions than the task needs increases the blast radius if the agent behaves unexpectedly.
 

@@ -20,6 +20,11 @@ model:
   effort: low
 tools:
   - type: agent_toolset_20260401
+    configs:
+      - name: web_search
+        enabled: false
+      - name: web_fetch
+        enabled: false
 metadata:
   template: structured-extractor
 ---

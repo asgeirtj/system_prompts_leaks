@@ -13,7 +13,9 @@ Use a web fetch tool or `curl` (docs URLs ending in `.md` return Markdown). Try 
 | Topic | URL | What to look for |
 | --- | --- | --- |
 | Models Overview | `https://platform.claude.com/docs/en/about-claude/models/overview.md` | "Extract current model IDs, context windows, pricing, and comparative latency for all Claude models" |
-| Migration Guide | `https://platform.claude.com/docs/en/about-claude/models/migration-guide.md` | "Extract breaking changes, deprecated parameters, and per-model migration steps when moving to a newer Claude model" |
+| Migration Guide | `https://platform.claude.com/docs/en/about-claude/models/migration-guide.md` | "List the per-model migration guides, so the one for the target model can be fetched next" |
+| What's New in Claude Fable 5.2 | `https://platform.claude.com/docs/en/models/fable-5-2/whats-new-fable-5-2.md` | "Extract capabilities, API changes, and availability for Claude Fable 5.2 and Claude Mythos 5.2" |
+| Prompting Claude Fable 5.2 | `https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5-2.md` | "Extract prompt text and advice on effort, early stopping, approvals, code ownership, progress updates, subagents, built-up caution, reports and refusals for Claude Fable 5.2 and Claude Mythos 5.2" |
 | Introducing Claude Fable 5 | `https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5.md` | "Extract capabilities, API changes, and availability stages for Claude Fable 5 and Claude Mythos 5" |
 | Pricing | `https://platform.claude.com/docs/en/about-claude/pricing.md` | "Extract current pricing per million tokens for input and output" |
 | Cost Optimization | `https://platform.claude.com/docs/en/about-claude/models/optimizing-for-cost-and-intelligence.md` | "Extract measured cost levers, cache and batch savings, effort and model cost-per-task comparisons, budget controls, multi-model guidance, and how to tell the model that time matters and show it the elapsed time" |
@@ -90,7 +92,7 @@ If a fetch fails, use `shared/opentelemetry.md`.
 | Topic | URL | What to look for |
 | --- | --- | --- |
 | Code Execution | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool.md` | "Extract code execution tool setup, file upload, container reuse, and response handling" |
-| Computer Use | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool.md` | "Extract the computer_toolset_20260801 setup (configs, member tools, batch actions, toolset_name on results), the Compatibility matrix, and the migration steps from computer_20251124" |
+| Computer Use | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool.md` | "Extract the computer_toolset_20260801 setup (configs, member tools, batch actions, toolset_name on results), the API support section, and the migration steps from computer_20251124" |
 | Bash Tool | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/bash-tool.md` | "Extract bash tool schema, reference implementation, and security considerations" |
 | Text Editor | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/text-editor-tool.md` | "Extract text editor tool commands, schema, and reference implementation" |
 | Memory Tool | `https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool.md` | "Extract memory tool commands, directory structure, and implementation patterns" |

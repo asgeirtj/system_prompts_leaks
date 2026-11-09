@@ -38,6 +38,7 @@
  * to its path and everything below; a deeper rule overrides it there and
  * may be stricter or looser. A level left unset inherits from the nearest
  * rule above (the root defaults to read: "view", write: "interact").
+ * A fifth word, `self`, comes with `{self}` below.
  * An artifact created from a type often ships with that type's rules
  * already declared (commonly `write: "admin"` on shared data): read its
  * manifest before assuming the defaults.
@@ -73,9 +74,56 @@
  * so. A rule declared AT the prefix of a `{self}` rule (here `votes`)
  * must set BOTH `read` and `write`, or the declaration is rejected at
  * publish; with no prefix rule, siblings' subtrees stay private as under
- * `data/users`. At most 64 rules; paths follow the
- * document-path grammar below. The owner meets every level, so level
- * rules never limit the owner; only `{self}` privacy does. Who holds
+ * `data/users`.
+ * `self` is a level nobody holds, not even the owner. It goes only on
+ * the rule AT the prefix of a declared `{self}` rule (here `votes`),
+ * never on the root or on the `{self}` rule itself. On someone else's
+ * subtree only the prefix rule applies; on a viewer's own, whichever of
+ * the two rules gives them more.
+ * Keep `write: "owner"` or `"admin"` on the prefix by default: on most
+ * lists (a sign-up sheet, a guestbook, a poll, a Q&A board) somebody must
+ * be able to tidy or moderate, and under `write: "self"` nobody can. Use
+ * `self` only when the request says that nobody else, the owner included,
+ * may change an entry, or that an entry has to be that person's own act
+ * (a sign-off, an approval, a consent, a vote nobody may touch), or that
+ * nobody else may read it:
+ *   { path: "signoffs", read: "view", write: "self" },
+ *   { path: "signoffs/{self}", read: "view", write: "interact" }
+ * With `write: "self"`, choose `read` by who else should see the
+ * documents:
+ *   read: "view",  write: "self"   a sign-off sheet: everyone reads,
+ *                                  each writes only their own
+ *   read: "admin", write: "self"   a suggestion box: each writes only
+ *                                  their own, Editors and the owner read
+ *                                  them all
+ *   read: "self",  write: "self"   a notebook private from the other
+ *                                  people on the artifact: nobody else
+ *                                  reads or writes it
+ * Where nobody else reads, nobody can count: a ballot that someone must
+ * count wants the suggestion box's pattern, whose readers see who chose
+ * what, or Hidden-until-reveal below. `read: "self"` is valid only with
+ * `write: "self"`. Beside a prefix rule that uses `self`, state both
+ * levels on the `{self}` rule, as above: they set who writes their own
+ * subtree, and who reads it where the prefix's `read` does not already
+ * admit them.
+ * A viewer who can read only their own `{self}` subtree (a Contributor
+ * in the suggestion box, anyone in the notebook) gets just their own
+ * documents from a listener or query on the prefix collection.
+ * `self` is a rule, not encryption. It stops only other people's direct
+ * reads and writes: paths and ids are stored in the clear, page code runs
+ * as whoever is viewing, and the owner or any Editor (whoever can publish
+ * the artifact or its type, an Editor from outside the organization
+ * included) can later publish looser rules or other code, then read or
+ * overwrite the documents already stored. Nobody is told. Before loosening
+ * a `self` rule, tell whoever asked what it would expose. While
+ * `write: "self"` stands, nobody else can correct or remove one viewer's
+ * documents, short of deleting the artifact. For data kept from everyone
+ * else on the artifact, `data/users/<id>/` is stronger, though not
+ * loosening-proof: unless a version declared a rule at `data/users`, or
+ * at `data` beside `data/{self}`, nobody else has ever reached it.
+ * At most 64 rules; paths follow the
+ * document-path grammar below. The owner meets every level but `self`,
+ * so only `self` and `{self}` privacy limit the owner. Who holds
  * which level, in the share menu's words (Owner, Editor, Contributor,
  * Commenter, Viewer): Editor and Owner hold `admin`; an Editor from
  * outside the organization, invited by email (where the menu offers
@@ -113,8 +161,11 @@
  * does, the platform has said nothing about this viewer's write level:
  * keep shared-data inputs, and if a well-formed `set()` then rejects
  * `invalid_argument` render them read-only for the rest of the visit.
- * Rules take effect for the live version on the next call after it goes
- * live; `{db: {}}` restores the defaults.
+ * The rules in force are those of the version readers are served, or the
+ * newest version's if that one declares no `db`, from the next call after
+ * it goes live; `{db: {}}` restores the defaults. On an artifact made from
+ * a type it is the other way round: the newest version's rules apply, or
+ * the served version's if the newest declares no `db`.
  * AVAILABILITY is a
  * per-view fact: obtain the namespace with `await claude.use("db")` —
  * it resolves `null` when this view cannot run db (not served, not
@@ -157,12 +208,10 @@ type DbError = {
  *   viewer; retrying cannot succeed.
  * - `unavailable` — a transient platform condition. Verbs: retry
  *   once after a short randomized delay. Subscriptions handle this
- *   INTERNALLY — delivery falls back to periodic refresh and
- *   recovers on its own; an `onSnapshot` error callback never
- *   receives it, EXCEPT when the platform bridge itself stops
- *   responding (a subscribe that never reaches the store): that
- *   listener is terminated with `unavailable` and a fresh
- *   `onSnapshot` is the only recovery.
+ *   INTERNALLY and in silence (see `onSnapshot`): an error callback
+ *   never receives it, EXCEPT when the page's host itself stops
+ *   answering: that listener is terminated with `unavailable` and a
+ *   fresh `onSnapshot` is the only recovery.
  * - `revoked` — this view's grant was withdrawn while the page was
  *   running (access, sharing, or availability changed). Terminal for
  *   the page load: at most one delivery per listener; calls reject
@@ -250,10 +299,11 @@ type DbErrorCode =
  * run time opens another viewer's subtree.
  */
 
-/** Snapshot provenance. `fromCache: true` marks a view that is not
- * yet (or not currently) server-definitive — the first pages of a
- * subscription, or delivery during a connectivity gap. A definitive
- * snapshot follows automatically; no action is needed.
+/** Snapshot provenance. `fromCache: true` marks a view the store has
+ * not confirmed, such as a copy saved on an earlier visit, your own
+ * writes before the first read lands, a collection too large to read
+ * whole, or delivery during a connectivity gap. A definitive snapshot
+ * follows by itself once the store answers in full.
  * `hasPendingWrites` is true while the view includes this page's own
  * unconfirmed write (latency compensation). */
 type SnapshotMetadata = {
@@ -389,14 +439,25 @@ type DocumentReference = {
 
   /**
    * Subscribe to this document. `next` fires with the current state
-   * soon after registration, then on every change — including other
+   * once the store answers, then on every change — including other
    * viewers' writes, live. Your own writes appear immediately
-   * (`hasPendingWrites: true` until confirmed). Delivery rides a
-   * realtime stream when available and falls back to periodic
-   * refresh (about 30 s foreground) — same callbacks either way.
+   * (`hasPendingWrites: true` until confirmed), and a returning viewer
+   * may first get a copy saved on an earlier visit (`fromCache: true`).
+   * Delivery rides a realtime stream when available and falls back to
+   * periodic refresh (about 30 s foreground) — same callbacks either way.
+   * While the store cannot be reached (offline, or a network that
+   * holds, drops or blocks its requests) the listener may hear nothing
+   * from it, not even an error, and keeps retrying until it answers.
+   * So time-limit loading: start a timer of about 10 s when you
+   * subscribe. If it fires, say the data can't be reached yet or, over
+   * anything already delivered, that it may be out of date. The first
+   * snapshot with `fromCache: false` clears the timer and that note; so
+   * does `error`, which ends the loading state too. Until `error` fires,
+   * keep the listener: never reload the page or subscribe again to
+   * recover.
    * `error` receives at most one terminal {@link DbError}
    * (`invalid_argument`, `resource_exhausted`, `revoked`, or the
-   * dead-bridge `unavailable` above), after which the subscription
+   * `unavailable` above), after which the subscription
    * is dead. Pass it: without one a terminal error is reported via
    * `reportError` (your `error` event and console see it) and the
    * listener still dies.

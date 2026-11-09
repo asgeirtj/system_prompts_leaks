@@ -196,18 +196,18 @@ If `cache_read_input_tokens` is zero across repeated identical-prefix requests, 
 
 ## Extended Thinking
 
-> **Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking. `budget_tokens` is removed on Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
+> **Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking. `budget_tokens` is removed on Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
 > **Claude Opus 5.5:** thinking is always on - omit `thinking` (or send `{ type: "adaptive" }`, which is equivalent); `{ type: "disabled" }` returns a 400 at every effort, as does a thinking budget. Control depth with `output_config.effort` instead - the default is `medium` on this model, where Claude Opus 5 defaults to `high`.  
 > **Claude Opus 5:** thinking is on by default - omitting `thinking` runs adaptive (`{ type: "adaptive" }` is equivalent), unlike Opus 4.8/4.7 where omitting it meant no thinking. `{ type: "disabled" }` is accepted only at effort `high` or lower; pairing it with `xhigh`/`max` returns a 400.  
 > **Claude Haiku 5.5:** adaptive thinking only, on by default; `budget_tokens` returns a 400.  
 > **Older models:** Use `thinking: {type: "enabled", budget_tokens: N}` (must be < `max_tokens`, min 1024).
 
 ```typescript
-// Fable 5 / Claude Opus 5.5 / Claude Opus 5 / Opus 4.8 / 4.7 / 4.6: adaptive thinking (recommended)
+// Fable / Mythos 5/5.1/5.2 / Claude Opus 5.5 / Claude Opus 5 / Opus 4.8 / 4.7 / 4.6: adaptive thinking (recommended)
 const response = await client.messages.create({
   model: "claude-opus-5-5",
   max_tokens: 16000,
-  thinking: { type: "adaptive", display: "summarized" }, // display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5.5, Claude Opus 5, Opus 4.8/4.7, Claude Sonnet 5.5, and Claude Sonnet 5
+  thinking: { type: "adaptive", display: "summarized" }, // display opt-in: default is omitted (empty thinking text) on Fable 5/5.1/5.2, Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8/4.7, Claude Sonnet 5.5, and Claude Sonnet 5
   output_config: { effort: "high" }, // low | medium | high | xhigh | max
   messages: [
     { role: "user", content: "Solve this math problem step by step..." },
@@ -279,7 +279,7 @@ const response = await client.messages.create({
 
 ### Compaction (long conversations)
 
-> **Beta, Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6.** When conversations approach the 200K context window, compaction automatically summarizes earlier context server-side. The API returns a `compaction` block; you must pass it back on subsequent requests - append `response.content`, not just the text.
+> **Beta, Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6.** When input tokens reach the compaction trigger (default 150K), compaction automatically summarizes earlier context server-side. The API returns a `compaction` block; you must pass it back on subsequent requests - append `response.content`, not just the text.
 
 ```typescript
 import Anthropic from "@anthropic-ai/sdk";
@@ -341,15 +341,15 @@ if (response.stop_reason === "refusal" && response.stop_details) {
 }
 ```
 
-### Refusal Fallbacks (Claude Fable 5.1) - opt in by default
+### Refusal Fallbacks (Claude Fable 5.2) - opt in by default
 
-Fallbacks are **opt-in**: without them a refused request simply stops. Include the server-side `fallbacks` parameter in `claude-fable-5-1` code by default - on a policy decline the API re-runs the same request on the fallback model inside the same call. A mid-stream decline is billed at normal rates, and the rescue bills at the fallback model's own rates, with cache repricing applied automatically; for a decline before any output, see [How refusals are billed](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#how-refusals-are-billed).
+Fallbacks are **opt-in**: without them a refused request simply stops. Include the server-side `fallbacks` parameter in `claude-fable-5-2` code by default - on a policy decline the API re-runs the same request on the fallback model inside the same call. A mid-stream decline is billed at normal rates, and the rescue bills at the fallback model's own rates, with cache repricing applied automatically; for a decline before any output, see [How refusals are billed](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback#how-refusals-are-billed).
 
 ```typescript
 const response = await client.beta.messages.create({
-  model: "claude-fable-5-1",
+  model: "claude-fable-5-2",
   max_tokens: 16000,
-  betas: ["server-side-fallback-2026-06-01"],
+  betas: ["server-side-fallback-2026-07-01"],
   fallbacks: [{ model: "claude-opus-4-8" }],
   messages: [{ role: "user", content: "..." }],
 });
@@ -371,7 +371,7 @@ if (fallbackRan && response.stop_reason !== "refusal") {
 }
 ```
 
-A `stop_reason: "refusal"` on the final response means the whole chain refused. The header must be exactly `server-side-fallback-2026-06-01` **for this array form**; the newer `fallbacks: "default"` scalar form uses `server-side-fallback-2026-07-01` instead (see `shared/model-migration.md` -> Migrating to Claude Opus 5 -> New API features), and pairing either header with the other form returns a 400. The parameter is rejected on the Batches API and unavailable on Amazon Bedrock, Vertex AI, and Microsoft Foundry - register the client-side `betaRefusalFallbackMiddleware` on the client there instead. Full semantics (sticky routing, billing, streaming, echoing fallback turns back): `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason.
+A `stop_reason: "refusal"` on the final response means the whole chain refused. This array form takes `server-side-fallback-2026-06-01` or `-2026-07-01`; the `fallbacks: "default"` scalar form needs `-2026-07-01` (see `shared/model-migration.md` -> Migrating to Claude Opus 5 -> New API features). Any other `server-side-fallback-*` value returns a 400. The parameter is rejected on the Batches API and unavailable on Amazon Bedrock, Vertex AI, and Microsoft Foundry - register the client-side `betaRefusalFallbackMiddleware` on the client there instead. Full semantics (sticky routing, billing, streaming, echoing fallback turns back): `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason.
 
 ---
 

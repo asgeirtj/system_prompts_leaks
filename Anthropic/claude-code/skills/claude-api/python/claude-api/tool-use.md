@@ -288,7 +288,7 @@ tool_result = {
 
 ## Tool Choice
 
-`tool_choice` is `{"type": "auto"}` by default. Forcing a call (`{"type": "any"}` or `{"type": "tool", "name": ...}`) returns a 400 on Claude Opus 5.5, Claude Sonnet 5.5, Claude Fable 5.1, and Claude Mythos 5.1; Claude Opus 5, Claude Sonnet 5, and older models accept it. Steer with the prompt instead, and keep the schema guarantee with `strict: true`:
+`tool_choice` is `{"type": "auto"}` by default. Forcing a call (`{"type": "any"}` or `{"type": "tool", "name": ...}`) returns a 400 on Claude Opus 5.5, Claude Sonnet 5.5, Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, and Claude Mythos 5.1; Claude Opus 5, Claude Sonnet 5, and older models accept it. Steer with the prompt instead, and keep the schema guarantee with `strict: true`:
 
 ```python
 response = client.messages.create(

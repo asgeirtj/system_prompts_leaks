@@ -13,6 +13,7 @@ right form is not a chart.
 | A single ratio against a limit | **Meter** (same-ramp track) | A pie of 2 slices |
 | One whole split into <= 6 parts, read at a glance, standing alone | **Tall segmented bar** (to compare the parts instead -> *Part-to-whole - which bar* below) | A donut or a pie |
 | More than ~7 classes that all carry meaning | A **table** (or table + chart) | More colors |
+| Several ratios, one per named row, each against its own limit or whole | **Meter list**: a name, a bar and a figure per row, bars aligned; the bar drops under the name where the list is narrow | A donut or gauge per row |
 
 If a chart *is* right, pick the type by the job:
 

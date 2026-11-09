@@ -196,7 +196,8 @@ declare namespace Claude {
      * present on an artifact whose manifest does not declare
      * `capabilities: {sample: {images: true}}`. Use it to decide whether to
      * show an image affordance at all; treat a rejection like an absent
-     * `images`. Cheap and local — no usage is spent, the viewer is not
+     * `images`. A `modelTiers` member says which `modelTier` values this
+     * view accepts. Cheap and local — no usage is spent, the viewer is not
      * prompted.
      *
      *     const caps = await sample.limits().catch(() => null);
@@ -349,8 +350,19 @@ declare namespace Claude {
        * {@link SampleResult.modelTierApplied} reports the tier that
        * answered, or, when your named model answered, the tier the call
        * counted as.
+       *
+       * `"inherit"`: the model the host (the app showing this artifact) says the
+       * viewer is using, when it says one and the viewer may use it here;
+       * otherwise the default tier. It falls back, rejects, costs and counts
+       * toward this page's calls as a {@link SampleOptions.model} you name
+       * would, except that it falls back to the default tier and never counts
+       * below `"default"`. You are not told which model answered: `model` is
+       * ignored (with a console warning), `modelApplied` is absent, and
+       * `modelTierApplied` is what a `"default"` call would report; `effort`
+       * and `fast` apply as usual. Check {@link SampleLimits.modelTiers}
+       * before passing it.
        */
-      modelTier?: ModelTier;
+      modelTier?: ModelTier | "inherit";
 
       /**
        * A specific model, by its Claude API model id (`"claude-opus-5"`).
@@ -364,7 +376,7 @@ declare namespace Claude {
        * without an error. If the viewer's access to it is
        * held, the call rejects `sampling_disabled`, as it would on
        * `modelTier`; if the viewer has reached a usage limit, it rejects
-       * `rate_limited`.
+       * `rate_limited`. Ignored when `modelTier` is `"inherit"`.
        * {@link SampleResult.modelApplied} says whether it answered.
        *
        * Cost: it draws on the viewer's own Claude usage, as a chat message
@@ -409,7 +421,8 @@ declare namespace Claude {
       /**
        * Answer caching — ON by default. An answer this viewer already
        * received in this artifact for the same `input` (every turn),
-       * `modelTier`, `model`, `effort`, `images` (byte-identical) and
+       * `modelTier` (with `"inherit"`, while the host names the same model),
+       * `model`, `effort`, `images` (byte-identical) and
        * verb (`sample` vs `json`) is replayed to a repeat call: no usage
        * is spent, Claude is not contacted, `onText` fires once with the
        * whole text and the promise resolves. An identical call made while
@@ -561,7 +574,8 @@ declare namespace Claude {
        * the viewer's plan allowed. When your named model answered, it is
        * the tier the call counted as: that model's tier, or the one you
        * asked for if higher. If you offer a tier choice, this is how you
-       * tell the viewer it could not be honoured. */
+       * tell the viewer it could not be honoured. On an `"inherit"` call it is
+       * what a `"default"` call would report, whichever model answered. */
       modelTierApplied: ModelTier;
       /** The model you named in {@link SampleOptions.model}, exactly as you
        * passed it, when it answered. Absent when the call named no model,
@@ -581,6 +595,13 @@ declare namespace Claude {
       images?: ImageLimits;
       /** Present only when this view can run {@link SampleOptions.tools}. */
       tools?: ToolLimits;
+      /** The values {@link SampleOptions.modelTier} accepts in this view.
+       * Present only when this view can tell you; when absent, assume
+       * `"default"`, `"complex"` and `"quick"`. Check
+       * `modelTiers?.includes("inherit")` before passing `"inherit"`: an older viewer
+       * app rejects it with `invalid_request`, a code that also covers calls
+       * that were sent and counted, so do not retry on it. */
+      modelTiers?: (ModelTier | "inherit")[];
     }
 
     /** The image side of {@link SampleLimits}. */

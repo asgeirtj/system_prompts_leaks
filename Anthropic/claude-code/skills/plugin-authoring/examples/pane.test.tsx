@@ -48,7 +48,7 @@ test('a value an earlier version stored is declined', async ($, on) => {
 })
 
 test('a drawing the mod leaves goes to the engine', async ($, on) => {
-  // Nothing draws beneath the plugin either: this hook stands for the engine,
+  // A hook here stands for the engine, in place of the node it draws by itself,
   // and like any `ui.render` hook it answers with an element.
   on('ui.render', ($, e) => {
     const { Text } = $.ui.resolve(e)

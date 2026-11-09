@@ -197,6 +197,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `app:diffFileListDown` | `ctrl+down`, `meta+down` | Global |
 | `app:toggleDiffPreSession` | (none) | Global |
 | `app:cycleDiffBase` | `ctrl+x b` | DiffPanel |
+| `app:closeSession` | (none) | Global |
 | `app:toggleTerminal` | (none) | Global |
 | `app:redraw` | (none) | Global |
 | `app:openArtifact` | `ctrl+]` | Global |

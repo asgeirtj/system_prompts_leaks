@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Fable 5.2** | November 9, 2026 | [Claude Fable 5.2 system prompt](Anthropic/claude-fable-5.2.md) · [Claude Code (Fable 5.2)](Anthropic/claude-code/claude-code-fable-5.2.md) |
 | **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
 | **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
 | **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
 | **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
-| **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
 
 ---
 ## Anthropic — Claude
@@ -50,10 +50,11 @@ Used as the definitive source in:
 
 | Model | Prompt |
 |-------|--------|
+| **Claude Fable 5.2** | [**Claude Fable 5.2 system prompt**](Anthropic/claude-fable-5.2.md) |
 | **Claude Haiku 5.5** | [**Claude Haiku 5.5 system prompt**](Anthropic/claude-haiku-5.5.md) |
 | **Claude Sonnet 5.5** | [**Claude Sonnet 5.5 system prompt**](Anthropic/claude-sonnet-5.5.md) |
 | **Claude Opus 5.5** | [**Claude Opus 5.5 system prompt**](Anthropic/claude-opus-5.5.md) |
-| **Claude Fable 5.1** | [**Claude Fable 5.1 system prompt**](Anthropic/claude-fable-5.1.md) |
+| Claude Fable 5.1 | [Claude Fable 5.1 system prompt](Anthropic/claude-fable-5.1.md) |
 | Claude Opus 5 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) |
 | Claude Fable 5 | [Claude Fable 5 system prompt](Anthropic/claude-fable-5.md) |
 | Claude Opus 4.8 | [Claude Opus 4.8 system prompt](Anthropic/claude-opus-4.8.md) |
@@ -67,13 +68,14 @@ Used as the definitive source in:
 
 | Component | Prompt |
 |-----------|--------|
-| **Claude Code CLI (Fable 5.1)** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
-| **Claude Code Desktop (Fable 5.1)** | [**Claude Code desktop app system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
-| **Claude Code on the web/Claude Code Cloud (Fable 5.1)** | [**Claude Code on the web (cloud) system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
-| **Claude Code headless mode/claude -p version (Fable 5.1)** | [**Claude Code headless system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
+| **Claude Code CLI (Fable 5.2)** | [**Claude Code system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-fable-5.2.md) |
+| Claude Code Desktop (Fable 5.1) | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
+| Claude Code on the web/Claude Code Cloud (Fable 5.1) | [Claude Code on the web (cloud) system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
+| **Claude Code headless mode/claude -p version (Fable 5.2)** | [**Claude Code headless system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-headless-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
 | **Opus 5.5** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Sonnet 5.5** | [**Claude Code system prompt (Sonnet 5.5)**](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
 | **Haiku 5.5** | [**Claude Code system prompt (Haiku 5.5)**](Anthropic/claude-code/claude-code-haiku-5.5.md) |
+| Fable 5.1 Claude Code | [Claude Code system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | Opus 5 Claude Code | [Claude Code system prompt (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
 | Fable 5 Claude Code | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) |
 | Opus 4.8 Claude Code | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |

@@ -84,7 +84,7 @@ Used as the definitive source in:
 | Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
 | Advisor tool | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
 | Auto mode classifier | [Auto mode safety classifier prompt](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
-| Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/commands) |
+| Skills & prompts | [Claude Code skills](Anthropic/claude-code/skills) · [Other prompts](Anthropic/claude-code/prompts) |
 | Docs assistant | [docs.claude.com assistant instructions](Anthropic/claude-code/claude-code-docs-assistant.md) |
 
 

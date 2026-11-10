@@ -14,6 +14,10 @@
 // Colors are six hex digits, no "#". The deck is rewritten in place unless a third argument
 // names another file. It throws, changing nothing, if a color anywhere in the deck is not six
 // hex digits, which is what a scheme color passed to a hex-only option turns into.
+//
+// As the step that rewrites the deck after pres.writeFile(), it also handles two faults pptxgenjs writes
+// that make PowerPoint offer to repair the deck: it mends <c:crossesAt val="autoZero"/>, and it
+// throws on a line dash that is not a dash style.
 const fs = require("fs");
 
 // jszip comes with pptxgenjs but is not always installed where a bare require("jszip") finds
@@ -29,6 +33,9 @@ function loadJSZip() {
 }
 
 const SLOTS = ["dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6", "hlink", "folHlink"];
+// A name or value from the deck, for an error a model reads: quoted, cut, and with nothing unprintable left raw.
+const shown = (s) => JSON.stringify(String(s).slice(0, 80)).replace(/[\p{C}\u2028\u2029]/gu, (c) => "\\u{" + c.codePointAt(0).toString(16) + "}");
+const DASHES = ["solid", "dot", "dash", "lgDash", "dashDot", "lgDashDot", "lgDashDotDot", "sysDash", "sysDot", "sysDashDot", "sysDashDotDot"];
 
 function themeXml(xml, theme) {
 	if (!theme || !theme.name) throw new Error("theme.name is required. Nothing was changed.");
@@ -58,9 +65,23 @@ async function applyTheme(deckPath, theme, outPath = deckPath) {
 	// not a color. pptxgenjs does not warn; stop here instead.
 	for (const name of Object.keys(zip.files)) {
 		if (!name.endsWith(".xml")) continue;
-		const bad = (await zip.file(name).async("string")).match(/<a:srgbClr val="((?![0-9A-Fa-f]{6}")[^"]*)"/);
-		if (bad) throw new Error(`${name} has an <a:srgbClr> whose val is "${bad[1]}", not six hex digits. Usually a scheme color was given to an option that takes hex only (valGridLine.color, catGridLine.color, shadow.color, or chartColors / invertedColors on a one-series bar chart). Pass the six-digit hex from your theme object there and rebuild. Nothing was changed.`);
+		const xml = await zip.file(name).async("string");
+		const bad = xml.match(/<a:srgbClr val="((?![0-9A-Fa-f]{6}")[^"]*)"/);
+		if (bad) throw new Error(`${shown(name)} has an <a:srgbClr> whose val is ${shown(bad[1])}, not six hex digits. Usually a scheme color was given to an option that takes hex only (valGridLine.color, catGridLine.color, shadow.color, or chartColors / invertedColors on a one-series bar chart). Pass the six-digit hex from your theme object there and rebuild. Nothing was changed.`);
+
+		// pptxgenjs writes a dash option through unchecked, and an array as "solid,dash".
+		const dash = [...xml.matchAll(/<a:prstDash val="([^"]*)"/g)].find((m) => !DASHES.includes(m[1].trim()));
+		if (dash) throw new Error(`${shown(name)} has an <a:prstDash> whose val is ${shown(dash[1])}, which is not a dash style, and PowerPoint would offer to repair the deck. Give line.dashType, a chart's lineDash (one word for the whole chart, not an array), catAxisLineStyle or valAxisLineStyle one of: ${DASHES.join(" ")}. Then rebuild. Nothing was changed.`);
+
+		// pptxgenjs writes valAxisCrossesAt: 0 as <c:crossesAt val="autoZero"/>. <c:crossesAt> takes
+		// a number; the word belongs in <c:crosses>, where it means the same: cross at zero.
+		if (xml.includes('<c:crossesAt val="autoZero"/>')) zip.file(name, xml.replaceAll('<c:crossesAt val="autoZero"/>', '<c:crosses val="autoZero"/>'));
 	}
+	// A ZIP entry for a folder ("ppt/slides/") is not a part, and pptxgenjs writes one per folder.
+	// A cloud co-editing service reported issues editing decks that carry them. They are dropped
+	// here for that reason, not to save space. (zip.remove() would take the folder's files too.)
+	for (const name of Object.keys(zip.files)) if (zip.files[name].dir) delete zip.files[name];
+
 	fs.writeFileSync(outPath, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
 }
 

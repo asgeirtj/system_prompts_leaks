@@ -21,6 +21,10 @@ _SCHEME_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.\-]*:")
 SLIDE_REL_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide"
 
 
+def one_line(text: str, limit: int) -> str:
+    return "".join(c if c.isprintable() else c.encode("unicode_escape").decode() for c in text)[:limit]
+
+
 def opc_target(target: str, source_part: str, target_mode: str = "") -> str | None:
     if not target:
         return None
@@ -81,6 +85,11 @@ def safe_extract(zf: zipfile.ZipFile, dest: Path) -> None:
         if not target.is_relative_to(dest):
             raise ValueError(f"unsafe archive entry: {m.filename!r}")
         zf.extract(m, dest)
+
+
+def folder_entries(package: Path) -> list[str]:
+    with zipfile.ZipFile(package) as zf:
+        return [info.filename for info in zf.infolist() if info.is_dir()]
 
 
 def rezip(src_dir: Path, out_path: Path) -> None:

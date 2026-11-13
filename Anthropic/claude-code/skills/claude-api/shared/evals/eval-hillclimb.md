@@ -313,6 +313,7 @@ When the loop ends, put the codebase at the version that won on test. The headli
 - **A second-model check, if the artifact will serve more than one model:** re-run the winner once on the other model(s) before recommending it, and report per-model numbers - failures are model-dependent, and a win measured on one model doesn't transfer by default.
 - **Two or three before/after transcript pairs** - the same prompt under baseline and under the winning version, side by side - so the user can see the quality change with their own eyes rather than taking the number on faith. Pick cases that illustrate the behavior the changes were targeting.
 - **What you'd try next.** Proactively list the concrete levers still on the table - "`effort=medium` looked promising on latency but I didn't re-tune the prompt for it; the `summarize` tool description is still vague; judge could move to `claude-sonnet-5-5`" - rather than waiting for the user to ask whether there's more. Include anything that seemed to need a bigger change than the target allowed.
+- **The next workflow, where there is one.** If the Step 1 goal was neither cost nor latency and either still matters to the user, name `/claude-api cost-optimize` or `/claude-api latency-optimize`: each starts from where the money or the time goes rather than from the eval's failures, and uses this eval to check that quality holds.
 
 The report is what lets the user trust the diff enough to merge it. Be specific about *why* each change helps; "reworded the system prompt" is not enough.
 

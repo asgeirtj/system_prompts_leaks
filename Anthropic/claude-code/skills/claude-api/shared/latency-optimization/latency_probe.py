@@ -149,10 +149,11 @@ interval that includes 1 is printed as "can't tell".
 only the error type, because API error messages can echo parts of the request and the file may be
 kept or shared. The terminal shows the first 200 characters of the message, since a rejected
 request can't be fixed without it, so terminal output can contain prompt text: don't paste it
-anywhere the capture itself couldn't go. A --json path that is also a capture is refused. The path
-is opened without being changed before the path check, so an unwritable path fails before anything
-is billed and a run that sends nothing leaves an earlier file as it was. The file is written at the
-end, also when the run stops early.
+anywhere the capture itself couldn't go. Where a server's or a proxy's error message, or a stop
+reason, repeats a credential exactly as it was sent, "[credential not shown]" takes its place. A
+--json path that is also a capture is refused. The path is opened without being changed before the
+path check, so an unwritable path fails before anything is billed and a run that sends nothing
+leaves an earlier file as it was. The file is written at the end, also when the run stops early.
 
 Exit status: 0 on success (or plan only); 1 when the run stops before anything is sent (a bad
 capture, URL, proxy or --json path, missing or refused credentials, or a failed path check); 2 on a
@@ -166,6 +167,7 @@ import http.client
 import json
 import os
 import random
+import re
 import socket
 import ssl
 import sys
@@ -189,10 +191,11 @@ PROXY_HINT = ("HTTPS_PROXY could not be parsed, nothing sent: give it as http://
 PROXY_SCHEME_HINT = ("HTTPS_PROXY names a proxy that is not http://, which this script can't use; nothing sent. Time the request with the "
                      "application's own client instead")
 URL_HINT = ("the base URL (--base-url, ANTHROPIC_BASE_URL or the SDK login profile's) could not be parsed, nothing sent: give it as "
-            "https://host, https://host:port or either with a path")
-ELSEWHERE_HINT = ("%s is not https://api.anthropic.com or the URL in ANTHROPIC_BASE_URL, so no credential goes "
+            "https://host, https://host:port or either with a path, with no login in it and any \"@\" after the host written as %40")
+ELSEWHERE_HINT = ('"%s" is not https://api.anthropic.com or the URL in ANTHROPIC_BASE_URL, so no credential goes '
                   "there. If the user confirms it is the application's base URL, have them set ANTHROPIC_BASE_URL to it and re-run; "
                   "otherwise drop --base-url")
+PLAIN_HTTP_LOGIN = "the SDK's own login is not sent over plain http to another machine; use an https base URL"
 RENEW_BEFORE = 120.0              # seconds left on an SDK token when it is renewed
 OAUTH_BETA = "oauth-2025-04-20"   # what the SDK adds to a request that carries its credential chain's token
 MAX_RETRY_AFTER = 120.0           # seconds; a longer retry-after is capped so one header can't stall the run
@@ -241,7 +244,7 @@ def sdk_credentials(base_url):
         return None
     u = urllib.parse.urlsplit(base_url)
     if u.scheme != "https" and u.hostname not in LOOPBACK:
-        raise ValueError("the SDK's own login is not sent over plain http to another machine; use an https base URL")
+        raise ValueError(PLAIN_HTTP_LOGIN)
     # Checked before the SDK reads any profile, even one that names this URL: a profile planted in the repository can
     # pair any URL with the path of the user's real credentials, so a match proves nothing.
     if not may_get_credentials(base_url):
@@ -260,9 +263,12 @@ def sdk_credentials(base_url):
     if not all(header_safe(k) and header_safe(v) for k, v in extra.items()):
         raise ValueError("the SDK's login profile gives a header that can't be sent (its value is not shown)")
     if meant_for and meant_for.strip().rstrip("/") != base_url.rstrip("/"):
-        raise ValueError("the SDK's login is for %s, not %s. If the user confirms the login's URL is the application's base URL, have "
-                         "them set ANTHROPIC_BASE_URL to it and re-run without --base-url; otherwise time the request with the "
-                         "application's own client" % (plain_url(meant_for.strip()), plain_url(base_url)))
+        fix = ("If the application calls %s, re-run with --base-url %s" % (DEFAULT_BASE_URL, DEFAULT_BASE_URL)
+               if meant_for.strip().rstrip("/") == DEFAULT_BASE_URL else
+               "If the user confirms the login's URL is the application's base URL, have them set ANTHROPIC_BASE_URL to it and "
+               "re-run without --base-url")
+        raise ValueError('the SDK\'s login is for "%s", not "%s". %s; otherwise time the request with the application\'s own client'
+                         % (plain_url(meant_for.strip()), plain_url(base_url), fix))
     kept = []
 
     def headers():
@@ -281,15 +287,21 @@ def sdk_credentials(base_url):
 
 def plain_url(url):
     """A URL safe to print: scheme, host, port and path only, so a login written into it never appears.
-    Raises ValueError with a fixed message when it can't be parsed, for the reason given in parse_proxy."""
+    The host and path are percent-encoded, so a planted URL can't hold a space or a quotation mark and
+    can't close the quotation marks a message puts round it.
+    Raises ValueError with a fixed message when it can't be parsed or an "@" follows the host, for the reason given in parse_proxy."""
     try:
         u = urllib.parse.urlsplit(url)
         host, port = u.hostname, u.port
-    except ValueError:
+        if "@" in u.path + u.query + u.fragment:
+            host = None
+        if host:
+            host, path = urllib.parse.quote(host, safe=":"), urllib.parse.quote(u.path, safe="/%")
+    except ValueError:   # also a lone surrogate, which quote() can't encode
         host = None
     if not host:
         raise ValueError(URL_HINT) from None
-    return printable("%s://%s%s%s" % (u.scheme, "[%s]" % host if ":" in host else host, ":%d" % port if port else "", u.path), 300)
+    return printable("%s://%s%s%s" % (u.scheme, "[%s]" % host if ":" in host else host, ":%d" % port if port else "", path), 300)
 
 
 def chain_failed(e):
@@ -477,7 +489,11 @@ class Connection:
                 conn = http.client.HTTPSConnection(self.host, self.port, timeout=self.connect_timeout, context=ctx)
         else:
             conn = http.client.HTTPConnection(self.host, self.port, timeout=self.connect_timeout)
-        conn.connect()
+        try:
+            conn.connect()
+        except (OSError, http.client.HTTPException) as e:   # http.client quotes a proxy's refusal, which can repeat its login
+            e.args = tuple(hide_credential(a, self.proxy[2]) if self.proxy and isinstance(a, str) else a for a in e.args)
+            raise
         conn.sock.settimeout(self.timeout)
         return conn
 
@@ -527,13 +543,27 @@ def as_dict(value):
     return value if isinstance(value, dict) else {}
 
 
-def error_fields(err, fallback):
+def hide_credential(text, sent):
+    """text as a string, with every value in sent replaced, and the bare token and proxy login inside them; None stays None.
+    A gateway's or a proxy's error can quote any of them."""
+    if text is None:
+        return None
+    text = str(text)
+    login = (sent.get("Proxy-Authorization") or "")[len("Basic "):]
+    pair = base64.b64decode(login).decode("utf-8")
+    secrets = {*sent.values(), (sent.get("authorization") or "")[len("Bearer "):], login, pair, *pair.split(":", 1)} - {""}
+    if secrets:   # in one pass, longest first, so that no value is cut by a shorter one or found again in the replacement
+        text = re.sub("|".join(re.escape(s) for s in sorted(secrets, key=len, reverse=True)), "[credential not shown]", text)
+    return text
+
+
+def error_fields(err, fallback, sent):
     """(type, message) from a response's error field. A gateway or proxy may send a bare string or
     some other shape instead of the API's object, and that must be recorded, not crash the run."""
     if isinstance(err, dict):
         kind = err.get("type")
-        return (printable(kind, 80) if kind and isinstance(kind, str) else fallback), err.get("message")
-    return fallback, (err if isinstance(err, str) else None)
+        return (printable(kind, 80) if kind and isinstance(kind, str) else fallback), hide_credential(err.get("message"), sent)
+    return fallback, (hide_credential(err, sent) if isinstance(err, str) else None)
 
 
 def timed_request(conn, body, betas, creds, version):
@@ -564,7 +594,7 @@ def timed_request(conn, body, betas, creds, version):
                 parsed = json.loads(raw.decode("utf-8", "replace"))
             except ValueError:
                 parsed = None
-            rec["error_type"], rec["error_message"] = error_fields(as_dict(parsed).get("error"), "http_%d" % resp.status)
+            rec["error_type"], rec["error_message"] = error_fields(as_dict(parsed).get("error"), "http_%d" % resp.status, given)
             return rec
         if not (resp.getheader("content-type") or "").lower().startswith("text/event-stream"):
             # the request ran and is billed, but whatever answered ignored "stream": a retry would
@@ -613,11 +643,11 @@ def timed_request(conn, body, betas, creds, version):
                 usage = as_dict(payload.get("usage"))
                 if usage.get("output_tokens") is not None:
                     rec["output_tokens"] = usage.get("output_tokens")
-                rec["stop_reason"] = as_dict(payload.get("delta")).get("stop_reason") or rec["stop_reason"]
+                rec["stop_reason"] = hide_credential(as_dict(payload.get("delta")).get("stop_reason") or None, given) or rec["stop_reason"]
             elif kind == "message_stop":
                 rec["total"] = now
             elif kind == "error":
-                rec["error_type"], rec["error_message"] = error_fields(payload.get("error"), "stream_error")
+                rec["error_type"], rec["error_message"] = error_fields(payload.get("error"), "stream_error", given)
                 # only these two are worth a retry; any other error in the stream stops the run, as a 400 does
                 rec["status"] = {"overloaded_error": 529, "api_error": 500}.get(rec["error_type"], 400)
         # Before Python 3.11, readline alone doesn't mark a body framed by Content-Length as finished,
@@ -636,7 +666,7 @@ def timed_request(conn, body, betas, creds, version):
         conn.close()
         rec["status"] = None
         rec["error_type"] = "network_" + type(e).__name__
-        rec["error_message"] = str(e)
+        rec["error_message"] = hide_credential(e, given)   # a bad status line is quoted in the error
     except ValueError as e:   # http.client refused a header; its message quotes the value, so only the type is kept
         conn.close()
         rec.update(status=400, error_type="request_" + type(e).__name__, error_message="a header value can't be sent (it is not shown)")
@@ -815,7 +845,8 @@ def main(argv=None):
         return 1
     scheme = urllib.parse.urlsplit(args.base_url).scheme
     if scheme not in ("https", "http"):
-        ap.error("the base URL (from %s) must start with https:// or http://" % url_from)
+        sys.stderr.write("the base URL (from %s) must start with https:// or http://; nothing sent\n" % url_from)
+        return 1
     captures = []
     for path in [p for p in (args.capture, args.capture_b) if p]:
         name = printable(path, 300)
@@ -861,14 +892,26 @@ def main(argv=None):
     except ValueError as e:
         sys.stderr.write("credentials error, nothing sent: %s\n" % e)
         return 1
-    if creds and scheme != "https" and urllib.parse.urlsplit(args.base_url).hostname not in LOOPBACK:
-        sys.stderr.write("refused, nothing sent: %s is plain http to another machine, so the key or token from the environment would "
+    plain_http_away = scheme != "https" and urllib.parse.urlsplit(args.base_url).hostname not in LOOPBACK
+    if creds and plain_http_away:
+        sys.stderr.write('refused, nothing sent: "%s" is plain http to another machine, so the key or token from the environment would '
                          "go unencrypted. Use an https base URL.\n" % plain_url(args.base_url))
         return 1
     if creds and not may_get_credentials(args.base_url):
         sys.stderr.write("refused, nothing sent: %s\n" % (ELSEWHERE_HINT % plain_url(args.base_url)))
         return 1
-    source = "%s, from the environment" % variable if creds else "none in the environment; with --yes the probe tries the anthropic Python SDK's own login, if that SDK is installed"
+    # What sdk_credentials would refuse before it reads a profile, so that no plan promises a login --yes can't use.
+    blocked = None
+    if not creds and plain_http_away:
+        blocked = PLAIN_HTTP_LOGIN
+    elif not creds and not may_get_credentials(args.base_url):
+        blocked = ELSEWHERE_HINT % plain_url(args.base_url)
+    if creds:
+        source = "%s, from the environment" % variable
+    elif blocked:
+        source = "none in the environment, and --yes would be refused: %s" % blocked
+    else:
+        source = "none in the environment; with --yes the probe tries the anthropic Python SDK's own login, if that SDK is installed"
     try:
         conn = Connection(args.base_url, args.timeout, args.connect_timeout)
     except ValueError as e:
@@ -891,7 +934,8 @@ def main(argv=None):
           % (len(captures), args.warmup, args.runs, per * len(captures), plain_url(args.base_url), url_from))
     for label, (path, body, betas, version) in zip("AB", captures):
         print("  %s: %s  model=%s max_tokens=%s betas=%s version=%s (stream forced on%s)"
-              % (label, printable(path, 300), printable(body.get("model"), 100), printable(body.get("max_tokens"), 20), ",".join(betas) or "-", version,
+              % (label, printable(path, 300), printable(body.get("model"), 100), printable(body.get("max_tokens"), 20),
+                 ",".join(printable(b, 80) for b in betas) or "-", printable(version, 80),
                  "; sent cold: a new line near the start of each request's prompt" if label in args.fresh else ""))
     print("  credentials: %s" % source)
     if len({c[3] for c in captures}) > 1:
@@ -903,10 +947,10 @@ def main(argv=None):
     elif args.runs < MIN_RUNS[0.9]:
         print("  note: with %s per capture no p90 is printed (it needs %d)" % (runs, MIN_RUNS[0.9]))
     if not args.yes:
-        print("nothing sent: re-run with --yes to send these requests (they are billed)")
+        print("nothing sent" if blocked else "nothing sent: re-run with --yes to send these requests (they are billed)")
         return 0
     if creds is None:
-        sys.stderr.write(CREDENTIALS_HINT + "\n")
+        sys.stderr.write(("credentials error, nothing sent: %s" % blocked if blocked else CREDENTIALS_HINT) + "\n")
         return 1
 
     labels = list("AB"[:len(captures)])

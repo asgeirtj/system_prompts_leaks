@@ -6,7 +6,7 @@ A message thread lets the Messages API keep a conversation on the server for a s
 
 ## When to use it
 
-Use a thread in long multi-turn loops - an agent's tool loop, a long chat - where every turn would otherwise upload, validate and tokenize the whole conversation again. With a thread, requests stay small and time to first token stays lower and steadier as the conversation grows. Threads do not change pricing or rate limits, and they do **not** cache anything for you: you choose the cache breakpoints as without a thread (see Prompt caching below for the limits that differ).
+Use a thread in long multi-turn loops - an agent's tool loop, a long chat - where every turn would otherwise upload, validate and tokenize the whole conversation again. With a thread, requests stay small and time to first token stays lower and steadier as the conversation grows (for when a thread does and doesn't shorten the wait, see the Message threads entry in `shared/latency-optimization/levers.md`). Threads do not change pricing or rate limits, and they do **not** cache anything for you: you choose the cache breakpoints as without a thread (see Prompt caching below for the limits that differ).
 
 ## The request shapes
 

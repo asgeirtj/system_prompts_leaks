@@ -132,7 +132,7 @@ Pass rate alone rarely answers the user's real question, which is some form of "
 
 - **Cache hit rate comparable across variants.** If one variant runs warm-cache and another cold, cost and latency differences are partly an artifact of run order. Flag comparisons where cache-read share differs materially.
 
-- **Latency measured against the right boundaries.** Time the final successful request only; keep client-side retries, backoff sleeps, local queueing behind a semaphore, and post-processing out of the model-latency column (record total wall-clock separately if useful). Otherwise whichever variant hit more transient errors looks slower.
+- **Latency measured against the right boundaries.** Time the final successful request only; keep client-side retries, backoff sleeps, local queueing behind a semaphore, and post-processing out of the model-latency column (record total wall-clock separately if useful). Otherwise whichever variant hit more transient errors looks slower. For deciding whether a difference in seconds is real, `shared/latency-optimization/measuring.md` ("Comparing two versions") has the noise rules.
 
 - **Per-call breakdown for agentic evals.** Record tokens, cost, and timing per model call and per tool call, not just per episode, or a slow tool is indistinguishable from a slow model.
 

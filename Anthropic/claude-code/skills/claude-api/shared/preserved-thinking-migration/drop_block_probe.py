@@ -294,7 +294,7 @@ def validate(convs):
 
 
 def prepare(body, mode, model=None, stream=False, max_tokens=16):
-    """Return (shaped body, skip reason or None, notes). Only fields OUTSIDE the compared prefix are touched:
+    """Return (shaped body, notes). Only fields OUTSIDE the compared prefix are touched:
     the model (on request), the thinking configuration, block_binding, max_tokens, stream, tool_choice and
     the sampling parameters a thinking request rejects. system, tools and messages go out exactly as captured."""
     notes = []
@@ -357,7 +357,7 @@ def prepare(body, mode, model=None, stream=False, max_tokens=16):
     if max_tokens:
         b["max_tokens"] = max_tokens
     b["stream"] = bool(stream)
-    return b, None, notes
+    return b, notes
 
 
 
@@ -645,10 +645,9 @@ def run_conversation(cid, reqs, args, api_key, betas, sink=None, flush=None):
         if args.max_requests and turn > args.max_requests:
             break
         replayed = count_thinking(body)
-        shaped, skip, shaping_notes = prepare(body, args.mode, args.model, args.stream, args.max_tokens)
-        if not skip and replayed == 0 and not args.include_no_thinking:
+        shaped, shaping_notes = prepare(body, args.mode, args.model, args.stream, args.max_tokens)
+        if replayed == 0 and not args.include_no_thinking:
             skip = "replays no thinking block (nothing for the check to verify); --include-no-thinking to send it anyway"
-        if skip:
             skipped += 1
             if not args.quiet:
                 print("  turn %2d  SKIP   %s" % (turn, skip))
@@ -889,7 +888,7 @@ def self_test(args, api_key, betas):
              "output_config": {"effort": "max"},   # a short turn at default effort often carries no thinking
              "messages": [{"role": "user", "content": q1}]}
     print("self-test 1/3: minting a thinking block ...")
-    shaped, _skip, _n = prepare(body1, args.mode, None, False, max_tokens=0)   # the mint needs a real reply
+    shaped, _n = prepare(body1, args.mode, None, False, max_tokens=0)   # the mint needs a real reply
     status, headers, raw, _ = post_with_retries(args.base_url, "/v1/messages", shaped, betas, api_key, args.timeout)
     msg, tr = parse_body(status, raw, False)
     if status != 200:
@@ -906,7 +905,7 @@ def self_test(args, api_key, betas):
     outcomes = {}
     for name, body, expect in (("honest replay", honest, "[]"), ("edited first message", edited, "a dropped-block entry (or a 400 in --mode error)")):
         print("self-test: %s (expect %s) ..." % (name, expect))
-        shaped, _skip, _n = prepare(body, args.mode, None, args.stream, args.max_tokens)
+        shaped, _n = prepare(body, args.mode, None, args.stream, args.max_tokens)
         status, headers, raw, secs = post_with_retries(args.base_url, "/v1/messages", shaped, betas, api_key, args.timeout)
         msg, tr = parse_body(status, raw, args.stream)
         hdr = headers.get(PREFIX_HEADER)
@@ -1005,9 +1004,8 @@ def main(argv=None):
     plan = []
     for v in convs.values():
         for label, b, _h in v:
-            shaped, skip, notes = prepare(b, args.mode, args.model, args.stream, args.max_tokens)
-            if not skip and count_thinking(b) == 0 and not args.include_no_thinking:
-                skip = "replays no thinking block"
+            shaped, notes = prepare(b, args.mode, args.model, args.stream, args.max_tokens)
+            skip = "replays no thinking block" if count_thinking(b) == 0 and not args.include_no_thinking else None
             plan.append((label, b, skip, notes))
     n_send = sum(1 for _l, _b, skip, _n in plan if not skip)
     n_tokens_send = sum(estimate_input_tokens(b) for _l, b, skip, _n in plan if not skip)

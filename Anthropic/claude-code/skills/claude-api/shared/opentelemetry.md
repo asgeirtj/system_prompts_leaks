@@ -157,7 +157,7 @@ In a self-hosted sandbox (`shared/managed-agents-self-hosted-sandboxes.md`) the 
 
 ### What it needs
 
-- The admin, owner or primary owner role in the organization, to add and manage destinations; the developer role can view them. A user with that role logs in with `ant auth login`; where they can't, an Admin API key, an organization-scoped API key of a user or service account with that role, or Workload Identity Federation works instead (step 1). On Claude Platform on AWS, IAM policies in the AWS account, not the role, decide who can add and manage destinations through Amazon's gateway (see "On Claude Platform on AWS" below). In the Console, which the user opens through the AWS Console, the admin role still applies.
+- The admin role in the organization, to add and manage destinations; the developer role can view them. A user with that role logs in with `ant auth login`; where they can't, an Admin API key, an organization-scoped API key of a user or service account with that role, or Workload Identity Federation works instead (step 1). On Claude Platform on AWS, IAM policies in the AWS account, not the role, decide who can add and manage destinations through Amazon's gateway (see "On Claude Platform on AWS" below). In the Console, which the user opens through the AWS Console, the admin role still applies.
 - An **OTLP/HTTP backend** that accepts **protobuf** at an **HTTPS URL on port 443**. A self-run OpenTelemetry Collector listens for OTLP/HTTP on port 4318 by default: configure its receiver for HTTPS on 443, or put a load balancer or reverse proxy in front of it.
 - The observability backend's credentials, such as an API key. Keep each of them, and any Anthropic key you use, in a file only the user can read, never in the conversation.
 
@@ -276,7 +276,7 @@ Code for each language: `{lang}/claude-api/opentelemetry.md` -> Connect API span
 ### Delivery and health
 
 - **At least once.** A destination can receive the same span more than once; dedupe by trace ID plus span ID.
-- **Best effort.** A span can be lost before delivery and is not resent. Exported spans are **not** a complete record of API usage - for per-key usage (spotting a leaked key, billing), use the Usage API, which also counts requests that have no spans.
+- **Best effort.** A span can be lost before delivery and is not resent. Exported spans are **not** a complete record of API usage - for per-key usage (spotting a leaked key, billing), use the usage reports in `shared/admin-api.md` -> Usage and Cost Analytics, which also count requests that have no spans. Their analytics endpoints can lag up to 24 hours, so for a same-day per-key read on a Console organization, use the legacy `usage_report/messages` described there.
 
 Delivery health can be up to a minute late. `delivery_health.last_error` describes the last failed delivery. The API **disables** a destination when the endpoint sends a `3xx` redirect (`state.reason.type` `redirect`) or when all deliveries fail for 24 hours (`sustained_failure`, or `invalid_address` when the hostname has no public IP address). `caller` means someone disabled it. Fix the cause, then enable it again (step 3); export resumes within about a minute. In the Console, the **Delivery** column shows **Healthy**, **Failing**, **No data** or **Disabled** (hover for the error or the reason).
 

@@ -70,7 +70,7 @@ Used as the definitive source in:
 |-----------|--------|
 | **Claude Code CLI (Fable 5.2)** | [**Claude Code system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-fable-5.2.md) |
 | Claude Code Desktop (Fable 5.1) | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
-| Claude Code on the web/Claude Code Cloud (Fable 5.1) | [Claude Code on the web (cloud) system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
+| **Claude Code on the web/Claude Code Cloud (Fable 5.2)** | [**Claude Code on the web (cloud) system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-cloud-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **Claude Code headless mode/claude -p version (Fable 5.2)** | [**Claude Code headless system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-headless-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
 | **Opus 5.5** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
 | **Sonnet 5.5** | [**Claude Code system prompt (Sonnet 5.5)**](Anthropic/claude-code/claude-code-sonnet-5.5.md) |

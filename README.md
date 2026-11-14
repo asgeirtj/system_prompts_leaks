@@ -30,6 +30,8 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Sheets** | November 14, 2026 | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
+| **Claude Whiteboard** | November 14, 2026 | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
 | **Claude Fable 5.2** | November 9, 2026 | [Claude Fable 5.2 system prompt](Anthropic/claude-fable-5.2.md) · [Claude Code (Fable 5.2)](Anthropic/claude-code/claude-code-fable-5.2.md) |
 | **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
 | **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
@@ -40,8 +42,6 @@ Used as the definitive source in:
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
 | **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
 | **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
-| **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
-| **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 
 ---
 ## Anthropic — Claude
@@ -98,6 +98,8 @@ Used as the definitive source in:
 | Claude Docs | [Docs type skill](Anthropic/artifact-types/docs/SKILL.md) |
 | Claude Motion | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | Design System | [Design System type skill](Anthropic/artifact-types/design-system/SKILL.md) · [references](Anthropic/artifact-types/design-system/artifact-type/reference) |
+| Claude Sheets | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
+| Claude Whiteboard | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
 
 ### Claude integrations
 

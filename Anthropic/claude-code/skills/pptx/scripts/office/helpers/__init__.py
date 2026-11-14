@@ -5,7 +5,7 @@ import stat
 import tempfile
 import urllib.parse
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 OOXML_FAMILY = {
     ".docx": "docx",
@@ -23,6 +23,10 @@ SLIDE_REL_TYPE = "http://schemas.openxmlformats.org/officeDocument/2006/relation
 
 def one_line(text: str, limit: int) -> str:
     return "".join(c if c.isprintable() else c.encode("unicode_escape").decode() for c in text)[:limit]
+
+
+def names_another_root(name: str) -> bool:
+    return bool(PureWindowsPath(name).anchor)
 
 
 def opc_target(target: str, source_part: str, target_mode: str = "") -> str | None:
@@ -56,6 +60,8 @@ def opc_target(target: str, source_part: str, target_mode: str = "") -> str | No
 
     if not parts:
         raise ValueError(f"relationship target resolves to nothing: {target!r}")
+    if names_another_root("/".join(parts)):  
+        raise ValueError(f"relationship target is not a part name: {target!r}")
     return "/".join(parts)
 
 
@@ -81,6 +87,8 @@ def safe_extract(zf: zipfile.ZipFile, dest: Path) -> None:
     for m in zf.infolist():
         if stat.S_ISLNK(m.external_attr >> 16):
             raise ValueError(f"symlink archive entry not allowed: {m.filename!r}")
+        if names_another_root(m.filename):
+            raise ValueError(f"unsafe archive entry: {m.filename!r}")
         target = (dest / m.filename).resolve()
         if not target.is_relative_to(dest):
             raise ValueError(f"unsafe archive entry: {m.filename!r}")

@@ -1,18 +1,20 @@
-// Written by Claude Code 2.1.323.
+// Written by Claude Code 2.1.325.
 // Claude Code function hooks: the plugin API's TypeScript declarations.
 //
 // EARLY ACCESS: this surface may change between releases without notice.
-// Written by the engine each time it loads a mod from a folder the person
-// owns, beside that mod as .claude-plugin/types/claude-code/index.d.ts;
-// written again after an update rather than edited. The first line names
-// the Claude Code version that wrote it. TypeScript 5.4 or newer reads it.
+// The engine writes this file each time it loads a mod from a folder the
+// person owns, beside that mod as .claude-plugin/types/claude-code/index.d.ts,
+// under a first line naming the Claude Code version that wrote it, and again
+// after an update, so don't edit a copy. TypeScript 5.4 or newer reads it.
 // `claude plugin validate <dir>` is the other half: it reads a plugin's
 // manifest and its hooks module's source the way the engine will and
 // reports what the module hooks and calls, the $ nouns an engine.create
 // hook adds or withholds, and everything the engine would refuse, before
-// any session loads it. Validate also refuses an engine.create hook outside
-// its one form, spelled in plugin-authoring's reference, which still loads:
-// a check, and no guarantee or security boundary.
+// any session loads it. Its lists of hooks, calls and nouns are notes
+// (`notes` in its JSON report) and fail nothing. Validate also refuses an
+// engine.create hook outside its one form, spelled in plugin-authoring's
+// reference, which still loads: a check, and no guarantee or security
+// boundary.
 //
 // What is here: the module a hooks module may import types from,
 //   import type { Register, On, EngineInterface } from 'claude-code'
@@ -2763,6 +2765,10 @@ declare module 'claude-code' {
            * and `request.system`; ModelCompleteRequest says the rest. Only a request
            * the engine refuses to send (a blocked model, a bad cap) rejects.
            *
+           * An answered request counts toward the session's cost total, `/cost` and
+           * the cost and token metrics, with `query_source` `plugin_model_complete`;
+           * a call cut before an answer counts nothing. Nothing caps it per call.
+           *
            * @param request the model (an alias such as `haiku`, or a full id
            *                resolved like `--model`), prompt, cap, effort, time limit
            * @param options `signal`: the plugin's own AbortSignal; aborting it
@@ -2816,6 +2822,9 @@ declare module 'claude-code' {
            * `text` is data; the model answers with a label alone. It resolves
            * `undefined` when the answer named none of `labels`. A failed request,
            * an abort or a reply with no text rejects, naming the cause.
+           *
+           * An answered request counts as `complete`'s does, with `query_source`
+           * `plugin_model_classify`.
            *
            * @param text what to classify
            * @param labels the labels to choose from (2 or more)
@@ -3014,6 +3023,7 @@ declare module 'claude-code' {
           /**
            * Returns when the session began, and the context window's fill, the
            * rate-limit windows and the cost as the status line has them, itemized.
+           * The cost includes every mod's answered `$.model` calls.
            *
            * The plain call costs nothing; `"full"` counts each category with the
            * token-count API as /context does, `"summary"` estimates locally, and
@@ -4799,6 +4809,8 @@ declare module 'claude-code' {
        * A step may ADD nouns and, outside `user`, WITHHOLD them (leave one out, or
        * return without `next`). It fails, and its plugin unloads, when it REPLACES
        * another's; in `user`, also past its own stub, or adding a seated name.
+       * Throwing or answering a wrong shape unloads it too, where another event's
+       * hook is skipped.
        */
       'engine.create': EngineCreateInput;
   };
@@ -6210,6 +6222,8 @@ declare module 'claude-code' {
    * `plugin` is a default matcher key: where the engine sets it on `e`
    * (`ui.press`, a band row), a matcher leaving it out is read as naming the
    * hook's own plugin; `"*"` names every one, and hears an `e` without the key.
+   * `claude plugin validate` notes such a hook: `(default matcher key: plugin)`;
+   * a `component` there keeps the hook off `AbovePromptList`.
    */
   export type Matcher<I, All = I> = I extends unknown ? {
       readonly [K in KnownKeys<I>]?: MatcherValue<I[K & keyof I], MatcherValueOf<All, K>>;
@@ -9250,7 +9264,7 @@ declare module 'claude-code' {
    * carries, in order; one left out is not sent.
    *
    * By name: `userEmail`, `attachedProject` and `perforceMode` are sent again
-   * when the text differs, `workerToolsContext` too where coordinator mode
+   * when the text differs, `workerToolsContext` too where the session's mode
    * announces it; for `gitStatus` and `currentDate` the engine sends its own.
    *
    * @remarks After a failure to send the context as copies, the engine renders
@@ -11349,6 +11363,17 @@ declare module 'claude-code' {
        *
        * Asked once for each plugin that hooks it, `e.plugin` naming the plugin:
        * a hook draws that plugin's row, or passes. `AbovePromptList` stacks them.
+       *
+       * A row costs only itself: one that does not validate draws nothing, and so
+       * does one past a tree's limits: they count across the rows, kept from the
+       * top, and stacking adds a level of depth. While the session hot-reloads a
+       * plugin folder that is told as
+       * `ui.render (AbovePrompt) refused: a row past the limits of the band`, whose
+       * `nothing was drawn` means that row. Another plugin takes a row away by a
+       * hook above naming its plugin or `"*"` that answers over it, or an
+       * `AbovePromptList` hook leaving it out. On the terminal, a tree that throws
+       * while drawn empties the band.
+       *
        * The person collapses the band (ctrl+x ctrl+a, `[-]`) or focuses it (a
        * click, ctrl+x tab): an Input types, a Button arms the hotkeys, a tree
        * taller than it scrolls.
@@ -11412,16 +11437,27 @@ declare module 'claude-code' {
        * The band's arrangement once its rows settled, heard by a hook naming it or
        * a bare `on("*")`; what settles is the whole band.
        *
-       * Core stacks `rows`. Filter what `next(e)` gets and wrap its answer, never
-       * rows copied by value; an organization's mod wins by the chain's order. A
-       * bad answer is passed over: to fail closed, answer no rows in its `.catch`.
+       * Core stacks `rows`. A hook hides or reorders them in what `next(e)` gets,
+       * and wraps them by answering around it, never with rows copied by value; an
+       * organization's mod wins by the chain's order. A bad answer is passed over:
+       * to fail closed, answer no rows in its `.catch`.
+       *
+       * A wrapper counts toward a tree's limits with the rows. Past one, the rows
+       * that no longer fit are left out; where several hooks' wrappers together
+       * pass it, the band is blank. While the session hot-reloads a plugin folder
+       * either is told as `ui.render (AbovePromptList) refused:`, whatever that
+       * line's ending says.
        *
        * Raised on the terminal, desktop and mobile surfaces only.
        */
       AbovePromptList: {
           /**
-           * The settled rows, in chain order, one for each plugin that drew one; a
-           * rewrite holds rows it was handed, and what it leaves is what core stacks.
+           * The settled rows that fit, in chain order, one for each plugin that drew
+           * one.
+           *
+           * A rewrite holds rows it was handed, in any order and no more often than
+           * they came, compared by value: an unchanged copy passes, one changed or
+           * repeated fails the hook. What it leaves is what core stacks.
            */
           rows: readonly AbovePromptRow[];
           /**
@@ -12231,7 +12267,8 @@ declare module 'claude-code' {
    */
   export type SessionCost = {
       /**
-       * US dollars, summed over every priced API response this session.
+       * US dollars, summed over every priced API response this session, a mod's
+       * `$.model` calls among them; the engine's own side queries stay out.
        */
       usd: number;
   };
@@ -13039,8 +13076,9 @@ declare module 'claude-code' {
        */
       rateLimits: SessionRateLimit[];
       /**
-       * What the session has cost so far, as /cost totals it; absent only where
-       * the host keeps no cost ledger (the CLI always has one).
+       * What the session has cost so far, as /cost totals it, every mod's answered
+       * `$.model` calls included; absent only where the host keeps no cost ledger
+       * (the CLI always has one).
        */
       cost?: SessionCost;
   };
@@ -14134,8 +14172,8 @@ declare module 'claude-code' {
 
   /**
    * The `backdrop` attribute of `$.theme.set`: what is behind the conversation.
-   * `scene` makes a live scene, and `color`, `gradient` or `vector` make a still
-   * ground.
+   * `scene` makes a live scene, and `color`, `gradient`, `vector` or `image` make a
+   * still ground.
    */
   export type ThemeBackdrop = ThemeScene | ThemeGround;
 
@@ -14165,8 +14203,8 @@ declare module 'claude-code' {
   /**
    * A color in a still `backdrop`. A surface uses a raw color as it is, works out a
    * name from the look's `colors` in the look's mode, or from the app's own colors where
-   * the look gives none, and logs and drops anything else. Annotate a color kept in an
-   * object or a list with this type, or it widens to `string`.
+   * the look gives none, and refuses the ground over anything else. Annotate a color kept
+   * in an object or a list with this type, or it widens to `string`.
    */
   export type ThemeColor = ThemeColorName | 'transparent' | `#${string}` | `rgb${string}` | `hsl${string}`;
 
@@ -14177,6 +14215,7 @@ declare module 'claude-code' {
       color: ThemeColor;
       gradient?: never;
       vector?: never;
+      image?: never;
   }
 
   /**
@@ -14278,16 +14317,17 @@ declare module 'claude-code' {
       gradient: ThemeGradient;
       color?: never;
       vector?: never;
+      image?: never;
   }
 
   /**
-   * A still ground behind the conversation: a flat color, a gradient or a drawing in
-   * paths. A scene draws what moves, and any other pattern.
+   * A still ground behind the conversation: a flat color, a gradient, a drawing in
+   * paths or a picture. A scene draws what moves, and any other pattern.
    *
    * @example
    * backdrop: { gradient: { stops: ['surface-0', 'surface-2'] } }
    */
-  export type ThemeGround = ThemeColorGround | ThemeGradientGround | ThemeVectorGround;
+  export type ThemeGround = ThemeColorGround | ThemeGradientGround | ThemeImageGround | ThemeVectorGround;
 
   /**
    * A scene's keys, which no ground has.
@@ -14302,6 +14342,43 @@ declare module 'claude-code' {
        */
       glass?: never;
   }
+
+  /**
+   * A picture from the mod's folder, filling its box unless `size` and `repeat` tile it.
+   */
+  interface ThemeImage extends ThemeTiling {
+      /**
+       * An 8-bit JPEG or a PNG, as a path relative to the mod's folder, with `/` between
+       * folders and no `..`: at most 1 MiB and 4096 on a side.
+       */
+      source: string;
+  }
+
+  interface ThemeImageGround extends ThemeGroundBase {
+      image: ThemeImage;
+      color?: never;
+      gradient?: never;
+      vector?: never;
+  }
+
+  /**
+   * How a `Theme` answer names a ground's image: a surface pulls the bytes by `id`,
+   * and lays them out by `size` and `repeat` as the mod gave them. The bytes are the
+   * mod's own, so `width` and `height`, the size in the file's header before any EXIF
+   * rotation, are hints: a surface reads the file's header with its own decoder, decodes
+   * off the main thread, caps the pixels at 4096 on a side and, if it can't draw the
+   * picture, keeps the app's own ground.
+   */
+  export type ThemeImageWire = {
+      type: 'jpeg' | 'png';
+      width: number;
+      height: number;
+      /**
+       * Names the picture for this run of the engine: it's keyed with a secret the engine
+       * keeps, so a copy of the file can't be matched to it.
+       */
+      id: string;
+  };
 
   /**
    * The theme keys named for what a color means: text, status, the prompt box
@@ -14378,6 +14455,10 @@ declare module 'claude-code' {
        * A ground's key, which no scene has.
        */
       vector?: never;
+      /**
+       * A ground's key, which no scene has.
+       */
+      image?: never;
   };
 
   /**
@@ -14411,18 +14492,18 @@ declare module 'claude-code' {
   };
 
   /**
-   * How a drawing or a gradient lies in its box.
+   * How a drawing, a gradient or a picture lies in its box.
    */
   interface ThemeTiling {
       /**
        * `[width, height]` in points, such as `[24, 8]`: the box one copy fills under
        * `repeat`, each side from 1 to 256. Absent, a drawing takes its own
-       * size, and a gradient has none, so it fills its box.
+       * size, and a gradient or a picture fills its box.
        */
       size?: readonly [number, number];
       /**
-       * Tiles the drawing or gradient at its size.
-       * Absent, they stretch to the box.
+       * Tiles the art at its size.
+       * Absent, a drawing or a gradient stretches to the box.
        */
       repeat?: boolean;
   }
@@ -14438,8 +14519,8 @@ declare module 'claude-code' {
       /**
        * At most 64 paths. A string or `{ d }` is filled by the even-odd rule, and
        * `{ d, strokeWidth }` is stroked at a width that doesn't scale, above 0 and at
-       * most 64. `d` has no set length: a surface may refuse a long one, past 16,384
-       * characters on Desktop and 8,192 parts in a drawing on iPhone.
+       * most 64. A surface refuses a ground whose `d` isn't whole path data of at most
+       * 16,384 characters, with no number past 1,000,000 either way.
        */
       paths: readonly (string | {
           d: string;
@@ -14447,8 +14528,8 @@ declare module 'claude-code' {
           color?: ThemeColor;
       })[];
       /**
-       * Each path's color, where it names none of its own: a path with neither drops
-       * the fill.
+       * Each path's color, where it names none of its own: a path with neither draws
+       * nothing, and a surface refuses a drawing left with no path.
        */
       color?: ThemeColor;
   }
@@ -14457,15 +14538,37 @@ declare module 'claude-code' {
       vector: ThemeVector;
       color?: never;
       gradient?: never;
+      image?: never;
   }
 
   /**
    * One of the chain's five tiers (TIERS), outermost first; on every
    * `next.trace` entry, and what `next.to(e, tier)` names.
    *
-   * `prepend` and `append` are the managed plugins an administrator lists,
-   * `user` everything a person installs, `builtin` the plugins bundled in the
+   * `prepend` and `append` are the managed plugins an administrator lists. With
+   * no managed settings, they are a person's own plugins listed in user settings,
+   * except where plugin-authoring's reference says that list is set aside. `user`
+   * is every other plugin a person installs, `builtin` the plugins bundled in the
    * binary, `core` the engine's innermost link.
+   *
+   * Under an organization's managed settings, a mod from a marketplace with a
+   * remote source (`github`, `git`, `url` or inline `settings`) takes the
+   * organization's tier when those settings do three things: set it true in
+   * `enabledPlugins`, declare that marketplace in `extraKnownMarketplaces`, and
+   * list it in `prependPlugins` or `appendPlugins`. Missing any of the three, it
+   * stays in `user`. A marketplace's `pluginDigests` is deprecated and ignored, so
+   * a new release reaches machines with no settings change.
+   *
+   * Claude Code stores a hash (`copyHash`) on a listed mod's install record when it
+   * writes a copy from the marketplace's declared origin that fits this build, and
+   * checks the copy against it at each load, so an edit made after that is caught.
+   * A copy that doesn't match is fetched afresh once before the first turn. Some
+   * starts run no fetch, such as `--bare` or a session with hooks modules off
+   * (`--safe-mode`, a managed `disableAllHooks`). Where a fetch
+   * ran and the copy still isn't mended, the session carries on and the debug log
+   * says `listed mod <id> does not run in this session: <why>`. A copy that doesn't
+   * match runs without its hooks module, and a copy outside its
+   * `engines["claude-code"]` range is off whole.
    */
   export type Tier = (typeof TIERS)[number];
 
@@ -14473,9 +14576,8 @@ declare module 'claude-code' {
    * The chain's five tiers, outermost first: earlier is outer is more
    * authority, and same-event hooks nest in this order and no other way.
    *
-   * The managed plugins an administrator prepends, everything a person
-   * installs, the managed plugins appended, the plugins bundled in the binary,
-   * the engine's innermost link; a built-in's `$` calls still raise everywhere.
+   * `Tier` says which plugins are in each; a built-in's `$` calls still raise
+   * everywhere.
    */
   const TIERS: readonly ["prepend", "user", "append", "builtin", "core"];
 
@@ -23946,15 +24048,15 @@ declare module 'claude-code' {
     WrapUp: {
       /** Whether the call put a question to the user */
       asks: boolean
-      /** The next-step box for this call, to draw without reading the tool's input. Open the box when blocked is true or actions isn't empty; otherwise draw no box. Trust it only when the result's entry in tool_result_meta has built_in_tool set to this tool. It is built from the input the call ran with, which a permission answer or a hook before the call may have rewritten, so built_in_tool does not say that Claude wrote it. The recap and the question are each cleaned to one line of at most 500 UTF-16 units, ending in an ellipsis where that limit cut it, with no whole <cc-memory> markers, no terminal escape sequences and no invisible characters other than those an emoji or a word needs. A placeholder such as [REDACTED] or <token> stands in place of most keys and tokens recognised by their shape. A private key that could not be masked, or a tool call's own markup, is cut with all the text after it, and an ellipsis then shows only if what is left still passes that limit or the text ran past 2000 units. Draw the recap and the question as plain text, as they stand: they may hold Markdown, HTML or links, and normalizing them can undo the cleaning. Absent from a result stored by an earlier version of Claude Code. */
+      /** The next-step box for this call, to draw without reading the tool's input. Open the box when blocked is true or actions isn't empty; otherwise draw no box. Trust it only when the result's entry in tool_result_meta has built_in_tool set to this tool. It is built from the input the call ran with; where a permission answer or a hook before the call changed that input, the entry has no built_in_tool. The recap and the question are each cleaned to one line of at most 500 UTF-16 units, ending in an ellipsis where that limit cut it, with no whole <cc-memory> markers, no terminal escape sequences and no invisible characters other than those an emoji or a word needs. A placeholder such as [REDACTED] or <token> stands in place of most keys and tokens recognised by their shape. A private key that could not be masked, or a tool call's own markup, is cut with all the text after it, and an ellipsis then shows only if what is left still passes that limit or the text ran past 2000 units. Draw the recap and the question as plain text, as they stand: they may hold Markdown, HTML or links, and normalizing them can undo the cleaning. Absent from a result stored by an earlier version of Claude Code. */
       nextStep?: {
-        /** Claude's short summary of the turn. Empty when nothing visible is left, even when ask is present. */
+        /** Claude's short summary of the turn. Empty when nothing visible is left, or when it holds a key that cannot be masked alone (one that an invisible character, an accent or nested markers part, or whose rest comes to stand right after its mask), even when ask is present. */
         recap: string
-        /** The decision Claude asks of the user. Absent when Claude asked none, or when nothing visible is left. */
+        /** The decision Claude asks of the user. Absent when Claude asked none, when nothing visible is left, or when it holds a key that cannot be masked alone, as for recap. */
         ask?: string
         /** Whether Claude's work stops here until the user answers. Can be true with no question. */
         blocked: boolean
-        /** The buttons to draw under the question, in Claude's order, its pick first. Two replies with the same label are listed once, and a reply whose label holds a key or token is left out. Empty when there is no question. */
+        /** The buttons to draw under the question, in Claude's order, its pick first. Two replies with the same label are listed once, and a reply whose label holds a key or token is left out. Empty when there is no question, and when the first button is left out. */
         actions: Array<{
           /** A reply button's text. Draw it as plain text with no links. On a click, put exactly this text into the message box and let the person send it. Never send it yourself. */
           label: string

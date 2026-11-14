@@ -51,8 +51,8 @@ limit is a **Meter**, above). Answer it with one of these; the donut stays depri
 
 | The reader must... | Use |
 |---|---|
-| Compare the parts with each other, rank them, tell close values apart, or read more than 6 parts | **Ranked horizontal bars**, one per part, largest first, one hue: bars on one baseline compare more exactly than segments laid end to end |
-| See how one whole splits, at a glance: one bar alone in a card, no figures listed beside it | **Tall segmented bar**: each part its own block, its share or amount printed on it where it fits, and a legend of names only. <= 6 parts; fold a tail nobody needs to read into "Other" |
+| Compare the parts with each other, rank them, tell close values apart, or read more than 6 parts | **Ranked horizontal bars**, one per part, largest first (parts with a natural order, such as age bands, keep that order), one hue: bars on one baseline compare more exactly than segments laid end to end |
+| See how one whole splits, at a glance: one bar alone in a card, no figures listed beside it | **Tall segmented bar**: each part its own block, its share or amount printed on it where it fits, and a legend of names. <= 6 parts; fold a tail nobody needs to read into "Other" |
 | Read the split beside its figures: down the rows of a table or list, or above a list that already gives each part's name and amount | **Thin segmented bar**, no text: the text beside it carries the figures the reader needs, and printing them on the bar adds nothing. One legend for the whole table; a swatch on each list row replaces the legend |
 | See the split change over time, or compare several wholes on one shared axis | **Stacked bar chart** (go horizontal for many / long-named categories): its axis carries the values |
 
@@ -66,6 +66,8 @@ Specs for the two segmented bars -> *Figures* in `marks-and-anatomy.md`.
 | 4 | adjacent forms (stacks, bars, lines) stay gate-safe, but direct labels become mandatory - yellow and orange now share the screen; all-pairs forms (scatter, bubble, choropleth, small multiples) cap at **three** - fold to "Other" or facet rather than seat a 4th |
 | 5-6 | soft cap; legend or small multiples |
 | 7-8 | token ceiling; past it, fold the tail into "Other," facet into small multiples, or use composite encoding (hue × shape) |
+
+**Exception to direct labels:** the tall segmented bar takes no name labels; its legend names the parts (*Figures* in `marks-and-anatomy.md`).
 
 Never solve "too many series" by generating more hues. A generated 9th hue is
 indistinguishable from an existing one under CVD and breaks every check.

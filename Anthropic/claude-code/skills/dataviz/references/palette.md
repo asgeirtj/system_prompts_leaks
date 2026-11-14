@@ -56,7 +56,7 @@ dark surface, not a separate palette:
 | 3 | aqua | `#1baf7a` | `#199e70` |
 | 4 | yellow | `#eda100` | `#c98500` |
 | 5 | magenta | `#e87ba4` | `#d55181` |
-| 6 | green | `#008300` | `#008300` |
+| 6 | green | `#008300` | `#0ca30c` |
 | 7 | violet | `#6250d6` | `#9085e9` |
 | 8 | red | `#e34948` | `#e66767` |
 
@@ -87,7 +87,11 @@ pure re-order. Light slot 7 has since been lightened, `#4a3aa7` -> `#6250d6`
 (August 2026); the adjacent-pair figures above are unchanged by that move, the
 non-adjacent blue<->violet pair now sits below both floors under `--pairs all`
 (normal-vision 10.5, CVD 4.5 - inside the range the series cap already
-excludes), and the order enumeration was run with the earlier value.) When you
+excludes), and the order enumeration was run with the earlier value. Dark slot 6
+has since been lightened, `#008300` -> `#0ca30c` (November 2026, also after that
+enumeration). The worst adjacent figures are unchanged; under `--pairs all` its
+CVD distance fell from 2.7 to 1.4 against orange and from 6.9 to 3.0 against
+yellow, floor 6.) When you
 swap in your own ramps, hold your palette to the full gate.
 
 The slot **ordering** is the CVD-safety mechanism, not cosmetic - candidate
@@ -132,18 +136,19 @@ rejected - both cool, the midpoint doesn't read as "nothing".)
 | serious | `#ec835a` | 2.57 | 6.60 |
 | critical | `#d03b3b` | 4.68 | 3.62 |
 
-Dark: same four steps - all clear 3:1 on the dark surface (`#1a1a19`) and remain
-distinct from the dark categorical slots. On the light surface, warning and
+Dark: same four steps - all clear 3:1 on the dark surface (`#1a1a19`), and good
+is the same green as dark slot 6. On the light surface, warning and
 serious are sub-3:1 by design; the **icon + label** pairing is the mitigation, so
-a status color never carries meaning alone. These steps are deliberately distinct
-from the categorical slots so a status color never impersonates a series -
+a status color never carries meaning alone. That green aside, these steps are
+deliberately distinct from the categorical slots so a status color never
+impersonates a series -  
 distinct enough that nothing collides at a glance, not enough for hue to
 carry the distinction unaided: measured by the series floor's own bar
 (unsimulated Delta E >= 15), around nine categorical-vs-status pairs per mode sit
 below 15 - in light mode red vs critical and yellow vs warning both measure
 4.8, slot-2 orange sits 5.8 from status-serious, and the light success text
-green `#006300` sits 10.1 from the series green; green vs status-good (9.7)
-holds in both modes, since both hexes are mode-invariant. The rule is general: any series color beside a
+green `#006300` sits 10.1 from the series green; green vs status-good is 9.7
+in light mode, and the two are identical in dark. The rule is general: any series color beside a
 same-hue-family status or delta cue leans on the icon + label pairing and on
 placement; never on hue alone.
 

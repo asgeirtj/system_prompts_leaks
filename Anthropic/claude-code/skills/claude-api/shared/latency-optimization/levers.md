@@ -80,7 +80,7 @@ The saving can vary with when it is measured, so measure it on this workload at 
 Effort sets how many tokens the model spends - thinking, text and tool calls, in proportions that differ by model - and in a loop it usually changes the number of calls too. A lower level trades some capability for fewer tokens, which shortens each call and leaves output speed about where it was. Sweep on the eval (mechanics: `shared/cost-optimization.md` § Effort and budgets); for seconds, interleave the levels in time rather than finishing one level before starting the next (`shared/latency-optimization/measuring.md`, "Comparing two versions").
 
 - **Sweep only the levels the model accepts** with the `thinking` setting the code sends, above the default as well as below (the **Effort Parameter** row; SKILL.md -> Thinking & Effort). A higher level is a lever that costs money: what it adds per task counts against the user's cost limit. Defaults differ between models, so set effort explicitly.
-- **Vary effort between user turns without breaking the cache.** When some turns of a conversation are routine and some hard, raise effort only for the turns that need it, with the per-message form, which keeps the cached prefix. Something has to decide which turns are hard: the task type where the application knows it, or a classifier, whose own wait and mistakes count. When a change takes effect and its restrictions: the per-message section of the **Effort Parameter** row's page.
+- **Vary effort between user turns without breaking the cache.** When some turns of a conversation are routine and some hard, raise effort only for the turns that need it, with the per-message form, which keeps the cached prefix. Something has to decide which turns are hard: the task type where the application knows it, or a classifier, whose own wait and mistakes count. When a change takes effect and its restrictions: the **Per-message Effort** row.
 
 ## Model selection - a different speed, a different ceiling
 
@@ -91,7 +91,7 @@ Take the candidates from the fetched lineup (the **Models Overview** row), above
 
 ## Thinking off - the steepest capability trade
 
-Some models accept a setting that turns thinking off, or turns off up-front thinking, at some effort levels; others reject it (the **Thinking** row; SKILL.md -> Thinking & Effort). Turning thinking off removes the thinking tokens, so it usually shortens the task - but it can cost a large share of quality, and some models move reasoning into the visible reply, so watch output tokens too. Turning off only up-front thinking is a lever on time to first visible output: it helps only where replies would open with a long think, and it can cost quality too. These settings may not combine with per-message effort (the **Effort Parameter** row says which).
+Some models accept a setting that turns thinking off, or turns off up-front thinking, at some effort levels; others reject it (the **Thinking** row; SKILL.md -> Thinking & Effort). Turning thinking off removes the thinking tokens, so it usually shortens the task - but it can cost a large share of quality, and some models move reasoning into the visible reply, so watch output tokens too. Turning off only up-front thinking is a lever on time to first visible output: it helps only where replies would open with a long think, and it can cost quality too. These settings may not combine with per-message effort (the **Per-message Effort** row's page says which).
 
 ## Limits, retries and hedges - bounding the slowest tasks
 

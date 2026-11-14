@@ -111,7 +111,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `keybindings.json must have a "bindings" array` | Missing wrapper object | Wrap bindings in `{ "bindings": [...] }` |
 | `"bindings" must be an array` | `bindings` is not an array | Set `"bindings"` to an array: `[{ context: ..., bindings: ... }]` |
 | `Unknown context "X"` | Typo or invalid context name | Use exact context names from the Available Contexts table |
-| `"X" is not a modifier, so "Y" ... applies to "Z" instead` | Error: `X` comes before the key in `Y` but is not a modifier (a typo such as `ctl` for `ctrl`, or two keys joined with `+` instead of a space), so it is dropped and the binding applies to `Z` | Correct the modifier using the Keystroke Syntax list (the message suggests the corrected keystroke when it can), or put a space between the keystrokes of a chord |
+| `"X" is not a modifier, so the binding "Y" ... is ignored` | Error: `X` comes before the key in `Y` but is not a modifier (a typo such as `ctl` for `ctrl`, or two keys joined with `+` instead of a space), so the binding is ignored and every key keeps its current action | Correct the modifier using the Keystroke Syntax list (the message suggests the corrected keystroke when it can), or put a space between the keystrokes of a chord |
 | `Duplicate key "X" in Y bindings` | Same key defined twice in one context | Remove the duplicate; JSON uses only the last value |
 | `"X" may not work: ...` | Key conflicts with terminal/OS reserved shortcut | Choose a different key (see Reserved Shortcuts section) |
 | `Invalid action for "X"` | Action value is not a string or null | Actions must be strings like `"app:help"` or `null` to unbind |
@@ -124,7 +124,7 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 [keybindings] [warning] "ctrl+c" may not work: Terminal interrupt (SIGINT)
 ```
 
-**Errors** prevent bindings from working and must be fixed. **Warnings** indicate potential conflicts but the binding may still work.
+**Errors** mean some or all of your bindings are ignored or don't work as written, and must be fixed. **Warnings** indicate potential conflicts but the binding may still work.
 
 ## Reserved Shortcuts
 
@@ -208,6 +208,8 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 | `chat:killAgents` | `ctrl+x ctrl+k` | Chat |
 | `chat:cycleMode` | `shift+tab` | Chat |
 | `chat:modelPicker` | `meta+p` | Chat |
+| `chat:increaseEffort` | `ctrl+x ctrl+=`, `ctrl+x =`, `shift+up` | Chat |
+| `chat:decreaseEffort` | `ctrl+x ctrl+-`, `ctrl+x ctrl+_`, `ctrl+x -`, `shift+down` | Chat |
 | `chat:fastMode` | `meta+o` | Chat |
 | `chat:defaultToNewerModel` | `ctrl+y` | Chat |
 | `chat:thinkingToggle` | `meta+t` | Chat |

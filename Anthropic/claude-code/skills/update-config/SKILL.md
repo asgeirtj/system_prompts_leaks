@@ -645,11 +645,11 @@ If a hook isn't running:
           ]
         },
         "blockReadsOutsideWorkingDirectories": {
-          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
+          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Also binds shell commands: one that names a path outside them is asked about in every mode, and the sandbox, where it is on, denies such reads. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
           "type": "boolean"
         },
         "blockWritesOutsideWorkingDirectories": {
-          "description": "Refuse file-tool writes (Write, Edit, NotebookEdit) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Files that Claude Code keeps for the session are not refused: its plan files, scratchpad and background job folder, and the auto-memory of this project, unless a repository settings file points it elsewhere. Nothing runs them unless the model asks. Also refuses file-tool writes to Claude Code settings files, inside the working directories too, and takes EnterWorktree and ExitWorktree, which move the working directory, out of the tools on offer. Does not limit shell commands, MCP tools, the programs that hooks run, or the memory tools. Cloud sessions (Claude Code on the web), whose file tools run in a container that is itself the boundary, may not apply it.",
+          "description": "Refuse file-tool writes (Write, Edit, NotebookEdit) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Files that Claude Code keeps for the session are not refused: its plan files, scratchpad and background job folder, and the auto-memory of this project, unless a repository settings file points it elsewhere (a setting of the program that starts Claude Code can narrow this and the working directories). Nothing runs them unless the model asks. Also refuses file-tool writes to Claude Code settings files, inside the working directories too, and takes EnterWorktree and ExitWorktree, which move the working directory, out of the tools on offer (a setting of the program that starts Claude Code can keep them). Does not limit shell commands, MCP tools, the programs that hooks run, or the memory tools. Cloud sessions (Claude Code on the web), whose file tools run in a container that is itself the boundary, may not apply it.",
           "type": "boolean"
         },
         "blockReadsExemptPaths": {
@@ -844,7 +844,7 @@ If a hook isn't running:
       }
     },
     "disableClaudeAiConnectors": {
-      "description": "When true in any settings source, claude.ai MCP cloud connectors are not auto-fetched or connected, and a claudeai-proxy server passed explicitly (e.g. via --mcp-config or the SDK mcpServers option) does not connect either. Any-source-true wins: a project can opt out, but a project-level false cannot override a user-level true.",
+      "description": "When true in any settings source, claude.ai MCP cloud connectors are not auto-fetched or connected, and a claudeai-proxy server passed explicitly (e.g. via --mcp-config or the SDK mcpServers option) does not connect either. Where a managed or served source sets it, the connectors that the desktop app's Code tab hands to a session do not connect either, from the app version that shows them as turned off. Any-source-true wins: a project can opt out, but a project-level false cannot override a user-level true.",
       "type": "boolean"
     },
     "skillOverrides": {
@@ -1396,7 +1396,7 @@ If a hook isn't running:
       }
     },
     "allowManagedPermissionRulesOnly": {
-      "description": "When true (and set in managed settings), permission rules from user, project, local, and --settings files and allow rules from --allowedTools are ignored; only managed settings can add allow rules through settings. The allowed-tools frontmatter of skills and custom commands from user, project, and --add-dir sources, and of plugins no managed setting vouches for, is ignored too. Plugins keep theirs only on an admin-backed channel: host-delivered --plugin-dir plugins (in Claude Desktop, only while this is not set by the organization's own managed settings), the official marketplace registered from its unpinned anthropics source, claude.ai-synced plugins Anthropic attests, the saved login organization's claude.ai-hosted marketplaces, marketplaces whose registered source managed extraKnownMarketplaces declares or an exact or owner-pinned (owner/*) strictKnownMarketplaces entry names at the path it pins (an npm marketplace source only when the registration and the declared entry pin the same registry, and a settings marketplace source only when every nested npm plugin entry pins one on a bare package name — unpinned, the package resolves through the member's own npm config, and a non-bare spelling packs as an exotic spec the pin does not bind, so nothing an entry names is what was fetched), and npm-direct (package@npm) plugins whose recorded resolution a registry-pinned managed npm strictKnownMarketplaces entry names (host and path patterns and enabledPlugins ids do not vouch); managed and bundled skills keep theirs. --disallowedTools, skill disallowed-tools, and other deny and ask rules from the command line or the current session still apply.",
+      "description": "When true (and set in managed settings), permission rules from user, project, local, and --settings files and allow rules from --allowedTools are ignored; only managed settings can add allow rules through settings. The allowed-tools frontmatter of skills and custom commands from user, project, and --add-dir sources, and of plugins no managed setting vouches for, is ignored too. Plugins keep theirs only on an admin-backed channel: host-delivered --plugin-dir plugins (in Claude Desktop, only while this is not set by the organization's own managed settings), the official marketplace registered from its unpinned anthropics source, claude.ai-synced plugins Anthropic attests, the saved login organization's claude.ai-hosted marketplaces, marketplaces whose registered source managed extraKnownMarketplaces declares or an exact or owner-pinned (owner/*) strictKnownMarketplaces entry names at the path it pins (an npm marketplace source only when the registration and the declared entry pin the same registry, and a settings marketplace source only when every nested npm plugin entry pins one on a bare package name — unpinned, the package resolves through the member's own npm config, and a non-bare spelling packs as an exotic spec the pin does not bind, so nothing an entry names is what was fetched) (host and path patterns and enabledPlugins ids do not vouch); managed and bundled skills keep theirs. --disallowedTools, skill disallowed-tools, and other deny and ask rules from the command line or the current session still apply.",
       "type": "boolean"
     },
     "allowManagedMcpServersOnly": {
@@ -1517,7 +1517,7 @@ If a hook isn't running:
       }
     },
     "subagentStatusLine": {
-      "description": "Custom per-subagent status line shown in the agent panel; receives row context as JSON on stdin",
+      "description": "Deprecated: no longer has any effect. Subagent rows always use the default look.",
       "type": "object",
       "properties": {
         "type": {
@@ -1534,7 +1534,7 @@ If a hook isn't running:
       ]
     },
     "enabledPlugins": {
-      "description": "Enabled plugins using plugin-id@marketplace-id format. Example: { "formatter@anthropic-tools": true }. Also supports extended format with version constraints. Settings precedence is user < project < local < flag < policy, so to disable a plugin that project settings enable, set it to false in .claude/settings.local.json — setting false in ~/.claude/settings.json is overridden by the project.",
+      "description": "Enabled plugins using plugin-id@marketplace-id format. Example: { "formatter@anthropic-tools": true }. Only true turns on a marketplace plugin: a list of versions is accepted but leaves it off. Settings precedence is user < project < local < flag < policy, so to disable a plugin that project settings enable, set it to false in .claude/settings.local.json — setting false in ~/.claude/settings.json is overridden by the project.",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -1557,7 +1557,7 @@ If a hook isn't running:
       }
     },
     "prependPlugins": {
-      "description": "Managed plugins (plugin@marketplace ids that managed enabledPlugins sets true) whose hooks run first, outermost, in the listed order: the first id listed sees every event before any other plugin and every result after it. Managed plugins not listed here or in appendPlugins follow the listed ones; user, project and marketplace plugins come after those; then appendPlugins; then the built-in plugins. The bundled cc-plugin-sec-default@builtin seats itself outermost (on a machine with managed settings and for Team and Enterprise organizations) unless this list is set, in which case list it where it should sit or leave it out. Name it there as sec-default@builtin, the id every release reads, for as long as any machine in the organization may run a release from before its rename; a release that knows the new id reads either. Any other id that is not an enabled managed plugin is skipped; an id listed in both keys is prepended. Only honored from managed settings (or, on a machine with none, from user settings for your own plugins); ignored in project, local and --settings sources.",
+      "description": "Managed plugins (plugin@marketplace ids that managed enabledPlugins sets true) whose hooks run first, outermost, in the listed order: the first id listed sees every event before any other plugin and every result after it. Managed plugins read in place from a local folder managed settings name, and not listed here or in appendPlugins, follow the listed ones; user, project and marketplace plugins come after those, with a managed plugin from a remote marketplace that neither key lists; then appendPlugins; then the built-in plugins. The bundled cc-plugin-sec-default@builtin seats itself outermost (on a machine with managed settings and for Team and Enterprise organizations) unless this list is set, in which case list it where it should sit or leave it out. Name it there as sec-default@builtin, the id every release reads, for as long as any machine in the organization may run a release from before its rename; a release that knows the new id reads either. Any other id that is not an enabled managed plugin is skipped; an id listed in both keys is prepended. Only honored from managed settings (or, on a machine with none, from user settings for your own plugins); ignored in project, local and --settings sources.",
       "type": "array",
       "items": {
         "type": "string"
@@ -1627,7 +1627,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -1663,7 +1663,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -1695,7 +1695,7 @@ If a hook isn't running:
                     "const": "npm"
                   },
                   "package": {
-                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                     "anyOf": [
                       {
                         "type": "string"
@@ -1711,7 +1711,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "registry": {
-                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                     "type": "string",
                     "format": "uri"
                   }
@@ -2044,6 +2044,14 @@ If a hook isn't running:
                         "strict": {
                           "type": "boolean"
                         },
+                        "engines": {
+                          "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
                         "headers": {
                           "description": "HTTP headers sent when downloading this entry's `archive` source.",
                           "type": "object",
@@ -2105,7 +2113,7 @@ If a hook isn't running:
             "type": "boolean"
           },
           "pluginDigests": {
-            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "description": "Deprecated and ignored: settings that hold it still load. A plugin takes the organization tier when managed settings enable it, declare its marketplace with a remote source and list it in prependPlugins or appendPlugins.",
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -2181,7 +2189,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -2217,7 +2225,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -2249,7 +2257,7 @@ If a hook isn't running:
                     "const": "npm"
                   },
                   "package": {
-                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                     "anyOf": [
                       {
                         "type": "string"
@@ -2265,7 +2273,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "registry": {
-                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                     "type": "string",
                     "format": "uri"
                   }
@@ -2598,6 +2606,14 @@ If a hook isn't running:
                         "strict": {
                           "type": "boolean"
                         },
+                        "engines": {
+                          "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
                         "headers": {
                           "description": "HTTP headers sent when downloading this entry's `archive` source.",
                           "type": "object",
@@ -2659,7 +2675,7 @@ If a hook isn't running:
             "type": "boolean"
           },
           "pluginDigests": {
-            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "description": "Deprecated and ignored: settings that hold it still load. A plugin takes the organization tier when managed settings enable it, declare its marketplace with a remote source and list it in prependPlugins or appendPlugins.",
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -2728,7 +2744,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -2764,7 +2780,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -2796,7 +2812,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -2812,7 +2828,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -3144,6 +3160,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -3248,7 +3272,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3284,7 +3308,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3316,7 +3340,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -3332,7 +3356,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -3664,6 +3688,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -3719,7 +3751,7 @@ If a hook isn't running:
       }
     },
     "blockedMarketplaces": {
-      "description": "Enterprise blocklist of marketplace sources. When set in managed settings, these sources are blocked from being added as marketplaces. Entries match exactly, except that a github entry may use the owner-wildcard form {"source":"github","repo":"owner/*"} to block every repository under that owner. The check happens BEFORE downloading, so blocked sources never touch the filesystem.",
+      "description": "Enterprise blocklist of marketplace sources. When set in managed settings, these sources are blocked from being added as marketplaces. Entries match exactly, except that a github entry may use the owner-wildcard form {"source":"github","repo":"owner/*"} to block every repository under that owner, and an entry naming a branch or tag in `ref` also blocks every full commit id in that repository. The check happens BEFORE downloading, so blocked sources never touch the filesystem.",
       "type": "array",
       "items": {
         "anyOf": [
@@ -3768,7 +3800,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3804,7 +3836,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3836,7 +3868,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -3852,7 +3884,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -4184,6 +4216,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -4358,10 +4398,11 @@ If a hook isn't running:
           "type": "boolean"
         },
         "failIfUnavailable": {
-          "description": "Exit with an error at startup if sandbox.enabled is true but the sandbox cannot start (missing dependencies or unsupported platform). When false (default), a warning is shown and commands run unsandboxed. Intended for managed-settings deployments that require sandboxing as a hard gate. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, and managed, --settings or user settings set true, false from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (true there still applies).",
+          "description": "Exit with an error at startup if sandbox.enabled is true but the sandbox cannot start (missing dependencies or unsupported platform). When false (default), a warning is shown and commands run unsandboxed. Intended for managed-settings deployments that require sandboxing as a hard gate. A Claude Code on the web, scheduled-task or Cowork cloud session (Anthropic's cloud container, which has no command sandbox) starts anyway with a warning: the container isolates it, and the sandbox.filesystem and sandbox.network rules in settings are not enforced there. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, and managed, --settings or user settings set true, false from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (true there still applies).",
           "type": "boolean"
         },
         "autoAllowBashIfSandboxed": {
+          "description": "macOS and Linux/WSL only: approve a Bash command that will run inside the sandbox without a permission prompt, unless a deny rule, a command-specific ask rule or a safety check stops it. Default: false, so sandboxed commands go through the same permission flow as any other command. Has no effect on native Windows.",
           "type": "boolean"
         },
         "allowUnsandboxedCommands": {
@@ -4475,7 +4516,7 @@ If a hook isn't running:
               "type": "boolean"
             },
             "disabled": {
-              "description": "macOS and Linux/WSL only: skip filesystem isolation entirely while keeping network and seccomp isolation. Ignored on native Windows, where the sandboxed process runs as a separate user with no inherent rights, so skipping the filesystem rules would withhold every access grant rather than loosen them — filesystem isolation stays on there. Sandboxed commands get unrestricted read/write access to the host filesystem; network egress is still confined to network.allowedDomains. Intended for deployments whose goal is egress control rather than filesystem containment. Does not change Bash prompting: sandbox.autoAllowBashIfSandboxed is independent and still defaults to true, so set it to false to keep prompting for sandboxed commands. Drops the read protection from filesystem.denyRead and credentials.files deny entries for sandboxed commands, since both are enforced by the filesystem layer this turns off; credentials.files mask entries (sentinel binds) and credentials.envVars deny/mask are unaffected. Only honored from user, managed/policy, or CLI (`--settings`) settings — project settings (.claude/settings.json and .claude/settings.local.json) are ignored. If managed settings configure sandbox.filesystem at all, or list any sandbox.credentials.files deny entry, only managed settings can set this: an admin who deployed filesystem restrictions must not have them switched off by a user-writable file. (sandbox.credentials.envVars and credentials.files mask entries do not pin it — env scrubbing and sentinel binds are independent of the filesystem layer and survive this setting.) When unset, filesystem isolation stays on.",
+              "description": "macOS and Linux/WSL only: skip filesystem isolation entirely while keeping network and seccomp isolation. Ignored on native Windows, where the sandboxed process runs as a separate user with no inherent rights, so skipping the filesystem rules would withhold every access grant rather than loosen them — filesystem isolation stays on there. Sandboxed commands get unrestricted read/write access to the host filesystem; network egress is still confined to network.allowedDomains. Intended for deployments whose goal is egress control rather than filesystem containment. Does not change Bash prompting: sandbox.autoAllowBashIfSandboxed is independent and still defaults to false, so sandboxed commands keep going through the permission flow unless it is set to true. Drops the read protection from filesystem.denyRead and credentials.files deny entries for sandboxed commands, since both are enforced by the filesystem layer this turns off; credentials.files mask entries (sentinel binds) and credentials.envVars deny/mask are unaffected. Only honored from user, managed/policy, or CLI (`--settings`) settings — project settings (.claude/settings.json and .claude/settings.local.json) are ignored. If managed settings configure sandbox.filesystem at all, or list any sandbox.credentials.files deny entry, only managed settings can set this: an admin who deployed filesystem restrictions must not have them switched off by a user-writable file. (sandbox.credentials.envVars and credentials.files mask entries do not pin it — env scrubbing and sentinel binds are independent of the filesystem layer and survive this setting.) When unset, filesystem isolation stays on.",
               "type": "boolean"
             }
           }
@@ -4953,7 +4994,7 @@ If a hook isn't running:
       "type": "string"
     },
     "fastMode": {
-      "description": "When true, fast mode is enabled. When absent or false, fast mode is off.",
+      "description": "When true, fast mode is enabled. When absent or false, fast mode is off. On Vertex a saved value is ignored: use /fast each session.",
       "type": "boolean"
     },
     "fastModePerSessionOptIn": {
@@ -4973,7 +5014,7 @@ If a hook isn't running:
       "type": "boolean"
     },
     "askUserQuestionTimeout": {
-      "description": "Idle time before Claude's questions auto-continue with any answers selected so far. Defaults to never — auto-continue only runs when explicitly set to 60s/5m/10m.",
+      "description": "Idle time before Claude's questions in the terminal auto-continue with any answers selected so far. When unset, the terminal does not auto-continue. The Claude desktop and web apps show Claude's questions in their own interface and may move on from some unanswered ones after a wait the app sets. Claude is then told that nobody answered and uses its best judgment. In sessions that read this setting, only "never" stops the apps from moving on. Leaving it unset does not. Cloud sessions and Cowork tasks do not read your user settings file (~/.claude/settings.json), and managed settings do not reach all of them. This setting is ignored in a project's settings files.",
       "type": "string",
       "enum": [
         "60s",

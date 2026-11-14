@@ -133,7 +133,8 @@ picked among them for its opening.)
 
 Status never follows the theme - it is a small fixed scale (good -> warning -> serious
 -> critical) with reserved meaning, on steps deliberately distinct from the categorical
-slots so a status color never impersonates a series, and always paired with an
+slots so a status color never impersonates a series (one exception: in dark mode good
+is the series green), and always paired with an
 icon + label (on a light surface warning and serious sit below 3:1 by design -
 the pairing is the mitigation). (Exact steps in `palette.md`.) The collision rule: when a series *means* good/bad (error rate, pass/fail) it wears
 status tokens; when it's just "series 4" it wears categorical - never both in one chart.

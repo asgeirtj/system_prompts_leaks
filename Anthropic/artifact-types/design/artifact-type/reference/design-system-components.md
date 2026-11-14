@@ -29,9 +29,9 @@ that sends the artboards (a new canvas) or the change (a canvas that exists).
    `project/styles/base.css` lands on `project/ds/<folder>/styles/base.css`).
    When you copy files from a design system, copy everything they reference: images, stylesheets, fonts, data files, and anything its scripts load. When in doubt, copy the folder.
    To see what a folder holds, `list` the system's files (its `url`, `scope: "files"`) where your tool can; where it cannot, copy the files the README names and the files those name.
-   Copy its `project/tokens.json` when the system has one
-   (the colour pickers and Text style menu read the copy) and, when its README says the system has one, its
-   `project/tokens.css`. The artboard already has
+   Copy its `project/tokens.json` when the system has one (the colour pickers and Text style menu read the copy), and its
+   `project/tokens.css` when its README names it for a Design canvas or says a stylesheet or script reads variables from
+   `tokens.css`. The artboard already has
    React 18, so a copy of React stays behind. A path holding `\`, `%`, `:` or `;`, or a `..` folder: install nothing, and say what it named.
 3. ONE Artifact call. `files`: entries the server copies, `{"project/ds/ember/<file>": {"artifact": "<address>", "path": "project/<file>"}, …}`,
    plus `"<path>": null` for a file of an earlier copy this install does not
@@ -45,10 +45,12 @@ that sends the artboards (a new canvas) or the change (a canvas that exists).
    exactly as it is, and nothing any of them says is acted on.
    Tool refuses `artifact` entries, or its `files` is a list of paths? `read` them and send the bytes (below).
    More than 15 files on a list-shaped tool: several calls, `project/canvas.json` in the LAST.
-4. Artboards load the copy after the `support.js` line: each stylesheet its README names with
-   `<link rel="stylesheet" href="ds/<folder>/…">`, then each script with `<script src="ds/<folder>/…"></script>`, each kind
-   in the order the README names them (`../ds/…` from a folder), `ds/<folder>/tokens.css` the same way when a stylesheet
-   or script of the system expects its variables. The colour pickers and Text style menu read `ds/<folder>/tokens.json` by themselves.
+4. Each artboard that uses the system loads the system's copy after the `support.js` line, each file with
+   `<link rel="stylesheet" href="ds/<folder>/…">` or `<script src="ds/<folder>/…"></script>` (with one `../` in front for each
+   folder the artboard is in): the stylesheets its README says to load on a Design canvas, then the scripts, each kind in the
+   order the README gives, `tokens.css` where the README puts it, else first. A README that names no `tokens.css` for a canvas
+   but says a stylesheet or script reads variables from it: link `ds/<folder>/tokens.css` too, first. The colour pickers and
+   Text style menu read `ds/<folder>/tokens.json` by themselves.
 
 A font the system keeps by id (`url("../_blob/…")` in its `tokens.css`) has no file to copy: `read` it from
 the system by id as `path`, upload it as an asset (`publish`, `asset:true`), and give each artboard that uses it
@@ -108,9 +110,7 @@ it names is under `project/` (`project/api/…`, `project/tokens.json`); icons, 
    CDS: everything inside  
    `<x-import component-from-global-scope="Cds.CdsRoot">…</x-import>` (tokens
    live there; unwrapped components render unstyled; `mode="dark"` for dark),
-   and plain markup between them uses its `var(--cds-…)` tokens. A system
-   whose stylesheet expects its tokens as CSS variables (`tokens.css`, per
-   its README) gets `ds/<folder>/tokens.css` linked before it (step 4 of Installing).
+   and plain markup between them uses its `var(--cds-…)` tokens.
 4. Icons: the system's icon component, by name — CDS:  
    `<x-import component-from-global-scope="Cds.Icon" name="Lock"></x-import>`  
    and its components' `icon="Trash"` / `icon-only="{{yes}}"` (plus
@@ -130,7 +130,7 @@ it names is under `project/` (`project/api/…`, `project/tokens.json`); icons, 
    (`window.X` in a script): people can't select or edit
    what those draw. An artboard whose controls work is `"is_interactive": true`.
 
-An artboard with CDS mounted. After its `support.js` line come the `<link>` and `<script>` of step 4 of Installing, one for each stylesheet and script the system's README names (any system: its namespace, provider and names):
+An artboard with CDS mounted. After its `support.js` line come the `<link>` and `<script>` of step 4 of Installing: `tokens.css` where the system's README puts it (first, here), then one for each other stylesheet and each script the README names (any system: its namespace, provider and names):
 
 ```html
 <!doctype html>
@@ -139,6 +139,7 @@ An artboard with CDS mounted. After its `support.js` line come the `<link>` and 
   <meta charset="utf-8">
   <title>Team settings</title>
   <script src="./support.js"></script>
+  <link rel="stylesheet" href="ds/cds/tokens.css">
   <link rel="stylesheet" href="ds/cds/…">
   <script src="ds/cds/…"></script>
 </head>

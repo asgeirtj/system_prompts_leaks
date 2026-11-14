@@ -4,21 +4,21 @@ SKILL.md has the checklist. This page explains the reasons behind it. Read this 
 
 ## Writing a good deck
 
-There is no house look. The fonts are the ones you put in `<head>` (see fonts.md). The palette is the hex color codes you choose for the brief.
+There is no house look, beyond the default typefaces. The fonts are the ones you declare (see fonts.md). The palette is the hex color codes you choose for the brief.
 
 - **One idea per slide.** One big statement slide is better than three bullet-point-ish slides. It is better to have several short slides than one crowded slide.
 - **128px edge margins** are the standard. Use `padding:128px` on the section. Pinned elements start 128px from an edge, unless you have a reason to do something else.
 - **Respect your type scale.** Choose four or five font sizes for the deck and use them again and again. Use eyebrows (24–28px, all caps, extra letter spacing, accent color) for labels. Use headings to make statements. Use 40–48px for agenda-level points. Use 28–32px for sentences. Never use less than 24px.
 - **Change backgrounds on purpose.** Use the dark color from the palette for the opening and closing slides. Use the light color for the main content. Use the accent color for one statement slide: the single number or sentence you want people to remember. Always set `background` explicitly on every section.
 - **Width discipline.** Flow text inside the margins is 1664px wide. That is too wide for body text. Put sentences in a column that is 800–1000px wide. Use `width:960px`, or put a `flex:1` column next to something else. Display lines work best at about 1400px wide. The other limit is the longest word (see format.md § Text). Count characters before you choose how many columns to use.
-- **Vertical space budget.** The slide is 1080px tall. Nothing shrinks to fit, and an over-full slide squeezes its boxes (a squeezed table cuts off the lines that no longer fit), so you must do the math for tall content. Inside the 128px margins, you have 824px of height. Here is how to budget it:
+- **Vertical space budget.** The slide is 1080px tall. A slide does not shrink to fit: one that holds too much runs off the canvas and is cut there, as in a browser, so you must do the math for tall content. Inside the 128px margins, you have 824px of height. Here is how to budget it:
   - A two-line heading at 96px with line-height 1.1 ≈ 210px.
   - A gap: 48px.
   - Each table row ≈ 2.1 × the font-size for each line of text in a cell. At 32px font, one row ≈ 70px.
   - 9 rows ≈ 630px. That does not fit under the heading above.
   - A cell with two lines counts twice.
   - A card body = lines × font-size × line-height + padding.
-  - Never set a fixed `height` on a text box that is smaller than this total. Leave the height out. The build can only estimate overflow, and it reports that as a note.
+  - Never set a fixed `height` on a text box that is smaller than this total: in a column or pinned, its text shrinks, never below 60% of its size, then clips. Leave the height out. Where a build runs, it can only estimate overflow, and it reports that as a note.
   - If the content is too tall: use 24–28px font for tables, or split the slide.
 - Keep decks under about 50 slides. Each slide is one file. The markup is tiny, so a deck's size is mainly its images. Refer to images by path so they upload as assets (separate files), not inline in the slide. Use one image file more than once instead of using several crops.
 
@@ -30,7 +30,7 @@ Think like a consultant or executive preparing boardroom material. Focus on:
 - Narrative flow
 - Back-of-the-room readability
 
-The subset is deliberately not the web. Each slide is a fixed 1920×1080 page, designed like a poster. Each slide should make sense on its own.
+Each slide is a fixed 1920×1080 page, designed like a poster. Each slide should make sense on its own.
 
 Only ask what you cannot figure out on your own (how long the deck should be, and who it is for, if the request does not hint at them). A topic and an occasion are enough to start a draft.
 
@@ -107,7 +107,7 @@ If a slide has a lot of text, you have put the script on the slide. The script s
 
 ### Compose like a slide designer, not a web designer
 
-There is no review pass after the build, so decide each slide's composition as you write it.
+Decide each slide's composition as you write it.
 
 A statement or title slide with open space below is correct.
 
@@ -122,6 +122,11 @@ Plan out the `gap` so the blocks span the 824px.
 
 ## Content and design rules shared by every appifact family
 
+<!-- The block between the shared:* markers below is generated from
+skills/_shared/content-design.md by scripts/inline-shared.ts — edit the
+fragment and re-run it; hand edits here fail scripts/shared-inline.test.ts. -->
+
+<!-- shared:content-design -->
 These rules are about the CONTENT authored into the appifact — the
 deck, the artboards, the dashboard, the seeded cards and rows — as
 opposed to its chrome (the kit, the toolbar, the document machinery).
@@ -155,10 +160,9 @@ top), and none of them changes a kit rule.
   etc.
 - **Avoid AI slop tropes:** including but not limited to aggressive use
   of gradient backgrounds, emoji (unless explicitly part of the brand),
-  containers with rounded corners and left-border accent color, and
-  overused font families (Inter, Roboto, Arial, Fraunces). Emoji in
-  content: only if the brand or design system uses them. (Appifact
-  chrome is stricter still — never emoji as UI glyphs —
+  and containers with rounded corners and left-border accent color.
+  Emoji in content: only if the brand or design system uses them.
+  (Appifact chrome is stricter still — never emoji as UI glyphs —
   that rule is unconditional.)
 - **Recreate from source, not from memory or screenshots.** When asked
   to recreate a UI or design whose source you can reach — a repo, a
@@ -179,3 +183,4 @@ top), and none of them changes a kit rule.
   account email-domain signal, so this rests on what the user tells you
   about where they work — ask when it's unclear.)
 
+<!-- /shared:content-design -->

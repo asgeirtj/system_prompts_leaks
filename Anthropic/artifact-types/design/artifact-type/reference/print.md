@@ -62,13 +62,19 @@ canvas made from the type, the same keys of its `boards` entry in `project/canva
   there, not on an inner box.
 - Breaks are placed by the exporter, not by CSS: it cuts BETWEEN text
   lines and never through an `<img>`/`<svg>` (place photos as `<img>`,
-  never `background-image` — those get cut); nothing else is kept whole —
-  a bordered box, table or card can split between two of its lines.
-  `break-before/inside`, `orphans`/`widows`, `@page` and a repeating
-  `<thead>` do nothing here, and you cannot force a new page. Keep each
-  figure + caption well under a page; a caption can still land on the next
-  page, and an image taller than ≈950px is cut where the page ends. Where
-  a split or a forced page start matters, make a Fixed series instead.
+  never `background-image` — those get cut). A heading (h1–h6) is kept
+  whole and on the same page as the first line after it, along with a
+  short line just above it such as a section number, and a table's
+  `<caption>` and `<thead>` row stay with the row they label, except
+  where that would leave more than a quarter of a page empty. Nothing
+  else is kept whole — a bordered box, table or card can split between two of
+  its lines. `break-before/inside`, `orphans`/`widows` and `@page` do
+  nothing here, a `<thead>` is not repeated on later pages, and you
+  cannot force a new page. A `<figcaption>` above its image stays with
+  it; one below an image taller than ≈230px can land alone on the next
+  page, so caption tall images from above. An image taller than ≈950px
+  is cut where the page ends. Where a split or a forced page start
+  matters, make a Fixed series instead.
 - ONE column of running text: CSS `columns` and side-by-side text columns
   run the whole document's height and are sliced across pages — use them
   only inside a block shorter than a page.

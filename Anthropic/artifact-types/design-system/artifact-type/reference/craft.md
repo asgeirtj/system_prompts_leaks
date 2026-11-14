@@ -34,6 +34,10 @@ the brand's REAL sources (codebase, attached files, decks, guidelines).
   screenshots are lossy guidance; previews recreate, never reinvent. If
   reads fail partway, say what you did and didn't read — never invent
   names, structure or values.
+- **Read a big system by path.** A `read` with no `path` can be refused for a
+  big system: read each file you need by `path`. That copies just that file,
+  so your folder holds only what you have read. Where the index has a
+  `source.map`, that file lists the system's files as they were moved.
 - **One source for every value.** In a clean-up, a value that goes into
   `tokens.json` is REMOVED from the stylesheets the previews load, so a
   value changed on the page wins; what the page will not declare under
@@ -44,34 +48,69 @@ the brand's REAL sources (codebase, attached files, decks, guidelines).
   the first yourself, laid out as `format.md`'s "tokens.css as
   compiled", its first line `/* <title> — generated from tokens.json */`
   (the page takes over only a file whose first comment ends with those
-  words). Where a system's components wrap themselves in an element the
+  words). A page that opens a system synced by `/design-sync` never saves it,
+  so each sync writes the file, laid out the same. Where a system's components wrap themselves in an element the
   tokens are declared on, the page's values cannot reach inside: their
   values still go into `tokens.json`, remove nothing, and tell the user
   an edit on the page will not change those previews.
 - **No stale `manifest.json`.** A clean-up REMOVES the old
   `manifest.json`, never rewrites it: it lists paths that are gone, and
   the page writes no new one until a person saves an edit.
-- **Move aside what a person made.** A clean-up deletes only the old
-  `project/manifest.json`, `project/migration-map.json` and
-  `project/publish-progress.json`; a file of one of those names at any
-  other path is a person's. Any other file leaves its path only by a
+- **Move aside what a person made.** A clean-up deletes only three
+  RECORDS: the old `project/manifest.json`, `project/migration-map.json`
+  and `project/publish-progress.json`; a file of one of those names at
+  any other path is a person's. Any other file leaves its path only by a
   MOVE: ONE call that sends the file at a free path (no file there, no
   other file sent there), exactly as your last `read` gave it (copy it,
-  never retype it), and `null`s the old path. A file that goes as it is
+  never retype it), and `null`s the old path.
+  A file goes under `project/archived/` ONLY in the very call that
+  `null`s or rewrites its old path, never as a copy sent ahead (a
+  `null` counts as a file of its call: a tool that takes 16 holds 8
+  MOVEs, so make more calls).
+  IF YOUR TOOL REMOVES NOTHING (you cannot send it a `null`, or it
+  refused a call for its `null`, which saves nothing of that call):  
+  SEND NOTHING UNDER `project/archived/`, and make no copy for it. A
+  file that would move aside just stays where it is. The one exception
+  is a stylesheet you rewrite at its own path: its old text goes aside
+  in that call. A MOVE to a file's place in `format.md` (not one to
+  `archived/`) only SENDS the file there, and the old path keeps an OLD COPY. The
+  rest of the clean-up is the same, every new file the format wants
+  included (`components/bundle.css` too). The three records stay and go
+  in NO list below: the page writes `manifest.json` anew at the next
+  save, reads neither of the others, and shows a person no way to
+  delete any of them.
+  A file that goes as it is
   to the place `format.md` gives it moves there. A file you would
   otherwise remove (a card you split or remade, where it sits or on its
   way to its place; an HTML page of colour, type, spacing or radius
   specimens) moves ASIDE, to `project/archived/` + its path under
-  `project/`. So does a stylesheet, whole, before values are lifted out
+  `project/` (`project/preview/a.html` to
+  `project/archived/preview/a.html`). So does a stylesheet, whole, before values are lifted out
   of it: ONE call sends the old file aside and the new one at its path.
   In `README.md` repair paths, cut the section the migration appended
-  at its end ("## Migrated from …"), and add; cut or reword nothing
-  else. Leave no file that stays linking a path you emptied; the
-  migration's own notes under `assets/notes/` (or `docs/`) are neither
-  moved nor re-pointed.
+  at its end ("## Moved to Claude" or "## Migrated from …"), and add;
+  cut or reword nothing else. Leave no file that stays linking a path
+  you emptied; the migration's own notes under `assets/notes/` (or
+  `docs/`) are neither moved nor re-pointed.
   A file that cannot
-  move (no free path; the call stays refused; your tool cannot remove
-  files, as in a chat) stays where it is: name it. What `archived/`
+  move (no free path; the call stays refused) stays where it is: name
+  it.
+  YOUR LAST MESSAGE has three lists; an empty one says "none".  
+  DELETED: only what a call really removed (a refused `null` deleted
+  nothing). MOVED ASIDE: each file now under `archived/`. SAFE TO
+  DELETE, once the person has checked the result: each file you moved
+  aside; each old copy, with the path that now holds the same bytes;
+  each page you remade, with what replaced it; `_ds_manifest.json`,
+  which nothing reads. EVERY one of those is in the list, or it stays
+  for good with nobody told. Nothing else goes in it: a file that is the only copy of what it holds stays and is
+  not offered (component sources, the migration's notes, `_ds_bundle.js`
+  while no file is at `components/bundle.js`). A person's stylesheet at
+  its own path is NEVER in the list: only its old text, once you have
+  moved that aside. A tool that removes files offers to
+  delete that list (list the system's files first: some tools remove
+  only what the session has listed or read). One that cannot says that anyone who can
+  edit the system can delete those files under Files on its page, a
+  whole folder at once only where the list holds all of it. What `archived/`
   held before is never moved or offered for deletion. A specimen page
   moves aside only once every colour, size and `--name` it shows is in
   `tokens.json` with the same value (search the specimen page for `#`,

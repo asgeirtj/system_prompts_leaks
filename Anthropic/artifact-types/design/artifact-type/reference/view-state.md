@@ -5,6 +5,10 @@ Read this before acting on "this artboard", "the one I'm looking at",
 whose target depends on the viewer's screen. Not needed to create a
 canvas.
 
+<!-- Generated from skills/_shared/view-context.md by
+scripts/inline-shared.ts — edit the fragment, never this block. -->
+
+<!-- shared:view-context -->  
 While a viewer has the artifact open beside their conversation with
 you, each message they send may start with a tagged data block
 (`<artifact-view-context artifact="…">`) carrying one JSON object: that viewer's live room
@@ -17,8 +21,8 @@ tool call fetches it.
 
 The kit's record is the `context` key: `mode` is which face of the
 editor is up (values per family, below); `dirty` is true while their
-editor holds unsaved edits, so their screen may differ from the artifact
-you read; `selected` lists what is selected (the ids below); `selection`,
+editor holds edits that may not yet be in the artifact you read, so their screen
+may differ from it; `selected` lists what is selected (the ids below); `selection`,
 when present, labels up to five of those ids, most recent last, each
 `{id, kind, label}` — `id` is one of `selected`, `kind` says what it is,
 `label` (sometimes absent) is its first words cut to about 60 characters,
@@ -39,7 +43,7 @@ colour (`c`) — text, never an id.
 For `selected`, resolve each entry against the content you hold. When
 `dirty` is false, act. When `dirty` is true and an entry addresses
 something below the top level (inside a frame or artboard), say what
-you resolved it to and ask them to confirm (or Save first) before
+you resolved it to and ask them to confirm before
 changing it. If an entry does not resolve, re-read the saved artifact,
 then resolve or ask. While presenting, previewing, or with one artboard
 focused full-window there is no selection: "this" is the slide on
@@ -52,9 +56,10 @@ below, each in the shape described there; ignore keys you do not know,
 and if a listed field has another shape (prose where an id belongs,
 deeper nesting) discard the record and ask. Use only ids that match content you hold (content.json /
 source files, or state read back from the artifact).
+<!-- /shared:view-context -->
 
 Design publishes `{ mode, page, pageName, visibleArtboards, selectedArtboards,
-erroredArtboards, firstError, dirty, selected, selection }` (plus `edits`, above). Artboards are named by their .dc.html file with the
+erroredArtboards, firstError, dirty, shaders, selected, selection }` (plus `edits`, above). Artboards are named by their .dc.html file with the
 part before `.dc.html` percent-encoded (`encodeURIComponent`:  
 `"Coffee & Deck.dc.html"` arrives as `"Coffee%20%26%20Deck.dc.html"`;
 plain names are unchanged). Treat these as opaque tokens: to match one,
@@ -95,6 +100,8 @@ the whole record, as above.
   "Ask Claude to fix", their next message carries up to 1800 characters
   of these errors.
 - `dirty` — as above.
+- `shaders` — `true` when you may read `shaders.md` for this viewer, absent
+  otherwise. Shaders already on the canvas run either way.
 - `selected` — up to 20 selected ELEMENTS, most recent last (entries of
   the most recently touched artboard come last); empty in `focused`
   and when only whole artboards are selected. Each entry is

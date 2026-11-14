@@ -157,6 +157,8 @@ read, never run.
 
 ## Re-sync: the same request, tokens.json has `meta.source` "github"
 
+With `"editing": "code"` in the index, follow the last section instead.
+
 A re-sync is a first sync from the repository, ref and (in a monorepo) package
 the user names now — never from values stored in the system; `meta` is only
 the provenance note step 8 wrote — MERGED into the existing system instead of
@@ -173,3 +175,26 @@ to rewrite once more and redo your change on THAT text (a person's save in the p
 leaves no stamp: `lastChange` tells only of agents); send only the files you changed. Save as in
 step 9, to the SAME url, in the type SKILL's revising order (uploads first, then ONE publish of the
 changed files).
+
+## A system kept in sync by `/design-sync`: `"editing": "code"` in the index
+
+Claude Code's `/design-sync` builds such a system from a codebase and
+publishes all of its files, `tokens.css` included; each run replaces them.
+A page that opens it is read-only for everyone, says why in a line at the
+top, offers no clean-up and writes no file. (A page that was already open
+and editable when the entry arrived saves its last edits first, over what
+the sync sent.)
+
+- Read it, answer questions about it and design with it as with any system.
+- Asked to change it (a token, a component, a guideline, a file, a re-sync
+  by the steps above): say it is changed in its code, and have the person
+  edit the code and run `/design-sync` again in Claude Code. Something
+  arrived wrong (a component missing, a preview broken): have them tell
+  Claude Code when they next run `/design-sync`.
+- They no longer sync it and want to edit it here: confirm that, and say
+  that a later `/design-sync` would replace what they change here. Then
+  read the index and publish it again without `editing`, every other key
+  kept and `lastChange` set as usual. The page reopens editable, or asks for
+  a reload: an ordinary system from then on.
+- You are running `/design-sync`: follow its own steps, and keep
+  `"editing": "code"` in the index.

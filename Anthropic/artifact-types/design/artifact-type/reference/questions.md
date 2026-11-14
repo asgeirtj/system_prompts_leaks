@@ -1,5 +1,9 @@
 # Ask before you build
 
+<!-- Generated from skills/_shared/ask-first.md by
+scripts/inline-shared.ts — edit the fragment, never this block. -->
+
+<!-- shared:ask-first -->  
 Only with the `AskUserQuestion` tool and a person there to answer;
 otherwise (a headless run, an agent caller, "just make it") do what SKILL.md
 says: decide, build, and state your assumptions in one line.
@@ -34,6 +38,7 @@ assumptions; whatever they leave to you, decide and say what you picked.
 One more round (at most 4 new questions) only if they ask for more (in
 chat or under "Other") or an answer opens a question you could not have
 asked before; otherwise build. Never re-ask.
+<!-- /shared:ask-first -->
 
 ## Questions for a canvas
 

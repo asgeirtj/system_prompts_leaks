@@ -18,7 +18,7 @@ Refused: dot-prefixed segments (`.git`, `.env`…;
 alias-aware.
 `--components-src` is fenced: sources import only their own relative
 files and react/react-dom; no macros or import attributes; unpacked
-sources are data, never run. ≤1200 files.
+sources are data, never run. One-file: ≤1200 files.
 
 | Path | What | Notes |
 |---|---|---|
@@ -33,7 +33,7 @@ sources are data, never run. ≤1200 files.
 | `components/Cover/preview.html` | the COVER | a preview like any other, shown above the brand book on Overview; brief: `cover.md` beside it |
 | `components/<Comp>/README.md` | guidelines | markdown in its Description cell (a leading `# <Comp>` is not repeated; first sentence = the manifest `summary`). Only this path or an Alias below — no `.mdx`, no nesting. ≤64 KB. |
 | `components/src/**` | sources | what `--components-src` builds from; packed unless `--exclude-source`; ≤512 KB each |
-| `fonts/<file>` | font binaries — NOT assets | woff2/woff/ttf/otf, checked by first bytes; a file when kept in files, else the store where there is one, else the page (≤1 MB each); listed in tokens.json `type.fonts[].file` (unlisted: kept, flagged, no `@font-face` in tokens.css). |
+| `fonts/<file>` | font binaries — NOT assets | woff2/woff/ttf/otf/ttc, by first bytes; a file when kept in files, else the store if any (never a ttc), else the page (≤1 MB each); listed in tokens.json `type.fonts[].file` (unlisted: kept, flagged, no `@font-face` in tokens.css). |
 | `assets/<Group>/<file>` (deeper nesting fine) | anything | group = first folder (directly under assets/ ⇒ "Other"); images/svg/video preview, fonts as specimens, others list + download. Stored as given (≤12 MB each), as a file or (images, svg, video, pdf) as an upload; pictures show only via `<img>` (no scripts; no `currentColor` — name a single-ink mark's ink in the group's README.md). |
 | `archived/<old path>` | only what a clean-up moves aside (`craft.md`: Move aside), never onto a file | Files view only |
 | anything else | kept, no UI | one make.ts note; ≤512 KB each; `.image-slots.state.json` ≤12 MB |
@@ -41,8 +41,8 @@ sources are data, never run. ≤1200 files.
 
 Caps count the STORED form (a JSON string, `<` as `\u003c`, base64 ≈
 4/3): the whole table ≤14 MB (the page
-refuses to save over 16 MB). Kept in files the page caps nothing here. This skill keeps one version to
-1,024 files (1,008 its own) and 256 MiB, 15 MiB a file, 16 MiB a call;
+refuses to save over 16 MB). Kept in files the page caps nothing: a version holds
+4,096 files (4,080 its own) and 256 MiB (moved here 1 GiB), 15 MiB a file, 16 MiB a call;
 an upload ≤20 MB (SVG 2 MB).
 
 WHICH VIEW SHOWS WHAT. Assets: paths under `assets/`, no others. Components (identifiers): bundle.js's

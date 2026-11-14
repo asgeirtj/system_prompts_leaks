@@ -1,238 +1,51 @@
 # Design suggestions
 
-Suggestions for what the person left unsaid. The documents, the rules and the
-`dash` API are in the type's `SKILL.md`.
+These cover what the person didn't specify. Most follow from two facts: readers never saw your conversation, and the numbers change while your words stay.
 
-- A dashboard is easier to act on when it serves one decision and its
-  takeaway says which.
-- A short header keeps the figures in view without scrolling: a plain
-  one-line title (the `dash/meta` title or close to it) and one sentence of
-  takeaway under it, filled in `onData`. More than about six headline figures
-  in a row of large numbers can be hard to read.
-- When appropriate, you can give each question or domain a page of its own (a
-  tab) rather than one long page, and put further cuts of the same data
-  behind a filter.
-- People read the first figure as the most important, so it helps to start
-  with the one nearest the outcome (orders, not visits).
-- A headline figure is more useful with its change from the period before:
-  signed, the period named, colored by whether the change is good.
-- Figures that are stages of one thing are usually clearer as a funnel or a
-  ratio than as separate tiles.
-- Cards are easier to read when they say their time window, such as "Last 28
-  days".
-- A breakdown table is easier to compare when it keeps its parent's columns,
-  in the same order.
-- It helps to define a metric in plain words where it first appears. A method
-  that takes more than a sentence can have a page of its own.
-- Where a connector offers governed or semantic definitions and one covers
-  the metric, a query through it gives the number people get when they ask
-  elsewhere. Where the SQL is your own, it helps to say so beside the
-  metric's definition.
-- You can add one breakdown the person is likely to ask for next, such as by
-  team or by who did it.
-- Labelling a line at its end with its name and latest value can replace a
-  legend.
-- Each live query runs again for every reader, so where a smaller or
-  already aggregated table has the answer it is the better source. The
-  connector's answer often says how much data a query scanned.
-- When something was left out, it helps to say so on the page, with why (a
-  table too large to query on every load).
+- Under the title, one sentence says what the numbers say now. Fill it from the data, like every word that depends on the numbers (up, down, who leads).
+- Give a headline figure its signed change and comparison period. Color the change by whether it's good, not by its sign. A card says its window ("Last 28 days").
+- Most pages need no notes, but define a metric in plain words where it first appears. Longer ones that the person asks for, such as definitions, fit a closed `<details>` at the foot, its `<summary>` saying what's inside.
+- A caveat that changes how a figure reads stands beside it or in the takeaway. If you left a source out, name it on the page and say why. Show a lift with its interval, and whether that crosses zero. Draw lines point to point, since a curve suggests values the data lacks.
+- `<select class="dash-select">` has the dashboard's look. Its arrow is a background image in the right padding, so style it with `background-color`, not `background` or `padding`.
+- Each chart's code measures its margins from the widest tick and end label as drawn (`getComputedTextLength()`, which is 0 until the chart is in the page) and keeps labels from meeting (fewer ticks, end labels moved apart), since the data sets a label's width and place.
+- A table wider than the pane can scroll sideways in a wrapper with `overflow-x: auto`, or the whole page slides.
+- A screen reader gets nothing from a drawn chart, so its `svg` has `role="img"` and an `aria-label` that says what it shows.
+- Numbers and dates are formatted. A date-only string parses as UTC midnight. Without `d3.utcFormat`, a reader west of UTC sees the day before.
 
-Shapes to mix or ignore; where a shape says otherwise, the shape wins:
+Shapes to mix or ignore. Where one contradicts a suggestion above, the shape wins:
 
-- **Board** — kept open to watch health: one status line saying what is over
-  its limit now, the same metric for every member as small charts on one
-  shared scale, recent incidents in a table; only a breach takes the danger
-  color, and nothing moves.
-- **Scorecard** — a weekly check-in: four to six cards, each a large latest
-  value, its change from the period before, a small trend and its target; only
-  a missed target turns red.
-- **Experiment** — deciding whether to ship: the primary metric's lift as the
-  large number, a sentence on whether its 95% interval crosses zero, every
-  metric's interval against a zero line (right of zero is better), then the
-  rate by arm over time.
-- **Table** — many rows to scan: one table that sorts and searches, an in-cell
-  bar on one shared scale, a sparkline per row, secondary columns that hide
-  when narrow.
-- **Funnel** — where people drop off: each step as a bar from one left edge
-  over a thin bar for the period before, the share lost between steps, the
-  biggest loss in the danger color.
-- **Review** — a period in review, read once: a few large totals on top, one
-  large chart with dated events marked on it, then the same measure per group
-  as small charts on one scale, labelled directly.
-- **Visual analysis** — a finding, read top to bottom: the finding in a
-  sentence around one number, then a chart under each heading that says what
-  it shows; one accent series, the rest muted.
-- **Scroll story** — a finding told as the reader scrolls, also asked for as a
-  story, a narrative, a scroll-driven story or scrollytelling: short chapters
-  of text in one column beside one chart that stays in view
-  (`position: sticky`) and changes as each chapter reaches the middle (an
-  `IntersectionObserver` with `root: document`, without which this page
-  ignores its `rootMargin`); one idea a chapter, its numbers marked like any
-  other; when narrow, the chart stays on top and the text scrolls under it.
+- **Visual analysis** — one finding, read top to bottom: a sentence around one number, then charts, each under a heading that says what it shows.
+- **Scroll story** — also scrollyteller, story or narrative: a finding told as the reader scrolls. Short chapters stand beside one chart that stays in view and changes with them. An `IntersectionObserver` needs `root: document` here, or its `rootMargin` is ignored.
+- **Letter** — an update written to its readers: each number inside its sentence, `[brackets]` for what only the person can say, and no tiles, headline figure or filters. Its column is `data-read`, with the `lang` of its words.
+
+If the view context has a `form` other than `dashboard`, the person picked that shape from pictures. Build only that shape, not a mix. `visual-analysis` means Visual analysis and `scroll-story` means Scroll story. For `visual-short`, read `artifact-type/reference/visual-short.md` first. Their message can still ask for another shape, but the word "dashboard" doesn't. `dashboard` is only the default, so a message asking for another shape, such as a story or deep dive, gets that shape. Many readers have no voice that reads aloud, so say nothing of listening, and don't offer it, unless the person asks. Read `artifact-type/reference/read-aloud.md` before a page or your reply speaks of it.
 
 ### Look
 
-- The dashboard gives the page plain text defaults and its outer gutter, which
-  grows with the width, so the page's outermost wrapper takes no padding of
-  its own. To change it, the page's CSS sets
-  `#dash-root { --dash-gutter: … }` (`0` runs edge to edge), the one rule it
-  writes on `#dash-root`; a maximum width is a wrapper with `max-width` and  
-  `margin-inline: auto`.
-- Charts and tables are easier to scan in cards, each with its title and a
-  one-line note at the top: `background: var(--color-panel)`,  
-  `border: 1px solid var(--color-border-line)`,  
-  `border-radius: var(--cds-radius)`, `padding: var(--cds-pad-lg)`. A grid
-  (`repeat(auto-fit, minmax(min(100%, 20rem), 1fr))`, `--cds-gap-md`) lets
-  two share a row when there is room, and cards that answer one question can
-  share a section heading.
-- Text looks at home in `font-family: var(--font-anthropic-sans)` and
-  sentence case. Its sizes are `--cds-font-size-` plus `caption`, `body`,
-  `heading` or `title`; `heading` at `--cds-font-weight-medium` works for
-  chart and section titles. `font-variant-numeric: tabular-nums` keeps
-  numbers lined up.
-- People see text at `--cds-font-size-title` or larger as large. For a page
-  title, a headline figure or a tile's main number,
-  `var(--font-anthropic-serif)` at weight 400 works well.
-- For spacing there are `--cds-gap-` and `--cds-pad-` plus `xs`, `sm`, `md`,
-  `lg` or `xl`, and `--cds-radius` for corners. A row looks tidier with boxes
-  of one height.
-- Series can take `dash.colors` in order. When one matters most, the rest can
-  be `--cds-chart-muted`; `--cds-chart-status-critical` works for a value
-  past a limit. Colors are tokens that follow the theme, so there is no
-  dark-mode rule to write.
-- Counts per day, week or month are usually clearest as bars (`d3.scaleBand`
-  with a gap), and a rate, a running total or several series over time as a
-  line drawn point to point, since a curve suggests values the data doesn't
-  have.
-- Lines look good at 2px with round caps and joins, and bars up to 32px thick
-  with rounded ends. Gridlines can be 1px `--cds-chart-grid`, an axis line
-  `--cds-chart-axis`, a reference line `--cds-chart-reference`, and tick
-  labels `--color-fg-muted` at caption size.
-- A tooltip can be a small popover: `background: var(--cds-surface-popover)`,
-  `border: 1px solid var(--cds-border)`, `border-radius: var(--cds-radius)`,
-  `box-shadow: var(--cds-shadow-popover)`,
-  `padding: var(--cds-pad-xs) var(--cds-pad-sm)`, caption size,
-  `pointer-events: none`. It reads well with the date or category first, in
-  `--cds-text-secondary`, then a line per series: a swatch in its color
-  (`dash.colors[i]`, as its mark), name, formatted value; one series needs no
-  swatch. To tie it to the chart, the hovered point can get a dot in that
-  color (a bar, a stronger fill or outline), and with several series a rule
-  can mark the hovered x while the others fade.
-- A table of more than a screen of rows can sit in a box with `max-height`
-  and `overflow: auto`, its `th` `position: sticky; top: 0` on the card's
-  background. It is easier to use when each header is a button that sorts
-  (`aria-sort`, numbers as numbers) and a search `<input>` above filters rows
-  by their text. Scrolling through every row usually works better than
-  pages, and all of it works on the rows the page already has.
-- Numbers and dates are easier to read formatted: counts `d3.format(',')`,
-  shares (0–1) `'.1%'`, headline figures from 10,000  
-  `Intl.NumberFormat('en', {notation: 'compact', maximumFractionDigits: 1})`,  
-  dates `d3.utcFormat('%b %-d')` on `new Date(day)`.
+The dashboard sets plain text defaults and an outer gutter, so don't pad your outer wrapper. `#dash-root { --dash-gutter: 0 }` runs it edge to edge. The page also appears in a narrow pane beside a chat, and narrows when Sources opens. A fixed-width `<svg>` keeps it from narrowing, but `width="100%"` with a `viewBox` is fine. `position: fixed` scrolls with the page, so make a tooltip `absolute` inside a `relative` box.
+
+These tokens follow the reader's theme, so a page needs no dark-mode rule. Only these are guaranteed; a name you guess can silently resolve to nothing.
+
+- Color: `var(--color-fg)`, `--color-fg-muted`, `--color-bg`, `--color-panel`, `--color-border-line`, `--color-ok`, `--color-warn`, `--color-bad`.
+- Text: `var(--font-anthropic-sans)`, and `--font-anthropic-serif` at weight 400 for big numbers and the page title. Sizes are `--cds-font-size-` plus `caption`, `body`, `heading` or `title`, with `--cds-font-weight-medium`. `font-variant-numeric: tabular-nums` keeps numbers lined up.
+- Space: `--cds-gap-` and `--cds-pad-` plus `xs`, `sm`, `md`, `lg` or `xl`, with `--cds-radius` for corners.
+- Cards: `--color-panel` with a 1px `--color-border-line` border, `--cds-radius` and `--cds-pad-lg`.
+- Charts: bars, lines and dots take `dash.colors` in order, `dash.colors[0]` where there is one series, so a look or a design system reaches them. They are `var(--…)` strings, which `d3.color()` can't parse, so set them as styles. `--cds-chart-muted` is for context, `--cds-chart-status-critical` for a value past its limit, and `--cds-chart-grid`, `--cds-chart-axis` and `--cds-chart-reference` for the lines behind a chart. The grid and axis colors are too faint for words, so tick labels are `--cds-text-secondary` at caption size: CSS on an axis's `text` sets that over the size and font that d3.axis puts on its group.
+- Tooltips: `--cds-surface-popover`, `--cds-border`, `--cds-shadow-popover`, `--cds-text-secondary`.
+- Put motion inside `@media (prefers-reduced-motion: no-preference)`, or the same `matchMedia` test in a script, so people who turned motion off get none. Use `--cds-dur-slow` and `--cds-ease-out`. Drawing code reruns on every data or width change, so play entry motion once, on the first draw with rows.
 
 ### States
 
-The type stamps what the data is doing as attributes the page can style
-(`SKILL.md`, States):
+The type shows readers sign-in and load errors and how to fix them, so a connector's message stays off the page. For your CSS, it sets `data-dash-source-state="loading|refreshing|error|empty"` on marks and `data-dash-state="loading|error"` on `#dash-root`. A source that waits on the reader's permission or sign-in is stamped `error` but has status `"connect"`, so go by the status. While a source re-runs, its marks keep their last values, so fade the `refreshing` ones, or old numbers sit beside a new filter: `[data-dash-source-state=refreshing] { opacity: .5; }`. A page full of `—` reads as broken while it loads. The class `dash-skeleton` draws a placeholder over an element and hides its contents. It fills a box with nothing in it, not even a space, and one that holds only text, a `—` too, gets a short bar. Only your script removes it, when data arrives or the load fails: once the status isn't `"loading"`, or it stays for good.
 
-- A failed source can show one line centered in its element, across and
-  down (`display: flex; align-items: center; justify-content: center`):
-  a 0.375rem round dot in `background: var(--color-bad)`, then `Failed to load` in
-  `color: var(--color-fg-muted)` at `--cds-font-size-caption`, with no
-  underline. The element keeps the `min-height` it has with data, so nothing
-  below it moves, and the connector's message (`dash.data(id).message`) stays
-  off the page: Sources shows it. The line is drawn in script where
-  `dash.data(id).status === "error"`: a source waiting on the viewer (their
-  permission, a sign-in) is stamped `data-dash-source-state=error` too, and
-  its status is `connect`.
-- A value that isn't there, as blank space:
-  `[data-dash-source-state=empty] { color: transparent; }`, so no "No data"
-  text is needed. Where a whole chart would look broken empty, one muted line
-  under its heading says why.
-- Before a dataset's first values arrive, give the elements that will show
-  them the class `dash-skeleton`: it draws a short rounded bar in place of
-  words and fills a chart's box, so loading takes no spinner and no words.
-  Leave a chart's box empty, with no `—` and no white space in it: a box
-  that holds only text gets the bar. Remove the class when the data arrives or the load fails.
-  While a filter change or a refresh re-runs a source, its marks
-  carry `data-dash-source-state=refreshing`:  
-  `[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }`  
-  shows which cards are catching up, and the last values stay readable. Motion
-  of the page's own is `@keyframes` on elements inside the page.
-- A chart's box with a `min-height` equal to its drawn height keeps a state
-  from moving what is below it.
-
-### Filters
-
-- A page can work out a filter's default in its own code, such as a date
-  relative to today, and set it with `dash.setParams` at the top of its
-  script: the queries first run with it. The page's Reset calls that code
-  again after `dash.resetParams()`, which returns to `dash/params`, not to
-  what the page set.
-
-```js
-const setDefaults = () => dash.setParams({end: d3.utcFormat('%Y-%m-%d')(d3.utcDay.offset(new Date(), -3))});
-setDefaults();
-document.querySelector('.lx-reset').addEventListener('click', () => { dash.resetParams(); setDefaults(); });
-```
-
-### Before writing
-
-A read of the files is the check: every `var(--cds-…)` is written in full and
-named in these docs; every number and date is formatted; each chart's code
-measures its margins from the widest tick and end label as drawn
-(`getComputedTextLength()`) and keeps labels from meeting (fewer ticks, end
-labels moved apart), since the data sets a label's width and place. Animation is `@keyframes` with `--cds-dur-slow` and
-`--cds-ease-out` inside `@media (prefers-reduced-motion: no-preference)`,
-timed from the first draw that has rows so a redraw doesn't replay it.
+A chart's box with no `min-height` is at most a line tall until its data arrives, so the page jumps as each one does. Where the status is `"error"`, a quiet "Failed to load" drawn in the chart's place tells the reader which chart failed. `"connect"` is no failure: the dashboard asks for the permission or sign-in itself.
 
 ### Handing over
 
-Tell the person, in a line each, what they can do next: ask you for any chart or control by name, such as a flow diagram, a date filter or a click that filters every card; download a source's rows as CSV from Sources; and, as an editor, edit a live query's request in Sources (its SQL or other arguments), test it, save it and restore an earlier one. Then what to know about their data: each live query runs with the reader's own access whenever the dashboard is opened, refreshed or filtered; and where a query is not refreshing automatically, everyone who can open the dashboard sees its saved rows, whatever their own access, until they ask you to refresh it or an editor makes it live again in Sources, which the page can't undo.
+This part isn't a suggestion, since the person learns it only from you. Tell them, in a line each, what they can do next: ask you for any chart or control by name, such as a flow diagram, a date filter or a click that filters the whole page; download a source's rows as CSV from Sources; and, as an editor, edit a live query's request in Sources, test it, save it and restore one they saved earlier, or edit or replace an attached file there. Then what to know about their data: each live query runs when the dashboard is opened, refreshed or filtered, unless a recent enough answer stands, with the reader's own access, or the sharer's where someone shares its connector. Everyone who can open the dashboard can read its attached files, whatever their own access.
+
+Say once where the numbers could come from next. A file that isn't `fixed` is often an export from a system that one of their connectors reaches, and could come from it live. If no connector does, name the source that would and offer to connect it; suggest the connector if you have a tool for that. Rows you wrote yourself, whether sample, estimated or recalled, go in a file whose `title` starts with "Sample" and whose `description` says how you made them. Say which numbers those are, because the person may pass them on as real.
 
 ### Links
 
-A link names a place on the page: a tab, a section, any element with an `id`. The page brings that place into
-view itself once it is drawn, ignores a name that is not its own, and sets the link as the reader moves.
-
-```js
-const go = (el) => { el.scrollIntoView(); dash.setLink(el.id); }; // for a tab, show it instead
-const named = document.getElementById(location.hash.slice(1));
-if (named) go(named); // after the first draw, when the element exists
-```
-
-### d3 and the kit
-
-- The `d3` global is most of d3 v7. Beside scales, shapes, axes and formats,
-  a page can reach for treemaps and other hierarchies, network diagrams,
-  chords, contours, nearest-point lookup, zoom, brush and transitions.
-- It has no maps, fixed color schemes or CSV reading. Regions compare well in
-  bars or a table, a ramp runs between two tokens' computed colors
-  (`d3.interpolateRgb`), and rows come from `dash.data`.
-- A shape that shows one row's value, such as a link between two nodes, is
-  marked as any value is (`SKILL.md`, Marking).
-- `d3.scaleUtc` or `d3.scaleLinear` with one argument sets the range, not the  
-  domain: pass both, `(domain, range)`.
-- Parse each day or month string into a Date once, before scaling: a date axis
-  formats Dates, so a NaN, Invalid Date or undefined on the page means a string
-  went unparsed.
-- d3.axis puts `font-size` 10 and `font-family` sans-serif on its group:  
-  `.attr('font-size', null).attr('font-family', null)` removes both.
-- A `<b>` is bold 700 from the kit's rule `[data-appifact-content] :is(b,
-  strong)`: a selector at least as specific, such as `.page b`, sets a
-  number's weight.
-- Token names are written in full: `var(--cds-chart-${x})` hides a typo.
-- `--color-ok`, `--color-warn` and `--color-bad` are text colors.
-- An area under a line can fade to nothing at the baseline: a vertical
-  `linearGradient` (`x2` 0, `y2` 1) with stops at 0, .25, .5, .75 and 1 at
-  opacity .26, .16, .08, .03 and 0, colored with `style` (`stop-color:  
-  ${dash.colors[0]}`), since `d3.color()` can't read `dash.colors`.
-- Bars round with `rx` 4 on a rect (the browser caps it at half the bar) or
-  `border-radius` on an HTML bar. Dashed reference lines keep the default flat
-  ends (`butt`), so short dashes stay even.
-- Boxes in one row stay the same height if the grid keeps its default stretch
-  and the border is on the item itself; a column beside stacked rows is as tall
-  as the stack.
-- A formatted key column keeps its raw value on the `<tr>` as `data-key`.
-- A tooltip is `position: absolute` in a `position: relative` box;
-  `position: fixed` scrolls with this page.
+On a page with tabs or sections, `dash.setLink("usage")` as the reader moves to `#usage` keeps that place in the link they copy. The page's code goes there when it opens, by `location.hash`, once the element exists.

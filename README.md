@@ -286,7 +286,8 @@ Used as the definitive source in:
 
 | Product | Prompt |
 |---------|--------|
-| **Qwen 3.8 Max** | [**Qwen 3.8 Max system prompt**](Qwen/qwen3.8-max.md) |
+| **Qwen 4.0 Max** | [**Qwen 4.0 Max system prompt**](Qwen/qwen4.0-max.md) |
+| Qwen 3.8 Max | [Qwen 3.8 Max system prompt](Qwen/qwen3.8-max.md) |
 | Qwen 3.6 Plus | [Qwen 3.6 Plus system prompt](Qwen/qwen3.6-plus.md) |
 
 ## MiniMax

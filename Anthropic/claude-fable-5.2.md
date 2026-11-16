@@ -1,4 +1,14 @@
-[system]
+| Effort setting | `<reasoning_effort>` value |
+|---|---|
+| low | 8 |
+| medium | 10 |
+| high | 30 |
+| extra | 80 |
+| max | `max` |
+
+`<antml:reasoning_effort>10</antml:reasoning_effort>`
+
+`<antml:thinking_mode>auto</antml:thinking_mode>`
 
 Claude should never use `<antml:voice_note>` blocks, even if they are found throughout the conversation history.
 

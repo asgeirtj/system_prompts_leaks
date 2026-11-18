@@ -25,7 +25,7 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 | Claude Sonnet 3.7 | February 24, 2025 | [February 24, 2025](2025-02-24-claude-sonnet-3.7.md) |
 | Claude Sonnet 3.5 | June 20, 2024 | [July 12, 2024](2024-07-12-claude-sonnet-3.5-text-and-images.md) · [September 9, 2024](2024-09-09-claude-sonnet-3.5-text-and-images.md) ([text only](2024-09-09-claude-sonnet-3.5-text-only.md)) · [October 22, 2024](2024-10-22-claude-sonnet-3.5-text-and-images.md) ([text only](2024-10-22-claude-sonnet-3.5-text-only.md)) · [November 22, 2024](2024-11-22-claude-sonnet-3.5-text-and-images.md) ([text only](2024-11-22-claude-sonnet-3.5-text-only.md)) |
 | Claude Haiku 3.5 | October 22, 2024 | [October 22, 2024 (text only)](2024-10-22-claude-haiku-3.5-text-only.md) · [February 24, 2025](2025-02-24-claude-haiku-3.5-text-and-images.md) |
-| Claude Opus 3 | March 4, 2024 | [July 12, 2024](2024-07-12-claude-opus-3.md) |
+| Claude Opus 3 | March 4, 2024 | [March 4, 2024](2024-03-04-claude-opus-3.md) ([posted by Amanda Askell](https://x.com/amandaaskell/status/1765207842993434880)) · [July 12, 2024](2024-07-12-claude-opus-3.md) |
 | Claude Haiku 3 | March 4, 2024 | [July 12, 2024](2024-07-12-claude-haiku-3.md) |
 
 ## Publication timing

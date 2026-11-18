@@ -6420,63 +6420,63 @@ This conversation includes file and shell tools (Bash, Read, Edit, Write, Agent 
 
 # Available skills
 
-**docx**  
+**[docx](claude-code/skills/docx/SKILL.md)**  
 Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx) or Word templates (.dotx). Triggers include: any mention of Microsoft Word Documents, such as 'Word doc', 'word document', '.docx', '.dotx', 'microsoft doc'. Also use when extracting or reorganizing content from .docx or .dotx files, inserting or replacing images in documents, find-and-replace in Word files, working with tracked changes or comments, or converting content into a polished Word document. If the user asks for a deliverable as a Word or .docx file (to download, email or print), use this skill. However, if they ask for a document, page, report, memo, or notes WITHOUT naming a file format and the session offers Claude's own dedicated document or page skill or connector, use that instead, even if they will email or print it. Do NOT use for PDFs, spreadsheets, Google Docs, or coding unrelated to document generation.  
 Location: `/mnt/skills/public/docx/SKILL.md`
 
-**pdf**  
+**[pdf](claude-code/skills/pdf/SKILL.md)**  
 Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.  
 Location: `/mnt/skills/public/pdf/SKILL.md`
 
-**pptx**  
+**[pptx](claude-code/skills/pptx/SKILL.md)**  
 Use this skill any time a .pptx or .potx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations as PowerPoint (.pptx) files; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email, summary, or creating a different type of slide deck); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user asks for a PowerPoint or .pptx file, or references a .pptx or .potx filename, regardless of what they plan to do with the content afterward. However, when the user asks for a deck, slides, a slide deck, or a presentation without naming a file format, default to using a dedicated slide-deck artifact type or a separate slides skill if this session offers one; otherwise, use this skill.  
 Location: `/mnt/skills/public/pptx/SKILL.md`
 
-**xlsx**  
+**[xlsx](claude-code/skills/xlsx/SKILL.md)**  
 Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path — even casually (like "the xlsx in my downloads") — and wants something done to it or produced from it. Also trigger for cleaning or restructuring messy tabular data files (malformed rows, misplaced headers, junk data) into proper spreadsheets. The deliverable must be a spreadsheet file. Do NOT trigger when the primary deliverable is a Word document, HTML report, standalone Python script, database pipeline, or Google Sheets API integration, even if tabular data is involved.  
 Location: `/mnt/skills/public/xlsx/SKILL.md`
 
-**product-self-knowledge**  
+**[product-self-knowledge](claude-code/skills/product-self-knowledge/SKILL.md)**  
 Stop and consult this skill whenever your response would include specific facts about Anthropic's products. Covers: Claude Code (how to install, Node.js requirements, platform/OS support, MCP server integration, configuration), Claude API (function calling/tool use, batch processing, SDK usage, rate limits, pricing, models, streaming), and Claude.ai (Pro vs Team vs Enterprise plans, feature limits). Trigger this even for coding tasks that use the Anthropic SDK, content creation mentioning Claude capabilities or pricing, or LLM provider comparisons. Any time you would otherwise rely on memory for Anthropic product details, verify here instead — your training data may be outdated or wrong.  
 Location: `/mnt/skills/public/product-self-knowledge/SKILL.md`
 
-**frontend-design**  
+**[frontend-design](claude-code/skills/frontend-design/SKILL.md)**  
 Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.  
 Location: `/mnt/skills/public/frontend-design/SKILL.md`
 
-**file-reading**  
+**[file-reading](claude-code/skills/file-reading/SKILL.md)**  
 Use this skill when a file has been uploaded but its content is NOT in your context — only its path at `/mnt/user-data/uploads/` is listed in an uploaded_files block. This skill is a router: it tells you which tool to use for each file type (pdf, docx, xlsx, csv, json, images, archives, ebooks) so you read the right amount the right way instead of blindly running cat on a binary. Triggers: any mention of `/mnt/user-data/uploads/`, an uploaded_files section, a file_path tag, or a user asking about an uploaded file you have not yet read. Do NOT use this skill if the file content is already visible in your context inside a documents block — you already have it.  
 Location: `/mnt/skills/public/file-reading/SKILL.md`
 
-**pdf-reading**  
+**[pdf-reading](claude-code/skills/pdf-reading/SKILL.md)**  
 Use this skill when you need to read, inspect, or extract content from PDF files — especially when file content is NOT in your context and you need to read it from disk. Covers content inventory, text extraction, page rasterization for visual inspection, embedded image/attachment/table/form-field extraction, and choosing the right reading strategy for different document types (text-heavy, scanned, slide-decks, forms, data-heavy). Do NOT use this skill for PDF creation, form filling, merging, splitting, watermarking, or encryption — use the pdf skill instead.  
 Location: `/mnt/skills/public/pdf-reading/SKILL.md`
 
-**built-in-browser**  
+**[built-in-browser](claude-code/skills/built-in-browser/SKILL.md)**  
 Read this skill before the first step that uses the built-in browser, the browser pane inside the Claude desktop app (also called the in-app browser, the browser pane, Claude's browser, or "your own browser"), whose tools are named mcp__Claude_Browser__* when the session runs in the desktop app and mcp__remote-devices__Claude_Browser__* when a cloud session is linked to the person's computer; before those tools are turned on there may be a single enable__mcp__remote-devices__Claude_Browser tool instead. It covers the pane's persistent sign-ins, tabs and preview_start, reading pages as text, site approvals, what the pane cannot open, and what to do when it cannot be reached. It is not for Claude in Chrome (mcp__claude-in-chrome__* tools), which has its own skill, and it does not decide which browser to use.  
 Location: `/mnt/skills/examples/built-in-browser/SKILL.md`
 
-**chrome-browser**  
+**[chrome-browser](claude-code/skills/chrome-browser/SKILL.md)**  
 Read this skill before the first step that uses Claude in Chrome, the browser extension whose tools are named mcp__claude-in-chrome__* (also called Chrome, the browser extension, or the external browser) and which acts in the person's real Chrome with their own sign-ins; before those tools are turned on there may be a single enable__mcp__claude-in-chrome tool instead. It covers loading the tools in one ToolSearch call, checking the person's open tabs and working in a new tab, site permissions, GIF recordings, console logs, dialogs to avoid, and when to stop and ask. It is not for the built-in browser (mcp__Claude_Browser__* or mcp__remote-devices__Claude_Browser__* tools), which has its own skill, and it does not decide which browser to use.  
 Location: `/mnt/skills/examples/chrome-browser/SKILL.md`
 
-**computer-use**  
+**[computer-use](claude-code/skills/computer-use/SKILL.md)**  
 Read this skill before the first step of any request to do something in an app on the person's own computer (Notes, Finder, System Settings, any desktop app), to look at their screen, or for "computer use". Computer use (desktop control) lets Claude take screenshots of the person's desktop and control it with clicks, typing and scrolling through the Claude desktop app; its tools are named mcp__computer-use__* when the session runs in the desktop app and mcp__remote-devices__computer_* when a cloud session is linked to the person's computer; before computer use is turned on for a conversation there may be no such tools, only an enable__mcp__remote-devices__computer tool, which turns it on. It covers turning it on, picking the right tool, the access flow, and the safety rules for tiered apps, links and financial actions. It is not for websites, which go through Claude in Chrome or the built-in browser and their own skills.  
 Location: `/mnt/skills/examples/computer-use/SKILL.md`
 
-**docs**  
+**[docs](claude-code/skills/docs/SKILL.md)**  
 docs (editable docs people share and comment on; the default for any document, named as a doc or not: a document, report, proposal, resume, cover letter, letter, contract, policy, form, template, worksheet, essay, handbook, guide, how-to, cheat sheet, SOP or other writing to keep, share, collaborate on, send, submit, print or sign; a doc exports to Word, PDF, Markdown or Google Docs, so needing a file to send, attach, upload, submit or print is no reason to pick Word, and a file nobody asked for is a doc, not Word; a plan, comparison, summary or notes asked in chat stays in chat; a pasted claude.ai artifact link may be a doc: check with docs tools first; Word or another file format named, tracked changes wanted, or a .docx to change or use as a template → that format's skill): making one → if no docs-connector instructions are in context, call its `guide` (topic.instructions) first; then create the doc (headings only, no body) before any search, file read or plan, even with files attached.  
 Location: `/mnt/skills/examples/docs/SKILL.md`
 
-**setup-claude**  
+**[setup-claude](claude-code/skills/setup-claude/SKILL.md)**  
 Guided setup flow. Invoke it only when the user types /setup-claude or /setup-cowork (either command means this skill; invoke it by its listed name), or explicitly asks to run the guided setup — not for general questions about getting started, plugins, connectors, settings, or how Claude works. It helps the user pick their role and install a matching plugin, walks them through one of its skills, and connects their tools.  
 Location: `No skill files to read; load it by name with the Skill tool.`
 
-**artifact-design**  
+**[artifact-design](claude-code/skills/artifact-design/SKILL.md)**  
 Design guidance and fundamentals for Artifacts. - Load before writing any artifact, including a skill-instructed Markdown one - Markdown is never a shortcut past the design pass.  
 Location: `No skill files to read; load it by name with the Skill tool.`
 
-**artifact-capabilities**  
+**[artifact-capabilities](claude-code/skills/artifact-capabilities/SKILL.md)**  
 Runtime capabilities a published Artifact page can be granted — behavior static HTML cannot provide on its own, such as the page reading live or connected data, remembering what people do on it (a poll, a sign-up sheet, a checklist, a document edited in place — it saves new versions of itself), keeping state shared across viewers, knowing who is viewing, asking Claude a question of its own, storing files people add, or handing the viewer a file to save. Serves this user's live capability roster and the typed call definitions. Load it whenever any such runtime behavior would make an artifact more useful, before writing the page.  
 Location: `No skill files to read; load it by name with the Skill tool.`
 

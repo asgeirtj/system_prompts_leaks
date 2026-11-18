@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code Desktop (Fable 5.2)** | November 18, 2026 | [Claude Code desktop app system prompt (Fable 5.2)](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) |
 | **Claude Docs connector** | November 14, 2026 | [Claude Docs connector guide and tools](Anthropic/claude-docs) |
 | **Claude Sheets** | November 14, 2026 | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
 | **Claude Whiteboard** | November 14, 2026 | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
-| **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
 
 ---
 ## Anthropic — Claude
@@ -69,7 +69,7 @@ Used as the definitive source in:
 | Component | Prompt |
 |-----------|--------|
 | **Claude Code CLI (Fable 5.2)** | [**Claude Code system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-fable-5.2.md) |
-| Claude Code Desktop (Fable 5.1) | [Claude Code desktop app system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
+| **Claude Code Desktop (Fable 5.2)** | [**Claude Code desktop app system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
 | **Claude Code on the web/Claude Code Cloud (Fable 5.2)** | [**Claude Code on the web (cloud) system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-cloud-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
 | **Claude Code headless mode/claude -p version (Fable 5.2)** | [**Claude Code headless system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-headless-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
 | **Opus 5.5** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |

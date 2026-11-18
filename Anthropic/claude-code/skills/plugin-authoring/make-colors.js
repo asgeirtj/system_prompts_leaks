@@ -1,7 +1,7 @@
 // make-colors.js: copy this file into your mod's hooks folder, and leave it as it is.
 // Generated from the design system's theme code. Don't edit it.
-// sources-sha256: c44e83e0e09808d3442f475a8b2ff715181338f4973f7b860009f0fe4b4093a8
-// body-sha256: 9d71ea3fbc24f3fef16ac58e386315002d2e4763c27138821dcd756d38510d65
+// sources-sha256: b2c81dd18dbc252c4f9729c7510a505a37bb6a8c87acb2b554f326b2e2c87fd2
+// body-sha256: 02635c563d34d132931976ff56a5929ad1580699ad6f8045d90e0f8d00ec9bb3
 var THEME_GRAPH = {
   border: "alpha-2",
   "alpha-2": "@neutral-900/10",

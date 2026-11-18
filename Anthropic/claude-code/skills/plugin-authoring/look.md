@@ -51,7 +51,7 @@ Every color is six-digit hex.
 - A mode, role or git color you leave out stays the app's.
 - `codeTheme: { light, dark }` names the code highlighting theme for each mode, such as `{ dark: 'nord' }`, and `contrast: 'more'` asks for stronger borders and focus rings.
 
-`makeColors` throws on a color it can't use, saying what to change. It lists contrast in `problems` and stops for nothing. Work until no line starts `Desktop won't paint this theme`, because Desktop then ignores the whole theme. The usual cause is a dark-mode `surface-3` too light for `text-muted` or a role's text, so keep it close to `surface-0`. The other lines are under the design system's own bar and still paint, so stop there: an empty list isn't the goal, and the design system's own colors don't reach it. Copy the file again when the build updates, since an old copy falls behind.
+`makeColors` throws on a color it can't use, saying what to change. It lists contrast in `problems` and stops for nothing. Work until no line starts `Desktop won't paint this theme`, because Desktop then ignores the whole theme. The usual cause is a dark-mode `surface-3` too light for `text-muted` or a role's text, so keep it close to `surface-0`. The other lines are under the design system's own bar and still paint, so stop there: an empty list isn't the goal, and the design system's own colors don't reach it. Copy the file again when the build updates, since an old copy falls behind. On Desktop, a color the design system renames keeps its value, and your page and text colors keep reaching surfaces, text and fills. An update can still retire a color, change which gray a surface reads, or trip the contrast check above, so rerun `makeColors` when you copy the file. A color added later shows the app's own until you remake the theme.
 
 For a look that serves both modes, give both halves and leave out `overrideColorScheme`. For one made for a single mode, such as a dark scene, give that half with `only: 'dark'`, and a surface then acts as if `overrideColorScheme` named it.
 
@@ -71,17 +71,21 @@ on('ui.render', { component: 'Backdrop' }, ($, e, next) => {
 })
 ```
 
-Give the Svg a `viewBox` and `preserveAspectRatio="xMidYMid slice"` so it fills any screen, keep it under 131,072 characters, and animate with CSS inside its own `<style>`. It runs no script and loads nothing. `glass` is `{ blur, tint, opacity }`, a raw-colored veil over it, or `false`.
+Give the Svg a `viewBox` and `preserveAspectRatio="xMidYMid slice"` so it fills any screen, keep it under 131,072 characters, and animate with CSS inside its own `<style>`. Keep it pure vector, with no embedded pictures or fonts, or the engine refuses it and says what to take out. Keep comments plain: `<!-- sky -->` between tags, with no `<` or `--` in it, and `/* sky */` in a style. The engine reads their words too, so a word such as `href` in one is still refused, as are a bare `&` in a CSS one and CDATA. Keep a CSS comment to plain words, since one that holds `word(` or `@word` can leave the scene still or undrawn. To use a picture, redraw it as SVG. Keep motion slow: a scene that flashes or is too heavy is held still, as it is on surfaces with no gate. On `desktop` a scene can read the mode with `@media (prefers-color-scheme: dark)` or `light-dark()` and still move, and it gets the mode the app shows, a look's own included, whatever `color-scheme` it sets for itself. `glass` is `{ blur, tint, opacity }`, a raw-colored veil over it, or `false`.
+
+For a person who asked for reduced motion, `desktop` draws the scene with its animation taken out, so make it look finished that way: give each moving part a resting place and opacity in the plain markup. A scene redrawn on a timer holds still for them too, until the redraws stop for five seconds.
+
+### A scene that answers the pointer
+
+For water, light or particles that follow the pointer, wrap the Svg in a `Shader`, which plays a shader file on the GPU. To change the scene when the person clicks it, hook `ui.pointer`. The types hold the rules, so read them before you write one: `ShaderProps` (a whole theme, and when the Svg shows alone), `'ui.pointer'`, and the `claude-code/shader` module (the language). `claude plugin validate` prints each shader's cost, or the line it refuses.
 
 ### Any screen
 
-A scene's box changes with the device, from a tall phone to a wide window, and on a phone on its side the bars leave little room. One SVG can fit them all. Give the root `preserveAspectRatio="xMidYMid slice"` for loose art that can be cropped. For a subject that has to stay in view, pin it with a nested `<svg>` with its own `preserveAspectRatio`, such as `xMaxYMax meet` for a corner, or move it with `@media` rules in the scene's `<style>`. A media rule reads the scene's own box, not the device, so a wide column on a tablet counts as landscape too. Keep the subject away from the middle, where the words sit, and the foot, where the message box sits.
+A scene's box changes with the device, from a tall phone to a wide window, and on a phone on its side the bars leave little room. One SVG can fit them all. Give the root `preserveAspectRatio="xMidYMid slice"` for loose art that can be cropped. For a subject that has to stay in view, pin it with a nested `<svg>` with its own `preserveAspectRatio`, such as `xMaxYMax meet` for a corner. A scene can also move it with `@media` rules in its `<style>`, which read the scene's own box, not the device, so a wide column on a tablet counts as landscape too. On `desktop` a scene with size queries, `@container` or viewport units still moves, and it is stretched while its box is resized, then laid out again. On `mobile` it may draw still, so fit a scene that has to move there with `preserveAspectRatio` and nested `<svg>`s. Keep the subject away from the middle, where the words sit, and the foot, where the message box sits.
 
 ## A still ground
 
-`backdrop` can also be still, with no hook: `{ color }`, `{ gradient }`, `{ vector }` or `{ image }`. For any other pattern, draw a scene. A color in one is raw, or a palette name such as `surface-0`, which follows the mode. A surface counts it in the look, so `isDrawn` answers for it the same way.
-
-`image` is a JPEG or PNG in the mod's folder, such as `{ image: { source: 'harbour.jpg' } }`, at most 1 MiB and 4096 on a side. Save a photo about 2560 wide as a JPEG: a camera's original is too big. A surface fills the screen with it, centred, so keep what matters in the middle. To tile one instead: `{ image: { source: 'tile.png', size: [64, 64], repeat: true } }`.
+`backdrop` can also be a ground, with no hook: `{ color }`, `{ gradient }` or `{ vector }`. For any other pattern, draw a scene. A color in one is raw, or a palette name such as `surface-0`, which follows the mode. A surface counts it in the look, so `isDrawn` answers for it the same way.
 
 ## What good looks like
 
@@ -95,9 +99,10 @@ A mod's tests don't paint, so ask the person to look in both modes, with a long 
 
 ## What fails with no error
 
-The engine checks only shape and size, so these load and draw nothing:
+These load and draw nothing:
 
 - A `colors` key that isn't a design-system name, such as `background`, or an anchor such as `surface-0` written straight into `inputs`. `checkColors(colors)`, from `make-colors.js`, names each one.
 - A `backdrop` scene with no `ui.render` hook on `Backdrop`.
+- A scene whose answer the engine refuses, such as an Svg holding `<image>`. `$.theme.set` still answers `isDrawn: true`, and only the debug log says why, unless the mod's folder hot-reloads.
 
 `claude plugin validate` doesn't look inside a look. Run `tsc -p <mod folder>`, and annotate a look kept in a constant as `ThemeSetArgs`, or it widens to `string`.

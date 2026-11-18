@@ -85,7 +85,7 @@ Control whether server-executed tools (agent toolset + MCP) run automatically, w
 
 **Responding to `always_ask`** (and to `auto` calls that pause): send a `user.tool_confirmation` event with `tool_use_id` set to the **event ID** (`sevt_...`, not a `toolu_` ID) of the triggering `agent.tool_use` / `agent.mcp_tool_use` event. Several confirmations can go in one `events` request:
 
-```yaml
+```json
 { "type": "user.tool_confirmation", "tool_use_id": "sevt_abc123", "result": "allow" }
 { "type": "user.tool_confirmation", "tool_use_id": "sevt_def456", "result": "deny", "deny_message": "Read .env.example instead" }
 ```
@@ -419,7 +419,7 @@ A credential must have at least one location enabled; a create or update that wo
 
 - **Unique key per vault.** `mcp_server_url` (MCP credentials) and `secret_name` (environment-variable credentials) must be unique among active credentials in a vault; duplicates return a 409.
 - **Keys are immutable.** Secret values, `display_name`, and (on environment-variable credentials) `injection_location` can be updated; to change `mcp_server_url`, `secret_name`, `token_endpoint`, or `client_id`, archive the credential and create a new one. Archiving purges the secret and frees the key for a replacement.
-- **Maximum 20 credentials per vault.**
+- **Maximum 20 active credentials per vault.** Archived credentials don't count.
 - Credentials are stored as provided and **not validated until session runtime** - an invalid credential surfaces as an authentication or downstream error during the session, which is emitted but does not block the session from continuing.
 
 **Scoping:** Vaults are workspace-scoped. Anyone with developer+ role in the API workspace can create, read (metadata only - secrets are write-only), and attach vaults. `vault_ids` can be set at session **create** time but not via session update (the SDK docstring says "Not yet supported; requests setting this field are rejected").

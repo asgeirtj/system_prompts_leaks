@@ -12,7 +12,7 @@ This file documents HTTP error codes returned by the Claude API, their common ca
 | 403  | `permission_error`      | No        | Not allowed for this credential      |
 | 404  | `not_found_error`       | No        | Unknown endpoint, or model not found or not available to your org |
 | 413  | `request_too_large`     | No        | Request exceeds size limits          |
-| 429  | `rate_limit_error`      | Yes       | Too many requests                    |
+| 429  | `rate_limit_error`      | Yes, except a spend-cap 429 | Too many requests, or a monthly spend cap |
 | 500  | `api_error`             | Yes       | Anthropic service issue              |
 | 529  | `overloaded_error`      | Yes       | API is temporarily overloaded        |
 
@@ -98,10 +98,11 @@ A model that does not exist and a model your organization cannot use return the 
 **Causes:**
 
 - Request body exceeds maximum size
-- Too many tokens in input
 - Image data too large
 
 **Fix:** Reduce input size - truncate conversation history, compress/resize images, or split large documents into chunks.
+
+Input over the model's context window is a different error: 400 `invalid_request_error` (`prompt is too long`).
 
 ---
 
@@ -122,7 +123,7 @@ Some 400 errors are specifically related to parameter validation:
 - **Claude Opus 5:** `thinking: {type: "disabled"}` returns 400 when `effort` is `xhigh` or `max` - it is accepted at `high` or below. Thinking is on by default, so omitting the param runs adaptive rather than disabling it.
 - **Fable 5/5.1/5.2, Mythos 5/5.1/5.2:** an explicit `thinking: {type: "disabled"}` returns 400 at any effort (it is accepted on Opus 4.8/4.7). Omit the `thinking` param entirely instead.
 - **Fable 5/5.1/5.2, Mythos 5/5.1/5.2:** if the organization or workspace is set to zero data retention (ZDR) - or any retention below the required 30 days - then **all** requests to these models return `400 invalid_request_error` ("In order to access this model, your organization or workspace must have data retention enabled."), even with a perfectly valid payload; ZDR only if expressly authorized by Anthropic. Check the retention configuration before debugging the request body.
-- **Claude Opus 5.5:** `thinking: {type: "disabled"}` or `{type: "enabled", budget_tokens: N}` returns 400 `"thinking.type.disabled" is not supported for this model. Use "thinking.type.adaptive" and "output_config.effort" to control thinking behavior.` (`"thinking.type.enabled"` for the budget form) at every effort level - omit `thinking` and lower `output_config.effort` instead. A `tools` entry of type `computer_20251124` returns 400 `'claude-opus-5-5' does not support tool types: computer_20251124.` followed by `Did you mean one of` and the accepted types - declare `{type: "computer_toolset_20260801"}` instead (no beta header, no `name` / display size). See `shared/model-migration.md` -> Migrating to Claude Opus 5.5.
+- **Claude Opus 5.5:** `thinking: {type: "disabled"}` or `{type: "enabled", budget_tokens: N}` returns 400 `"thinking.type.disabled" is not supported for this model. Use "thinking.type.adaptive" and "output_config.effort" to control thinking behavior.` (`"thinking.type.enabled"` for the budget form) at every effort level - omit `thinking` and lower `output_config.effort` instead. On the Claude API, a `tools` entry of type `computer_20251124` returns 400 `'claude-opus-5-5' does not support tool types: computer_20251124.` followed by `Did you mean one of` and the accepted types - declare `{type: "computer_toolset_20260801"}` instead (no beta header, no `name` / display size). See `shared/model-migration.md` -> Migrating to Claude Opus 5.5.
 - **Claude Haiku 5.5:** `thinking: {type: "enabled", budget_tokens: N}`, a non-default `temperature` / `top_p` (and any `top_k`; on API version `2026-10-21`, any value of any of the three), and an assistant prefill each return 400 (Claude Haiku 4.5 accepts `budget_tokens` and prefill on every API version, and the sampling parameters only on `2023-06-01`); a `fallbacks` list returns 400 (no server-side fallback); `thinking: {type: "disabled"}` returns 400 when `effort` is `xhigh` or `max` - it is accepted at `high` or below - and a per-message effort change with thinking off returns 400; on the Claude API and Google Cloud a `tools` entry of type `computer_20250124` returns 400 - send `computer_toolset_20260801`. See `shared/model-migration.md` -> Migrating to Claude Haiku 5.5.
 - **Claude Fable 5.2 / Claude Mythos 5.2 / Claude Fable 5.1 / Claude Mythos 5.1 / Claude Opus 5.5 / Claude Sonnet 5.5:** `tool_choice: {type: "any"}` or `{type: "tool", name: ...}` returns 400 `tool_choice: type "tool" and "any" are not supported for this model.` - also on `count_tokens` and Batches. Use `{type: "auto"}` plus a prompt instruction (`strict: true` for schema-valid arguments), or structured outputs.
 - **Claude Sonnet 5.5:** `thinking: {type: "disabled"}` returns 400 `To turn thinking off on this model, send "thinking": {"type": "between_tools"} instead of {"type": "disabled"}. The model does not think before responding. The short updates it writes between tool calls come back as thinking blocks.` - send `{type: "between_tools"}` to turn thinking off, or leave thinking on at a lower effort. `between_tools` has its own 400s: at effort `xhigh` / `max` (`output_config.effort 'xhigh' is not supported when thinking is disabled on this model. Use effort 'high' or below, or enable thinking.`), with `display`, `budget_tokens`, or `block_binding` beside it, on a per-message effort change (`messages.N: output_config.effort 'low' differs from the 'high' in effect before it; ...`), and on any other model (`"thinking.type.between_tools" is not supported for this model.`). On the Claude API and Google Cloud a `computer_20251124` tool returns 400 `'claude-sonnet-5-5' does not support tool types: computer_20251124.` - declare `{type: "computer_toolset_20260801"}` (Amazon Bedrock still accepts the earlier tool). An advisor tool `model` of Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6, Claude Sonnet 5, or Sonnet 4.6 returns 400 with a Claude Sonnet 5.5 executor. The history-editing check in the next bullet also applies to Claude Sonnet 5.5 thinking blocks - enforced by default for new accounts - and `block_binding` is accepted only with thinking on. See `shared/model-migration.md` -> Migrating to Claude Sonnet 5.5.
@@ -145,8 +146,8 @@ thinking: budget_tokens=10000, max_tokens=16000
 **Causes:**
 
 - Exceeded requests per minute (RPM)
-- Exceeded tokens per minute (TPM)
-- Exceeded tokens per day (TPD)
+- Exceeded input tokens per minute (ITPM) or output tokens per minute (OTPM)
+- Reached the usage tier's monthly spend cap (no `retry-after` header, and retries fail until access resumes; on the Messages API, `error.details.error_code` is `enforced_spend_limit_reached`)
 
 **Headers to check:**
 
@@ -189,7 +190,7 @@ thinking: budget_tokens=10000, max_tokens=16000
 | `thinking: {type: "disabled"}` on Fable 5/5.1/5.2 | 400    | Omit the `thinking` param entirely (accepted on Opus 4.8/4.7) |
 | Org set to ZDR / retention below 30 days (Fable 5/5.1/5.2, Mythos 5/5.1/5.2) | 400 on every request | Fix the org's data-retention configuration - the payload isn't the problem |
 | `thinking: {type: "disabled"}` or `budget_tokens` on Claude Opus 5.5 | 400 `"thinking.type.disabled" is not supported for this model` | Omit `thinking`; control depth with `output_config.effort` (default `medium`) |
-| `computer_20251124` tool on Claude Opus 5.5 | 400 `does not support tool types: computer_20251124` | `{type: "computer_toolset_20260801"}` - no beta header, no `name` / display size; update the agent loop for member tool calls |
+| `computer_20251124` tool on Claude Opus 5.5 on the Claude API | 400 `does not support tool types: computer_20251124` | `{type: "computer_toolset_20260801"}` - no beta header, no `name` / display size; update the agent loop for member tool calls |
 | `computer_20251124` tool on Claude Fable 5.2 / Claude Mythos 5.2, anywhere except Amazon Bedrock | 400 `does not support tool types: computer_20251124` | `{type: "computer_toolset_20260801"}` - no beta header, no `name` / display size; update the agent loop for member tool calls |
 | `thinking: {type: "disabled"}` on Claude Sonnet 5.5 | 400 `To turn thinking off on this model, send "thinking": {"type": "between_tools"} ...` | `{type: "between_tools"}` at effort `high` or below (no other `thinking` field, no per-message effort change), or thinking on at a lower effort |
 | `budget_tokens`, non-default sampling parameters, or assistant prefill on Claude Haiku 5.5 (code carried over from Haiku 4.5) | 400 | `thinking: {type: "adaptive"}` + `output_config.effort`; remove the sampling parameters; end `messages` with a user turn and use structured outputs |

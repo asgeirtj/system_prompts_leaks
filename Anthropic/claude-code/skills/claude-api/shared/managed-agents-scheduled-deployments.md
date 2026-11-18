@@ -125,13 +125,13 @@ A failed run looks like:
   "deployment_id": "depl_01xyz",
   "trigger_context": { "type": "schedule", "scheduled_at": "2026-05-09T00:00:00Z" },
   "session_id": null,
-  "error": { "type": "environment_archived", "message": "environment `env_01abc` is archived" },
+  "error": { "type": "environment_archived_error", "message": "environment `env_01abc` is archived" },
   "agent": { "type": "agent", "id": "agent_01ghi789", "version": 3 },
   "created_at": "2026-05-09T00:00:01Z"
 }
 ```
 
-Error types include `environment_archived`, `agent_archived`, `vault_not_found`, `session_rate_limited`, and `service_unavailable`.
+Error types include `environment_archived_error`, `agent_archived_error`, `vault_not_found_error`, `vault_archived_error`, `session_rate_limited_error`, and `unknown_error`.
 
 The outcome of each **scheduled** run (started/succeeded/failed) and each deployment lifecycle change (created/updated/paused/unpaused/archived/deleted) is also delivered as a webhook event - see `shared/managed-agents-webhooks.md` for the `deployment.*` and `deployment_run.*` event types - so you can react without polling. Manual runs do **not** emit `deployment_run.*` webhook events.
 
@@ -147,8 +147,9 @@ Raw HTTP: `POST /v1/deployments/{deployment_id}/pause` (likewise `/unpause`, `/a
 
 ### Failure behavior
 
-- **Rate-limited:** recorded immediately as a `session_rate_limited` run, **no retry** - the schedule simply tries again at the next occurrence. (Rate limits on API calls *inside* a session are handled by the session itself.)
-- **Other failed runs** (e.g. `environment_archived`, `vault_not_found`, `service_unavailable`): the run records the `error.type` - monitor runs and fix the referenced resource, or pause the deployment.
+- **Rate-limited:** recorded immediately as a `session_rate_limited_error` run, **no retry** - the schedule simply tries again at the next occurrence. (Rate limits on API calls *inside* a session are handled by the session itself.)
+- **Archived subagent:** the next trigger records a failed run with `agent_archived_error` and pauses the deployment. Remove or replace the subagent when you update the agent, then update the deployment with the same agent ID in `agent` to move it to the agent's latest version (a deployment keeps its version even when the agent changes), then unpause.
+- **Other unrecoverable session-creation errors** (e.g. `environment_archived_error`, `vault_archived_error`, `vault_not_found_error`): the trigger records a failed run and **pauses the deployment**; `paused_reason.error.type` mirrors the run's `error.type`. Fix the referenced resource or update the deployment to use another one, then unpause.
 - **Agent archived:** the deployment is automatically **archived** (terminal) in the same operation. **Agent deleted:** the next scheduled trigger detects the missing agent and archives the deployment then. Either way no deployment run is recorded, and no further sessions are created.
 
 ## Manual runs

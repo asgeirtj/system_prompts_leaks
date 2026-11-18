@@ -60,7 +60,9 @@ const response = await client.beta.messages.create({
   betas: ["files-api-2025-04-14"],
 });
 
-console.log(response.content[0].text);
+for (const block of response.content) {
+  if (block.type === "text") console.log(block.text);
+}
 ```
 
 ---

@@ -142,7 +142,6 @@ Claude Code validates `~/.claude/keybindings.json` when it loads; warnings go to
 - `ctrl+\` — Terminal quit signal (SIGQUIT) (will not work)
 
 ### macOS reserved (errors)
-- `cmd+c` — macOS system copy
 - `cmd+v` — macOS system paste
 - `cmd+x` — macOS system cut
 - `cmd+q` — macOS quit application

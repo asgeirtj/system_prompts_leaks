@@ -109,7 +109,7 @@ Any `tool_choice` value can also include `"disable_parallel_tool_use": true` to 
 
 ### Tool Runner vs Manual Loop
 
-**Tool Runner (Recommended):** The SDK's tool runner handles the agentic loop automatically - it calls the API, detects tool use requests, executes your tool functions, feeds results back to Claude, and repeats until Claude stops calling tools. Available in Python, TypeScript, Java, Go, Ruby, PHP, and C# SDKs (beta). The Python SDK also provides MCP conversion helpers (`anthropic.lib.tools.mcp`) to convert MCP tools, prompts, and resources for use with the tool runner - see `python/claude-api/tool-use.md` for details. **Default to the tool runner** for any custom-tool agent.
+**Tool Runner (Recommended over the manual loop):** The SDK's tool runner handles the agentic loop automatically - it calls the API, detects tool use requests, executes your tool functions, feeds results back to Claude, and repeats until Claude stops calling tools. Available in Python, TypeScript, Java, Go, Ruby, PHP, and C# SDKs (beta). The Python SDK also provides MCP conversion helpers (`anthropic.lib.tools.mcp`) to convert MCP tools, prompts, and resources for use with the tool runner - see `python/claude-api/tool-use.md` for details. **Default to the tool runner** for any custom-tool agent on the Messages API.
 
 **The tool runner is not a black box - "I need control" is rarely a reason to drop to the manual loop.** Each iteration yields the assistant message *before* the tools run and lets you intervene, so most "fine-grained control" needs are covered without hand-writing the loop:
 
@@ -444,14 +444,14 @@ Optional fields on the tool definition:
 | `claude-fable-5-2` / `claude-mythos-5-2` | `claude-mythos-5-2` or `claude-fable-5-2` only - any other advisor, `claude-fable-5-1` and `claude-mythos-5-1` included, returns a 400; these executors reject forced `tool_choice` too |
 | `claude-sonnet-5-5` | `claude-mythos-5-2`, `claude-fable-5-2`, `claude-mythos-5-1`, `claude-fable-5-1`, `claude-mythos-5`, `claude-fable-5`, `claude-opus-5-5`, `claude-opus-5`, or `claude-sonnet-5-5` - Claude Opus 4.8 / 4.7 / 4.6, Claude Sonnet 5, and Sonnet 4.6 advisors return a 400; every accepted advisor returns the encrypted `advisor_redacted_result`, and this executor rejects forced `tool_choice`, so nudge the advisor call from the prompt |
 
-> Warning: **The advisor's payload shape differs by advisor model.** The response block is always `advisor_tool_result`; what varies is its **`content`**, a discriminated union:  
->  
-> | `content` type | Fields | When |  
-> |---|---|---|  
-> | `advisor_result` | `text`, `stop_reason` | Advisor returns plaintext (e.g. Opus 4.8) |  
-> | `advisor_redacted_result` | `encrypted_content`, `stop_reason` | Advisor returns encrypted output - Claude Opus 5.5, Claude Opus 5, Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Fable 5, Claude Mythos 5, Claude Sonnet 5.5, Claude Haiku 5.5 |  
-> | `advisor_tool_result_error` | `error_code` | Consultation failed - `max_uses_exceeded`, `prompt_too_long`, `too_many_requests`, `overloaded`, `unavailable`, `execution_time_exceeded`, or `model_not_found` |  
->  
+> Warning: **The advisor's payload shape differs by advisor model.** The response block is always `advisor_tool_result`; what varies is its **`content`**, a discriminated union:
+>
+> | `content` type | Fields | When |
+> |---|---|---|
+> | `advisor_result` | `text`, `stop_reason` | Advisor returns plaintext (e.g. Opus 4.8) |
+> | `advisor_redacted_result` | `encrypted_content`, `stop_reason` | Advisor returns encrypted output - Claude Opus 5.5, Claude Opus 5, Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Fable 5, Claude Mythos 5, Claude Sonnet 5.5, Claude Haiku 5.5 |
+> | `advisor_tool_result_error` | `error_code` | Consultation failed - `max_uses_exceeded`, `prompt_too_long`, `too_many_requests`, `overloaded`, `unavailable`, `execution_time_exceeded`, or `model_not_found` |
+>
 > So switch on `advisor_tool_result.content` type, not on the block type. Code that reads `.text` unconditionally gets nothing back from an Claude Opus 5.5 or Claude Opus 5 advisor, because the payload is under `encrypted_content` instead - and you cannot read it, only replay it.
 
 Call via `client.beta.messages.create(...)` with `betas=["advisor-tool-2026-03-01"]` (or the `anthropic-beta: advisor-tool-2026-03-01` header). In multi-turn conversations, append the full `response.content` - including any `advisor_tool_result` blocks - back to `messages` on the next turn. You can remove the advisor tool from `tools` on a later turn while the history still contains `advisor_tool_result` blocks: those blocks cause no error (keep sending the `advisor-tool-2026-03-01` beta header so they are accepted), and the model cannot call the advisor on that turn. Two things can still return a 400. While an advisor call is pending (after `pause_turn`, or `tool_use` in the same turn), a request without the tool returns a 400. And removing the tool, or changing its `model` or `caching`, is an edit to `tools` that invalidates the thinking blocks already in the history: where the history-editing check is enforced (on Claude Fable 5.2 and Claude Mythos 5.2, every account), that request returns a 400 unless `thinking.block_binding.prefix_mismatch_behavior` is `"drop_block"` (beta `thinking-binding-controls-2026-08-01`) on it and on every later request. So set `caching` once, and change or remove the advisor only in new conversations.

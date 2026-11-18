@@ -56,11 +56,11 @@ Surface this as a single clarifying question so the user can answer in one turn.
 
 **Worked example.** If the user says *"Move my project to Opus 4.6. I want adaptive thinking everywhere it makes sense."* you do not know whether "my project" means the whole working directory, just `src/`, just the production code, or something else - the `everywhere` makes the intent clear (update every call site *within scope*) but the scope itself is still not defined. Do not start editing. Respond with:
 
-> Before I start editing, can you confirm the scope? I can migrate:  
-> 1. Every `.py` file in the working directory  
-> 2. Just the files under `src/` (production code)  
-> 3. A specific subdirectory or list of files you name  
->  
+> Before I start editing, can you confirm the scope? I can migrate:
+> 1. Every `.py` file in the working directory
+> 2. Just the files under `src/` (production code)
+> 3. A specific subdirectory or list of files you name
+>
 > Which one?
 
 Then wait for the answer. The same applies to *"Migrate to Opus 4.7"* and bare *"Help me upgrade to Sonnet 4.6"* - ask before editing.
@@ -1832,21 +1832,21 @@ Both outlets agree on the basics: the bridge closed on March 3 after inspectors 
 
 **Maximizing long-horizon execution.** Claude Fable 5.1 is capable of very long autonomous runs, but on complex asynchronous workloads it needs a nudge not to stop at *describing* the next step ("Next, I'll ...") or asking permission for a step the request already covered ("Shall I apply this?"). Users experience it as having to reply "continue" - fine for pair programming, but it caps the model's long-horizon capability. Two system-prompt additions together mitigated this; apply both unless context is tight, in which case the first keeps most of the effect. The opening sentence of the first ("The user is not watching") is load-bearing - keep it as written; if the product needs stops for specific confirmations, add a sentence listing them. This prompt can make the model less likely to clarify ambiguous requests. With either block the model writes slightly more code - mostly extra tests in files it's already editing - so pair them with the "ground progress claims" audit instruction in § Migrating to Claude Fable 5.1 above and the test-coverage line below. If your existing prompt asks the model to test or check its work before reporting, **keep it** when migrating - the Claude Opus 5 guidance to delete verification instructions doesn't apply here (tentative: rests on a small number of reports).
 
-> You are operating autonomously. The user is not watching in real time and cannot answer questions mid-task, so asking 'Want me to...?' or 'Shall I...?' will block the work. For reversible actions that follow from the original request, proceed without asking. Stop only for destructive actions or genuine scope changes the user must decide. Offering follow-ups after the task is done is fine; asking permission before doing the work is not.  
->  
-> Exception: when the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is your assessment. Report your findings and stop. Don't apply a fix until they ask for one.  
->  
-> Before ending your turn, check your last paragraph. If it is a plan, an analysis, a question, a list of next steps, or a promise about work you have not done ('I'll...', 'let me know when...'), do that work now with tool calls. That includes retrying after errors and gathering missing information yourself. Do not stop because the context or session is long. End your turn only when the task is complete or you are blocked on input only the user can provide.  
->  
+> You are operating autonomously. The user is not watching in real time and cannot answer questions mid-task, so asking 'Want me to...?' or 'Shall I...?' will block the work. For reversible actions that follow from the original request, proceed without asking. Stop only for destructive actions or genuine scope changes the user must decide. Offering follow-ups after the task is done is fine; asking permission before doing the work is not.
+>
+> Exception: when the user is describing a problem, asking a question, or thinking out loud rather than requesting a change, the deliverable is your assessment. Report your findings and stop. Don't apply a fix until they ask for one.
+>
+> Before ending your turn, check your last paragraph. If it is a plan, an analysis, a question, a list of next steps, or a promise about work you have not done ('I'll...', 'let me know when...'), do that work now with tool calls. That includes retrying after errors and gathering missing information yourself. Do not stop because the context or session is long. End your turn only when the task is complete or you are blocked on input only the user can provide.
+>
 > Before running a command that changes system state (such as restarts, deletes, or config edits), check that the evidence actually supports that specific action. A signal that pattern-matches to a known failure may have a different cause.
 
 The second tells it to hold the scope the user set:
 
 > \# Delivering work  
-> The user's request - or the plan they approved - sets the scope, and the scope is the deliverable: don't quietly narrow, widen, or swap it. Read ambiguity the way a careful colleague would: make routine judgment calls yourself, and check in only when different readings would lead to materially different work. If you see a real problem with the task as specified, say so in a sentence or two and keep building under stated assumptions; if the user hears the concern and reaffirms, that is their decision, so deliver the full request.  
->  
-> If a question comes up partway, first do everything that doesn't depend on the answer; then state the assumption you made, or - when going ahead on a wrong guess would be unsafe or would make the work useless - put the question at the end of a turn that also delivers that progress. If one part turns out to be blocked, complete every other part in full and say exactly what you left out and why - the whole task is the deliverable, and scaling it down is the user's call, not yours. A step you have decided on is something to run, not to announce: describing the next step and ending the turn leaves it undone until the user replies.  
->  
+> The user's request - or the plan they approved - sets the scope, and the scope is the deliverable: don't quietly narrow, widen, or swap it. Read ambiguity the way a careful colleague would: make routine judgment calls yourself, and check in only when different readings would lead to materially different work. If you see a real problem with the task as specified, say so in a sentence or two and keep building under stated assumptions; if the user hears the concern and reaffirms, that is their decision, so deliver the full request.
+>
+> If a question comes up partway, first do everything that doesn't depend on the answer; then state the assumption you made, or - when going ahead on a wrong guess would be unsafe or would make the work useless - put the question at the end of a turn that also delivers that progress. If one part turns out to be blocked, complete every other part in full and say exactly what you left out and why - the whole task is the deliverable, and scaling it down is the user's call, not yours. A step you have decided on is something to run, not to announce: describing the next step and ending the turn leaves it undone until the user replies.
+>
 > Keep changes to what the request needs. Something else you notice worth doing - cleanup or documentation the task didn't call for, a change to a file the task didn't require - is a suggestion to make at the end, not a change to make; actions clearly beyond what the ask implies, and risky or destructive ones, still need the user's go-ahead.
 
 (The published snippets use em dashes and ellipsis characters where this file has hyphens and three periods; the bundled skill is ASCII-only, and the difference has no effect on the model.)
@@ -2531,7 +2531,7 @@ Most of these change behavior without failing requests; the exceptions are a req
 - [ ] **[TUNE]** Keep passing `thinking` blocks back unchanged, empty ones included. If a router or fallback can move a conversation to a model released earlier, Claude Fable 5.1 included, expect that model to run without Claude Fable 5.2's blocks; replay stored conversations through the account that produced them.
 - [ ] **[TUNE]** Check the rate limits before moving production traffic: Claude Fable 5.2 has its own limit, separate from the one Claude Fable 5.1 and Claude Fable 5 share.
 - [ ] **[TUNE]** Set `effort` explicitly (`high` is the default; a Claude Opus 5.5 request that omitted it ran at `medium`), re-run the effort sweep, and re-baseline cost and latency at the new prices.
-- [ ] **[TUNE]** Prompts, in new conversations: remove lines telling the model to think less and lower effort instead; review delegation lines, token budgets shown to the model, the "treat that answer as done" lines, hard style rules, and cautions that have built up in memory, notes and instruction files; add the finish-the-task text, the ownership sentence, the progress-update pieces and the report text, and rewrite the subagent tool's description as § Behavioral shifts says, only where the matching behavior shows up (the finish-the-task text also for agentic work at `low` or `medium`); keep the application's own confirmation step for risky or irreversible actions.
+- [ ] **[TUNE]** Prompts, in new conversations: remove lines telling the model to think less and lower effort instead, and lines asking it to write out its reasoning in the response; review delegation lines, token budgets shown to the model, the "treat that answer as done" lines, hard style rules, approval rules that don't name the exact actions they cover, and cautions that have built up in memory, notes and instruction files; add the finish-the-task text, the ownership sentence, the progress-update pieces and the report text, and rewrite the subagent tool's description as § Behavioral shifts says, only where the matching behavior shows up (the finish-the-task text also for agentic work at `low` or `medium`); keep the application's own confirmation step for risky or irreversible actions.
 
 ---
 

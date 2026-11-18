@@ -18,10 +18,10 @@ Usage:
       probably won't fit its box, text boxes and shapes under 14 pt outside a
       footer line, typed bullet marks, and elements that leave the page.
 
-DECK.json is read_presentation output: the raw JSON, or a result the app saved to
-disk, either the {"content": "<json string>"} wrapper or a list of content blocks,
-[{"type": "text", "text": "<json string>"}]. A masked read is enough; see the skill
-for the mask.
+DECK.json is read_presentation output: the raw JSON, or a result the app saved to disk, as saved.
+That result is a list of content blocks, [{"type": "text", "text": "<json string>"}], or a
+{"content": ...} wrapper around an object, a JSON string or such a list, and these can nest.
+A masked read is enough; see the skill for the mask.
 
 BUILD SPEC (JSON):
   {"slides": [
@@ -65,12 +65,11 @@ BOX_PADDING_IN = 0.1    # default inner padding on each side of a text box
 def unwrap(data):
     """Return the API JSON inside a saved tool result, however many wrappers it has.
 
-    Accepts the raw API JSON, the {"content": "<json string>"} wrapper some apps save,
-    and the list of content blocks others save, [{"type": "text", "text": "<json string>"}],
-    whose text can itself be the {"content": ...} wrapper. Non-text blocks are ignored.
+    A wrapper is a list of content blocks, [{"type": "text", "text": "<json string>"}], or
+    {"content": X}, where X is an object, a JSON string or such a list. Non-text blocks are ignored.
     """
     while True:
-        if isinstance(data, dict) and isinstance(data.get("content"), (str, list)):
+        if isinstance(data, dict) and isinstance(data.get("content"), (str, list, dict)):
             # No Docs, Sheets or Slides resource has a top-level "content" field.
             data = data["content"]
             if isinstance(data, str):

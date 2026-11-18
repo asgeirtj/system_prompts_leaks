@@ -21,9 +21,9 @@ Usage:
                                                  INDEX, the endIndex - 1 of the paragraph it goes after,
                                                  and fill it, in one call; needs no DOC.json
 
-DOC.json may be the raw document JSON, or a tool result the app saved to disk, either
-the {"content": "<json string>"} wrapper or a list of content blocks,
-[{"type": "text", "text": "<json string>"}].
+DOC.json may be the raw document JSON, or a tool result the app saved to disk, as saved.
+That result is a list of content blocks, [{"type": "text", "text": "<json string>"}], or a
+{"content": ...} wrapper around an object, a JSON string or such a list, and these can nest.
 
 outline and find print the tab id and revisionId, which update_doc needs for
 location.tabId and writeControl.requiredRevisionId; new-table takes them as --tab and --revision.
@@ -36,12 +36,11 @@ import sys
 def unwrap(data):
     """Return the API JSON inside a saved tool result, however many wrappers it has.
 
-    Accepts the raw API JSON, the {"content": "<json string>"} wrapper some apps save,
-    and the list of content blocks others save, [{"type": "text", "text": "<json string>"}],
-    whose text can itself be the {"content": ...} wrapper. Non-text blocks are ignored.
+    A wrapper is a list of content blocks, [{"type": "text", "text": "<json string>"}], or
+    {"content": X}, where X is an object, a JSON string or such a list. Non-text blocks are ignored.
     """
     while True:
-        if isinstance(data, dict) and isinstance(data.get("content"), (str, list)):
+        if isinstance(data, dict) and isinstance(data.get("content"), (str, list, dict)):
             # No Docs, Sheets or Slides resource has a top-level "content" field.
             data = data["content"]
             if isinstance(data, str):

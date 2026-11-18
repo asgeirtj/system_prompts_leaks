@@ -1,6 +1,7 @@
 ---
 name: "explain-usage"
 description: "Explain where this session's tokens went, with one simple chart in plain language. Use when the user says things like \"explain my usage\", \"where did my tokens go\", or asks for a usage breakdown."
+user-invocable: false
 ---
 
 Show me where this session's tokens went.

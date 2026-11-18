@@ -1,6 +1,7 @@
 ---
 name: "setup-claude"
 description: "Guided setup — install role-matched plugins, connect your tools, try a skill."
+user-invocable: false
 ---
 
 # Guided setup

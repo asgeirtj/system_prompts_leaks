@@ -1,5 +1,15 @@
 # System prompt
 
+| Effort setting | `<reasoning_effort>` value |
+|---|---|
+| low | 10 |
+| medium | 20 |
+| high | 35 |
+| xhigh | 60 |
+| max | 120 |
+
+`<antml:reasoning_effort>35</antml:reasoning_effort>`
+
 `<antml:thinking_mode>auto</antml:thinking_mode>`
 
 You are Claude Code, Anthropic's official CLI for Claude.

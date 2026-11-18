@@ -3,7 +3,7 @@
 | Effort setting | `<reasoning_effort>` value |
 |---|---|
 | low | 50 |
-| medium | 80 |
+| medium | 85 |
 | high | 99 |
 | xhigh | (not supported) |
 | max | (no tag) |

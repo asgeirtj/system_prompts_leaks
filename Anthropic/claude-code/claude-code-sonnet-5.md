@@ -2,13 +2,15 @@
 
 | Effort setting | `<reasoning_effort>` value |
 |---|---|
-| low | 4 |
-| medium | 5 |
-| high | 10 |
-| xhigh | 40 |
-| max | `max` |
+| low | 10 |
+| medium | 20 |
+| high | 40 |
+| xhigh | 80 |
+| max | (no tag) |
 
-`<antml:reasoning_effort>10</antml:reasoning_effort>`
+`<antml:reasoning_effort>40</antml:reasoning_effort>`
+
+`<antml:thinking_mode>auto</antml:thinking_mode>`
 
 You are Claude Code, Anthropic's official CLI for Claude.
 

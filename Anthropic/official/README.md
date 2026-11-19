@@ -1,23 +1,29 @@
 # Official Claude system prompts
 
-Archives from https://platform.claude.com/docs/en/release-notes/system-prompts — the `claude_behavior` system prompts Anthropic publishes for claude.ai and the mobile apps. Files are named by the date Anthropic labels each prompt version. [all.md](all.md) holds every version in one file.
+Archives from https://platform.claude.com/docs/en/release-notes/system-prompts — what Anthropic calls the "core system prompts" for claude.ai and the mobile apps. Files are named by the date Anthropic labels each prompt version. [all.md](all.md) holds every version in one file.
+
+Anthropic's description of these pages:
+
+> Claude’s web interface ([claude.ai](https://claude.ai)), desktop apps, and mobile apps use a system prompt at the start of every conversation. It provides Claude with up-to-date information, such as Anthropic’s current models and products. The system prompt also encourages certain behaviors, such as discussing topics factually and objectively. Anthropic periodically updates the system prompt to improve Claude’s responses. These updates do not apply to the Claude API.
+>
+> For current models, these pages publish one version of the core system prompt, used in some chats with web search turned off. Other chats, including those with web search turned on, use other versions, which these pages don’t publish. Some models have multiple dated entries on their pages.
 
 | Model | Model release date | Archived prompt versions |
 |-------|--------------------|--------------------------|
 | **Claude Fable 5.2** | November 9, 2026 | [November 9, 2026](2026-11-09-claude-fable-5.2.md) |
-| **Claude Haiku 5.5** | October 7, 2026 | [October 7, 2026](2026-10-07-claude-haiku-5.5.md) · [October 26, 2026](2026-10-26-claude-haiku-5.5.md) |
-| **Claude Sonnet 5.5** | September 28, 2026 | [September 28, 2026](2026-09-28-claude-sonnet-5.5.md) · [October 7, 2026](2026-10-07-claude-sonnet-5.5.md) · [October 27, 2026](2026-10-27-claude-sonnet-5.5.md) |
-| **Claude Opus 5.5** | September 22, 2026 | [September 22, 2026](2026-09-22-claude-opus-5.5.md) · [October 27, 2026](2026-10-27-claude-opus-5.5.md) |
-| **Claude Fable 5.1** | September 1, 2026 | [September 1, 2026](2026-09-01-claude-fable-5.1.md) · [October 30, 2026](2026-10-30-claude-fable-5.1.md) |
-| **Claude Opus 5** | July 24, 2026 | [July 24, 2026](2026-07-24-claude-opus-5.md) · [October 30, 2026](2026-10-30-claude-opus-5.md) |
-| **Claude Sonnet 5** | June 30, 2026 | [June 30, 2026](2026-06-30-claude-sonnet-5.md) · [October 30, 2026](2026-10-30-claude-sonnet-5.md) |
-| **Claude Fable 5** | June 9, 2026 | [June 9, 2026](2026-06-09-claude-fable-5.md) · [October 30, 2026](2026-10-30-claude-fable-5.md) |
-| **Claude Opus 4.8** | May 28, 2026 | [May 28, 2026](2026-05-28-claude-opus-4.8.md) · [October 30, 2026](2026-10-30-claude-opus-4.8.md) |
-| Claude Opus 4.7 | April 16, 2026 | [April 16, 2026](2026-04-16-claude-opus-4.7.md) · [October 30, 2026](2026-10-30-claude-opus-4.7.md) |
-| Claude Sonnet 4.6 | February 17, 2026 | [February 17, 2026](2026-02-17-claude-sonnet-4.6.md) · [October 7, 2026](2026-10-07-claude-sonnet-4.6.md) · [October 14, 2026](2026-10-14-claude-sonnet-4.6.md) |
-| Claude Opus 4.6 | February 5, 2026 | [February 5, 2026](2026-02-05-claude-opus-4.6.md) · [October 30, 2026](2026-10-30-claude-opus-4.6.md) |
-| Claude Opus 4.5 | November 24, 2025 | [November 24, 2025](2025-11-24-claude-opus-4.5.md) · [January 18, 2026](2026-01-18-claude-opus-4.5.md) |
-| Claude Haiku 4.5 | October 15, 2025 | [October 15, 2025](2025-10-15-claude-haiku-4.5.md) · [November 19, 2025](2025-11-19-claude-haiku-4.5.md) · [January 18, 2026](2026-01-18-claude-haiku-4.5.md) · [October 7, 2026](2026-10-07-claude-haiku-4.5.md) · [October 23, 2026](2026-10-23-claude-haiku-4.5.md) |
+| **Claude Haiku 5.5** | October 7, 2026 | [October 7, 2026](2026-10-07-claude-haiku-5.5.md) · [October 26, 2026](2026-10-26-claude-haiku-5.5.md) · [November 9, 2026](2026-11-09-claude-haiku-5.5.md) |
+| **Claude Sonnet 5.5** | September 28, 2026 | [September 28, 2026](2026-09-28-claude-sonnet-5.5.md) · [October 7, 2026](2026-10-07-claude-sonnet-5.5.md) · [October 27, 2026](2026-10-27-claude-sonnet-5.5.md) · [November 9, 2026](2026-11-09-claude-sonnet-5.5.md) |
+| **Claude Opus 5.5** | September 22, 2026 | [September 22, 2026](2026-09-22-claude-opus-5.5.md) · [October 27, 2026](2026-10-27-claude-opus-5.5.md) · [November 9, 2026](2026-11-09-claude-opus-5.5.md) |
+| **Claude Fable 5.1** | September 1, 2026 | [September 1, 2026](2026-09-01-claude-fable-5.1.md) · [October 30, 2026](2026-10-30-claude-fable-5.1.md) · [November 13, 2026](2026-11-13-claude-fable-5.1.md) |
+| **Claude Opus 5** | July 24, 2026 | [July 24, 2026](2026-07-24-claude-opus-5.md) · [October 30, 2026](2026-10-30-claude-opus-5.md) · [November 9, 2026](2026-11-09-claude-opus-5.md) |
+| **Claude Sonnet 5** | June 30, 2026 | [June 30, 2026](2026-06-30-claude-sonnet-5.md) · [October 30, 2026](2026-10-30-claude-sonnet-5.md) · [November 9, 2026](2026-11-09-claude-sonnet-5.md) |
+| **Claude Fable 5** | June 9, 2026 | [June 9, 2026](2026-06-09-claude-fable-5.md) · [October 30, 2026](2026-10-30-claude-fable-5.md) · [November 9, 2026](2026-11-09-claude-fable-5.md) |
+| **Claude Opus 4.8** | May 28, 2026 | [May 28, 2026](2026-05-28-claude-opus-4.8.md) · [October 30, 2026](2026-10-30-claude-opus-4.8.md) · [November 9, 2026](2026-11-09-claude-opus-4.8.md) |
+| Claude Opus 4.7 | April 16, 2026 | [April 16, 2026](2026-04-16-claude-opus-4.7.md) · [October 30, 2026](2026-10-30-claude-opus-4.7.md) · [November 9, 2026](2026-11-09-claude-opus-4.7.md) |
+| Claude Sonnet 4.6 | February 17, 2026 | [February 17, 2026](2026-02-17-claude-sonnet-4.6.md) · [October 7, 2026](2026-10-07-claude-sonnet-4.6.md) · [October 14, 2026](2026-10-14-claude-sonnet-4.6.md) · [November 9, 2026](2026-11-09-claude-sonnet-4.6.md) |
+| Claude Opus 4.6 | February 5, 2026 | [February 5, 2026](2026-02-05-claude-opus-4.6.md) · [October 30, 2026](2026-10-30-claude-opus-4.6.md) · [November 9, 2026](2026-11-09-claude-opus-4.6.md) |
+| Claude Opus 4.5 | November 24, 2025 | [November 24, 2025](2025-11-24-claude-opus-4.5.md) · [January 18, 2026](2026-01-18-claude-opus-4.5.md) · [November 9, 2026](2026-11-09-claude-opus-4.5.md) |
+| Claude Haiku 4.5 | October 15, 2025 | [October 15, 2025](2025-10-15-claude-haiku-4.5.md) · [November 19, 2025](2025-11-19-claude-haiku-4.5.md) · [January 18, 2026](2026-01-18-claude-haiku-4.5.md) · [October 7, 2026](2026-10-07-claude-haiku-4.5.md) · [October 23, 2026](2026-10-23-claude-haiku-4.5.md) · [November 9, 2026](2026-11-09-claude-haiku-4.5.md) |
 | Claude Sonnet 4.5 | September 29, 2025 | [September 29, 2025](2025-09-29-claude-sonnet-4.5.md) · [November 19, 2025](2025-11-19-claude-sonnet-4.5.md) · [January 18, 2026](2026-01-18-claude-sonnet-4.5.md) |
 | Claude Opus 4.1 | August 5, 2025 | [August 5, 2025](2025-08-05-claude-opus-4.1.md) |
 | Claude Opus 4 | May 22, 2025 | [May 22, 2025](2025-05-22-claude-opus-4.md) · [July 31, 2025](2025-07-31-claude-opus-4.md) · [August 5, 2025](2025-08-05-claude-opus-4.md) |
@@ -25,7 +31,7 @@ Archives from https://platform.claude.com/docs/en/release-notes/system-prompts �
 | Claude Sonnet 3.7 | February 24, 2025 | [February 24, 2025](2025-02-24-claude-sonnet-3.7.md) |
 | Claude Sonnet 3.5 | June 20, 2024 | [July 12, 2024](2024-07-12-claude-sonnet-3.5-text-and-images.md) · [September 9, 2024](2024-09-09-claude-sonnet-3.5-text-and-images.md) ([text only](2024-09-09-claude-sonnet-3.5-text-only.md)) · [October 22, 2024](2024-10-22-claude-sonnet-3.5-text-and-images.md) ([text only](2024-10-22-claude-sonnet-3.5-text-only.md)) · [November 22, 2024](2024-11-22-claude-sonnet-3.5-text-and-images.md) ([text only](2024-11-22-claude-sonnet-3.5-text-only.md)) |
 | Claude Haiku 3.5 | October 22, 2024 | [October 22, 2024 (text only)](2024-10-22-claude-haiku-3.5-text-only.md) · [February 24, 2025](2025-02-24-claude-haiku-3.5-text-and-images.md) |
-| Claude Opus 3 | March 4, 2024 | [March 4, 2024](2024-03-04-claude-opus-3.md) ([posted by Amanda Askell](https://x.com/amandaaskell/status/1765207842993434880)) · [July 12, 2024](2024-07-12-claude-opus-3.md) |
+| Claude Opus 3 | March 4, 2024 | [March 4, 2024](2024-03-04-claude-opus-3.md) ([posted by Amanda Askell](https://x.com/amandaaskell/status/1765207842993434880)) · [July 12, 2024](2024-07-12-claude-opus-3.md) · [May 29, 2026](2026-05-29-claude-opus-3.md) |
 | Claude Haiku 3 | March 4, 2024 | [July 12, 2024](2024-07-12-claude-haiku-3.md) |
 
 ## Publication timing
@@ -47,6 +53,9 @@ Anthropic dates each entry to the day the prompt version took effect (a model's 
 - **Claude Opus 5.5, Claude Sonnet 5.5** — entries labeled October 27, 2026; actually published October 30, 2026 (3 days after the label)
 - **Claude Fable 5.1, Claude Fable 5, Claude Opus 5, Claude Sonnet 5, Claude Opus 4.8, Claude Opus 4.7, Claude Opus 4.6** — entries labeled October 30, 2026; published October 30, 2026 (same day)
 - **Claude Fable 5.2** — entry labeled November 9, 2026; published November 9, 2026 (same day)
+- **Claude Haiku 5.5, Claude Sonnet 5.5, Claude Opus 5.5, Claude Opus 5, Claude Sonnet 5, Claude Fable 5, Claude Opus 4.8, Claude Opus 4.7, Claude Sonnet 4.6, Claude Opus 4.6, Claude Opus 4.5, Claude Haiku 4.5** — entries labeled November 9, 2026; actually published November 19, 2026 (10 days after the label)
+- **Claude Fable 5.1** — entry labeled November 13, 2026; actually published November 19, 2026 (6 days after the label)
+- **Claude Opus 3** — entry labeled May 29, 2026; actually published November 19, 2026 (174 days after the label)
 
 Entries older than the monitoring have unknown actual publication dates.
 

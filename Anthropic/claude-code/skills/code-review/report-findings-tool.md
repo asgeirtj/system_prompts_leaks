@@ -38,7 +38,7 @@ Report code-review findings as a typed list so the host UI can render them. Use 
             "maximum": 9007199254740991
           },
           "summary": {
-            "description": "One-sentence statement of the defect",
+            "description": "Statement of the defect",
             "type": "string"
           },
           "short_summary": {
@@ -54,6 +54,15 @@ Report code-review findings as a typed list so the host UI can render them. Use 
             "description": "Short kebab-case slug of the finding type, e.g. \"correctness\", \"simplification\", \"efficiency\", \"test-coverage\"",
             "type": "string",
             "maxLength": 40
+          },
+          "severity": {
+            "description": "Set when the review instructions ask for it. important: a bug the change adds or makes worse; pre_existing: a bug that was there before the change; nit: a minor issue",
+            "type": "string",
+            "enum": [
+              "important",
+              "pre_existing",
+              "nit"
+            ]
           },
           "verdict": {
             "description": "Set when a verify pass ran; absent on inline-only reviews",

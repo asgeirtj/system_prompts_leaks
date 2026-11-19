@@ -1,4 +1,4 @@
-// Written by Claude Code 2.1.327.
+// Written by Claude Code 2.1.328.
 // Claude Code function hooks: the plugin API's TypeScript declarations.
 //
 // EARLY ACCESS: this surface may change between releases without notice.
@@ -433,6 +433,11 @@ declare module 'claude-code' {
        * tier: "core" }` for a built-in. Pinned: a rewrite is refused.
        */
       provider: Origin;
+      /**
+       * Present when the offer is for resuming that agent, so a hook can keep a
+       * type out of the listing and still let its agents resume. Pinned.
+       */
+      agentId?: string;
   };
 
   /**
@@ -785,7 +790,7 @@ declare module 'claude-code' {
        */
       maxTurns?: number;
       /**
-       * Token count, 100000 to 1000000, at which the agent compacts its own
+       * Token count, at least 100000, at which the agent compacts its own
        * conversation as a subagent. It only lowers the window the agent would
        * otherwise get.
        */
@@ -2175,8 +2180,9 @@ declare module 'claude-code' {
        *
        * Read on any plugin's answer where no command ran beneath it, on the
        * queued lanes: a panel answered mid-turn keeps its text in requests, and
-       * so does a text over the engine's own run. The answer the chain ends on
-       * decides: a hook above answering its own drops it.
+       * so does a text over the engine's own run, unless that run's output was
+       * for the person alone. The answer the chain ends on decides: a hook above
+       * answering its own drops it.
        */
       isTextDisplayOnly?: true;
       /**
@@ -2753,8 +2759,8 @@ declare module 'claude-code' {
            * Asks the user `question` in the engine's own AskUserQuestion dialog and
            * resolves to the label they chose, or the text typed under "Other".
            *
-           * A `tool.call` of `AskUserQuestion` through every hook but the calling
-           * one, drawn by `ui.render` on `AskUserQuestion`; a multi-select answer is
+           * A `tool.call` of `AskUserQuestion` through the hooks that hear it
+           * (Tier), drawn by `ui.render` on `AskUserQuestion`; a multi-select answer is
            * comma-joined. Rejects when dismissed, and in a `-p` run (no one to ask).
            *
            * @param question the question, ending in a question mark
@@ -3348,10 +3354,29 @@ declare module 'claude-code' {
            */
           info: () => Promise<SessionInfo>;
           /**
+           * Returns the machine the engine runs on: the system, kernel release and
+           * hardware as `uname -s`, `-r` and `-m` print them, and which of npm,
+           * yarn, pnpm, bun, deno and node are on the PATH.
+           *
+           * Read inside the engine with no program run. The two lists are the ones
+           * the engine's own analytics rows carry; on the server (not the CLI), where
+           * tools run in another container, they are empty, the names the server's.
+           *
+           * @returns `sysname`, `release` and `machine` in uname's words (on Windows
+           *          `Windows_NT` and the NT version; 64-bit ARM as `arm64` or
+           *          `aarch64`), and the `packageManagers` and `runtimes` found, in a fixed order
+           * @example
+           * const { sysname, release, machine } = await $.session.machine()
+           * row.env = { system: sysname, kernel: release, hardware: machine }
+           * @example
+           * const hasBun = (await $.session.machine()).runtimes.includes("bun")
+           */
+          machine: () => Promise<SessionMachine>;
+          /**
            * Compacts the conversation: the event `session.compact` with `trigger`
            * `plugin`, the same call `/compact` makes, between turns.
            *
-           * It runs through every hook but the calling one, then core: a summary
+           * It runs through the hooks that hear it (Tier), then core: a summary
            * and the kept messages in the transcript's place. Resolves `{ skip }`
            * when a hook vetoed it; rejects while a turn runs.
            *
@@ -3441,8 +3466,8 @@ declare module 'claude-code' {
            * Submits a prompt: the event `prompt.submit`, the same call the engine
            * makes for a typed prompt; a turn of its own, once the session is idle.
            *
-           * It goes through every hook but the calling one (the plugin's others
-           * see it) with `e.origin` `{ kind: 'plugin', name }`, the name the
+           * It goes through the hooks that hear it (Tier; the plugin's others
+           * do) with `e.origin` `{ kind: 'plugin', name }`, the name the
            * model reads it under unless a hook leaves it out of its answer.
            *
            * @example
@@ -3543,8 +3568,8 @@ declare module 'claude-code' {
            * Calls a tool: the event `tool.call`, the same call the engine makes for
            * the model's tool calls, under a `tool_use_id` of its own.
            *
-           * It runs through every hook but the calling one (the plugin's others
-           * see it), the permission check, then the tool. The check opens no dialog
+           * It runs through the hooks that hear it (Tier; the plugin's others
+           * do), the permission check, then the tool. The check opens no dialog
            * and asks no classifier: every ask becomes an allow, whoever raised it,
            * but for a built-in whose dialog is the call itself, such as ExitPlanMode.
            * Deny rules at every level don't cover this call, an organization's
@@ -3577,6 +3602,8 @@ declare module 'claude-code' {
            * or `deny` for a call that runs. Rejects when no tool has that name or the
            * call is aborted. A tool of a remote MCP server that is down has its server
            * dialed again first, as `$.mcp.call` does.
+           * An organization's mod can't call a tool a person's mod registered: it is
+           * answered `{ deny }`.
            *
            * @example
            * const { text } = await $.tool.call({ tool: "Read", file_path: "a.md" })
@@ -3635,10 +3662,11 @@ declare module 'claude-code' {
            * Runs a slash command as if the person typed `/command args`: the
            * event `command.run`, queued and run once the session is idle.
            *
-           * It runs through every hook but the calling one with `e.origin` `{ kind:
+           * It runs through the hooks that hear it (Tier) with `e.origin` `{ kind:
            * 'plugin', name }`, its lines in the transcript. Rejects an unknown name,
            * inside a hook the turn or the session's start waits on, past a Stop or
-           * a host's limit.
+           * a host's limit. An organization's mod can't run a command a person's mod
+           * registered: that rejects too.
            *
            * @example
            * const { text } = await $.command.run({ command: "status" })
@@ -3738,7 +3766,7 @@ declare module 'claude-code' {
            * Spawns a subagent: the event `agent.spawn`, the same call the engine
            * makes when the Agent tool starts one; the engine fills the rest.
            *
-           * It runs every hook but the calling one, then the Agent tool in the
+           * It runs the hooks that hear it (Tier), then the Agent tool in the
            * background under this call's origin: `{ model, agentId }` once the
            * subagent started (its answer is its `turn.complete`), or `{ deny }`.
            *
@@ -4121,7 +4149,9 @@ declare module 'claude-code' {
            *
            * http or https, to whatever the host reaches, unless the organization's
            * web-fetch policy refuses it. `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`
-           * refuses a built-in's request, and any plugin's that carries `auth`.
+           * refuses a built-in's request, and any plugin's that carries `auth`; a
+           * model request a hook edits keeps the session's credential under it, at
+           * its own URL and method.
            *
            * @param url the URL (http or https)
            * @param init `{ method, headers, body, auth, socketPath }` (body a
@@ -4336,22 +4366,27 @@ declare module 'claude-code' {
            *
            * A hook above reads the bytes, replaces them or refuses (WasmCompileInput).
            * Rejects with a `WebAssembly.CompileError` for bytes that are no module;
-           * and for a module that defines or imports a shared memory, and on the
-           * hosted server, which has no WebAssembly and where the mod still loads.
+           * and for a module that defines or imports a shared memory.
            *
            * Nothing compiles synchronously, so glue that builds a module as it runs
-           * (emscripten's `addFunction`) does not work. Nothing caps memory: set
-           * `maximum`. A module, instance, memory or export never leaves for another
+           * (emscripten's `addFunction`) does not work. Locally nothing caps memory:
+           * set `maximum`. A module, instance, memory or export never leaves for another
            * plugin.
            *
            * An import calls `$` as any function does; one wrapped in
            * `WebAssembly.Suspending`, under an export wrapped in
            * `WebAssembly.promising`, may await it, as the hook that called the export.
            *
-           * Nothing stops a loop that stays inside WebAssembly. The session carries
-           * on and unloads the mod, but the loop holds a processor core until Claude
-           * Code exits. Have long-running code call an import that throws past a
+           * Locally, nothing stops a loop that stays inside WebAssembly. The session
+           * carries on and unloads the mod, but the loop holds a processor core until
+           * Claude Code exits. Have long-running code call an import that throws past a
            * deadline: the throw unwinds it.
+           *
+           * On the hosted server a mod's memory and stack are bounded, and what
+           * WebAssembly takes counts as script does: a deep recursion or a `grow`
+           * past the bound ends the hook, and a loop ends by the hook's deadline. A
+           * module with no room rejects, as does a file changed since the mod loaded.
+           * Exceptions, tags and SIMD are not there.
            *
            * @param source a literal path, or the binary's bytes
            * @returns the compiled module
@@ -4755,6 +4790,8 @@ declare module 'claude-code' {
        * `next(e)` resolves to the engine's verdict (rules, mode, the tool's own
        * check, PreToolUse's decision) and runs no tool: return any `{ decision }`,
        * a deny after it too. `$.tool.check` runs the same chain, executing nothing.
+       * A settings `mcp_tool` hook's call passes here too (`next.origin`), and
+       * so may a plugin's file or process call, for a matcher that names `op`.
        * On a call to the person's devices from off their machine a hook only
        * tightens, here, at `tool.judge` and at the classic permission events.
        *
@@ -4923,7 +4960,8 @@ declare module 'claude-code' {
        * listing and again at dispatch; `next(e)` resolves to `{ isOffered: true }`.
        *
        * Return `{ isOffered: false }` to keep the type out of the listing and
-       * refuse its dispatch. A hook that fails passes it through.
+       * refuse its dispatch. A hook that fails passes it through. The offer to
+       * resume an agent of the type carries that agent's `agentId`.
        *
        * @remarks So give a guard here
        *   `.catch(($, e, next) => next.called ? next(e) : { isOffered: false })`.
@@ -5102,6 +5140,33 @@ declare module 'claude-code' {
        */
       'tool.describe': ToolDescribeInput;
       /**
+       * Fires once per tool before a loop's first request, and again when its
+       * model calls the tool; `next(e)` resolves to `{ isOffered: true }`.
+       *
+       * `{ isOffered: false }` keeps the tool from that loop's model for the
+       * loop's life, compactions and resumes included; at a call it refuses that
+       * call alone. A tool that joins later is asked once, as it joins.
+       *
+       * @remarks `tool.list` shapes the pool: a tool it leaves out is gone for the
+       *   model, every agent and a mod's own `$.tool.call`. This shapes only what
+       *   one model is shown of the pool: the agent's children inherit a tool not
+       *   offered, and `$.tool.call` still runs it.
+       * @remarks A fork keeps its parent's list, and its calls are asked. The
+       *   answers hold only while some hook is on the event. A hook that fails
+       *   passes the tool through. A command that sends the conversation ahead of
+       *   a turn (`/compact`, `/btw`) asks first, as the loop.
+       * @remarks The hand-back tool is asked at each run; not offered, the agent's
+       *   final text is its report. Where the server decides auto mode's checks it
+       *   is not asked, and stays offered. StructuredOutput and EndConversation
+       *   are never asked, nor is a list for the loops the engine runs for itself
+       *   (an agent hook's, a compaction's). A Batch tool follows the tool it
+       *   batches. ToolSearch, not offered, is left out while no offered tool is
+       *   deferred, and is there to load one that is; it finds no hidden tool.
+       * @example
+       * on("tool.offer", { tool: "Agent" }, ($, e) => ({ isOffered: !e.agentId }))
+       */
+      'tool.offer': ToolOfferInput;
+      /**
        * Fires when a slash command is about to run (`/name args` typed, or a
        * plugin's `$.command.run`); `next(e)` resolves to `{ text }`, its output.
        *
@@ -5160,6 +5225,7 @@ declare module 'claude-code' {
        * `e.to` is pinned: a hook rewrites what the record carries, never where
        * it goes. `next(e)` resolves `{ value: undefined }`; `{ deny }` rejects the
        * caller. Beneath the hooks the engine exports its own collector records.
+       * Where sec-default is seated, a collector record passes the `user` tier by.
        *
        * @example
        * on("telemetry.log", { to: "collector" }, ($, e, next) => next(e))
@@ -5532,6 +5598,10 @@ declare module 'claude-code' {
        */
       'tool.describe': ToolDescribeResult;
       /**
+       * `{ isOffered }`.
+       */
+      'tool.offer': ToolOfferResult;
+      /**
        * `{ text }` (the command's output, when it printed one).
        */
       'command.run': CommandRunResult;
@@ -5651,8 +5721,9 @@ declare module 'claude-code' {
    * `$.<noun>.<event>(input)` resolves to its result, or to its stream.
    *
    * The engine raises its events through these same calls; a plugin's call
-   * runs the same chain with the calling hook alone skipped. `input` may leave
-   * out what the engine fills (`tool_use_id`, the parent agent).
+   * runs the same chain with the calling hook skipped, and a person's hooks
+   * where the organization's mod calls (Tier). `input` may leave out what the
+   * engine fills (`tool_use_id`, the parent agent).
    */
   export type EventCalls = {
       tool: {
@@ -5661,6 +5732,7 @@ declare module 'claude-code' {
           judge: (input: ToolJudgeInput) => Promise<ToolJudgeResult>;
           run: (input: ToolCallInput) => Promise<ToolCallResult>;
           describe: (input: ToolDescribeInput) => Promise<ToolDescribeResult>;
+          offer: (input: ToolOfferInput) => Promise<ToolOfferResult>;
       };
       command: {
           run: (input: CommandRunArgs) => Promise<CommandRunResult>;
@@ -6070,7 +6142,7 @@ declare module 'claude-code' {
       readonly signal: AbortSignal;
       readonly is: <M extends PatternOver<N>>(pattern: M, e: unknown) => e is Frozen<Args<Extract<N, Selected<M>>>>;
       readonly event: N;
-      readonly origin: Origin;
+      readonly origin: NextOrigin;
       readonly trace: readonly TraceEntry<N, Args<N>, GlobNextResult<N>>[];
       readonly budget: NextBudget;
   };
@@ -6223,6 +6295,10 @@ declare module 'claude-code' {
       method?: string;
       /**
        * Request headers.
+       *
+       * While `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` is set, a model request a
+       * hook edits keeps the credential behind a "[redacted]" value at its own URL
+       * and method; moved on its origin and still asking for it, it is refused.
        */
       headers?: Record<string, string>;
       /**
@@ -7729,7 +7805,7 @@ declare module 'claude-code' {
       readonly event: N;
       /**
        * Who raised this dispatch: the calling plugin's name and the tier it sits
-       * in (Origin); the engine reads `{ plugin: "engine", tier: "core" }`.
+       * in (NextOrigin); the engine reads `{ plugin: "engine", tier: "core" }`.
        *
        * Set by the host alone, from the environment the call came from (its own
        * MessagePort) and that plugin's seat; nothing a plugin writes reaches it.
@@ -7738,7 +7814,7 @@ declare module 'claude-code' {
        * @example
        * return next.origin.tier === "prepend" ? next.to(e, "append") : next(e)
        */
-      readonly origin: Origin;
+      readonly origin: NextOrigin;
       /**
        * What settled beneath this hook on its latest `next()` call, the one
        * started last: an entry per link beneath, nearest first, the engine's last.
@@ -7791,6 +7867,27 @@ declare module 'claude-code' {
        * so a later hook in that chain starts with what the earlier ones left.
        */
       readonly remainingMs: number;
+  };
+
+  /**
+   * What `next.origin` holds: who raised the dispatch (Origin), and whose code
+   * that is. Set by the host; an event's `provider` carries neither field.
+   */
+  export type NextOrigin = Origin & {
+      /**
+       * On a settings hook's own MCP call alone: whose hook it is. `"unknown"`
+       * where it may be the organization's and that could not be told.
+       */
+      readonly hookOwner?: 'organization' | 'unknown' | 'person';
+      /**
+       * At `tool.check` alone, where the organization's own code made the call as
+       * it arrived: a plugin managed settings seated, or a hook known as theirs.
+       *
+       * The tier does not say so: a person's settings can fill `prepend`, and a
+       * built-in can sit there. Absent on a call a hook rewrote, and on one a
+       * model, a script or a `Monitor` watch makes for such a plugin.
+       */
+      readonly isOrganizations?: true;
   };
 
   /**
@@ -8013,7 +8110,10 @@ declare module 'claude-code' {
    *
    * A hook above the caller passes it on, rewrites it, refuses it with
    * `{ deny }` or answers with `{ value }`; core is the host's implementation.
-   * The calling hook alone is skipped, and `next.origin` names the caller.
+   * The calling hook is skipped, and `next.origin` names the caller.
+   *
+   * A person's hooks don't hear a call an organization's mod makes, or what is
+   * raised beneath it while it runs. Tier says whose a mod is.
    *
    * @remarks A guard that fails is skipped and the call goes on, unless its
    *   `.catch` (CatchHandler) answers `{ deny }` in its place.
@@ -8150,6 +8250,10 @@ declare module 'claude-code' {
        * The argument of `$.session.info()`.
        */
       'session.info': NoArgs;
+      /**
+       * The argument of `$.session.machine()`.
+       */
+      'session.machine': NoArgs;
       /**
        * The argument of `$.turn.abort({ turnId })`.
        */
@@ -8512,6 +8616,10 @@ declare module 'claude-code' {
        */
       'session.version': SessionVersion;
       'session.info': SessionInfo;
+      /**
+       * The machine as uname names it, and the developer tools on its PATH.
+       */
+      'session.machine': SessionMachine;
       'turn.abort': void;
       /**
        * The box as it stands; the empty box where the session draws none.
@@ -8640,12 +8748,15 @@ declare module 'claude-code' {
   export type Origin = {
       /**
        * Whose hook made the `$` call, by name; `"engine"` for a call site,
-       * `"client"` for a `Client` surface module's `ui.message` post.
+       * `"client"` for a `Client` surface module's `ui.message` post,
+       * `"hook:<event>"` for a settings hook's own MCP call at `tool.check`: a
+       * plugin whose name starts with `hook:` loads no hooks.
        */
       readonly plugin: string;
       /**
        * Where that plugin sits among the chain's tiers (Tier); `"core"` for the
-       * engine, the owning plugin's for a `client` post.
+       * engine, the owning plugin's for a `client` post; for a settings hook,
+       * `"prepend"` where it is known as the organization's, else `"user"`.
        */
       readonly tier: Tier;
   };
@@ -9023,6 +9134,119 @@ declare module 'claude-code' {
   };
 
   /**
+   * The network hosts a plugin's files and source name, and the parts that could
+   * reach others: drawn from `provides`, `uses` and what its author declares, with
+   * nothing dialed or run.
+   *
+   * It only shows: it allows no host, and no call is held to it. Not in either
+   * list: where a host redirects or sends a sign-in; a server's `headersHelper`;
+   * a command in the plugin's settings; what the module's hook on any event but
+   * `process.run`, `process.spawn`, `http.fetch` and `audio.play` rewrites or
+   * answers (a tool call, a command's arguments, an agent, the settings); what
+   * the plugin has a server, the model, another session or another plugin do
+   * (`$.mcp`, `$.model`, `$.agent.spawn`, a prompt, an agent, a workflow, a hook
+   * of another type); what follows from a file, variable or setting it writes,
+   * or a link it draws; and what the engine itself runs or dials to serve a call
+   * (speech, a notification, telemetry).
+   */
+  export type PluginHosts = {
+      /**
+       * One row a host, sorted, with every place that names it.
+       */
+      named: readonly {
+          /**
+           * As `sandbox.network.allowedDomains` spells an entry: lowercase ASCII,
+           * IPv6 in brackets, and `:port` unless it is the scheme's default. A name
+           * with no dot is listed too, though that setting takes only `localhost`.
+           * A declared one keeps its port as written, and may lead with `*.`.
+           */
+          host: string;
+          sources: readonly PluginHostSource[];
+      }[];
+      /**
+       * The parts whose reach is not read, whatever is declared for them. More
+       * reasons may be added.
+       */
+      unread: readonly {
+          kind: keyof PluginProvides;
+          /**
+           * The part's name in `provides`: a hook's event, a module's path. Absent
+           * where the whole kind is meant.
+           */
+          name?: string;
+          /**
+           * `process`: it is, or can start, a program (a stdio server, a bundle's
+           * server, an LSP server, a command hook, a monitor, a file of `bin/`, a
+           * skill, a command, a module that calls or hooks `process.run` or
+           * `process.spawn`, or calls `$.tool.call`, `$.agent.call`, `$.command.run`
+           * or `$.agent.register`).
+           * `url`: its URL does not settle where it goes, as it spells out no host,
+           * is computed, or goes or may go over a `socketPath`; or the module hooks
+           * `http.fetch` or `audio.play`, where it can send a request elsewhere.
+           * `unlisted`: the kind's list may be short, or the module was not scanned.
+           */
+          reason: 'process' | 'url' | 'unlisted';
+      }[];
+      /**
+       * Where the author wrote a `network.hosts` list, an empty one included: a place
+       * listed here that is the source of no row says it needs none, and one left
+       * out did not say. A list with no usable entry counts as not written. Absent
+       * where the plugin's files were not read, or where its lists' rows together
+       * pass 131,072 characters of JSON: then `named` holds none of them.
+       */
+      declared?: {
+          /**
+           * Whether plugin.json has one at its top level, or the marketplace entry
+           * that is the plugin's only manifest.
+           */
+          plugin: boolean;
+          /**
+           * The stdio MCP servers whose entries have one, named as in `provides` and
+           * short where its `mcpServers` is.
+           */
+          servers: readonly string[];
+      };
+  };
+
+  /**
+   * Where a host in PluginHosts came from, named as `provides` names the part.
+   * More types may be added, so a reader leaves room for one it does not know.
+   */
+  export type PluginHostSource = {
+      /**
+       * A remote MCP server (`http`, `sse`, `ws`), or a bundle (`mcpb`) given
+       * by the URL it is downloaded from.
+       */
+      type: 'mcp';
+      name: string;
+  } | {
+      /**
+       * An HTTP hook.
+       */
+      type: 'hook';
+      event: string;
+      matcher?: string;
+  } | {
+      /**
+       * The hooks module (PluginRegisterUses `hosts`).
+       */
+      type: 'module';
+      path: string;
+  } | {
+      /**
+       * The author's word, from a `network.hosts` list: `{ "network": { "hosts":
+       * ["api.example.com"] } }` at the top of plugin.json, for every part of the
+       * plugin, or on a stdio MCP server's entry. It is unchecked and not a limit:
+       * the plugin may reach other hosts, or none of these, and it allows nothing.
+       */
+      type: 'declared';
+      /**
+       * The server whose entry lists the host; absent for the plugin's own list.
+       */
+      server?: string;
+  };
+
+  /**
    * The nouns a plugin declared on `$` by merging into EngineInterface; never
    * one the engine's own events are under (`tool`, `session`, `ui`).
    *
@@ -9142,10 +9366,10 @@ declare module 'claude-code' {
    * styles, themes, monitors, settings and `bin/`. None of them starts before the
    * verdict. To keep out less, pass `provides` on with entries removed.
    *
-   * `tier`, `uses`, `provides`, `unread` and `requiredByOrganization` are the host's
-   * reading of the plugin, what a gate holds it to; `name`, `root`, `version` and
+   * `tier`, `uses`, `provides`, `unread`, `hosts` and `requiredByOrganization` are the
+   * host's reading of the plugin, what a gate holds it to; `name`, `root`, `version` and
    * `provenance` are its own word (its manifest, its place), so a rule keyed on
-   * them is one a rename walks past.
+   * them is one a rename walks past. So is what `hosts` marks as declared.
    */
   export type PluginRegisterInput = {
       /**
@@ -9159,7 +9383,9 @@ declare module 'claude-code' {
       tier: Exclude<Tier, 'core'>;
       /**
        * The plugin's directory (the one holding `.claude-plugin/plugin.json`),
-       * absolute.
+       * absolute; `builtin` for a bundled one. In a hosted cloud session (SessionInfo
+       * `isHosted`), an installed plugin with no hooks module has its `provenance`
+       * here, and one whose module did not load may.
        */
       root: string;
       /**
@@ -9173,9 +9399,10 @@ declare module 'claude-code' {
       provenance: string;
       /**
        * True where the app that started this session handed over this plugin by path
-       * and said its organization requires or auto-installs it; else absent. Only that app
-       * says it. It gives no permission, and sets `tier` only for a plugin with no hooks
-       * module (Tier). Left out, it is restored.
+       * and said its organization requires or auto-installs it, or, in a hosted cloud
+       * session (SessionInfo `isHosted`), where claude.ai lists it as required; else absent.
+       * It gives no permission, and sets `tier` only for a plugin with no hooks
+       * module to load (Tier). Left out, it is restored.
        */
       requiredByOrganization?: true;
       /**
@@ -9213,6 +9440,15 @@ declare module 'claude-code' {
        * e.unread.includes('bin') ? { refuse: 'bin/ could not be listed' } : next(e)
        */
       unread: readonly (keyof PluginProvides)[];
+      /**
+       * The network hosts it names and the parts that could reach others
+       * (PluginHosts), of the whole plugin: narrowing `provides` leaves it as it
+       * is. Left out, it is restored.
+       *
+       * @example
+       * e.hosts.named.some(row => !known.has(row.host)) ? { refuse: 'new host' } : next(e)
+       */
+      hosts: PluginHosts;
   };
 
   /**
@@ -9244,7 +9480,8 @@ declare module 'claude-code' {
    * the same lists `claude plugin validate` prints and the host's rule reads.
    *
    * Exact, since a module that spells `on`, `$`, `$.env` or a `$.state`
-   * reference other than literally does not load.
+   * reference other than literally does not load. `hosts` alone is not: a URL
+   * may be computed, and it says where one is.
    */
   export type PluginRegisterUses = {
       /**
@@ -9284,6 +9521,26 @@ declare module 'claude-code' {
            * The values its `$.state.set` calls spell, sorted, each once.
            */
           writes: readonly StateName[];
+      };
+      /**
+       * The hosts its `$.http.fetch` and `$.audio.play({ url })` calls name, as far
+       * as the source spells them; absent when it calls neither. No call is held
+       * to the list, and where a host redirects is not known.
+       */
+      hosts?: {
+          /**
+           * Spelled as PluginHosts spells a host, sorted, each once: read off a string
+           * literal, a template that spells the host out, or a `const` of the same
+           * file holding one, there or in a template's `${}`. A fetch whose options,
+           * written at the call, give a `socketPath` dials no host and names none.
+           */
+          named: readonly string[];
+          /**
+           * Which of `audio.play` and `http.fetch` it calls with any other URL, one
+           * over 2,048 characters, or options that give or may give a `socketPath`,
+           * sorted: it loads all the same, and may reach what is not in `named`.
+           */
+          unread: readonly string[];
       };
   };
 
@@ -9630,6 +9887,11 @@ declare module 'claude-code' {
        * with errors, or one with a hooks or server file left unread. A report from an older CLI leaves it out.
        */
       provides: PluginProvides | null;
+      /**
+       * What `plugin.register` carries as `e.hosts` for an installed copy of the
+       * folder. Null wherever `provides` is. A report from an older CLI leaves it out.
+       */
+      hosts: PluginHosts | null;
       /**
        * What the validator advises without counting it under any flag: today, the
        * install line a plugin's README lacks.
@@ -10156,8 +10418,8 @@ declare module 'claude-code' {
        */
       plan_mode: PlanModeDetail;
       /**
-       * The note made when plan mode is entered again by the process that left
-       * it, the earlier plan still in its file; it precedes the reminder.
+       * The note made when plan mode is entered again, the earlier plan still in
+       * its file; it precedes the reminder.
        *
        * @example
        * const planFilePath = e.detail?.planFilePath
@@ -14048,6 +14310,43 @@ declare module 'claude-code' {
   };
 
   /**
+   * What `$.session.machine()` answers: the machine the engine runs on, as
+   * `uname -s`, `-r` and `-m` print it (on Windows, what the runtime reports
+   * in their place), and which of six developer tools its PATH holds.
+   *
+   * The tool lists are the ones the engine's own analytics rows carry, found in
+   * the engine with no program run. On the server (not the CLI), where a
+   * session's tools run in another container, they are empty and the three
+   * names are the server's own.
+   */
+  export type SessionMachine = {
+      /**
+       * The system's name as `uname -s` prints it: `Linux`, `Darwin`;
+       * `Windows_NT` on Windows.
+       */
+      sysname: string;
+      /**
+       * The kernel's release as `uname -r` prints it (`6.8.0-48-generic`,
+       * `24.1.0`); on Windows the NT version (`10.0.22631`).
+       */
+      release: string;
+      /**
+       * The hardware's name as the runtime reports it, in `uname -m`'s words:
+       * `x86_64`, and `arm64` or `aarch64` for 64-bit ARM (either may stand
+       * for the other).
+       */
+      machine: string;
+      /**
+       * Of `npm`, `yarn` and `pnpm`, those found on the PATH, in that order.
+       */
+      packageManagers: string[];
+      /**
+       * Of `bun`, `deno` and `node`, those found on the PATH, in that order.
+       */
+      runtimes: string[];
+  };
+
+  /**
    * The input of `session.measure`: what `$.session.usage()` answers at this
    * moment, and which of its units moved since the last measurement a hook saw.
    *
@@ -15291,7 +15590,7 @@ declare module 'claude-code' {
       readonly signal: AbortSignal;
       readonly is: <M extends Pattern>(pattern: M, e: unknown) => e is Frozen<Args<Selected<M>>>;
       readonly event: EventName;
-      readonly origin: Origin;
+      readonly origin: NextOrigin;
       readonly trace: readonly TraceEntry<EventName, unknown, unknown>[];
       readonly budget: NextBudget;
   };
@@ -16348,8 +16647,20 @@ declare module 'claude-code' {
    * A plugin `plugin.register` marks `requiredByOrganization` is judged there in the
    * organization's tier when it has no hooks module and is shown to be outside every
    * dev-mods folder and what a link in one leads to (a zip by where it is unpacked).
-   * Nothing proves that mark, so it goes no further: it moves neither a module's
-   * tier nor the tier an event's `provider` reads.
+   * Nothing proves that mark, so it moves neither a module's tier nor the tier an
+   * event's `provider` reads.
+   *
+   * A `$` call runs through every hook but the calling one, except as follows.
+   * A person's hooks don't hear a call an organization's mod makes, or what is
+   * raised beneath it while it runs. The organization's mods are those it seats in
+   * `prepend` or `append` and those it requires in `user`. So an organization's mod
+   * can't call a tool or command a person's mod registered. A noun still answers,
+   * and what it raises is its owner's: the organization's hooks, the calling one
+   * too, hear a person's. A person's hooks hear what such a call hands on: a
+   * model's loop, a skill's inline command, and what goes on once it has answered.
+   * A `tool.list` removal holds for every caller, so the engine asks a person's
+   * `tool.list` hooks about an organization's tool call too. What the engine
+   * raises itself is no mod's call.
    */
   export type Tier = (typeof TIERS)[number];
 
@@ -16556,8 +16867,8 @@ declare module 'claude-code' {
 
   /**
    * `tool.check`'s input as `$.tool.check` takes it: the tool and its arguments;
-   * the call's id, `agentId`, ceiling, approver and `isReadOnly` are the
-   * engine's to set.
+   * the call's id, `agentId`, ceiling, `isCeilingUnread`, approver and
+   * `isReadOnly` are the engine's to set.
    */
   type ToolCheckArgs = Pick<ToolCheckInput, 'tool' | 'input'>;
 
@@ -16590,10 +16901,15 @@ declare module 'claude-code' {
        */
       input: unknown;
       /**
-       * The call being decided, on a real call only; absent on a query.
+       * The call being decided; absent on a query, with `op`, and on an MCP call
+       * that goes straight to its server (a settings hook's, a `Monitor` watch).
        *
        * `next.origin` names who raised it: `{ plugin: 'engine', tier: 'core' }`
-       * for the model's own call, the plugin for its `$.tool.call` or its query.
+       * for the model's own call, the plugin for its `$.tool.call` or its query,
+       * `hook:<event>` for a settings `mcp_tool` hook's call. Nobody is asked
+       * about a call that goes straight out: a deny refuses it, an ask lets it
+       * run. A refused hook fails, and the call it guards goes on unless the hook
+       * sets `onFailure: "block"`.
        */
       tool_use_id?: string;
       /**
@@ -16605,14 +16921,42 @@ declare module 'claude-code' {
        */
       agentId?: string;
       /**
-       * The most permissive verdict the organization lets a call of the tool
-       * reach (`ask`), as its administrators set it on a connector's tool.
+       * The most permissive verdict the organization lets the model's call of an
+       * MCP tool reach: `ask`, or `deny` where an administrator blocked the tool.
+       * On a plugin's or a settings hook's own call of any tool, also `deny` where
+       * a managed deny rule covers this input as it would the model's.
        *
-       * Set by the engine, from the tool, never by a query, and pinned. A
-       * hook's own `ceiling`, on its answer, is dropped. Absent where none is
-       * set.
+       * `deny` is a block on the tool or its connector for the organization or
+       * the member's role, a host's `always_deny`, or a managed deny rule; not a
+       * rule or a switch of the person's or a repository's. Behind an SSH host's
+       * launcher for Claude Desktop, or where `--managed-settings` cannot be read,
+       * any deny sent as `--settings` or `--disallowedTools` counts as managed,
+       * the person's switch included; at Desktop's other starts, the second on a
+       * plugin's own call. The engine holds no plugin's or settings hook's own
+       * call to it: a hook here may.
+       *
+       * Set by the engine, never by a query, and pinned. A hook's own `ceiling`,
+       * on its answer, is dropped. Absent where none is set.
        */
       ceiling?: ToolCheckDecision;
+      /**
+       * Set by the engine on a plugin's or a settings hook's own call, and pinned:
+       * managed deny rules exist, and whether one covers the call can't be told.
+       *
+       * Matching them failed or stopped short, or they bind only where or as the
+       * tool runs. The engine refuses nothing on it: a hook here may.
+       */
+      isCeilingUnread?: true;
+      /**
+       * Set by the engine, and pinned, where no tool is called: the plugin's call
+       * on `$` that `tool` and `input` stand for, as it is about to run.
+       *
+       * Raised only with `ceiling: "deny"` or `isCeilingUnread`, and only to a hook
+       * whose matcher names `op`. A file call reads as `Read` or `Write`, a process
+       * as the `Bash` line of its argv. Nobody is asked: a deny refuses the call.
+       * Where a hook rewrote the call, `next.origin.tier` is `user`.
+       */
+      op?: 'fs.read' | 'fs.list' | 'fs.write' | 'process.run' | 'process.spawn';
       /**
        * Who answers this evaluation's asks, known before any hook runs.
        *
@@ -16695,10 +17039,11 @@ declare module 'claude-code' {
        */
       plugin?: string;
       /**
-       * The most permissive verdict the organization lets a call of the tool
-       * reach (`ask`), as its administrators set it on a connector's tool.
+       * The most permissive verdict the organization lets the model's call of an
+       * MCP tool reach: `ask`, or `deny` where an administrator blocked the tool,
+       * or where a managed deny rule covers a plugin's own call of any tool.
        *
-       * The question's own (`e.ceiling`), set by the engine, from the tool, on
+       * The question's own (`e.ceiling`), set by the engine, on
        * every verdict for it, core's and each hook's alike: a hook's own
        * `ceiling` is dropped. Where the question has none, it is the one that
        * core's check found for this call, on core's verdict and on each hook's
@@ -17034,6 +17379,42 @@ declare module 'claude-code' {
        * The name of the tool being called (`Bash`).
        */
       readonly tool: T;
+  };
+
+  /**
+   * The input of `tool.offer`: one tool of a loop's pool, at the moment the
+   * engine offers it to that loop's model. Every field is pinned.
+   *
+   * Before the loop's first request (or when the tool joins the pool later) and
+   * when the model calls the tool: the same event at each.
+   */
+  export type ToolOfferInput = {
+      /**
+       * The tool's name (`Bash`, `mcp__server__tool`); the key a matcher narrows
+       * on.
+       */
+      tool: string;
+      /**
+       * Who provides this tool, as `tool.describe`'s `provider` says.
+       */
+      provider: Origin;
+      /**
+       * The agent whose loop it is; absent for the main conversation.
+       */
+      agentId?: string;
+      /**
+       * That agent's type (`Explore`, a plugin's agent); absent for the main
+       * conversation.
+       */
+      subagentType?: string;
+  };
+
+  /**
+   * What a `tool.offer` hook returns: whether the loop's model is offered the
+   * tool, in its tool list and at its call.
+   */
+  export type ToolOfferResult = {
+      isOffered: boolean;
   };
 
   /**
@@ -21083,6 +21464,10 @@ declare module 'claude-code' {
       /** The symbol name or partial name to search for (workspaceSymbol only). Most language servers return no results for an empty query, so always provide it when using workspaceSymbol. */
       query?: string
     }
+    McpTaskResumePolling: {
+      /** The id of the background MCP task, as its notification gave it. */
+      task_id: string
+    }
     memory_list: {
       /** Id of the memory store to list. Omit to list the memory stores available in this session (id, description, writable or read-only, and the path of its index document). */
       store?: string
@@ -21301,7 +21686,7 @@ declare module 'claude-code' {
         file: string
         /** 1-indexed line the finding anchors to */
         line?: number
-        /** One-sentence statement of the defect */
+        /** Statement of the defect */
         summary: string
         /** Compressed label for compact UI (≤60 chars): the claim alone, no rationale or consequence clause */
         short_summary?: string
@@ -21309,6 +21694,8 @@ declare module 'claude-code' {
         failure_scenario: string
         /** Short kebab-case slug of the finding type, e.g. "correctness", "simplification", "efficiency", "test-coverage" */
         category?: string
+        /** Set when the review instructions ask for it. important: a bug the change adds or makes worse; pre_existing: a bug that was there before the change; nit: a minor issue */
+        severity?: "important" | "pre_existing" | "nit"
         /** Set when a verify pass ran; absent on inline-only reviews */
         verdict?: "CONFIRMED" | "PLAUSIBLE"
         /** Set ONLY when re-reporting after applying fixes: what happened to this finding */
@@ -21688,6 +22075,8 @@ declare module 'claude-code' {
       canReadOutputFile?: boolean
       /** @internal False when the calling agent cannot continue this agent with a follow-up message (it holds no messaging tool); absent means it can. */
       canContinueAgent?: boolean
+      /** @internal True when this foreground agent was moved to the background because nobody had answered its permission prompt (drives the model-facing text; not a stable API) */
+      waitsAtPermissionPrompt?: boolean
       /** @internal True when this unisolated write-capable agent was launched into a working directory where another one is already running and a worktree could have been made here (drives a model-facing note; not a stable consumer field) */
       sharesCwd?: boolean
     } | {
@@ -22453,6 +22842,9 @@ declare module 'claude-code' {
           sha256: string
           live?: true
         }[]
+        can_publish?: boolean
+        owned?: boolean
+        audience?: "owner" | "users" | "org" | "public" | "agent_scoped" | "unknown"
         cowritten?: true
         outside_writer?: true
         public_read?: true
@@ -23336,6 +23728,9 @@ declare module 'claude-code' {
           sha256: string
           live?: true
         }[]
+        can_publish?: boolean
+        owned?: boolean
+        audience?: "owner" | "users" | "org" | "public" | "agent_scoped" | "unknown"
         cowritten?: true
         outside_writer?: true
         public_read?: true
@@ -24219,6 +24614,9 @@ declare module 'claude-code' {
           sha256: string
           live?: true
         }[]
+        can_publish?: boolean
+        owned?: boolean
+        audience?: "owner" | "users" | "org" | "public" | "agent_scoped" | "unknown"
         cowritten?: true
         outside_writer?: true
         public_read?: true
@@ -25102,6 +25500,9 @@ declare module 'claude-code' {
           sha256: string
           live?: true
         }[]
+        can_publish?: boolean
+        owned?: boolean
+        audience?: "owner" | "users" | "org" | "public" | "agent_scoped" | "unknown"
         cowritten?: true
         outside_writer?: true
         public_read?: true
@@ -25552,7 +25953,7 @@ declare module 'claude-code' {
       worktreePath: string
       worktreeBranch?: string
       message: string
-      /** @internal Told to the model and shown to the person where the sandbox stays on only through this move. */
+      /** @internal Told to the model and shown to the person where the sandbox stays on only through this move, or where commands are refused after it. */
       sandboxNote?: string
     }
     ExitPlanMode: {
@@ -25583,7 +25984,7 @@ declare module 'claude-code' {
       /** @internal originalCwd was gone (or a network path the session will not touch), so restoredCwd is a fallback directory. */
       originalCwdMissing?: boolean
       message: string
-      /** @internal Told to the model and shown to the person where the sandbox stays on only through this move. */
+      /** @internal Told to the model and shown to the person where the sandbox stays on only through this move, or where commands are refused after it. */
       sandboxNote?: string
     }
     FetchInboxMessage: {
@@ -25724,6 +26125,11 @@ declare module 'claude-code' {
       resultCount?: number
       /** Number of files containing results */
       fileCount?: number
+    }
+    McpTaskResumePolling: {
+      /** What came of the call */
+      message: string
+      isError: boolean
     }
     memory_list: {
       outcome: "ok" | "refused" | "failed"
@@ -25868,7 +26274,7 @@ declare module 'claude-code' {
       method: "project_read"
       notice?: string
       path: string
-      /** @internal Lowercase hex SHA-256 of the UTF-8 bytes of a text doc's whole text; never on a project_read that delivered only part of the doc. Set where docVersionsOffered; also, while tengu_lovely_rain is on, on a project_read that saved the whole text to a file, and on a project_write by local_path in a conversation (not a script's inner call). A later checked write by path looks for this hash. */
+      /** @internal Lowercase hex SHA-256 of the UTF-8 bytes of a text doc's whole text; never on a project_read that delivered only part of the doc. Set where docVersionsOffered; also, while tengu_lovely_rain is on, on a project_read that saved the whole text to a file, and on a project_write by local_path in a conversation (not a script's inner call); always on a project_write with edits. A later checked write by path looks for this hash. */
       version?: string
       file_kind?: string
       content?: string
@@ -25900,7 +26306,7 @@ declare module 'claude-code' {
       notice?: string
       path: string
       doc_uuid: string
-      /** @internal Lowercase hex SHA-256 of the UTF-8 bytes of a text doc's whole text; never on a project_read that delivered only part of the doc. Set where docVersionsOffered; also, while tengu_lovely_rain is on, on a project_read that saved the whole text to a file, and on a project_write by local_path in a conversation (not a script's inner call). A later checked write by path looks for this hash. */
+      /** @internal Lowercase hex SHA-256 of the UTF-8 bytes of a text doc's whole text; never on a project_read that delivered only part of the doc. Set where docVersionsOffered; also, while tengu_lovely_rain is on, on a project_read that saved the whole text to a file, and on a project_write by local_path in a conversation (not a script's inner call); always on a project_write with edits. A later checked write by path looks for this hash. */
       version?: string
       replaced: boolean
       present_to_user?: boolean
@@ -26111,7 +26517,7 @@ declare module 'claude-code' {
         file: string
         /** 1-indexed line the finding anchors to */
         line?: number
-        /** One-sentence statement of the defect */
+        /** Statement of the defect */
         summary: string
         /** Compressed label for compact UI (≤60 chars): the claim alone, no rationale or consequence clause */
         short_summary?: string
@@ -26119,6 +26525,8 @@ declare module 'claude-code' {
         failure_scenario: string
         /** Short kebab-case slug of the finding type, e.g. "correctness", "simplification", "efficiency", "test-coverage" */
         category?: string
+        /** Set when the review instructions ask for it. important: a bug the change adds or makes worse; pre_existing: a bug that was there before the change; nit: a minor issue */
+        severity?: "important" | "pre_existing" | "nit"
         /** Set when a verify pass ran; absent on inline-only reviews */
         verdict?: "CONFIRMED" | "PLAUSIBLE"
         /** Set ONLY when re-reporting after applying fixes: what happened to this finding */
@@ -26333,6 +26741,8 @@ declare module 'claude-code' {
       }[]
       note: string
       trigger?: "user_asked" | "proactive"
+      answer?: "added" | "not_added" | "not_now"
+      added?: string[]
     }
     SuggestSkills: {
       results: Array<{
@@ -26353,6 +26763,8 @@ declare module 'claude-code' {
         /** The task's description as saved. It can differ from the tool_use input if Claude Code corrects a malformed call or a PreToolUse hook changes the input. Absent in results from older Claude Code versions. */
         description?: string
       }
+      /** @internal Present when the result told Claude that the app sets task statuses. */
+      appKeepsStatuses?: true
     }
     TaskGet: {
       task: {

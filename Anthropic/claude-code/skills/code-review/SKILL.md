@@ -1,12 +1,12 @@
 ---
 name: code-review
 description: |-
-  Review the current diff, or a PR number/branch/path target, for correctness bugs (plus reuse/simplification/efficiency cleanups where the model's recipe covers them) at the effort level given first, before any target (low|medium|high|xhigh|max: from few high-confidence findings to many, some uncertain; ultra: deep multi-agent review in the cloud (requires claude.ai account access)); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply them to the working tree after the review. Pass --max-findings <n> to report up to n findings, or --max-findings all for every finding. The choice stays until you pass --max-findings default. For ultra on a GitHub.com PR target, --post asks to post the finished review's findings to the PR as a single comment from the user's GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
+  Review the current diff, or a PR number/branch/path target, for correctness bugs (plus broken CLAUDE.md rules and cleanups where the model's recipe covers them; see /simplify) at the effort level given first, before any target (low|medium|high|xhigh|max: from few high-confidence findings to many, some uncertain; ultra: deep multi-agent review in the cloud (requires claude.ai account access)); with no level given, it reuses the level you typed last. Pass --comment to post findings as inline PR comments, or --fix to apply them to the working tree after the review. Pass --max-findings <n> to report up to n findings, or --max-findings all for every finding. The choice stays until you pass --max-findings default. For ultra on a GitHub.com PR target, --post asks to post the finished review's findings to the PR as a single comment from the user's GitHub account (not a review; the launch dialog still confirms in interactive sessions, while non-interactive mode posts on the flag alone) and --no-post hides that option.
 when_to_use: |-
   Use the max or ultra level only when the user, or instructions such as CLAUDE.md or a skill, explicitly ask for one, never on your own judgment: they are the costliest reviews and start many reviewer subagents.
 ---
 
-`high effort → 8 inline angles → dedup (no verify) → ≤10 findings`
+`high effort → 4 inline angles (bugs + conventions) → dedup (no verify) → ≤10 findings`
 
 You are reviewing for **recall** at high effort: catch every real bug a careful
 reviewer would catch in one sitting. At this level, catching real bugs matters
@@ -21,10 +21,10 @@ include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
 review that target instead. Treat this diff as the review scope.
 
-## Phase 1 — Find candidates (3 correctness angles + 3 cleanup angles + 1 altitude angle + 1 conventions angle, up to 6 each)
+## Phase 1 — Find candidates (3 correctness angles + 1 conventions angle, up to 6 each)
 
-Run **8 independent finder angles** in sequence yourself, in THIS context — do NOT spawn subagents for them. Each
-surfaces **up to 6 candidate findings** with `file`, `line`, a one-line
+Run **4 independent finder angles** in sequence yourself, in THIS context — do NOT spawn subagents for them. Each
+surfaces **up to 6 candidate findings** with `file`, `line`, a short
 `summary`, and a concrete `failure_scenario`.
 
 ### Angle A — line-by-line diff scan
@@ -50,41 +50,10 @@ check whether the change breaks any call site: a new precondition, a changed
 return shape, a new exception, a timing/ordering dependency. Also check callees:
 does a parallel change in the same PR make a call unsafe?
 
-### Reuse
-
-The angles above hunt for bugs; this one and the next two hunt for cleanup in
-the changed code. Flag new code that re-implements something the codebase
-already has — Grep shared/utility modules and files adjacent to the change,
-and name the existing helper to call instead.
-
-### Simplification
-
-Flag unnecessary complexity the diff adds: redundant or derivable state,
-copy-paste with slight variation, deep nesting, dead code left behind. Name
-the simpler form that does the same job.
-
-### Efficiency
-
-Flag wasted work the diff introduces: redundant computation or repeated I/O,
-independent operations run sequentially, blocking work added to startup or
-hot paths. Also flag long-lived objects built from closures or captured
-environments — they keep the entire enclosing scope alive for the object's
-lifetime (a memory leak when that scope holds large values); prefer a
-class/struct that copies only the fields it needs. Name the cheaper
-alternative.
-
-### Altitude
-
-Check that each change fixes the root cause at the right depth rather than
-patching a symptom with a fragile bandaid. Special cases layered on shared
-infrastructure are a sign the fix isn't deep enough — prefer the simpler, more
-general change to the underlying mechanism over adding special cases, and name
-that change.
-
 ### Conventions (CLAUDE.md)
 
 Find the CLAUDE.md files that govern the changed code: the user-level
-~/.claude/CLAUDE.md, the repo-root CLAUDE.md, plus any CLAUDE.md or
+`~/.claude/CLAUDE.md`, the repo-root CLAUDE.md, plus any CLAUDE.md or
 CLAUDE.local.md in a directory that is an ancestor of a changed file (a
 directory's CLAUDE.md only applies to files at or below it). Read each one
 that exists, then check the diff for clear violations of the rules they state.
@@ -94,18 +63,17 @@ that breaks it — no style preferences, no vague "spirit of the doc"
 inferences. In the finding, name the CLAUDE.md path and quote the rule so the
 report can cite it. If no CLAUDE.md applies, return nothing for this angle.
 
-Cleanup, altitude, and conventions candidates use the same
-`file`/`line`/`summary` shape; in `failure_scenario`, state the concrete
-cost (what is duplicated, wasted, harder to maintain, or which CLAUDE.md rule
-is broken) instead of a crash. Correctness bugs always outrank cleanup,
-altitude, and conventions findings when the output cap forces a cut.
+Conventions candidates use the same `file`/`line`/`summary` shape; in
+`failure_scenario`, state which CLAUDE.md rule is broken instead of a crash.
+Correctness bugs always outrank conventions findings when the output cap
+forces a cut.
 
 Pass every candidate with a nameable failure scenario through — finders that
 silently drop half-believed candidates are the dominant cause of misses.
 
 ## Phase 2 — Dedup only (no verify)
 
-Pool all candidates. Dedup near-duplicates only (same defect, same location, same reason → keep one). Do NOT run verifiers; do NOT re-judge. Sort by severity.
+Pool all candidates. Dedup near-duplicates only (same defect, same location, same reason → keep one). Do NOT run verifiers; do NOT re-judge. Give each finding that is left its `severity`, as Output defines it. Sort by severity.
 
 ## Output
 
@@ -118,11 +86,36 @@ Return findings as a JSON array of at most 10 objects:
   {
     "file": "path/to/file.ext",
     "line": 123,
-    "summary": "one-sentence statement of the bug",
-    "failure_scenario": "concrete inputs/state → wrong output/crash"
+    "summary": "the problem, where it happens and what sets it off. Fix: the change to make",
+    "failure_scenario": "concrete inputs/state → wrong output/crash",
+    "severity": "one of: important, nit, pre_existing"
   }
 ]
 ```
+
+Every object carries every key shown above. Its `severity` is one of:
+
+- `important`: a bug that should be fixed before merging because this change
+  adds it or makes it worse. If someone can hit it, a rare trigger does not
+  lower the severity.
+- `nit`: a minor issue, worth fixing but not blocking: a broken CLAUDE.md rule,
+  or a bug that harms nobody, such as a misleading log line.
+- `pre_existing`: a bug that exists in the codebase but that this change did
+  not introduce. A bug in unchanged lines is `pre_existing` if the change only
+  fails to fix it, and `important` if the change re-exposes it.
+
+A severity only labels and orders a finding: never drop one for its severity.
+When the limit forces a cut, cut the lowest-ranked first. Most severe means
+`important`, then `pre_existing`, then `nit`.
+
+Write each `summary` in two or three short sentences. Start with the problem as
+a user of the code would see it. Next say where it happens and what sets it
+off. End with "Fix:" and the change to make, or what to check if you are not
+sure.
+
+Beyond Phase 2's dedup, if the same mistake is repeated in several places,
+report it once and name the other places in its `summary`. Different mistakes
+stay separate findings, even when one change would fix them all.
 
 Ranked most-severe first. If more than 10 survive, keep the 10 most
 severe. If nothing survives, return `[]`. Do not call the

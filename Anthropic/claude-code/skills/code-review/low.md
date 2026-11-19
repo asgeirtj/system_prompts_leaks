@@ -1,4 +1,4 @@
-`low effort → 1 diff pass → no verify → ≤4 findings`
+`low effort → 1 diff pass (bugs) → no verify → ≤4 findings`
 
 ## Turn 1 — read
 
@@ -15,13 +15,11 @@ Flag runtime-correctness bugs visible from the hunk alone: inverted/wrong
 condition, off-by-one, null/undefined deref where adjacent lines show the value
 can be absent, removed guard, falsy-zero check, missing `await`,
 wrong-variable copy-paste, error swallowed in a catch that should propagate.
-Also flag — still from the hunk alone — new code that duplicates an existing
-helper visible in the diff context, and dead code the diff leaves behind.
 
 Do **not** flag style, naming, perf, missing tests, or anything outside the
 hunk.
 
-Output at most **4 findings**, most-severe first, one line each:
-`path/to/file.ext:123 — what's wrong and the concrete failure`. If nothing
-qualifies, output exactly `(none)`. Do not call the
+Output at most **4 findings**, most-severe first, one line each:  
+`path/to/file.ext:123 — important|pre_existing|nit — what's wrong and the concrete failure. Fix: the change to make, or what to check if you are not sure`. Every line carries one of those three words: `important` (a bug that this change adds or makes worse, even if the trigger is rare), `pre_existing` (a bug that was there before this change) or `nit` (a bug that harms nobody). That is also the order, most severe first. Report a mistake repeated in several places once, and name the other places. If nothing  
+qualifies, output exactly `(none)`. Do not call the  
 ReportFindings tool even if it is available.

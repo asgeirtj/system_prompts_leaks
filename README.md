@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude API tools** | November 20, 2026 | [Claude API tool prompts and definitions](Anthropic/tools) |
 | **Claude for Outlook and Claude for Google Workspace** | November 20, 2026 | [Outlook](Anthropic/claude-for-microsoft-365/claude-for-outlook.md) · [Google Docs](Anthropic/claude-for-google-workspace/claude-in-google-docs.md) · [Google Sheets](Anthropic/claude-for-google-workspace/claude-in-google-sheets.md) · [Google Slides](Anthropic/claude-for-google-workspace/claude-in-google-slides.md) |
 | **Claude Opus 3 (claude.ai)** | November 20, 2026 | [Claude Opus 3 system prompt](Anthropic/claude-opus-3.md) |
 | **GPT-6.2 Sol and Astra (Codex)** | November 20, 2026 | [GPT-6.2-Sol Codex core system prompt](OpenAI/Codex/gpt-6.2-sol.md) · [Astra](OpenAI/Codex/gpt-6.2-astra.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
 | **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
-| **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 
 ---
 ## Anthropic — Claude
@@ -117,6 +117,7 @@ Used as the definitive source in:
 | Claude for Google Workspace | [Google Docs](Anthropic/claude-for-google-workspace/claude-in-google-docs.md) · [Google Sheets](Anthropic/claude-for-google-workspace/claude-in-google-sheets.md) · [Google Slides](Anthropic/claude-for-google-workspace/claude-in-google-slides.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |
 | Claude iOS app | [Claude mobile iOS system prompt](Anthropic/claude-mobile-ios.md) |
+| Claude API tools | [Advisor](Anthropic/tools/advisor-tool.md) · [Bash](Anthropic/tools/bash-tool.md) · [Browser use](Anthropic/tools/browser-use-tool.md) · [Code execution](Anthropic/tools/code-execution-tool.md) · [Computer use](Anthropic/tools/computer-use-tool.md) · [Web fetch](Anthropic/tools/web-fetch-tool.md) · [Web search](Anthropic/tools/web-search-tool.md) |
 
 ## OpenAI — ChatGPT
 

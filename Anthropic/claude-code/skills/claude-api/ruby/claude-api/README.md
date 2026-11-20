@@ -44,7 +44,7 @@ end
 
 ## Extended Thinking
 
-> **Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking. `budget_tokens` is removed on Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
+> **Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking. `budget_tokens` is removed on Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
 > **Claude Opus 5.5:** thinking is always on - omit `thinking` (or send `{ type: "adaptive" }`, which is equivalent); `{ type: "disabled" }` returns a 400 at every effort, as does a thinking budget. Control depth with `output_config.effort` instead - the default is `medium` on this model, where Claude Opus 5 defaults to `high`.  
 > **Claude Opus 5:** thinking is on by default - omitting `thinking:` runs adaptive (`{ type: "adaptive" }` is equivalent), unlike Opus 4.8/4.7 where omitting it meant no thinking. `{ type: "disabled" }` is accepted only at effort `high` or lower; pairing it with `xhigh`/`max` returns a 400.  
 > **Older models:** Use `thinking: { type: "enabled", budget_tokens: N }` (must be < `max_tokens`, min 1024).
@@ -99,7 +99,7 @@ if message.stop_reason == :refusal && message.stop_details
 end
 ```
 
-**Refusal fallbacks (Claude Fable 5.1) - opt in by default.** Fallbacks are opt-in: without them a refused request simply stops. New `claude-fable-5-1` code should include the server-side `fallbacks` parameter (beta header `server-side-fallback-2026-06-01`, `fallbacks: [{model: "claude-opus-4-8"}]` on the beta messages call) by default. The exact Ruby binding (and the client-side middleware for providers without server-side support) is not documented here - fetch the Ruby SDK repo's `examples/` from `shared/live-sources.md`; full semantics in `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason.
+**Refusal fallbacks (Claude Fable 5.2) - opt in by default.** Fallbacks are opt-in: without them a refused request simply stops. New `claude-fable-5-2` code should include the server-side `fallbacks` parameter (beta header `server-side-fallback-2026-07-01`, `fallbacks: [{model: "claude-opus-4-8"}]` on the beta messages call) by default. The exact Ruby binding (and the client-side middleware for providers without server-side support) is not documented here - fetch the Ruby SDK repo's `examples/` from `shared/live-sources.md`; full semantics in `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason.
 
 ---
 

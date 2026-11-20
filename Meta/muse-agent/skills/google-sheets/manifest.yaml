@@ -1,8 +1,15 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-9hqcd6sb4opkueb11db2fqeffrfp1jek.apps.googleusercontent.com"
+  provider: google_sheets
+  required: true
 connector: google_sheets
 category: productivity
 display_name: Google Sheets
 description: Access and edit your spreadsheets
+icon: google_sheets
 request_quota:
   mode: enforce
   workers:
@@ -28,21 +35,41 @@ actions:
       spreadsheets.create:
         default: allow
         label: Create spreadsheets
+        approval_buttons:
+          allow_once: "Create"
+          deny: "Don't create"
+          deny.task: "Don't create"
       spreadsheets.values.update.private:
         default: allow
         label: Update private spreadsheet values
+        approval_buttons:
+          allow_once: "Update"
+          deny: "Don't update"
+          deny.task: "Don't update"
       spreadsheets.values.update.shared:
         label: Update shared spreadsheet values
+        approval_buttons:
+          allow_once: "Update"
+          deny: "Don't update"
+          deny.task: "Don't update"
       spreadsheets.batch_update.private:
         default: allow
         label: Edit private spreadsheets
-        approval_phrase: edit spreadsheets in Google Sheets
+        approval_phrase: edit private spreadsheets in Google Sheets
+        approval_buttons:
+          allow_once: "Edit"
+          deny: "Don't edit"
+          deny.task: "Don't edit"
       spreadsheets.batch_update.shared:
         label: Edit shared spreadsheets
-        approval_phrase: edit spreadsheets in Google Sheets
+        approval_phrase: edit shared spreadsheets or copy sheets between spreadsheets in Google Sheets
       spreadsheets.values.clear:
         default: allow
         label: Clear cell values
+        approval_buttons:
+          allow_once: "Clear cells"
+          deny: "Don't clear"
+          deny.task: "Don't clear"
 commands:
   status: null
   disconnect: null

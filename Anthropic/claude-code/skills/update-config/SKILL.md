@@ -2,7 +2,6 @@
 name: update-config
 description: 'Use this skill to configure the Claude Code harness via settings.json. Automated behaviors ("from now on when X", "each time X", "whenever X", "before/after X") require hooks configured in settings.json - the harness executes these, not Claude, so memory/preferences cannot fulfill them. Also use for: permissions ("allow X", "add permission", "move permission to"), env vars ("set X=Y"), hook troubleshooting, or any changes to settings.json/settings.local.json files. Examples: "allow npm commands", "add bq permission to global settings", "move permission to user settings", "set DEBUG=true", "when claude stops show X". For simple settings like theme/model, suggest the /config command.'
 ---
-
 # Update Config Skill
 
 Modify Claude Code configuration by updating settings.json files.
@@ -158,7 +157,7 @@ Plugin syntax: `plugin-name@source` where source is `claude-code-marketplace`, `
 
 ### Other Settings
 - `language`: Preferred response language (e.g., "japanese")
-- `cleanupPeriodDays`: Days to keep transcripts before automatic cleanup (default: 30; minimum 1)
+- `cleanupPeriodDays`: Days to keep transcripts on this computer before automatic cleanup (default: 30; minimum 1)
 - `respectGitignore`: Whether to respect .gitignore (default: true)
 - `spinnerTipsEnabled`: Show tips in spinner
 - `timeFormat`: Clock format for times shown in the UI: "auto" (default), "12-hour", "24-hour", "24-hour-utc", or a strftime pattern such as "%H:%M"
@@ -332,6 +331,7 @@ echo '{"systemMessage": "Session complete!"}'
 Given an event, matcher, target file, and desired behavior, follow this flow. Each step catches a different failure class — a hook that silently does nothing is worse than no hook.
 
 1. **Dedup check.** Read the target file. If a hook already exists on the same event+matcher, show the existing command and ask: keep it, replace it, or add alongside.
+
 2. **Construct the command for THIS project — don't assume.** The hook receives JSON on stdin. Build a command that:
    - Extracts any needed payload safely — use `jq -r` into a quoted variable or `{ read -r f; ... "$f"; }`, NOT unquoted `| xargs` (splits on spaces)
    - Invokes the underlying tool the way this project runs it (npx/bunx/yarn/pnpm? Makefile target? globally-installed?)
@@ -346,11 +346,13 @@ Given an event, matcher, target file, and desired behavior, follow this flow. Ea
    Check exit code AND side effect (file actually formatted, test actually ran). If it fails you get a real error — fix (wrong package manager? tool not installed? jq path wrong?) and retest. Once it works, wrap with `2>/dev/null || true` (unless the user wants a blocking check).
 
 4. **Write the JSON.** Merge into the target file (schema shape in the "Hook Structure" section above). If this creates `.claude/settings.local.json` for the first time, add it to .gitignore — the Write tool doesn't auto-gitignore it.
+
 5. **Validate syntax + schema in one shot:**
 
    `jq -e '.hooks.<event>[] | select(.matcher == "<matcher>") | .hooks[] | select(.type == "command") | .command' <target-file>`
 
    Exit 0 + prints your command = correct. Exit 4 = matcher doesn't match. Exit 5 = malformed JSON or wrong nesting. A broken settings.json silently disables ALL settings from that file — fix any pre-existing malformation too.
+
 6. **Prove the hook fires** — only for `Pre|PostToolUse` on a matcher you can trigger in-turn (`Write|Edit` via Edit, `Bash` via Bash). `Stop`/`UserPromptSubmit`/`SessionStart` fire outside this turn — skip to step 7.
 
    For a **formatter** on `PostToolUse`/`Write|Edit`: introduce a detectable violation via Edit (two consecutive blank lines, bad indentation, missing semicolon — something this formatter corrects; NOT trailing whitespace, Edit strips that before writing), re-read, confirm the hook **fixed** it. For **anything else**: temporarily prefix the command in settings.json with `echo "$(date) hook fired" >> /tmp/claude-hook-check.txt; `, trigger the matching tool (Edit for `Write|Edit`, a harmless `true` for `Bash`), read the sentinel file.
@@ -358,6 +360,7 @@ Given an event, matcher, target file, and desired behavior, follow this flow. Ea
    **Always clean up** — revert the violation, strip the sentinel prefix — whether the proof passed or failed.
 
    **If proof fails but pipe-test passed and `jq -e` passed**: the settings watcher isn't watching `.claude/` — it only watches directories that had a settings file when this session started. The hook is written correctly. Tell the user to open `/hooks` once (reloads config) or restart — you can't do this yourself; `/hooks` is a user UI menu and opening it ends this turn.
+
 7. **Handoff.** Tell the user the hook is live (or needs `/hooks`/restart per the watcher caveat). Point them at `/hooks` to review, edit, or disable it later. The UI only shows "Ran N hooks" if a hook errors or is slow — silent success is invisible by design.
 
 
@@ -414,7 +417,7 @@ User: "Set DEBUG=true"
 ## Troubleshooting Hooks
 
 If a hook isn't running:
-1. **Check the settings file** - Read ~/.claude/settings.json or .claude/settings.json
+1. **Check the settings file** - Read `~/.claude/settings.json` or .claude/settings.json
 2. **Verify JSON syntax** - Invalid JSON silently fails
 3. **Check the matcher** - Does it match the tool name? (e.g., "Bash", "Write", "Edit")
 4. **Check hook type** - Is it "command", "prompt", or "agent"?
@@ -510,13 +513,13 @@ If a hook isn't running:
       "type": "boolean"
     },
     "cleanupPeriodDays": {
-      "description": "Number of days to retain chat transcripts before automatic cleanup (default: 30). Minimum 1. Use a large value for long retention; use --no-session-persistence to disable transcript writes entirely.",
+      "description": "Number of days to retain chat transcripts before automatic cleanup (default: 30). Minimum 1. Use a large value for long retention; use --no-session-persistence to disable transcript writes entirely. Cleanup deletes data only on this computer, not anything stored by Anthropic.",
       "type": "integer",
       "exclusiveMinimum": 0,
       "maximum": 9007199254740991
     },
     "desktopSessionCleanupPeriodDays": {
-      "description": "Retention ceiling in days for session transcripts created or last written by a desktop-host surface (Claude Desktop, Cowork), which are otherwise exempt from the cleanupPeriodDays sweep. 0 (the default) means no ceiling: such transcripts are kept until deleted another way. Unlike cleanupPeriodDays, 0 is allowed because this setting never disables writes — it only bounds an exemption from deletion. The ceiling is a hard cap: it also bounds an active archive grace, so the grace window of a release marker never keeps files past the ceiling. Ignored when cleanupPeriodDays is managed by org policy. A ceiling at or below cleanupPeriodDays effectively disables the exemption: those transcripts age out on the regular cleanupPeriodDays schedule, so the effective retention is whichever of the two periods is longer.",
+      "description": "Retention ceiling in days for session transcripts created or last written by a desktop-host surface (Claude Desktop, Cowork), which are otherwise exempt from the cleanupPeriodDays sweep. 0 (the default) means no ceiling: such transcripts are kept until deleted another way. Unlike cleanupPeriodDays, 0 is allowed because this setting never disables writes — it only bounds an exemption from deletion. The ceiling is a hard cap: it also bounds an active archive grace, so the grace window of a release marker never keeps files past the ceiling. Ignored when cleanupPeriodDays is managed by org policy. A ceiling at or below cleanupPeriodDays effectively disables the exemption: those transcripts age out on the regular cleanupPeriodDays schedule, so the effective retention is whichever of the two periods is longer. Cleanup deletes data only on this computer, not anything stored by Anthropic.",
       "type": "integer",
       "minimum": 0,
       "maximum": 9007199254740991
@@ -575,7 +578,7 @@ If a hook isn't running:
       "additionalProperties": {}
     },
     "attributionProject": {
-      "description": "The claude.ai Project this session names for your organization's usage reports: the Project's UUID, or its ID starting with "claude_proj_". An empty string names none and stops lower-precedence files from naming one; the organization default still applies. Sent only when Claude Code uses your claude.ai login, connects directly to the Anthropic API, is not in a cloud session, and CLAUDE_CODE_ATTRIBUTION_HEADER is not 0. CLAUDE_CODE_ATTRIBUTION_PROJECT takes precedence over it. Set in managed settings, it overrides people's own settings files. A project's .claude/settings.json and settings.local.json count only once the folder is trusted; for runs in a folder nobody has trusted, such as CI, use CLAUDE_CODE_ATTRIBUTION_PROJECT.",
+      "description": "The claude.ai Project this session names for your organization's usage reports: the Project's ID, starting with "claude_proj_" or "chan_", or the UUID of a "claude_proj_" Project. An empty string names none and stops lower-precedence files from naming one; the organization default still applies. A Project is sent only when Claude Code uses your claude.ai login, connects directly to the Anthropic API, is not in a cloud session, and CLAUDE_CODE_ATTRIBUTION_HEADER is not 0. CLAUDE_CODE_ATTRIBUTION_PROJECT takes precedence over it. Set in managed settings, it overrides people's own settings files. A project's .claude/settings.json and settings.local.json count only once the folder is trusted; for runs in a folder nobody has trusted, such as CI, use CLAUDE_CODE_ATTRIBUTION_PROJECT. Behind a Claude apps gateway that reports usage by group, name one of your groups instead, such as "payments"; CLAUDE_CODE_ATTRIBUTION_HEADER does not affect that.",
       "type": "string"
     },
     "attributionProjectPolicy": {
@@ -583,7 +586,7 @@ If a hook isn't running:
       "type": "object",
       "properties": {
         "default": {
-          "description": "The Project used when neither CLAUDE_CODE_ATTRIBUTION_PROJECT nor attributionProject names one: its UUID, or its ID starting with "claude_proj_".",
+          "description": "The Project used when neither CLAUDE_CODE_ATTRIBUTION_PROJECT nor attributionProject names one: its ID, starting with "claude_proj_" or "chan_", or the UUID of a "claude_proj_" Project. Behind a Claude apps gateway that reports usage by group, a group name instead.",
           "type": "string"
         }
       }
@@ -641,15 +644,23 @@ If a hook isn't running:
           ]
         },
         "blockReadsOutsideWorkingDirectories": {
-          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
+          "description": "Refuse file-tool reads (Read, Grep, Glob, LSP) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Also binds shell commands: one that names a path outside them is asked about in every mode, and the sandbox, where it is on, denies such reads. Also set when the user picks "block" on the one-time auto-mode prompt for a read outside the working directories.",
           "type": "boolean"
         },
         "blockWritesOutsideWorkingDirectories": {
-          "description": "Refuse file-tool writes (Write, Edit, NotebookEdit) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Files that Claude Code keeps for the session are not refused: its plan files, scratchpad and background job folder, and the auto-memory of this project, unless a repository settings file points it elsewhere. Nothing runs them unless the model asks. Also refuses file-tool writes to Claude Code settings files, inside the working directories too, and takes EnterWorktree and ExitWorktree, which move the working directory, out of the tools on offer. Does not limit shell commands, MCP tools, the programs that hooks run, or the memory tools. Cloud sessions (Claude Code on the web), whose file tools run in a container that is itself the boundary, may not apply it.",
+          "description": "Refuse file-tool writes (Write, Edit, NotebookEdit) outside the working directories in every permission mode; true in any settings source wins. No allow rule lifts it. Files that Claude Code keeps for the session are not refused: its plan files, scratchpad and background job folder, and the auto-memory of this project, unless a repository settings file points it elsewhere (a setting of the program that starts Claude Code can narrow this and the working directories). Nothing runs them unless the model asks. Also refuses file-tool writes to Claude Code settings files, inside the working directories too, and takes EnterWorktree and ExitWorktree, which move the working directory, out of the tools on offer (a setting of the program that starts Claude Code can keep them). Does not limit shell commands, MCP tools, the programs that hooks run, or the memory tools. Cloud sessions (Claude Code on the web), whose file tools run in a container that is itself the boundary, may not apply it.",
           "type": "boolean"
         },
         "blockReadsExemptPaths": {
           "description": "For the program that starts Claude Code: read only from --settings and from settings that program sends while the session runs; ignored in user, project, local and managed settings. Absolute paths, each a folder with all below it or one file, that blockReadsOutsideWorkingDirectories lets through beside the working directories. It allows nothing: an allow rule, the permission mode or the user still decides each read, as with that setting off, and a shell command that hands such a path to a program is still asked about unless a Read allow rule covers it. The paths do not become working directories, so blockWritesOutsideWorkingDirectories refuses writes to them, and they are not told to MCP servers or to the model. Each path counts as written: a link in it is not followed and a pattern is not expanded, so list every spelling that a read may arrive by. Ignored: an entry that starts with ~, has a ".." segment or has white space at either end (as written or once normalized), a relative or network path, and the root of a filesystem. Does not change what sandboxed commands may read (sandbox.filesystem.allowRead does).",
+          "type": "array",
+          "items": {
+            "default": "",
+            "type": "string"
+          }
+        },
+        "workingDirectoriesAsGiven": {
+          "description": "For the program that starts Claude Code: read only from --settings and from settings that program sends while the session runs; ignored in user, project, local and managed settings. Absolute paths of working directories, each spelled exactly as it is passed, letter case included (the session folder, --add-dir, permissions.additionalDirectories). To decide what lies inside a listed working directory, Claude Code takes it as written and follows no link at it, so a link that later stands in its place gives the file tools no access to where the link leads. List real paths: the files of a listed path that runs through a link count as outside the working directories, because where they really are lies outside it. List a mapped network drive by its drive-letter path: Claude Code still derives the UNC form of that path by itself and adds it, as for any mapped drive. A file path that is itself spelled as a UNC path is judged as written, so a link on the share is not seen by that spelling. It adds no working directory and allows nothing. Once listed, a path stays so until the process ends, also if later settings leave it out. Ignored: an entry that is not already normalized (a relative path, one that starts with ~, a ".." segment, a separator at its end unless it is a filesystem root, forward slashes on Windows, white space at either end). Does not change what sandboxed commands may write.",
           "type": "array",
           "items": {
             "default": "",
@@ -662,6 +673,10 @@ If a hook isn't running:
           "enum": [
             "disable"
           ]
+        },
+        "denyInsteadOfPrompting": {
+          "description": "Never wait for a person to answer a tool permission prompt: a call that would prompt is denied at once, the model is told, and the turn carries on. This is what --permission-prompts none does for -p, in every kind of session, subagents and agent teams included. Allow rules, the permission mode, auto mode's classifier and PermissionRequest hooks decide first, as they do without it; it only ever denies, and allows nothing. Claude's questions and plan mode's tools are not offered to the model, and an MCP server's request for input is cancelled unless an Elicitation hook answers it. An app or script that answers prompts through canUseTool or --permission-prompt-tool is not asked either: answer from a PermissionRequest hook instead. Read from user settings, --settings and managed settings; project and local settings are ignored, and true in any of those sources wins.",
+          "type": "boolean"
         },
         "additionalDirectories": {
           "description": "Additional directories to include in the permission scope",
@@ -685,7 +700,7 @@ If a hook isn't running:
       }
     },
     "availableModels": {
-      "description": "Allowlist of models that users can select. Accepts family aliases ("opus" allows any opus version), version prefixes ("opus-4-5" allows that version and any model ID that extends it, so "claude-opus-5" also allows "claude-opus-5-5"), and full model IDs. If undefined, all models are available. If empty array, only the default model is available. Typically set in managed settings by enterprise administrators.",
+      "description": "Allowlist of models that users can select. Accepts family aliases ("opus" allows any opus version), version prefixes ("opus-4-5" allows that version and any model ID that extends it, so "claude-opus-5" also allows "claude-opus-5-5"), and full model IDs. An entry with a path before the model ID (a gateway route such as "route/claude-opus-5") does not allow the plain ID ("claude-opus-5"): list the plain ID too if some sessions send requests directly to the Anthropic API. If undefined, all models are available. If empty array, only the default model is available. Typically set in managed settings by enterprise administrators.",
       "type": "array",
       "items": {
         "type": "string"
@@ -828,7 +843,7 @@ If a hook isn't running:
       }
     },
     "disableClaudeAiConnectors": {
-      "description": "When true in any settings source, claude.ai MCP cloud connectors are not auto-fetched or connected, and a claudeai-proxy server passed explicitly (e.g. via --mcp-config or the SDK mcpServers option) does not connect either. Any-source-true wins: a project can opt out, but a project-level false cannot override a user-level true.",
+      "description": "When true in any settings source, claude.ai MCP cloud connectors are not auto-fetched or connected, and a claudeai-proxy server passed explicitly (e.g. via --mcp-config or the SDK mcpServers option) does not connect either. Where a managed or served source sets it, the connectors that the desktop app's Code tab hands to a session do not connect either, from the app version that shows them as turned off. Any-source-true wins: a project can opt out, but a project-level false cannot override a user-level true.",
       "type": "boolean"
     },
     "skillOverrides": {
@@ -866,7 +881,7 @@ If a hook isn't running:
       }
     },
     "allowedMcpServers": {
-      "description": "Enterprise allowlist of the MCP servers users may use. Governs servers users add (user, project and local config, --mcp-config, agent frontmatter, plugins, claude.ai connectors); servers the organization itself delivers (managedMcpServers, and managed-mcp.json entries with no ${VAR} in their command, args, url or header values) are allowed without being listed; a managed-mcp.json entry with ${VAR} in any of those must match this list. If undefined, all servers are allowed. If empty array, users can use no servers of their own. Denylist takes precedence - if a server is on both lists, it is denied.",
+      "description": "Enterprise allowlist of the MCP servers users may use. Governs servers users add (user, project and local config, --mcp-config, agent frontmatter, plugins, claude.ai connectors); servers the organization itself delivers (managedMcpServers, and managed-mcp.json entries with no ${VAR} in their command, args, url or header values) are allowed without being listed; a managed-mcp.json entry with ${VAR} in any of those must match this list. An entry found only in a project's .claude/settings.json or .claude/settings.local.json can admit a server the organization provides (managed-mcp.json, managedMcpServers, or a plugin that managed settings list in enabledPlugins) but can't keep one out. If undefined, all servers are allowed. If empty array, users can use no servers of their own. Denylist takes precedence - if a server is on both lists, it is denied.",
       "type": "array",
       "items": {
         "type": "object",
@@ -892,7 +907,7 @@ If a hook isn't running:
       }
     },
     "deniedMcpServers": {
-      "description": "Enterprise denylist of MCP servers that are explicitly blocked. If a server is on the denylist, it will be blocked across all scopes including enterprise. Denylist takes precedence over allowlist - if a server is on both lists, it is denied.",
+      "description": "Enterprise denylist of MCP servers that are explicitly blocked. If a server is on the denylist, it will be blocked across all scopes including enterprise. An entry found only in a project's .claude/settings.json or .claude/settings.local.json does not apply to a server the organization provides (managed-mcp.json, managedMcpServers, or a plugin that managed settings list in enabledPlugins). Denylist takes precedence over allowlist - if a server is on both lists, it is denied.",
       "type": "array",
       "items": {
         "type": "object",
@@ -1151,7 +1166,7 @@ If a hook isn't running:
                         ]
                       },
                       "headers": {
-                        "description": "Additional headers to include in the request. Values may reference environment variables using $VAR_NAME or ${VAR_NAME} syntax (e.g., "Authorization": "Bearer $MY_TOKEN"). Only variables listed in allowedEnvVars will be interpolated.",
+                        "description": "Additional headers to include in the request. Values may reference environment variables using $VAR_NAME or ${VAR_NAME} syntax (e.g., "Authorization": "Bearer $MY_TOKEN"). Only variables listed in allowedEnvVars will be interpolated. Content-Length and Transfer-Encoding given here are ignored: Claude Code works out the request's length from its body.",
                         "type": "object",
                         "propertyNames": {
                           "type": "string"
@@ -1213,6 +1228,14 @@ If a hook isn't running:
                         "description": "Timeout in seconds for this specific tool call",
                         "type": "number",
                         "exclusiveMinimum": 0
+                      },
+                      "onFailure": {
+                        "description": "What happens when this hook's call fails: its MCP server is not connected or not signed in, the call times out or returns an error, or the tool answers with JSON that fails validation. 'continue' (default): the failure is reported and the action goes ahead. 'block': the action the event guards (a tool call, a permission request, a prompt) is blocked each time, for as long as the call fails. With 'block', the tool must answer with a hook's JSON output, with {} or with nothing: plain text, an image, or JSON that holds none of a hook output's fields, or only 'reason', also counts as a failure. That does not hold on PreCompact and WorktreeCreate, where plain text is the hook's answer, or on events whose block stops nothing. Any other value reads as 'block'. Ignored on Setup, SessionStart, Stop, SubagentStop, TaskCompleted and TeammateIdle.",
+                        "type": "string",
+                        "enum": [
+                          "continue",
+                          "block"
+                        ]
                       },
                       "statusMessage": {
                         "description": "Custom status message to display in spinner while hook runs",
@@ -1283,6 +1306,10 @@ If a hook isn't running:
       "description": "Disable all hooks and statusLine execution: the hooks defined in settings files and by installed plugins. Features built into Claude Code are not hooks in this sense and keep working; each has its own switch.",
       "type": "boolean"
     },
+    "disableReplyCheck": {
+      "description": "Disable the reply check in Claude Tag sessions on a self-hosted runner. The check re-prompts Claude, at most four times a turn, when a turn ends without a call to one of Claude Tag's reply tools. It is not a hook, so disableAllHooks does not affect it. Disabling it also stops two messages to Claude that Anthropic's service can request for such a session: a nudge after a long stretch of work with no visible update, and a reminder added to prompts. Claude Code's built-in reminder to give progress updates, on models that have it, is then no longer held back. Set it in managed settings; false there keeps the check on. Everywhere else it is ignored and the check stays on. Has no effect on sessions that Anthropic hosts.",
+      "type": "boolean"
+    },
     "disableAgentView": {
       "description": "Disable agent view (`claude agents`, `--bg`, /background, the on-demand daemon). Typically set in managed settings. Equivalent to CLAUDE_CODE_DISABLE_AGENT_VIEW=1.",
       "type": "boolean"
@@ -1296,11 +1323,11 @@ If a hook isn't running:
       "type": "boolean"
     },
     "disableArtifact": {
-      "description": "Deprecated: use enableArtifact: false. Still honored — true disables the Artifact tool; false is ignored.",
+      "description": "Deprecated: use enableArtifact: false. Still honored — true turns Artifacts off; false is ignored.",
       "type": "boolean"
     },
     "enableArtifact": {
-      "description": "Turn the Artifact tool on or off. Off in any of managed, --settings, or user settings wins; project and local settings can only turn it off. Unset defaults to on once the feature is available.",
+      "description": "Turn Artifacts on or off. Off in any of managed, --settings, or user settings wins; project and local settings can only turn it off. Unset defaults to on once the feature is available.",
       "type": "boolean"
     },
     "enableWorkflows": {
@@ -1323,6 +1350,10 @@ If a hook isn't running:
     },
     "disableSkillShellExecution": {
       "description": "Disable inline shell execution in skills and custom slash commands from user, project, or plugin sources. Commands are replaced with a placeholder instead of being run.",
+      "type": "boolean"
+    },
+    "disableWindowsBashCommandSplit": {
+      "description": "Windows only. Set to true to keep every Bash command in a single argument to bash, so that endpoint security tools that match text in process command lines see it whole. Otherwise Claude Code may split a long command over several arguments. With true, a command of about 7,000 characters or more, or fewer if it is full of quotes, may reach bash cut short, and then usually fails with a syntax error. Only honored from managed settings; ignored in user, project, local and --settings sources.",
       "type": "boolean"
     },
     "defaultShell": {
@@ -1358,25 +1389,25 @@ If a hook isn't running:
       "type": "boolean"
     },
     "allowedHttpHookUrls": {
-      "description": "Allowlist of URL patterns that HTTP hooks may target. Supports * as a wildcard (e.g. "https://hooks.example.com/*"). When set, HTTP hooks with non-matching URLs are blocked. If undefined, all URLs are allowed. If empty array, no HTTP hooks are allowed. Arrays merge across settings sources (same semantics as allowedMcpServers).",
+      "description": "Allowlist of URL patterns that HTTP hooks may target. Supports * as a wildcard (e.g. "https://hooks.example.com/*"). When set, HTTP hooks with non-matching URLs are blocked. If undefined, all URLs are allowed. If empty array, no HTTP hooks are allowed. Arrays merge across settings sources (same semantics as allowedMcpServers). Where managed settings do not set this list, a list in any other settings file does not apply to hooks that managed settings define, or that come from a plugin they enable from a local folder they name.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "httpHookAllowedEnvVars": {
-      "description": "Allowlist of environment variable names HTTP hooks may interpolate into headers. When set, each hook's effective allowedEnvVars is the intersection with this list. If undefined, no restriction is applied. Arrays merge across settings sources (same semantics as allowedMcpServers).",
+      "description": "Allowlist of environment variable names HTTP hooks may interpolate into headers. When set, each hook's effective allowedEnvVars is the intersection with this list. If undefined, no restriction is applied. Arrays merge across settings sources (same semantics as allowedMcpServers). Where managed settings do not set this list, a list in any other settings file does not apply to hooks that managed settings define, or that come from a plugin they enable from a local folder they name.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "allowManagedPermissionRulesOnly": {
-      "description": "When true (and set in managed settings), permission rules from user, project, local, and --settings files and allow rules from --allowedTools are ignored; only managed settings can add allow rules through settings. The allowed-tools frontmatter of skills and custom commands from user, project, and --add-dir sources, and of plugins no managed setting vouches for, is ignored too. Plugins keep theirs only on an admin-backed channel: host-delivered --plugin-dir plugins (in Claude Desktop, only while this is not set by the organization's own managed settings), the official marketplace registered from its unpinned anthropics source, claude.ai-synced plugins Anthropic attests, the saved login organization's claude.ai-hosted marketplaces, marketplaces whose registered source managed extraKnownMarketplaces declares or an exact or owner-pinned (owner/*) strictKnownMarketplaces entry names at the path it pins (an npm marketplace source only when the registration and the declared entry pin the same registry, and a settings marketplace source only when every nested npm plugin entry pins one on a bare package name — unpinned, the package resolves through the member's own npm config, and a non-bare spelling packs as an exotic spec the pin does not bind, so nothing an entry names is what was fetched), and npm-direct (package@npm) plugins whose recorded resolution a registry-pinned managed npm strictKnownMarketplaces entry names (host and path patterns and enabledPlugins ids do not vouch); managed and bundled skills keep theirs. --disallowedTools, skill disallowed-tools, and other deny and ask rules from the command line or the current session still apply.",
+      "description": "When true (and set in managed settings), permission rules from user, project, local, and --settings files and allow rules from --allowedTools are ignored; only managed settings can add allow rules through settings. The allowed-tools frontmatter of skills and custom commands from user, project, and --add-dir sources, and of plugins no managed setting vouches for, is ignored too. Plugins keep theirs only on an admin-backed channel: host-delivered --plugin-dir plugins (in Claude Desktop, only while this is not set by the organization's own managed settings), the official marketplace registered from its unpinned anthropics source, claude.ai-synced plugins Anthropic attests, the saved login organization's claude.ai-hosted marketplaces, marketplaces whose registered source managed extraKnownMarketplaces declares or an exact or owner-pinned (owner/*) strictKnownMarketplaces entry names at the path it pins (an npm marketplace source only when the registration and the declared entry pin the same registry, and a settings marketplace source only when every nested npm plugin entry pins one on a bare package name — unpinned, the package resolves through the member's own npm config, and a non-bare spelling packs as an exotic spec the pin does not bind, so nothing an entry names is what was fetched) (host and path patterns and enabledPlugins ids do not vouch); managed and bundled skills keep theirs. --disallowedTools, skill disallowed-tools, and other deny and ask rules from the command line or the current session still apply.",
       "type": "boolean"
     },
     "allowManagedMcpServersOnly": {
-      "description": "When true (and set in managed settings), allowedMcpServers is only read from managed settings. deniedMcpServers still merges from all sources, so users can deny servers for themselves. Users can still add their own MCP servers, but only the admin-defined allowlist applies.",
+      "description": "When true (and set in managed settings), allowedMcpServers is only read from managed settings. deniedMcpServers still merges from all sources, so users can deny servers for themselves, in user settings for a server the organization provides. Users can still add their own MCP servers, but only the admin-defined allowlist applies.",
       "type": "boolean"
     },
     "allowAllClaudeAiMcps": {
@@ -1493,7 +1524,7 @@ If a hook isn't running:
       }
     },
     "subagentStatusLine": {
-      "description": "Custom per-subagent status line shown in the agent panel; receives row context as JSON on stdin",
+      "description": "Deprecated: still works, and will stop working in a future release. Custom per-subagent status line shown in the agent panel; receives row context as JSON on stdin",
       "type": "object",
       "properties": {
         "type": {
@@ -1510,7 +1541,7 @@ If a hook isn't running:
       ]
     },
     "enabledPlugins": {
-      "description": "Enabled plugins using plugin-id@marketplace-id format. Example: { "formatter@anthropic-tools": true }. Also supports extended format with version constraints. Settings precedence is user < project < local < flag < policy, so to disable a plugin that project settings enable, set it to false in .claude/settings.local.json — setting false in ~/.claude/settings.json is overridden by the project.",
+      "description": "Enabled plugins using plugin-id@marketplace-id format. Example: { "formatter@anthropic-tools": true }. Only true turns on a marketplace plugin: a list of versions is accepted but leaves it off. Settings precedence is user < project < local < flag < policy, so to disable a plugin that project settings enable, set it to false in .claude/settings.local.json — setting false in ~/.claude/settings.json is overridden by the project.",
       "type": "object",
       "propertyNames": {
         "type": "string"
@@ -1533,7 +1564,7 @@ If a hook isn't running:
       }
     },
     "prependPlugins": {
-      "description": "Managed plugins (plugin@marketplace ids that managed enabledPlugins sets true) whose hooks run first, outermost, in the listed order: the first id listed sees every event before any other plugin and every result after it. Managed plugins not listed here or in appendPlugins follow the listed ones; user, project and marketplace plugins come after those; then appendPlugins; then the built-in plugins. The bundled cc-plugin-sec-default@builtin seats itself outermost (on a machine with managed settings and for Team and Enterprise organizations) unless this list is set, in which case list it where it should sit or leave it out. Name it there as sec-default@builtin, the id every release reads, for as long as any machine in the organization may run a release from before its rename; a release that knows the new id reads either. Any other id that is not an enabled managed plugin is skipped; an id listed in both keys is prepended. Only honored from managed settings (or, on a machine with none, from user settings for your own plugins); ignored in project, local and --settings sources.",
+      "description": "Managed plugins (plugin@marketplace ids that managed enabledPlugins sets true) whose hooks run first, outermost, in the listed order: the first id listed sees every event before any other plugin and every result after it. Managed plugins from a local folder or a remote marketplace managed settings name, and not listed here or in appendPlugins, follow the listed ones; user, project and marketplace plugins come after those; then appendPlugins; then the built-in plugins. The bundled cc-plugin-sec-default@builtin seats itself outermost (on a machine with managed settings and for Team and Enterprise organizations) unless this list is set, in which case list it where it should sit or leave it out. Name it there as sec-default@builtin, the id every release reads, for as long as any machine in the organization may run a release from before its rename; a release that knows the new id reads either. Any other id that is not an enabled managed plugin is skipped; an id listed in both keys is prepended. Only honored from managed settings (or, on a machine with none, from user settings for your own plugins); ignored in project, local and --settings sources.",
       "type": "array",
       "items": {
         "type": "string"
@@ -1603,7 +1634,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -1639,7 +1670,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -1671,7 +1702,7 @@ If a hook isn't running:
                     "const": "npm"
                   },
                   "package": {
-                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                     "anyOf": [
                       {
                         "type": "string"
@@ -1687,7 +1718,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "registry": {
-                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                     "type": "string",
                     "format": "uri"
                   }
@@ -2020,6 +2051,14 @@ If a hook isn't running:
                         "strict": {
                           "type": "boolean"
                         },
+                        "engines": {
+                          "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
                         "headers": {
                           "description": "HTTP headers sent when downloading this entry's `archive` source.",
                           "type": "object",
@@ -2081,7 +2120,7 @@ If a hook isn't running:
             "type": "boolean"
           },
           "pluginDigests": {
-            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "description": "Deprecated and ignored: settings that hold it still load. A plugin takes the organization tier when managed settings enable it and declare its marketplace with a remote source.",
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -2157,7 +2196,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -2193,7 +2232,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "ref": {
-                    "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                    "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                     "type": "string"
                   },
                   "path": {
@@ -2225,7 +2264,7 @@ If a hook isn't running:
                     "const": "npm"
                   },
                   "package": {
-                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                    "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                     "anyOf": [
                       {
                         "type": "string"
@@ -2241,7 +2280,7 @@ If a hook isn't running:
                     "type": "string"
                   },
                   "registry": {
-                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                    "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                     "type": "string",
                     "format": "uri"
                   }
@@ -2574,6 +2613,14 @@ If a hook isn't running:
                         "strict": {
                           "type": "boolean"
                         },
+                        "engines": {
+                          "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string"
+                          },
+                          "additionalProperties": {}
+                        },
                         "headers": {
                           "description": "HTTP headers sent when downloading this entry's `archive` source.",
                           "type": "object",
@@ -2635,7 +2682,7 @@ If a hook isn't running:
             "type": "boolean"
           },
           "pluginDigests": {
-            "description": "Managed settings only: the plugins of this marketplace that an organization delivers with its own tier, by plugin name, each with the digests of its releases. A plugin also enabled and listed in prependPlugins or appendPlugins by managed settings the session vouches for loads its hooks module only from a folder that proves one of them, and is then seated in that tier; any other copy does not load. A digest is sha256- and the base64 SHA-256 of, for every regular file in the folder in UTF-16 code unit order of its path, not normalized, "f PATH" NUL BYTE-LENGTH NUL BYTES, with / in paths; .git, .in_use, .orphaned_at, .claude-plugin-link and .links_materialized at the root are left out. The plugin keeps its manifest at .claude-plugin/plugin.json and names one module in hooks/hooks.json. A string of any other form, or a list that is empty or of any other shape, matches no folder. A symbolic link, or a surface module, proves nothing. A proved plugin ships bundled with no install step: the digest covers the whole folder, node_modules included. A checkout whose line endings were converted proves nothing.",
+            "description": "Deprecated and ignored: settings that hold it still load. A plugin takes the organization tier when managed settings enable it and declare its marketplace with a remote source.",
             "type": "object",
             "propertyNames": {
               "type": "string"
@@ -2704,7 +2751,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -2740,7 +2787,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -2772,7 +2819,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -2788,7 +2835,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -3120,6 +3167,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -3224,7 +3279,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3260,7 +3315,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3292,7 +3347,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -3308,7 +3363,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -3640,6 +3695,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -3695,7 +3758,7 @@ If a hook isn't running:
       }
     },
     "blockedMarketplaces": {
-      "description": "Enterprise blocklist of marketplace sources. When set in managed settings, these sources are blocked from being added as marketplaces. Entries match exactly, except that a github entry may use the owner-wildcard form {"source":"github","repo":"owner/*"} to block every repository under that owner. The check happens BEFORE downloading, so blocked sources never touch the filesystem.",
+      "description": "Enterprise blocklist of marketplace sources. When set in managed settings, these sources are blocked from being added as marketplaces. Entries match exactly, except that a github entry may use the owner-wildcard form {"source":"github","repo":"owner/*"} to block every repository under that owner, and an entry naming a branch or tag in `ref` also blocks every full commit id in that repository. The check happens BEFORE downloading, so blocked sources never touch the filesystem.",
       "type": "array",
       "items": {
         "anyOf": [
@@ -3744,7 +3807,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3780,7 +3843,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "ref": {
-                "description": "Git branch or tag to use (e.g., "main", "v1.0.0"). Defaults to repository default branch.",
+                "description": "Git branch, tag or full commit id to use (e.g., "main", "v1.0.0"). Defaults to repository default branch. A full commit id (40 or 64 lowercase hex digits) holds the marketplace at that commit: refreshes and auto-updates do not move it. A branch or tag of the repository must hold the commit. Plugins listed with a remote source follow that source unless they name a `sha`. Reserved Anthropic marketplace names do not accept a commit id.",
                 "type": "string"
               },
               "path": {
@@ -3812,7 +3875,7 @@ If a hook isn't running:
                 "const": "npm"
               },
               "package": {
-                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). In strictKnownMarketplaces / blockedMarketplaces an entry also governs plugins installed straight from the npm marketplace (`<package>@npm`): an exact package name matches that package, and "@acme/*" matches every package under the scope.",
+                "description": "npm package containing marketplace.json (e.g. "@acme/claude-marketplace"). A scope wildcard such as "@acme/*" still parses in a managed list, so a list that holds one stays valid, but it matches no marketplace package.",
                 "anyOf": [
                   {
                     "type": "string"
@@ -3828,7 +3891,7 @@ If a hook isn't running:
                 "type": "string"
               },
               "registry": {
-                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). In a policy entry: the origin and path prefix the package's RESOLVED tarball URL must fall under (e.g. "https://npm.example.com/api/npm/internal/"); under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
+                "description": "Registry URL. When adding a marketplace: a one-off registry override (otherwise your npm configuration decides). Under allowManagedPermissionRulesOnly, an npm marketplace keeps plugin allowed-tools only when both the entry and the registration pin this same registry.",
                 "type": "string",
                 "format": "uri"
               }
@@ -4160,6 +4223,14 @@ If a hook isn't running:
                     },
                     "strict": {
                       "type": "boolean"
+                    },
+                    "engines": {
+                      "description": "Versions of its hosts this plugin runs on. "claude-code" is a semver range (e.g. ">=2.1.320"): outside it, the plugin is not installed, updated or loaded. Other keys are ignored.",
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {}
                     },
                     "headers": {
                       "description": "HTTP headers sent when downloading this entry's `archive` source.",
@@ -4223,14 +4294,14 @@ If a hook isn't running:
       "type": "boolean"
     },
     "pluginSuggestionMarketplaces": {
-      "description": "Marketplace names whose plugins may surface as contextual install suggestions (relevance-based tips). No marketplace-declared suggestions surface without this allowlist; the built-in first-party frontend-design tip is unaffected. Only honored when set in managed settings (policy scope); the key is ignored in user, project, and local settings. A name only takes effect when the marketplace is registered on the machine AND its registered source is also declared in managed settings, either as the extraKnownMarketplaces entry for that name or as an entry of strictKnownMarketplaces. A marketplace registered from a different source under an allowlisted name is ignored. The official marketplace is exempt from the source requirement: allowlisting its name alone suffices, since that name can only register from the official Anthropic source.",
+      "description": "Marketplace names whose plugins may surface as contextual install suggestions (relevance-based tips). No marketplace-declared suggestions surface without this allowlist; the built-in tips for Anthropic's own plugins are unaffected. Only honored when set in managed settings (policy scope); the key is ignored in user, project, and local settings. A name only takes effect when the marketplace is registered on the machine AND its registered source is also declared in managed settings, either as the extraKnownMarketplaces entry for that name or as an entry of strictKnownMarketplaces. A marketplace registered from a different source under an allowlisted name is ignored. The official marketplace is exempt from the source requirement: allowlisting its name alone suffices, since that name can only register from the official Anthropic source.",
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "forceLoginMethod": {
-      "description": "Force a specific login method: "claudeai" for Claude Pro/Max, "console" for Console billing, "gateway" for the Cloud gateway OIDC device flow",
+      "description": "Force a specific login method: "claudeai" for a Claude subscription (individual, Team, or Enterprise plans), "console" for Console billing, "gateway" for the Cloud gateway OIDC device flow",
       "type": "string",
       "enum": [
         "claudeai",
@@ -4259,7 +4330,7 @@ If a hook isn't running:
       ]
     },
     "managedSourcesBehavior": {
-      "description": "Controls how the managed settings sources compose. "first-wins" (default): the highest-priority source present (server-managed > MDM (managed plist / HKLM) > managed-settings.json) is the managed tier alone. "merge": every present source deep-merges with fixed precedence server-managed > MDM > managed-settings.json — scalars take the highest source's value (a restrictive boolean or enum — the allowManaged*Only locks, the disable* switches, the sandbox lock family — takes the strictest value any source sets) and arrays union, except fallbackModel, the restriction allowlists allowedMcpServers, allowedProviders, availableModels, strictKnownMarketplaces and allowedChannelPlugins, and sandbox.credentials.awsPairs and sandbox.ripgrep (the highest source that sets one owns it whole), modelOverrides (the whole map of the highest source that sets it, dropped when that source sits below the one that sets availableModels), managedMcpServers (server names union; a name set by two sources takes the higher source's whole entry), and the keys taken from the highest source only: the auth pins forceLoginOrgUUID, forceLoginMethod, forceLoginGatewayUrl and gatewayInternalNetworks, the credential helpers apiKeyHelper, awsAuthRefresh, awsCredentialExport, gcpAuthRefresh, otelHeadersHelper and proxyAuthHelper, modelPicker, permissions.defaultMode, parentSettingsBehavior and the policyHelper configuration (env keeps its own per-key union). In both modes, a forceLoginOrgUUID, or a forceLoginMethod of claudeai or console, that this machine's own MDM policy or managed settings file sets applies ahead of server-managed settings. Honored only from the highest-priority source present; enable it only when every lower source is admin-controlled, since lower sources then contribute entries such as permissions.allow. HKCU and --managed-settings never take part in the merge.",
+      "description": "Controls how the managed settings sources compose. "first-wins" (default): the highest-priority source present (server-managed > MDM (managed plist / HKLM) > managed-settings.json) is the managed tier alone. "merge": every present source deep-merges with fixed precedence server-managed > MDM > managed-settings.json — scalars take the highest source's value (a restrictive boolean or enum — the allowManaged*Only locks, the disable* switches, the sandbox lock family — takes the strictest value any source sets) and arrays union, except fallbackModel, the restriction allowlists allowedMcpServers, allowedProviders, availableModels, strictKnownMarketplaces and allowedChannelPlugins, and sandbox.credentials.awsPairs and sandbox.ripgrep (the highest source that sets one owns it whole), modelOverrides (the whole map of the highest source that sets it, dropped when that source sits below the one that sets availableModels), managedMcpServers (server names union; a name set by two sources takes the higher source's whole entry), and the keys taken from the highest source only: the auth pins forceLoginOrgUUID, forceLoginMethod, forceLoginGatewayUrl and gatewayInternalNetworks, allowNestedModelAccessUnderForceLogin, the credential helpers apiKeyHelper, awsAuthRefresh, awsCredentialExport, gcpAuthRefresh, otelHeadersHelper and proxyAuthHelper, modelPicker, permissions.defaultMode, parentSettingsBehavior and the policyHelper configuration (env keeps its own per-key union). In both modes, a forceLoginOrgUUID, or a forceLoginMethod of claudeai or console, that this machine's own MDM policy or managed settings file sets applies ahead of server-managed settings. Honored only from the highest-priority source present; enable it only when every lower source is admin-controlled, since lower sources then contribute entries such as permissions.allow. HKCU and --managed-settings never take part in the merge.",
       "type": "string",
       "enum": [
         "first-wins",
@@ -4280,8 +4351,12 @@ If a hook isn't running:
         }
       ]
     },
+    "allowNestedModelAccessUnderForceLogin": {
+      "description": "Self-hosted runner hosts only. Set to true to let a Claude Code started by a runner session's command use the runner's model access (--nested-model-access) when this machine's managed settings set forceLoginOrgUUID or forceLoginMethod. It asks the runner which organization the session owner's sign-in belongs to, and stops if the pin does not permit it or the runner does not answer. Without this key it is left signed out. Any program on the machine can pretend to be the runner, so with this key the pin is not a security boundary: set it on runner hosts only, never in a profile that reaches people's own computers. Honored only from this machine's own administrator sources (MDM, the managed settings file, or a policy helper that they name); ignored in server-managed, user, project, local and --settings sources.",
+      "type": "boolean"
+    },
     "allowedProviders": {
-      "description": "Managed settings only (managed-settings.json, MDM, or server-managed). The API providers Claude Code may use on this machine: "anthropic" (the Anthropic API on Anthropic's own host, via a claude.ai or Console sign-in or an API key; pair it with forceLoginMethod / forceLoginOrgUUID to require a sign-in), "bedrock", "vertex", "foundry", "anthropicAws", "mantle" (each meaning that provider's own service: its regional, FIPS, private-endpoint and sovereign-cloud hosts), "customEndpoint" (the Anthropic API or a cloud provider's API sent to some other host — ANTHROPIC_BASE_URL, that provider's ANTHROPIC_*_BASE_URL, a Foundry resource name that is not a bare name, or for Bedrock the AWS SDK's AWS_ENDPOINT_URL[_BEDROCK[_RUNTIME]] — such as an LLM gateway; admitted only for the value pinned in the "env" block of the same managed source), or "gateway" (the Cloud gateway sign-in). A session on a provider that is not listed is refused at startup, at login, and when it next contacts the API, with a message naming what selected the provider and the entry that would allow it. Under a list, where first-party traffic goes (ANTHROPIC_BASE_URL, a gateway sign-in) is honored only when the same managed source pins it in "env" (or forceLoginGatewayUrl), and a claude ssh tunnel into the machine is refused. A cloud provider's credential and tenancy variables, and the network path and TLS trust (HTTPS_PROXY, NODE_EXTRA_CA_CERTS, CLAUDE_CODE_CERT_STORE), are not judged by this list; set those for the fleet in the managed "env" block, whose values replace the user's. To route Bedrock through a gateway for a fleet, pin ANTHROPIC_BEDROCK_BASE_URL there (it is what the clients use, ahead of an endpoint_url in ~/.aws/config, which this list does not judge); the AWS SDK's AWS_ENDPOINT_URL* pins only sanction where the SDK's own clients go and never stand in for the "bedrock" entry. Unset allows every provider; an empty array allows none. Only a list in managed-settings.json or MDM is enforcement on the machine: it cannot be widened or hidden by server-managed settings and reaches every session. A list set only in the admin console reaches only sessions that fetch your server-managed settings — not a session on a cloud provider, another organization or a non-Anthropic ANTHROPIC_BASE_URL, one authenticating only with apiKeyHelper or ANTHROPIC_AUTH_TOKEN, a Pro/Max login, --bare without an API key, or a first launch before the fetch lands — all conditions the user controls. Versions that predate this setting ignore it; pair it with a minimum-version policy on a mixed fleet. 'claude auth status' reports the Anthropic API as apiProvider "firstParty".",
+      "description": "Managed settings only (managed-settings.json, MDM, or server-managed). The API providers Claude Code may use on this machine: "anthropic" (the Anthropic API on Anthropic's own host, via a claude.ai or Console sign-in or an API key; pair it with forceLoginMethod / forceLoginOrgUUID to require a sign-in), "bedrock", "vertex", "foundry", "anthropicAws", "mantle" (each meaning that provider's own service: its regional, FIPS, private-endpoint and sovereign-cloud hosts), "customEndpoint" (the Anthropic API or a cloud provider's API sent to some other host — ANTHROPIC_BASE_URL, that provider's ANTHROPIC_*_BASE_URL, a Foundry resource name that is not a bare name, or for Bedrock the AWS SDK's AWS_ENDPOINT_URL[_BEDROCK[_RUNTIME]] — such as an LLM gateway; admitted only for the value pinned in the "env" block of the same managed source), or "gateway" (the Cloud gateway sign-in). A session on a provider that is not listed is refused at startup, at login, and when it next contacts the API, with a message naming what selected the provider and the entry that would allow it. Under a list, where first-party traffic goes (ANTHROPIC_BASE_URL, a gateway sign-in) is honored only when the same managed source pins it in "env" (or forceLoginGatewayUrl), and a claude ssh tunnel into the machine is refused. A cloud provider's credential and tenancy variables, and the network path and TLS trust (HTTPS_PROXY, NODE_EXTRA_CA_CERTS, CLAUDE_CODE_CERT_STORE), are not judged by this list; set those for the fleet in the managed "env" block, whose values replace the user's. To route Bedrock through a gateway for a fleet, pin ANTHROPIC_BEDROCK_BASE_URL there (it is what the clients use, ahead of an endpoint_url in ~/.aws/config, which this list does not judge); the AWS SDK's AWS_ENDPOINT_URL* pins only sanction where the SDK's own clients go and never stand in for the "bedrock" entry. Unset allows every provider; an empty array allows none. Only a list in managed-settings.json or MDM is enforcement on the machine: it cannot be widened or hidden by server-managed settings and reaches every session. A list set only in the admin console reaches only sessions that fetch your server-managed settings — not a session on a cloud provider, another organization or a non-Anthropic ANTHROPIC_BASE_URL, one authenticating only with apiKeyHelper or ANTHROPIC_AUTH_TOKEN, a Pro/Max/Ultra login, --bare without an API key, or a first launch before the fetch lands — all conditions the user controls. Versions that predate this setting ignore it; pair it with a minimum-version policy on a mixed fleet. 'claude auth status' reports the Anthropic API as apiProvider "firstParty".",
       "type": "array",
       "items": {
         "type": "string",
@@ -4334,10 +4409,11 @@ If a hook isn't running:
           "type": "boolean"
         },
         "failIfUnavailable": {
-          "description": "Exit with an error at startup if sandbox.enabled is true but the sandbox cannot start (missing dependencies or unsupported platform). When false (default), a warning is shown and commands run unsandboxed. Intended for managed-settings deployments that require sandboxing as a hard gate. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, and managed, --settings or user settings set true, false from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (true there still applies).",
+          "description": "Exit with an error at startup if sandbox.enabled is true but the sandbox cannot start (missing dependencies or unsupported platform). When false (default), a warning is shown and commands run unsandboxed. Intended for managed-settings deployments that require sandboxing as a hard gate. A Claude Code on the web, scheduled-task or Cowork cloud session (Anthropic's cloud container, which has no command sandbox) starts anyway with a warning: the container isolates it, and the sandbox.filesystem and sandbox.network rules in settings are not enforced there. When managed settings or a --settings file set allowUnsandboxedCommands: false, or managed settings set network.allowManagedDomainsOnly: true, and managed, --settings or user settings set true, false from project settings (.claude/settings.json and .claude/settings.local.json) is ignored (true there still applies).",
           "type": "boolean"
         },
         "autoAllowBashIfSandboxed": {
+          "description": "macOS and Linux/WSL only: approve a Bash command that will run inside the sandbox without a permission prompt, unless a deny rule, a command-specific ask rule or a safety check stops it. Default: false, so sandboxed commands go through the same permission flow as any other command. Has no effect on native Windows.",
           "type": "boolean"
         },
         "allowUnsandboxedCommands": {
@@ -4451,7 +4527,7 @@ If a hook isn't running:
               "type": "boolean"
             },
             "disabled": {
-              "description": "macOS and Linux/WSL only: skip filesystem isolation entirely while keeping network and seccomp isolation. Ignored on native Windows, where the sandboxed process runs as a separate user with no inherent rights, so skipping the filesystem rules would withhold every access grant rather than loosen them — filesystem isolation stays on there. Sandboxed commands get unrestricted read/write access to the host filesystem; network egress is still confined to network.allowedDomains. Intended for deployments whose goal is egress control rather than filesystem containment. Does not change Bash prompting: sandbox.autoAllowBashIfSandboxed is independent and still defaults to true, so set it to false to keep prompting for sandboxed commands. Drops the read protection from filesystem.denyRead and credentials.files deny entries for sandboxed commands, since both are enforced by the filesystem layer this turns off; credentials.files mask entries (sentinel binds) and credentials.envVars deny/mask are unaffected. Only honored from user, managed/policy, or CLI (`--settings`) settings — project settings (.claude/settings.json and .claude/settings.local.json) are ignored. If managed settings configure sandbox.filesystem at all, or list any sandbox.credentials.files deny entry, only managed settings can set this: an admin who deployed filesystem restrictions must not have them switched off by a user-writable file. (sandbox.credentials.envVars and credentials.files mask entries do not pin it — env scrubbing and sentinel binds are independent of the filesystem layer and survive this setting.) When unset, filesystem isolation stays on.",
+              "description": "macOS and Linux/WSL only: skip filesystem isolation entirely while keeping network and seccomp isolation. Ignored on native Windows, where the sandboxed process runs as a separate user with no inherent rights, so skipping the filesystem rules would withhold every access grant rather than loosen them — filesystem isolation stays on there. Sandboxed commands get unrestricted read/write access to the host filesystem; network egress is still confined to network.allowedDomains. Intended for deployments whose goal is egress control rather than filesystem containment. Does not change Bash prompting: sandbox.autoAllowBashIfSandboxed is independent and still defaults to false, so sandboxed commands keep going through the permission flow unless it is set to true. Drops the read protection from filesystem.denyRead and credentials.files deny entries for sandboxed commands, since both are enforced by the filesystem layer this turns off; credentials.files mask entries (sentinel binds) and credentials.envVars deny/mask are unaffected. Only honored from user, managed/policy, or CLI (`--settings`) settings — project settings (.claude/settings.json and .claude/settings.local.json) are ignored. If managed settings configure sandbox.filesystem at all, or list any sandbox.credentials.files deny entry, only managed settings can set this: an admin who deployed filesystem restrictions must not have them switched off by a user-writable file. (sandbox.credentials.envVars and credentials.files mask entries do not pin it — env scrubbing and sentinel binds are independent of the filesystem layer and survive this setting.) When unset, filesystem isolation stays on.",
               "type": "boolean"
             }
           }
@@ -4897,7 +4973,7 @@ If a hook isn't running:
             ]
           },
           "autoCompactWindow": {
-            "description": "Auto-compact window for this model, in tokens (100000 to 1000000), or "auto" for the window tuned for the model. Within one settings file it replaces the top-level autoCompactWindow for the model. /autocompact saves here. The canonical model name as key also matches its dated, [1m], Bedrock and Vertex spellings.",
+            "description": "Auto-compact window for this model, in tokens (at least 100000), or "auto" for the window tuned for the model. Within one settings file it replaces the top-level autoCompactWindow for the model. /autocompact saves here. The canonical model name as key also matches its dated, [1m], Bedrock and Vertex spellings.",
             "anyOf": [
               {
                 "type": "string",
@@ -4906,7 +4982,7 @@ If a hook isn't running:
               {
                 "type": "integer",
                 "minimum": 100000,
-                "maximum": 1000000
+                "maximum": 9007199254740991
               }
             ]
           }
@@ -4922,14 +4998,14 @@ If a hook isn't running:
       "description": "Auto-compact window size",
       "type": "integer",
       "minimum": 100000,
-      "maximum": 1000000
+      "maximum": 9007199254740991
     },
     "advisorModel": {
       "description": "Advisor model for the server-side advisor tool.",
       "type": "string"
     },
     "fastMode": {
-      "description": "When true, fast mode is enabled. When absent or false, fast mode is off.",
+      "description": "When true, fast mode is enabled. When absent or false, fast mode is off. On Vertex a saved value is ignored: use /fast each session.",
       "type": "boolean"
     },
     "fastModePerSessionOptIn": {
@@ -4949,7 +5025,7 @@ If a hook isn't running:
       "type": "boolean"
     },
     "askUserQuestionTimeout": {
-      "description": "Idle time before Claude's questions auto-continue with any answers selected so far. Defaults to never — auto-continue only runs when explicitly set to 60s/5m/10m.",
+      "description": "Idle time before Claude's questions in the terminal auto-continue with any answers selected so far. When unset, the terminal does not auto-continue. The Claude desktop and web apps show Claude's questions in their own interface and may move on from some unanswered ones after a wait the app sets. Claude is then told that nobody answered and uses its best judgment. In sessions that read this setting, only "never" stops the apps from moving on. Leaving it unset does not. Cloud sessions and Cowork tasks do not read your user settings file (~/.claude/settings.json), and managed settings do not reach all of them. This setting is ignored in a project's settings files.",
       "type": "string",
       "enum": [
         "60s",
@@ -5236,7 +5312,7 @@ If a hook isn't running:
       }
     },
     "sshHostCommands": {
-      "description": "SSH connections in Claude Desktop on macOS and Linux whose host comes from a command. A list of entries, each with `id`, `name` and `command`, and optionally `sshIdentityFile` and `startDirectory`. When you ask Desktop to create or replace an entry's host, it runs `command` on this computer: a program name or absolute path, followed by plain arguments. There is no shell, so quotes, pipes, variables and a leading `~` do not work. The command must print only the host on standard output: `host` or `user@host` on one line, or a JSON object with `sshHost` and, optionally, `sshPort` and `startDirectory`. Desktop reads this key only from user settings and from this computer's managed settings. Claude Code itself does not use it.",
+      "description": "SSH connections in Claude Desktop whose host comes from a command. A list of entries, each with `id`, `name` and `command`, and optionally `sshIdentityFile` and `startDirectory`. Desktop runs `command` on this computer when you create the connection or another host for it, not each time you connect. `command` is a program name or absolute path (single-quote a path with spaces), then plain arguments. Nothing else can be quoted. For pipes, variables or a leading `~`, use a script. On Windows, the program must be a full path from a drive letter, such as `C:/tools/acme.exe`, ending in `.exe`, `.cmd` or `.bat`. Quoted paths and Windows need Claude Desktop v4.16336.0 or later. The command must print only the host on standard output: `host` or `user@host` on one line, or a JSON object with `sshHost` and, optionally, `sshPort` and `startDirectory`. Desktop reads this key only from user settings and from this computer's managed settings. Claude Code itself does not use it.",
       "type": "array"
     },
     "claudeMd": {

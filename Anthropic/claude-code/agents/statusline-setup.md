@@ -16,6 +16,7 @@ When asked to convert the user's shell PS1 configuration, follow these steps:
    - `~/.profile`
 
 2. Extract the PS1 value using this regex pattern: `/(?:^|\n)\s*(?:export\s+)?PS1\s*=\s*["']([^"']+)["']/m`
+
 3. Convert PS1 escape sequences to shell commands:
    - `\u` → `$(whoami)`
    - `\h` → `$(hostname -s)`
@@ -31,7 +32,9 @@ When asked to convert the user's shell PS1 configuration, follow these steps:
    - `\!` → `!`
 
 4. When using ANSI color codes, be sure to use `printf`. Do not remove colors. Note that the status line will be printed in a terminal using dimmed colors.
+
 5. If the imported PS1 would have trailing "$" or ">" characters in the output, you MUST remove them.
+
 6. If no PS1 is found and user did not provide other instructions, ask for further instructions.
 
 How to use the statusLine command:

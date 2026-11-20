@@ -1,143 +1,49 @@
-# Hotels
+# Compare and book stays
 
-Use this reference for direct hotel-booking requests. Do not expand the ask
-into flights, activities, transportation, or a full itinerary.
+- Use this guide for a stay request. Add flights, activities or a wider trip plan only when the user wants them.
 
-Ask date, occupancy, account, and option questions in plain Markdown. Do not
-call `create_options`. Use the native map/list presentation below for results.
+## Establish dates and occupancy
 
-Keep implementation details out of traveler-facing responses: do not mention
-APIs, tools, response fields, integrations, or their limitations. Never replace
-a missing provider fact with reputation or general knowledge. If a requested
-material fact cannot be verified, say only that it could not be verified for
-the displayed option; otherwise omit it.
+- Resolve the destination or property, check-in and check-out dates, room count and the guests in each room. A request for one named night can mean a one-night stay, so state that assumption. Use local dates at the destination.
 
-## Build the stay profile before asking
+- Get each child's exact age before pricing, because age changes eligibility and rates. Do not search children as adults or guess their ages, and search again when occupancy or ages change.
 
-Use authorized memory, email, hotel and booking-platform accounts, and prior
-stays to determine, when available:
+- Use relevant past stays and stated preferences for location, room and bed, service, budget and payment timing. One stay is not a standing preference, and it never establishes accessibility needs or acceptance of a nonrefundable rate.
 
-- properties and neighborhoods previously used in the destination
-- explicit likes/dislikes from prior stays
-- boutique versus large hotel, independent versus chain, and desired service  
-  level
-- usual room type, bed type, floor, view, quiet-room, accessibility, and
-  smoking preferences
-- price comfort and willingness to prepay
-- loyalty programs, status, points, free-night certificates, upgrade benefits,
-  breakfast, parking, resort-credit, or late-checkout eligibility
-- preferred booking channel, including direct hotel accounts and platforms
-  such as Booking.com
+- For a broad destination, center the search on the stated purpose, event or known location, and say where you searched. Do not hold back results for a preference questionnaire. With the first shortlist, offer to focus on a neighborhood, office, venue or transit stop, using verified travel times.
 
-Do not treat one historical stay as a permanent style preference. Do not infer
-accessibility requirements or willingness to accept a non-refundable rate.
+## Search promising sources
 
-## Minimum search facts
+- Use `muse.connector_search` to find lodging connectors available in this session, and read their docs before using them.
 
-Destination or property, check-in, check-out, guest count, and room count are
-required. If the user names only a night, infer a one-night stay and label it.
-Use the destination timezone for dates. Ask early only if destination ambiguity
-or occupancy would invalidate the search.
+- Use browser tasks for interactive searches and confirm a promising rate with the actual seller. Neither a working connector nor a discount label proves the best value.
 
-Every child must have an exact age before searching because age changes lodging
-eligibility and price. Ask once for any missing ages; do not infer them or
-search children as adults. Search again whenever the room occupancy or a child
-age changes.
+- Match dates, occupancy, room, bed, meals, cancellation terms and payment timing before comparing prices. A cheaper third-party rate may lose breakfast, status credit, upgrades, flexibility or direct support, and a direct rate is not automatically better.
 
-If the location is broad, use the stated purpose, calendar event, prior
-neighborhood history, or current context to center the search. Say what the
-search is centered on.
+- For a rental, include cleaning and service fees, deposits, house rules and check-in arrangements, and explain how it differs from a serviced hotel.
 
-Do not block the first useful search on location preferences. With the initial
-shortlist, ask whether they care about proximity to a particular place,
-neighborhood, event, office, or transit stop. If they name a target, calculate
-or verify travel time and rerank the options around it.
+## Rank the full stay
 
-When `widget.create` is available, automatically show a `local_map` for a
-multi-property shortlist. Use only provider coordinates or coordinates
-verified with an available maps/places tool; never guess them. Give every
-marker the same stable option label and property name used in the comparison,
-put the full-stay price and decisive term in its subtitle, and attach that
-property's verified image as `background_image_url` when available.
-Prefer coordinates returned with the lodging result. Do not geocode properties
-that already have both coordinates, do not delay the initial map to fetch
-missing photos or other per-property enrichment, and create the shortlist map
-in one widget operation rather than iteratively rebuilding it.
+- Alongside the total, weigh the amount due now and at the property, the exact room and bed, verified travel time to what matters, cancellation and deposit terms, included meals and parking, useful benefits, and check-in and check-out times.
 
-If exact coordinates cannot be verified or the map call fails, create a
-generic native `list` whose rows use the same labels and order, with one
-verified property image attached to its corresponding hotel. The list is a
-visual summary, not a selection control; keep the compact Markdown comparison
-as the place where complete terms and the user's `A`/`B`/`C` choice are clear.
-Never emit an unlabeled image grid. If neither widget is available, place each
-labeled image immediately beside or below its hotel's Markdown entry.
+- A nightly rate alone is not comparable. Keep offers with missing mandatory fees, estimated totals or unknown current cancellation terms out of the bookable shortlist until checked.
 
-## Search and route
+- A passed cancellation deadline is not a refundable rate. Never fill a missing fact with the property's reputation, and state the gap when it matters to the choice.
 
-Use an installed lodging provider for live lodging discovery and rate refreshes
-when available; otherwise use another connected accommodation tool or the
-browser. Do not treat a flight-only integration as supporting hotels. Confirm
-shortlisted rates rather than trusting teaser prices. Check the authenticated
-hotel-chain site when status, member pricing, points, or certificates matter.
-Check a connected booking platform when it contains useful history, member
-pricing, or better inventory.
+## Show the location and options
 
-For the selected rate, use native checkout only when the freshly refreshed
-provider data explicitly marks that exact rate eligible. When a selected rate
-requires provider-hosted checkout, always surface its validated URL. If the
-user has already asked to complete the booking, continue through that exact URL
-in the browser; otherwise leave it as an actionable link without asking an
-additional question. A provider-hosted checkout URL is the provider's supported
-completion path, not a failed provider path. Do not switch rooms, rates, or
-terms to force native checkout. Booking retrieval, cancellation terms, and
-cancellation apply only to bookings represented by an owned capability in the
-selected provider skill.
+- Present the comparison as [booking presentation](/opt/muse/assets/booking/references/presentation.md) describes, with stable option labels. Follow a connector's own result layout when its docs supply one.
 
-Compare direct and third-party rates on equivalent rooms and terms. A cheaper
-third-party rate may lose status credit, upgrades, breakfast, flexibility, or
-direct support; a direct rate is not automatically better.
+- For native result cards from one connector, follow that connector's documented preview size and See all behavior. For text comparisons, follow booking presentation and any applicable connector text-result guidance. Use the comparison table when comparing different sellers, and honor explicit requests for a map.
 
-When moving to a hotel or booking-platform website, ask whether the user has
-an account there and wants to sign in so member rates, loyalty benefits, saved
-preferences, and booking history can be used. Continue as a guest if they do
-not. Do not require a new account.
+## Complete the chosen reservation
 
-When browser continuation applies under the rule above, follow the shared
-browser-booking workflow. Do not switch properties, room types, dates, or rate
-terms because one channel fails.
+- Once the user picks a rate, continue with its seller and answer questions from that seller's data.
 
-## Rank on the full stay
+- Follow [checkout](/opt/muse/assets/booking/references/checkout.md) for the final refresh. For a stay, look for changes to the room, bed, view, fees, cancellation terms and benefits.
 
-Compare:
+- The final review shows the property and address, dates, occupancy, exact room and rate, full total, payment timing, deposit or card hold, inclusions, benefits, and the cancellation deadline with its timezone.
 
-- full stay total, taxes, mandatory resort/destination fees, and anything due
-  at the property
-- room and bed type, occupancy, and whether the room is guaranteed
-- exact location and travel time to the stated purpose
-- cancellation deadline, refundability, prepayment, deposit, and card hold
-- included breakfast, parking, Wi-Fi, credits, and meaningful status benefits
-- points earned or redeemed and certificate value
-- check-in/check-out times and late-arrival requirements
+- Use native checkout only when fresh provider data marks that exact rate as eligible. When a rate needs the provider's own checkout, show its validated link, and continue through it with [browser booking](/opt/muse/assets/booking/references/browser-booking.md) once the user has asked to finish the booking. Never switch property, room or terms to force a particular checkout route.
 
-Do not compare only nightly rates. Disclose the charged-now and due-at-property
-amounts separately. A property with only an estimated total, missing mandatory
-fees, or unknown current cancellation terms is not a bookable contender. Keep
-it outside the ranked shortlist until rechecked. Do not label a rate
-`refundable` when its cancellation deadline has passed; reverify it.
-
-## Prepare and book
-
-Revalidate the chosen room and rate immediately before final review. Surface
-any room, bed, view, refundability, fee, or benefit change.
-
-At final review include property and address, dates, guests/rooms, exact room
-and bed, rate name, full total, due now, due at property, deposit/hold,
-inclusions, loyalty/points/certificate use, and cancellation deadline.
-
-Use secure provider or profile fields for identity, membership, and payment data.
-Do not expose full values in chat.
-
-Verify with a provider confirmation number and a reservation visible in the
-hotel or booking-platform account when possible. Return the safe confirmation
-reference, dates, room, total, due-at-property amount, and cancellation
-deadline.
+- In the confirmation, include the room, the amount still due at the property and the cancellation deadline, and check the account record when one is available.

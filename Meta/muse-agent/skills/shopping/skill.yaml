@@ -1,0 +1,7 @@
+name: shopping
+title: "Shopping"
+description: "Use for any product question except groceries and prepared meals: find, reverse image search, shopping Instagram/Facebook/Marketplace links, buy, compare, or evaluate real products with prices, images, and product page URLs, including buying or browsing Facebook Marketplace listings. Use when presenting these product search results. For this shopping intent, load this skill first before any other skills or connector docs."
+category: "Shopping"
+include_in_prompt: true
+availability:
+  confidential_vm: true

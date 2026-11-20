@@ -40,10 +40,10 @@ The API depends on the generation, and the two are not compatible.
 2. Reach it through the Home Link CONNECT proxy. It serves a documented HTTP
    API, so the HTTP section of `~/docs/devices/home_link.md` applies,
    including its approval and redirect rules.
-3. Call `Shelly.GetDeviceInfo` to confirm the model and generation, and to read  
+3. Call `Shelly.GetDeviceInfo` to confirm the model and generation, and to read
    `auth_en`.
 4. Read `Switch.GetStatus?id=0` before acting, so you know the state you are
-   changing and can tell a no-op from a real change. A plug has one switch, at  
+   changing and can tell a no-op from a real change. A plug has one switch, at
    `id=0`.
 5. Switch with `Switch.Set?id=0&on=true` or `on=false`. The reply is
    `{"was_on": <bool>}`, which is the state *before* the call, not the result.

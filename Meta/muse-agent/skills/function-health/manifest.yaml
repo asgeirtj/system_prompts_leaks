@@ -1,8 +1,24 @@
 version: 1
+gating:
+  allowed_countries: [US, PR]
+metadata:
+  visible_in_settings: true
+auth:
+  # Public half of the Meta-owned confidential client. Expected-public: it rides
+  # the authorize URL as a query parameter, which runs in the user's VM. Only
+  # the secret is withheld, and that stays in CAGI -- see
+  # `hatch-authd/src/cagi_oauth.rs`.
+  client_id: "phKVpxx4eDTstLtmKbRwxR5Qw73RJnxV"
+  provider: function_health
+  required: true
+cli:
+  binary: function-health
+  skill: function_health
 connector: function_health
 category: health
 display_name: Function Health
 description: Get health insights from lab results and clinician notes
+icon: function_health
 request_quota:
   mode: enforce
   workers:

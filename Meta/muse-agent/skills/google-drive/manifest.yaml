@@ -1,8 +1,15 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-9hqcd6sb4opkueb11db2fqeffrfp1jek.apps.googleusercontent.com"
+  provider: google_drive
+  required: true
 connector: google_drive
 category: productivity
 display_name: Google Drive
 description: Search and manage your files and documents
+icon: google_drive
 request_quota:
   mode: enforce
   workers:
@@ -33,21 +40,43 @@ actions:
       files.create.private:
         default: allow
         label: Create or upload private files
+        approval_phrase: create or upload private files, or generate client-side encryption tokens, in Google Drive
       files.create.shared:
         label: Create or upload files that may be shared
+        approval_buttons:
+          allow_once: "Create"
+          deny: "Don't create"
+          deny.task: "Don't create"
       files.update.private:
         default: allow
         label: Update private files
+        approval_buttons:
+          allow_once: "Update"
+          deny: "Don't update"
+          deny.task: "Don't update"
       files.update.shared:
         label: Update shared files
+        approval_phrase: manage shared files, comments, replies, shared drives and change notifications in Google Drive
       files.trash:
         default: allow
-        label: Trash or restore files
+        label: Move files to or from trash
+        approval_phrase: move files to or from trash in Google Drive
+        approval_buttons:
+          allow_once: "Move"
+          deny: "Don't move"
+          deny.task: "Don't move"
       permissions.create:
+        approval_policy: fresh_consent_or_task_allow
         label: Manage sharing permissions and move files
+        approval_phrase: manage sharing permissions, move files, or manage access requests and file approvals in Google Drive
       files.delete:
         default: allow
         label: Delete files
+        approval_phrase: permanently delete files or file revisions, including files in the trash, in Google Drive
+        approval_buttons:
+          allow_once: "Delete"
+          deny: "Don't delete"
+          deny.task: "Don't delete"
 commands:
   status: null
   disconnect: null

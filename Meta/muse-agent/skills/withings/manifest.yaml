@@ -1,8 +1,20 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Expected-public OAuth identifier. CAGI holds the secret and performs
+  # Withings' signed, nonce-bearing token exchange.
+  client_id: "274e239432dba6bc271cbad363efb1c0b4236ce76f06b2db04d8401e6a5a625a"
+  provider: withings
+  required: true
+cli:
+  binary: withings
+  skill: withings
 connector: withings
 category: health
 display_name: Withings
 description: Track weight, blood pressure, sleep and overall fitness metrics
+icon: withings
 request_quota:
   mode: enforce
   workers:
@@ -32,6 +44,22 @@ actions:
         label: Read activity, sleep and workouts
       device.read:
         label: Read devices
+commands:
+  status: null
+  # Static field catalogue; does not call Withings.
+  list-fields: null
+  query: activity.read
+  authorize-url: null
+  disconnect: null
+  measures: measures.read
+  activity: activity.read
+  sleep-summary: activity.read
+  sleep: activity.read
+  workouts: activity.read
+  intraday: activity.read
+  heart-list: measures.read
+  heart-get: measures.read
+  devices: device.read
 
 consent_screen:
   bullets:

@@ -1,8 +1,20 @@
 version: 1
+gating:
+  allowed_countries: [US, PR]
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "2ee2b2da-ecb0-42fa-bcee-83034bff20c4"
+  provider: healthex
+  required: true
+cli:
+  binary: healthex
+  skill: healthex
 connector: healthex
 category: health
 display_name: HealthEx
 description: Get tailored insights from your health records
+icon: healthex
 actions:
   read:
     default: allow
@@ -21,16 +33,7 @@ commands:
   refresh: null
   exchange-code: null
   mcp-list: tools.list
-  get-medications: records.read
-  get-conditions: records.read
-  get-allergies: records.read
-  get-immunizations: records.read
-  get-vitals: records.read
-  get-labs: records.read
-  get-procedures: records.read
-  get-visits: records.read
-  get-clinical-notes: records.read
-  get-health-summary: records.read
+  mcp-call: records.read
 
 consent_screen:
   bullets:

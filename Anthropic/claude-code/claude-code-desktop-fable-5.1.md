@@ -3,10 +3,12 @@
 | Effort setting | `<reasoning_effort>` value |
 |---|---|
 | low | 10 |
-| medium | 20 |
-| high | 30 |
+| medium | 15 |
+| high | 25 |
 | xhigh | 80 |
 | max | `max` |
+
+`<antml:reasoning_effort>`25`</antml:reasoning_effort>`
 
 `<antml:thinking_mode>`auto`</antml:thinking_mode>`
 

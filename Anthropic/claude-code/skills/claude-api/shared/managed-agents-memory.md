@@ -2,7 +2,7 @@
 
 > **Public beta.** Memory stores ship under the `agent-memory-2026-07-22` beta header; the SDK sets it automatically on all `client.beta.memory_stores.*` calls. Don't add `managed-agents-2026-04-01` to these calls - sending both headers on a memory store request returns a 400. Attaching a store to a session is a session call and still uses `managed-agents-2026-04-01`. If `client.beta.memory_stores` is missing, upgrade to the latest SDK release.
 
-Sessions are ephemeral by default - when one ends, anything the agent learned is gone. A **memory store** is a workspace-scoped collection of small text documents that persists across sessions. When a store is attached to a session (via `resources[]`), it is mounted into the container as a filesystem directory; the agent reads and writes it with the ordinary file tools, and a system-prompt note tells it the mount is there.
+By default, a session can't see what the agent learned in earlier sessions. A **memory store** is a workspace-scoped collection of small text documents that persists across sessions. When a store is attached to a session (via `resources[]`), it is mounted into the container as a filesystem directory; the agent reads and writes it with the ordinary file tools, and a system-prompt note tells it the mount is there.
 
 Every mutation to a memory produces an immutable **memory version** (`memver_...`), giving you an audit trail and point-in-time rollback/redact.
 
@@ -30,7 +30,7 @@ print(store.id)  # memstore_01Hx...
 
 Other SDKs: TypeScript `client.beta.memoryStores.create({...})`; Go `client.Beta.MemoryStores.New(ctx, ...)`. See `shared/managed-agents-api-reference.md` -> SDK Method Reference for the full per-language table.
 
-Stores support `retrieve` / `update` / `list` (with `include_archived`, `created_at_{gte,lte}` filters) / `delete` / **`archive`**. Archive makes the store read-only - existing session attachments continue, new sessions cannot reference it; no unarchive.
+Stores support `retrieve` / `update` / `list` (with `include_archived`, `created_at_{gte,lte}` filters) / `delete` / **`archive`**. An archived store can't be attached to new sessions, its memories can't be created or updated, and the store itself can't be updated; no unarchive. Through the API you can still read and delete its memories, redact past versions, and delete the store. Sessions already attached to it keep reading, but their writes don't reach the store. Their file deletes fail on cloud sandboxes but reach the store from self-hosted ones, unless the worker's delete propagation setting stops them.
 
 ### Seed with content (optional)
 

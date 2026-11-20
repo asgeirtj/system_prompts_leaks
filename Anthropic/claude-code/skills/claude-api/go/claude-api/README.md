@@ -29,7 +29,7 @@ client := anthropic.NewClient(
 
 ## Model IDs
 
-`anthropic.Model` is an alias for `string`, so pass the model as its plain id: `Model: "claude-opus-5-5"`. Default to Claude Opus 5.5 unless the user specifies otherwise; if they ask for Fable or the most powerful model, use `"claude-fable-5-1"`; if they ask for a cheaper tier, use the current generation - `"claude-sonnet-5-5"` or `"claude-haiku-5-5"` (see `shared/models.md` for the full resolution table).
+`anthropic.Model` is an alias for `string`, so pass the model as its plain id: `Model: "claude-opus-5-5"`. Default to Claude Opus 5.5 unless the user specifies otherwise; if they ask for Fable or the most powerful model, use `"claude-fable-5-2"`; if they ask for a cheaper tier, use the current generation - `"claude-sonnet-5-5"` or `"claude-haiku-5-5"` (see `shared/models.md` for the full resolution table).
 
 The SDK also ships typed `anthropic.ModelClaude*` constants, but they lag model launches - a given SDK release may have constants only for previous-generation models. Do not pick a model because it has a typed constant; the string id works for every model on every SDK version. Check the SDK release notes before assuming a typed constant exists for a current model.
 
@@ -69,7 +69,7 @@ Derived from `anthropic-sdk-go/message.go` (`ThinkingConfigParamUnion`, `Thinkin
 ```go
 // There is no ThinkingConfigParamOfAdaptive helper - construct the union
 // struct-literal directly and take the address of the variant.
-// display opt-in: default is omitted (empty thinking text) on Fable 5/5.1, Mythos 5/5.1, Claude Opus 5.5, Claude Opus 5, Opus 4.8/4.7, Claude Sonnet 5.5, and Claude Sonnet 5
+// display opt-in: default is omitted (empty thinking text) on Fable 5/5.1/5.2, Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8/4.7, Claude Sonnet 5.5, and Claude Sonnet 5
 adaptive := anthropic.ThinkingConfigAdaptiveParam{Display: anthropic.ThinkingConfigAdaptiveDisplaySummarized}
 params := anthropic.MessageNewParams{
     Model:     "claude-opus-5-5",
@@ -96,7 +96,7 @@ for _, block := range resp.Content {
 }
 ```
 
-> **Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking (above). `ThinkingConfigParamOfEnabled(budgetTokens)` is removed on Fable 5, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
+> **Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, Opus 4.7, Opus 4.6, and Sonnet 4.6:** Use adaptive thinking (above). `ThinkingConfigParamOfEnabled(budgetTokens)` is removed on Fable / Mythos 5/5.1/5.2, Claude Opus 5.5, Claude Opus 5, Opus 4.8, and 4.7 (400 if sent); deprecated on Opus 4.6 and Sonnet 4.6.  
 > **Claude Opus 5.5:** thinking is always on - leave `Thinking` unset (or send the adaptive union, which is equivalent); `OfDisabled` returns a 400 at every effort, as does `ThinkingConfigParamOfEnabled`. Control depth with `Effort` under `OutputConfig` instead - the default is `medium` on this model, where Claude Opus 5 defaults to `high`.  
 > **Claude Opus 5:** thinking is on by default - leaving `Thinking` unset runs adaptive (the adaptive union is equivalent), unlike Opus 4.8/4.7 where leaving it unset meant no thinking.  
 > **Older models:** Use `anthropic.ThinkingConfigParamOfEnabled(N)` (budget must be < `MaxTokens`, min 1024).
@@ -133,7 +133,7 @@ if resp.StopReason == anthropic.StopReasonRefusal {
 }
 ```
 
-**Refusal fallbacks (Claude Fable 5.1) - opt in by default.** Fallbacks are opt-in: without them a refused request simply stops. In `claude-fable-5-1` code, include `Fallbacks: []anthropic.BetaFallbackParam{{Model: "claude-opus-4-8"}}` plus the `anthropic.AnthropicBetaServerSideFallback2026_06_01` beta on `client.Beta.Messages.New` by default - a policy decline is re-served by the fallback model inside the same call. Not available on Amazon Bedrock, Vertex AI, or Microsoft Foundry - register the client-side middleware there: `option.WithMiddleware(betafallback.BetaRefusalFallbackMiddleware(...))` from `lib/betafallback`, with per-conversation state via `betafallback.WithBetaFallbackState(&betafallback.BetaFallbackState{})`. Full semantics (billing, sticky routing, streaming) and a runnable example: `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason, and the Go SDK repo's `examples/` (fetch it from `shared/live-sources.md`).
+**Refusal fallbacks (Claude Fable 5.2) - opt in by default.** Fallbacks are opt-in: without them a refused request simply stops. In `claude-fable-5-2` code, include `Fallbacks: anthropic.BetaFallbacksParamUnion{OfBetaFallbackArray: []anthropic.BetaFallbackParam{{Model: anthropic.ModelClaudeOpus4_8}}}` plus the `anthropic.AnthropicBetaServerSideFallback2026_07_01` beta on `client.Beta.Messages.New` by default - a policy decline is re-served by the fallback model inside the same call. Not available on Amazon Bedrock, Vertex AI, or Microsoft Foundry - register the client-side middleware there: `option.WithMiddleware(betafallback.BetaRefusalFallbackMiddleware(...))` from `lib/betafallback`, with per-conversation state via `betafallback.WithBetaFallbackState(&betafallback.BetaFallbackState{})`. Full semantics (billing, sticky routing, streaming) and a runnable example: `shared/model-migration.md` -> Migrating to Claude Fable 5.1 -> `refusal` stop reason, and the Go SDK repo's `examples/` (fetch it from `shared/live-sources.md`).
 
 ---
 

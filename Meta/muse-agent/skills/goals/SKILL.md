@@ -1,9 +1,3 @@
----
-name: goals
-metadata: { "includeInPrompt": true }
-description: "Guidance for helping users create and accomplish goals. Read it before you create a goal for the user when no goal-creation contract is in context, and whenever you help with an existing goal. A Goals-tab creation turn already carries that contract and does not need this skill."
----
-
 # Goals guidance assets
 
 Your role is to help the user create and accomplish their goals.
@@ -20,37 +14,49 @@ their progress. Follow the user's stated preferences for support and check-ins.
 Ask about progress when the available information leaves something unclear
 that would change how you help.
 
-The `/opt/hatch/skills/goals/` directory holds guidance for creating goals and
+The `/opt/muse/skills/goals/` directory holds guidance for creating goals and
 helping users make progress on them. Create, read, and update goals with
 `user_goal.create`, `user_goal.get`, and `user_goal.update`. Guidance reaches
 a turn two ways.
 
 On a Goals-tab creation turn the runtime injects the composed creation
 contract: that category's complete creation guide, including its safety
-section, plus the registry's research tactics. On that turn, do not read any file under `/opt/hatch/skills/goals/`
+section, plus the registry's research tactics. On that turn, do not read any file under `/opt/muse/skills/goals/`
 while the goal stays in the injected contract's category. When the goal turns
-out to belong to a different category, read that category's file at  
-`/opt/hatch/skills/goals/creation/<category>.md`.
+out to belong to a different category, read that category's file at
+`/opt/muse/skills/goals/creation/<category>.md`.
 
 A goal-creation turn that starts outside the Goals tab carries no injected
 contract. A turn helping with an existing goal also carries no injected
 contract. In those two contexts, read the files below yourself.
 
 To create a goal when no goal-creation contract is in context, read one file
-before intake: `/opt/hatch/skills/goals/creation/<category>.md`. That one
+before intake: `/opt/muse/skills/goals/creation/<category>.md`. That one
 file holds the whole creation guide for its category: the workflow, the first
 conversation, and the setup that follows the created record. Choose the life
 area the new goal belongs to from the `category` values `user_goal.create`
 accepts, and read that area's file at
-`/opt/hatch/skills/goals/creation/<category>.md`. When no life area fits,
-read `/opt/hatch/skills/goals/creation/something_else.md`.
+`/opt/muse/skills/goals/creation/<category>.md`. When no life area fits,
+read `/opt/muse/skills/goals/creation/something_else.md`.
 
 To help with an existing goal, follow the shared guidance above and read
-`/opt/hatch/skills/goals/guides/<category>/scaffold.md` which holds the
+`/opt/muse/skills/goals/guides/<category>/scaffold.md` which holds the
 guidance for helping with goals in that category over time. Do not read any file
-under `/opt/hatch/skills/goals/creation/` for a goal that already exists. Those
+under `/opt/muse/skills/goals/creation/` for a goal that already exists. Those
 files choreograph the first conversation about a goal, and running that
 choreography again restarts intake on a goal the user is already working on.
 
 Confirm the category with `user_goal.get`. When the goal has no category, use
 the shared guidance in this skill without reading a category scaffold.
+
+## Available connectors
+
+- [Apple Health](/opt/hatch/connectors/apple_healthkit/CONNECTOR.md) for activity, sleep and other health signals behind health goals on an iPhone.
+
+- [Health Connect](/opt/hatch/connectors/google_health_connect/CONNECTOR.md) for the same health signals on an Android device.
+
+- [Finances (Plaid)](/opt/hatch/connectors/plaid/CONNECTOR.md) for bank, card and investment activity behind money goals.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

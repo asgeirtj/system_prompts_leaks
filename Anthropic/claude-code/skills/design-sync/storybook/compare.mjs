@@ -96,7 +96,7 @@ const manifest = JSON.parse(readFileSync(join(OUT, '.stories-map.json'), 'utf8')
 if (manifest.keyRecipe !== KEY_RECIPE) for (const c of manifest.components ?? []) delete c.sourceKey;
 const SB = resolve(flag('storybook-static', manifest.storybookStatic ?? ''));
 if (!SB || !existsSync(join(SB, 'iframe.html'))) {
-  console.error(`[SB_REFERENCE_MISSING] ${SB || '(unset)'} has no iframe.html \u2014 build the reference storybook first (npx storybook build -o .design-sync/sb-reference) and pass --storybook-static.`);
+  console.error(`[SB_REFERENCE_MISSING] ${SB || '(unset)'} has no iframe.html \u2014 build the reference storybook first (npx --no-install storybook build -o .design-sync/sb-reference) and pass --storybook-static.`);
   process.exit(2);
 }
 

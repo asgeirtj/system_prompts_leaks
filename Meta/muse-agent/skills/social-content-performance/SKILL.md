@@ -1,175 +1,83 @@
----
-name: "social_content_performance"
-title: "Social Content Performance"
-description: "Analyze the user's own Instagram account and post performance using linked-account analytics."
-icon: "instagram"
-metadata: { "includeInPrompt": false }
----
-
 # Social Content Performance
 
-## Purpose
+## Scope the question
 
-Analyze the user's own Instagram account or post performance, changes over
-time, comparisons among the user's own posts or accounts, and content ideas
-grounded in the user's own results.
+- For a caption or hashtag request with no analysis question, write from the user's brief and the material they supply, return the draft and stop. Do not fetch account data or establish a reporting period for this branch. The remaining analysis steps apply only to performance questions.
 
-Do not use it for competitor, peer, industry, or benchmark comparisons. Those
-belong to `social_competitor_analysis`, even when the question is phrased as
-"how do I compare" or "is this normal for my category?"
+- For a performance question, identify the network, the account and what the user wants to learn, such as which posts reached the most people, how a launch landed or what to post next. Settle the reporting period and timezone before fetching anything.
 
-## Commands
+- Analyze only accounts the user manages. Take the account from the connector's own account list, ask which one to use when several fit, and stop when a named account is not returned rather than substituting another.
 
-Run these Instagram analytics commands through `exec`:
+- Comparisons with competitors, peers or industry norms use Social Competitor Analysis, which `muse.skill_search` finds when this session has it. Public figures cannot fill a gap in the user's private metrics.
 
-```sh
-instagram-cli accounts
-instagram-cli analytics-metric-metadata \
-  --account-id <user_own_fbid> --metric-name <metric>
-instagram-cli analytics-account-insights \
-  --account-id <user_own_fbid> --time-range last-28d
-```
+## Gather the evidence
 
-`--metric-name` may be repeated. Instagram account insights read the one
-account selected by `--account-id`. For several accounts, invoke the command
-once per returned account ID and combine the results. Use
-`--include-time-series` only when the question needs a trend.
+- Retrieve the posts in scope with their publication times and permalinks, then the metrics the question needs. Preserve each connector's returned metric display names exactly rather than replacing them with generic labels or labels from memory.
 
-For post content, use the installed Instagram CLI and follow its
-account-resolution and access rules:
+- For Instagram post metrics, use the connector's owned-post insights and media definitions. These figures cover each post's lifetime rather than the selected reporting period; compare posts of similar age and state that scope.
 
-```sh
-instagram-cli accounts
-instagram-cli posts --account-id <user-own-fbid> [filters]
-instagram-cli post --account-id <user-own-fbid> --id <post-id>
-```
+- Keep each metric at the level it was returned. Account totals do not describe one post, daily unique-account values do not add up to a unique count across a period, and a missing value is unknown rather than zero.
 
-Never pass an identifier to the Instagram CLI unless its documented flow
-returned it. If the CLI cannot resolve the requested account or post,
-say that the post-level data is unavailable; do not substitute another account
-or infer post metrics from account totals.
+- Keep metrics with different counting conditions or denominators distinct. Separate organic from paid results and keep follower and non-follower breakdowns when they are returned.
 
-## Workflow
+- Use only the account's own data as evidence about its performance. Web results, social search, outside benchmarks and remembered figures do not count.
 
-### 1. Resolve the account
+## Find what actually worked
 
-Begin with `instagram-cli accounts`. Treat its result as the ownership and
-permission boundary.
+- Compare like with like, matching format, post age, period and audience basis. Note when a post had paid support or reached an unusual audience.
 
-- If exactly one returned account matches the request, use its handle and ID.
-- If several accounts could match, ask one concise question listing their
-  handles, then stop until the user chooses.
-- If a named account is not returned, explain that this analysis can use only
-  an account the user manages, then stop.
+- Review the complete eligible set before calling a post the best, ranking posts or computing an average. One strong post is an example, not a formula.
 
-Keep opaque account and post IDs inside tool calls. Do not show them to the
-user.
+- Separate how often a format was used from how well it performed. Do not infer causes, audience intent, sensitive traits or algorithm behavior from a correlation.
 
-### 2. Read the requested evidence
+## Recommend the next step
 
-For account metrics, run `analytics-account-insights` through `instagram-cli`.
-Match the requested time range where the command supports it.
+- Lead with the answer and support each finding with the values compared. Follow [Presenting social results](references/presenting-results.md) for the format, post labels, links and scope statement.
 
-For a content-performance question, also read the relevant posts through the
-Instagram path. Account insights are account-level evidence and cannot
-establish which individual post performed best. Likewise, captions, media, and
-dates do not establish reach, views, saves, or shares unless a post-level
-response contains those values.
+- Tie one or two next experiments to the user's objective, with what to measure and when to look again. Promise no outcome.
 
-Resolve every metric used in the answer with `instagram-cli
-analytics-metric-metadata`. Use the returned display name and definition
-verbatim. If no display name is returned, omit that metric; if no definition is
-returned, do not invent one.
+- When a requested metric does not exist at the requested level, say so and offer the nearest available measure without presenting it as the same thing.
 
-Do not use web search, social search, outside benchmarks, or remembered figures
-as evidence about the user's account performance.
+- Report consent, account-linking and eligibility errors as they are. Do not retry a policy denial or work around it with another tool.
 
-### 3. Analyze at the returned grain
+- Analysis does not authorize publishing or changing a campaign. Use [Social Publishing](/opt/muse/skills/social-publishing/SKILL.md) or [Advertising Campaigns](/opt/muse/skills/advertising-campaigns/SKILL.md) when the user wants to act on the findings.
 
-Identify the metric, grain, entity, and window that answer the question. Compare
-only like-for-like values, accounting for material differences in post age,
-format, and paid versus organic delivery.
+## Available connectors
 
-- Preserve paid/organic and follower/non-follower breakdowns when present.
-- Never attach an account-wide value to one post or format.
-- Do not sum reach or accounts-reached across days unless the backend reports
-  an aggregate.
-- Treat missing and `null` as unavailable, never zero.
-- Treat one post as an example, not a pattern.
-- Do not infer causation, audience intent, demographics, sensitive traits, or
-  algorithm behavior from correlations.
+- [Instagram](/opt/hatch/connectors/instagram/CONNECTOR.md) for the user's posts, owned-post lifetime insights, account insights and metric definitions.
 
-Analyze the complete eligible set before making a set-level claim such as
-`top`, `best`, `average`, `typical`, or a ranking. Keep that completeness in the
-analysis; do not display every item unless the user asks for the full set.
+- [Facebook](/opt/hatch/connectors/facebook_cli/CONNECTOR.md) for managed Page insights, Page post metrics and the reactions and comments on personal posts.
 
-Prioritize the few findings that most directly answer the request. Support each
-finding with a clear comparison and both values. Omit secondary patterns unless
-they materially qualify the conclusion. Recommend an action only when it follows
-from a supported comparison, and promise no outcome.
+- [Threads](/opt/hatch/connectors/threads/CONNECTOR.md) for the user's posts, post insights, top posts and account insights.
 
-### 4. Present the result
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
 
-Lead with the answer. State Instagram, the actual returned window, and the
-analyzed scope. Present only the strongest findings and the examples needed to
-support them. If a ranking uses many posts, state the analyzed population but
-show only the relevant leaders unless the user requests the full ranking.
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.
 
-Use concise prose for the answer, interpretation, and caveats. Choose supporting
-presentations according to what the evidence needs:
+### When available
 
-- Use a metric-card widget only for a non-comparative snapshot of distinct
-  headline KPIs for one account and one window; a card may include a subdued
-  prior-period delta as context.
-- When presenting a comparison between subjects, use a Markdown table for exact
-  values or a chart when the relative shape matters.
-- Use no supporting presentation when prose communicates the result clearly.
+- These connectors depend on the user's channel or devices. `muse.connector_search` shows which ones this session has.
 
-Combine formats when each communicates a distinct part of the answer. Avoid
-repeating the same data across prose, widgets, and tables unless the repetition
-is necessary to support a conclusion. Create a widget only when it adds clear
-value.
+- [Upload-Post](/opt/hatch/connectors/upload_post_mcp/CONNECTOR.md) for post and platform analytics across the networks connected to Upload-Post.
 
-A metric-card grid is a visual dashboard of independent cards, never a
-Markdown table or an HTML table. Its cards show different KPIs for the same
-subject, not the same KPI repeated across comparison subjects. Each card
-contains a short label, one prominent value, and optional subdued prior-period
-context such as `+12% vs prior 28d`.
+- [vidIQ](/opt/hatch/connectors/vidiq_mcp/CONNECTOR.md) for YouTube channel, video and subscriber analytics.
 
-Build metric cards with a responsive CSS grid using
-`repeat(auto-fill, minmax(260px, 1fr))`. Give each card its own rounded border
-and consistent padding. Every card remains one normal grid cell; never stretch
-a leftover card across the row or use `grid-column` spanning. Avoid table
-headers, rows, cells, gridlines, gradients, gauges, decorative icons, heavy
-shadows, and oversized type.
+## Websites
 
-Keep any widget responsive and restrained, using only `--hatch-widget-*`
-colors. Build it with `widget.create`, `kind: "html"`, and `present_now: false`.
-If creation fails, answer without the widget and do not fetch again.
+- Open a network's own analytics with `browser.browse` when no connector covers that network, measure or period. Give the task the exact account, period and timezone, and have it return each figure with its metric name and any export it produced.
 
-Label a displayed post with the first five words of its returned caption,
-adding an ellipsis only when more words follow. If no caption is available, use
-its returned date and format. Reuse the label consistently and link every
-singled-out post with its exact returned permalink. Never construct a permalink
-or expose a raw ID. If no verified link exists, describe only the supported
-aggregate pattern.
+- [YouTube Studio](https://studio.youtube.com/) for YouTube channel and video analytics.
 
-If the requested metric is unavailable at the requested grain, say exactly
-that and offer the nearest available measure without presenting it as a
-substitute fact. Report consent, eligibility, account-linking, and tool errors
-faithfully; do not retry a policy denial or work around it with another tool.
+- [TikTok Studio](https://www.tiktok.com/tiktokstudio/) for TikTok account and post analytics.
 
-## Final checks
+- [LinkedIn](https://www.linkedin.com/) for the analytics of company Pages the user administers.
 
-Before replying, verify:
+- [Pinterest Analytics](https://analytics.pinterest.com/) for Pin and board performance.
 
-- every account came from the `instagram-cli accounts` result;
-- every number came from the current tool output or an explicit calculation;
-- every post claim and link came from that same post's row;
-- metric names and definitions match metric metadata;
-- missing values were not converted to zero;
-- no peer benchmark, causal claim, or sensitive inference slipped in;
-- the answer contains only the most useful findings and supporting examples;
-- any widget adds a useful chart rather than duplicating the response;
-- no raw account ID, post ID, tool name, or backend field name appears in the
-  user-facing answer.
+## Alternatives for better results
+
+- Join content results to business outcomes with the user's own website, lead or sales records when they share access. Without that evidence, report engagement as engagement rather than business impact.
+
+- Compare each post with the account's own baseline for the same format rather than with industry averages.
+
+- Offer a follow-up review with `cron.add` when results need time to mature, such as a video's views over its first week.

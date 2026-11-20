@@ -1,0 +1,10 @@
+id: box
+title: "Box"
+description: "Find, read, upload, download, move, share and restore Box files and folders, and manage comments and metadata."
+aliases: [box]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"
+  disconnect: cli

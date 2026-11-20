@@ -1,93 +1,29 @@
-# Flight itinerary discovery
+# Explore flight routes
 
-Use itinerary discovery to find a good route shape before live-offer work when
-dates, airports, stops, or the ordering of several cities is open. For a
-straightforward route with bounded dates and travelers, skip this step. Let
-Booking own the live-offer search.
+- Explore route options when the dates, airports, connections or order of cities are still open. For a bounded route and party, go straight to Flight Booking to compare current offers.
 
-## When ITA Matrix helps
+## Choose a source for the question
 
-ITA Matrix helps you explore:
+- Use a date grid on Google Flights, Kayak or Skyscanner for timing and price, an airline's schedule for a route the comparison sites miss, and [ITA Matrix](https://matrix.itasoftware.com/search) for complex routings. Cross-check thin coverage.
 
-- open-jaw and multi-city orders;
-- flexible dates or nearby origin and destination airports;
-- nonstop versus connection and stopover tradeoffs;
-- airline, alliance, connection-airport, or time-of-day constraints; and
-- schedule patterns that affect lodging, transfers, or a fixed event.
+- No discovery result holds a fare or proves it can be booked, and ITA Matrix does not sell tickets.
 
-ITA Matrix is a discovery interface. Its result is not a hold, a live booking
-offer, or proof that Duffel or an airline website can sell the same itinerary
-and fare now. Do not make it a mandatory detour for every flight request.
+- Brief each browser task as [flight comparison](/opt/muse/skills/flight-booking/references/flights.md) describes, adding the allowed date ranges, the order of cities and the alternative airports. Ask it to research without purchasing.
 
-## Use a read-only browser task
+- Leave traveler names, documents and payment details out. Route discovery does not need them and should never start an airline checkout.
 
-Use `browser.spawn_task` for the official ITA Matrix search at
-`https://matrix.itasoftware.com/search` because it is an interactive website
-workflow. Give the browser task a self-contained brief. The browser task does
-not inherit the conversation. Include:
+## Keep each itinerary identifiable
 
-- exact origins and destinations, plus allowed nearby airports;
-- dates or date ranges and the trip order;
-- traveler counts and requested cabin;
-- maximum connections and any airline, airport, time, overnight, self-transfer,
-  or separate-ticket restrictions;
-- the comparison objective, such as shortest practical route, best arrival, or
-  a useful low-price pattern; and
-- an instruction to research only, make no purchase, and return normalized
-  candidate details with the page's retrieval time.
+- For each candidate, record every segment in order with its airports, local departure and arrival dates and times, marketing carrier and flight number, operating carrier when stated, connections with layover lengths, and cabin. Note mixed cabins and whether the ticket structure is known.
 
-Do not include traveler names, documents, payment details, or other personal
-data that schedule discovery does not need. An ITA Matrix research session is
-not an airline checkout session.
+- Keep the search inputs, source, time checked and any displayed amount. That amount is a planning estimate, separate from a later verified price. Fare basis, booking class and ticketing carrier stay unverified until a booking source supplies them.
 
-## Capture a stable itinerary signature
+## Return useful alternatives
 
-For each candidate, record every segment in order:
+- Show a few candidates with real tradeoffs in total price, travel time, connections, arrival timing or flexibility. Include overnight legs and airport changes, and say what remains to be checked.
 
-- local departure date and time;
-- origin and destination airport codes;
-- marketing carrier and flight number;
-- operating carrier and flight number when different;
-- local arrival date and time, including next-day arrival;
-- connection airport and layover duration;
-- cabin, and whether cabin varies by segment; and
-- whether the result appears to be one fare/ticket or that fact is unknown.
+- Do not call an option cheaper while fees, ticket structure or the full-party total are unknown. A cabin or fare-brand name does not prove refundability.
 
-Also retain the search inputs, source, retrieval time, and any displayed fare
-or fare construction. A displayed amount is an indicative planning signal only.
-Keep it separate from a later live total. Do not describe a fare basis, booking
-class, or ticketing carrier as preserved unless the live provider returns the
-same commercial terms.
+- A broken website, CAPTCHA or lost session ends that attempt, not the route search. Try another relevant source, move to live offers when the trip is defined enough, or state what remains uncertain.
 
-Flight number alone is not an itinerary identity. Codeshares, operating
-carriers, repeated flight numbers, local-date boundaries, airport swaps, and
-schedule changes can all make a superficially similar result different.
-
-## Produce a short candidate set
-
-Return two to four candidates that expose real tradeoffs. Do not return a raw
-result dump. For each, summarize:
-
-- the complete route and important local times;
-- total journey time, connections, overnight or airport-change risk;
-- why it fits the trip better or worse;
-- the indicative displayed amount, currency, and retrieval time when present;  
-  and
-- what remains unknown until live booking verification.
-
-Do not rank an option as cheaper when fees, ticket structure, or the relevant
-passenger total is unclear. Do not call a route refundable or changeable from a
-generic cabin or fare-brand label.
-
-## Failure and fallback
-
-A CAPTCHA, bot wall, broken date picker, incomplete result, or lost browser
-session is a source failure. It is not evidence that no flight exists. Do not
-loop on the same broken interaction. Continue with a live provider search when
-the trip is bounded enough, use another reliable schedule source when planning
-still needs it, or explain the narrow evidence gap.
-
-When the user selects a candidate, or when price or availability is needed to
-choose, continue with
-`/opt/hatch/skills/travel-planning/references/booking-handoff.md`. Do not send
-the user away to reproduce the ITA Matrix search.
+- When the user selects a candidate or needs a verified price, follow [the booking handoff](booking-handoff.md) and carry the exact itinerary forward so the user never repeats the search.

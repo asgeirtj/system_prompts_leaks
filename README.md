@@ -2,41 +2,46 @@
 
 # System Prompts Leaks
 
-The full verbatim system prompts behind the most popular chatbots in the world. Carefully curated and complete. Feel free to open up a PR or get in contact if you got a different result.
+Leaked system prompts of ChatGPT, Claude, Gemini and more. The hidden system prompt of every popular chatbot, in full, every version since May 2025. Also Anthropic Claude Code, OpenAI Codex, Google Antigravity, xAI Grok, Meta Muse, Moonshot Kimi, Alibaba Qwen, Z.ai GLM ZCode, MiniMax, Cursor, Perplexity, DeepSeek and 30+ others. Updated daily.
+
+Feel free to open up a PR or get in contact if you got a different result.
 
 [![Stars](https://img.shields.io/github/stars/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/stargazers) [![Forks](https://img.shields.io/github/forks/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/forks) [![Commits](https://img.shields.io/github/commit-activity/t/asgeirtj/system_prompts_leaks?style=flat&label=commits)](https://github.com/asgeirtj/system_prompts_leaks/commits/main) [![Last Commit](https://img.shields.io/github/last-commit/asgeirtj/system_prompts_leaks?style=flat)](https://github.com/asgeirtj/system_prompts_leaks/commits/main) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/asgeirtj/system_prompts_leaks/pulls) [![Email](https://img.shields.io/badge/email-asgeirtj%40gmail.com-D14836?logo=gmail&logoColor=white)](mailto:asgeirtj@gmail.com) [![X](https://img.shields.io/badge/@asgeirtj-black?logo=x&logoColor=white)](https://x.com/asgeirtj)
 
 
 <p align="center">
  <a href="https://www.star-history.com/asgeirtj/system_prompts_leaks">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /><img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /><img alt="GitHub Trending Repository of the Day" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /><img alt="GitHub Trending Repository of the Day" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=trending" /></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /><img alt="Star History Rank" src="https://api.star-history.com/badge?repo=asgeirtj/system_prompts_leaks&type=rank" /></picture>
  </a>
 </p>
 
-**The Washington Post** built its interactive story on prompts from this repo: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
-
-**CEPS' AI World** built an interactive breakdown of what is inside system prompts, topic by topic, from this repo's files: [System prompts and what they tell us about the chat before the chat](https://aiworld.eu/story/system-prompts-and-what-they-tell-us-about-the-chat-before-the-chat) (July 10, 2026)
-
-**Simon Willison** calls it "the most thorough leaked system prompt collection I know of": [ChatGPT search now uses the site: operator at scale](https://simonwillison.net/2026/Aug/20/chatgpt-search-now-uses-the-siteoperator-at-scale/) (August 20, 2026)
-
 </div>
+
+Used as the definitive source in:
+
+**The Washington Post** [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
+
+**CEPS' AI World** [System prompts and what they tell us about the chat before the chat](https://aiworld.eu/story/system-prompts-and-what-they-tell-us-about-the-chat-before-the-chat) (July 10, 2026)
+
+["the most thorough leaked system prompt collection I know of"](https://simonwillison.net/2026/Aug/20/chatgpt-search-now-uses-the-siteoperator-at-scale/) (August 20, 2026) - **Simon Willison**
+
 
 ## Most recent additions/changes
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code Desktop (Fable 5.2)** | November 18, 2026 | [Claude Code desktop app system prompt (Fable 5.2)](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) |
+| **Claude Docs connector** | November 14, 2026 | [Claude Docs connector guide and tools](Anthropic/claude-docs) |
+| **Claude Sheets** | November 14, 2026 | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
+| **Claude Whiteboard** | November 14, 2026 | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
+| **Claude Fable 5.2** | November 9, 2026 | [Claude Fable 5.2 system prompt](Anthropic/claude-fable-5.2.md) · [Claude Code (Fable 5.2)](Anthropic/claude-code/claude-code-fable-5.2.md) |
+| **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
+| **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
 | **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
-| **Antigravity IDE and CLI (Gemini 4 Argon)** | October 29, 2026 | [Antigravity IDE system prompt (Gemini 4 Argon)](Google/antigravity/gemini-4-argon-antigravity-ide.md) · [CLI](Google/antigravity/gemini-4-argon-antigravity-cli.md) · [skills](Google/antigravity/skills/) |
-| **Grok Bot (updated)** | October 24, 2026 | [Grok Bot system prompt](xAI/grok-bot/grok-bot.md) · [skills](xAI/grok-bot/skills/) |
-| **Perplexity search** | October 23, 2026 | [Perplexity search system prompt](Perplexity/perplexity-search.md) |
-| **Claude Motion** | October 21, 2026 | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
-| **ZCode Desktop (GLM-5.3)** | October 20, 2026 | [ZCode Desktop system prompt and tools](GLM/zcode-desktop.md) · [skills](GLM/skills/) · [agents](GLM/agents/) |
-| **Cursor Cloud Agents** | October 20, 2026 | [Cursor Cloud Agents prompt sections and subagents](Cursor/cloud-agents/) |
-| **Claude artifact types (Slides, Dashboard, Design, Docs)** | October 9, 2026 | [Slides](Anthropic/artifact-types/slides/SKILL.md) · [Dashboard](Anthropic/artifact-types/dashboard/SKILL.md) · [Design](Anthropic/artifact-types/design/SKILL.md) · [Design System](Anthropic/artifact-types/design-system/SKILL.md) · [Docs](Anthropic/artifact-types/docs/SKILL.md) · [all types](Anthropic/artifact-types/) |
 
 ---
 ## Anthropic — Claude
@@ -45,10 +50,11 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
+| **Claude Fable 5.2** | [**Claude Fable 5.2 system prompt**](Anthropic/claude-fable-5.2.md) |
 | **Claude Haiku 5.5** | [**Claude Haiku 5.5 system prompt**](Anthropic/claude-haiku-5.5.md) |
 | **Claude Sonnet 5.5** | [**Claude Sonnet 5.5 system prompt**](Anthropic/claude-sonnet-5.5.md) |
 | **Claude Opus 5.5** | [**Claude Opus 5.5 system prompt**](Anthropic/claude-opus-5.5.md) |
-| **Claude Fable 5.1** | [**Claude Fable 5.1 system prompt**](Anthropic/claude-fable-5.1.md) |
+| Claude Fable 5.1 | [Claude Fable 5.1 system prompt](Anthropic/claude-fable-5.1.md) |
 | Claude Opus 5 | [Claude Opus 5 system prompt](Anthropic/claude-opus-5.md) |
 | Claude Fable 5 | [Claude Fable 5 system prompt](Anthropic/claude-fable-5.md) |
 | Claude Opus 4.8 | [Claude Opus 4.8 system prompt](Anthropic/claude-opus-4.8.md) |
@@ -62,13 +68,14 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Component | Prompt |
 |-----------|--------|
-| **Opus 5.5 Claude Code** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
-| **Sonnet 5.5 Claude Code** | [**Claude Code system prompt (Sonnet 5.5)**](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
-| **Haiku 5.5 Claude Code** | [**Claude Code system prompt (Haiku 5.5)**](Anthropic/claude-code/claude-code-haiku-5.5.md) |
-| **Fable 5.1 Claude Code** | [**Claude Code system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-fable-5.1.md) |
-| **Fable 5.1 Claude Code Desktop** | [**Claude Code desktop app system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
-| **Fable 5.1 Claude Code on the web** | [**Claude Code on the web (cloud) system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
-| **Fable 5.1 Claude Code headless** | [**Claude Code headless system prompt (Fable 5.1)**](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
+| **Claude Code CLI (Fable 5.2)** | [**Claude Code system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-fable-5.2.md) |
+| **Claude Code Desktop (Fable 5.2)** | [**Claude Code desktop app system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-desktop-fable-5.1.md) · [Fable 5](Anthropic/claude-code/claude-code-desktop-fable-5.md) |
+| **Claude Code on the web/Claude Code Cloud (Fable 5.2)** | [**Claude Code on the web (cloud) system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-cloud-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-cloud-fable-5.1.md) |
+| **Claude Code headless mode/claude -p version (Fable 5.2)** | [**Claude Code headless system prompt (Fable 5.2)**](Anthropic/claude-code/claude-code-headless-fable-5.2.md) · [Fable 5.1](Anthropic/claude-code/claude-code-headless-fable-5.1.md) |
+| **Opus 5.5** | [**Claude Code system prompt (Opus 5.5)**](Anthropic/claude-code/claude-code-opus-5.5.md) |
+| **Sonnet 5.5** | [**Claude Code system prompt (Sonnet 5.5)**](Anthropic/claude-code/claude-code-sonnet-5.5.md) |
+| **Haiku 5.5** | [**Claude Code system prompt (Haiku 5.5)**](Anthropic/claude-code/claude-code-haiku-5.5.md) |
+| Fable 5.1 Claude Code | [Claude Code system prompt (Fable 5.1)](Anthropic/claude-code/claude-code-fable-5.1.md) |
 | Opus 5 Claude Code | [Claude Code system prompt (Opus 5)](Anthropic/claude-code/claude-code-opus-5.md) |
 | Fable 5 Claude Code | [Claude Code system prompt (Fable 5)](Anthropic/claude-code/claude-code-fable-5.md) |
 | Opus 4.8 Claude Code | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |
@@ -76,7 +83,8 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Claude Code (older models) | [Opus 4.7](Anthropic/claude-code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/claude-code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/claude-code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/claude-code/claude-code-haiku-4.5.md) |
 | Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
 | Advisor tool | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
-| Skills & commands | [Claude Code skills](Anthropic/claude-code/skills) · [Slash commands](Anthropic/claude-code/commands) |
+| Auto mode classifier | [Auto mode safety classifier prompt](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
+| Skills & prompts | [Claude Code skills](Anthropic/claude-code/skills) · [Other prompts](Anthropic/claude-code/prompts) |
 | Docs assistant | [docs.claude.com assistant instructions](Anthropic/claude-code/claude-code-docs-assistant.md) |
 
 
@@ -88,13 +96,17 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Claude Dashboards | [Dashboard type skill](Anthropic/artifact-types/dashboard/SKILL.md) · [references](Anthropic/artifact-types/dashboard/artifact-type/reference) |
 | Claude Design (canvas) | [Design type skill](Anthropic/artifact-types/design/SKILL.md) · [references](Anthropic/artifact-types/design/artifact-type/reference) |
 | Claude Docs | [Docs type skill](Anthropic/artifact-types/docs/SKILL.md) |
+| Claude Docs connector | [Claude Docs connector guide and tools](Anthropic/claude-docs) |
 | Claude Motion | [Motion type skill](Anthropic/artifact-types/motion/SKILL.md) · [references](Anthropic/artifact-types/motion/artifact-type/reference) |
 | Design System | [Design System type skill](Anthropic/artifact-types/design-system/SKILL.md) · [references](Anthropic/artifact-types/design-system/artifact-type/reference) |
+| Claude Sheets | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
+| Claude Whiteboard | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
 
 ### Claude integrations
 
 | Product | Prompt |
 |---------|--------|
+| **Claude Tag (Slack)** | [**Claude Tag channel-session system prompt**](Anthropic/claude-tag.md) |
 | **Claude Projects** | [**Claude Projects - Thread Claude system prompt**](Anthropic/claude-projects-thread-claude.md) |
 | **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Claude Cowork** | [**Claude Cowork system prompt**](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |
@@ -114,7 +126,6 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | ChatGPT 5.3 | [ChatGPT 5.3 Instant system prompt](OpenAI/gpt-5.3-instant.md) |
 | ChatGPT 5.2 | [ChatGPT 5.2 Thinking system prompt](OpenAI/gpt-5.2-thinking.md) |
 | ChatGPT 5 | [ChatGPT 5 Thinking system prompt](OpenAI/gpt-5-thinking.md) · [Agent mode](OpenAI/chatgpt-gpt-5-agent-mode.md) |
-| ChatGPT Atlas | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
 | ChatGPT 4.5 | [ChatGPT 4.5 system prompt](OpenAI/chatgpt-4.5.md) |
 | ChatGPT 4o | [ChatGPT 4o system prompt](OpenAI/gpt-4o.md) · [Deprecation preparedness](OpenAI/chatgpt-4o-deprecation-preparedness-prompt.md) |
 | **GPT-Live-1.1** | [**ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)**](OpenAI/gpt-live-1.1.md) |
@@ -127,8 +138,8 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Model | Prompt |
 |-------|--------|
-| **GPT-6.1 Codex** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [Terra](OpenAI/Codex/gpt-6.1-terra.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
-| **GPT-6 Codex** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) |
+| **GPT-6.1 Sol** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [Terra](OpenAI/Codex/gpt-6.1-terra.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
+| **GPT-6 Astra** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) |
 | GPT-5.6 Codex | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) |
 | Codex modes | [Plan mode](OpenAI/Codex/plan-mode.md) · [Auto-review](OpenAI/Codex/auto-review.md) |
 
@@ -150,6 +161,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 | Old policies | [Image safety](OpenAI/Old/prompt-image-safety-policies.md) · [Image safety (2026)](OpenAI/Old/image-safety-policies.md) · [Automation context](OpenAI/Old/prompt-automation-context.md) |
 | GPT-5 personalities | [Listener](OpenAI/gpt-5-listener-personality.md) · [Nerdy](OpenAI/gpt-5-nerdy-personality.md) · [Robot](OpenAI/gpt-5-robot-personality.md) |
 | GPT-5.1 personalities | [Efficient](OpenAI/gpt-5.1-efficient.md) · [Professional](OpenAI/gpt-5.1-professional.md) · [Nerdy](OpenAI/gpt-5.1-nerdy.md) |
+| ChatGPT Atlas | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
 | Deprecated features | [Deep research tool](OpenAI/tool-deep-research.md) · [Deep Research connector context (2025, redacted)](OpenAI/tool-deep-research-connectors-2025.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
 
 </details>
@@ -186,14 +198,14 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 </details>
 
-## SpaceXAI — Grok
+## xAI — Grok
 
 | Model | Prompt |
 |-------|--------|
 | **Grok 4.7** | [**Grok 4.7 system prompt** (grok.com)](xAI/grok-4.7.md) · [Grok CLI](xAI/grok-4.7-cli.md) |
+| Grok Build | [Grok.com Build system prompt](xAI/grok-build.md) |
 | Grok 4.6 | [Grok 4.6 system prompt](xAI/grok-4.6.md) |
 | Grok 4.5 | [Grok 4.5 system prompt](xAI/grok-4.5.md) |
-| Grok Build | [Grok Build system prompt (CLI agent)](xAI/grok-build.md) |
 | Grok 4.3 Beta | [Grok 4.3 Beta system prompt](xAI/grok-4.3-beta.md) |
 | Grok 4.2 | [Grok 4.2 system prompt](xAI/grok-4.2.md) |
 | Grok Expert | [Grok Expert system prompt](xAI/grok-expert.md) |
@@ -217,7 +229,7 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
-| **Muse agent** | [**Muse agent system prompt** (Muse Spark 1.3, VM)](Meta/muse-agent/workspace/system/system_prompt.md) · [home dir, docs, templates](Meta/muse-agent/) · [89 skills](Meta/muse-agent/skills/) |
+| **Muse agent** | [**Muse agent system prompt** (Muse Spark 1.3, VM)](Meta/muse-agent/system_prompt.md) · [home dir, docs, templates](Meta/muse-agent/) · [87 skills](Meta/muse-agent/skills/) |
 | **Muse Code** | [**Muse Code system prompt** (Muse Spark 1.3)](Meta/muse-code/muse-spark-1.3-muse-code.md) · [skills](Meta/muse-code/skills/) · [prompts](Meta/muse-code/prompts/) |
 | Meta AI (meta.ai) | [Muse Spark 1.1 system prompt](Meta/muse-spark-1.1-web.md) · [Muse Spark](Meta/muse-spark-1.0-web.md) |
 
@@ -274,7 +286,8 @@ The full verbatim system prompts behind the most popular chatbots in the world. 
 
 | Product | Prompt |
 |---------|--------|
-| **Qwen 3.8 Max** | [**Qwen 3.8 Max system prompt**](Qwen/qwen3.8-max.md) |
+| **Qwen 4.0 Max** | [**Qwen 4.0 Max system prompt**](Qwen/qwen4.0-max.md) |
+| Qwen 3.8 Max | [Qwen 3.8 Max system prompt](Qwen/qwen3.8-max.md) |
 | Qwen 3.6 Plus | [Qwen 3.6 Plus system prompt](Qwen/qwen3.6-plus.md) |
 
 ## MiniMax

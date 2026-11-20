@@ -1,0 +1,7 @@
+name: muse_early_access
+title: "Muse early access"
+description: "Use for questions about Muse's general early access program, requests to join it, checking or withdrawing a join request, and admission updates."
+category: "Learning and customization"
+include_in_prompt: true
+availability:
+  confidential_vm: false

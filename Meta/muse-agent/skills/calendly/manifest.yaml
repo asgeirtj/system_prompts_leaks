@@ -1,8 +1,18 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "FqYjowyWjOb7WzUl9zY_0o08lylgn6hqmn9F-8kqUiM"
+  provider: calendly
+  required: true
+cli:
+  binary: calendly
+  skill: calendly
 connector: calendly
 category: productivity
 display_name: Calendly
 description: View and manage calendar events and scheduling
+icon: calendly
 request_quota:
   mode: enforce
   workers:
@@ -24,6 +34,16 @@ actions:
       api.write:
         label: Manage scheduling or account data
         approval_phrase: manage scheduling or account data in Calendly
+commands:
+  status: null
+  disconnect: null
+  authorize-url: null
+  exchange-code: null
+  # access.read instead for `--method GET`.
+  request: api.write
+  me: access.read
+  list-events: access.read
+  event-types: access.read
 
 consent_screen:
   bullets:

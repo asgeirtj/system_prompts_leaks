@@ -1,73 +1,39 @@
-# Browser Checkout
+# Browser checkout
 
-Use browser checkout when the Purchase workflow sends a purchase through a
-product or checkout page. Use this reference to start and continue the
-BrowserTask.
+- Use this guide when Shopping sends a purchase or cart through a live merchant site. Follow `~/docs/chat/payments-and-purchases.md` for authority, changed terms and reconciliation. The browser's checkout workflow owns cart review, payment choice, approval, submission and verification.
 
 ## Start the browser task
 
-Call `browser.spawn_task` with the exact product or checkout URLs and every
-choice already made for this purchase:
+<!-- purchase-preapproval-off-only:start -->
+- Call `browser.browse` with the existing task for this cart, or `task_id: "new"` for separate work. Use `browser.windows` with `action: "list"` if related work may already be running.
+<!-- purchase-preapproval-off-only:end -->
+<!-- purchase-preapproval-on-only:start -->
+- Call `browser.browse` with the task that found the product or holds this cart, except after purchase preapproval or renewal, which needs `task_id: "new"`. Use a new task for separate work. Use `browser.windows` with `action: "list"` to check for related work before starting a replacement.
+<!-- purchase-preapproval-on-only:end -->
+
+- Give it the exact product or checkout URLs, the requested items, variants and quantities, known contact and delivery details, exclusions, the intended stage and the offer you compared:
 
 ```json
 {
-  "task": "Purchase <items> from <exact product or checkout URLs>. Use these choices: <variants, quantities, delivery details, payment choice, and other requirements>. Ask only for missing required item or checkout choices. Continue through checkout and hand off the exact final terms before submission."
+  "task_id": "new",
+  "task": "Purchase <items> from <exact product or checkout URLs>. Use these choices: <variants, quantities, delivery details, payment preference and other requirements>. The selected offer is <quoted total, currency, delivery estimate and source>. Use checkout review to resolve any remaining choices. Report any change in price or delivery. Complete checkout and confirm the order was placed."
 }
 ```
 
-When a wallet route is selected, include its exact provider ID. When a saved
-method is also selected, include its masked label. Do not include the opaque
-payment-method ID in `task`. Include a payment refusal or checkout failure when
-one already occurred. When no route is selected, omit one. The runtime adds
-checkout-supported providers to the BrowserTask handoff.
-Do not ask the BrowserTask to infer providers from checkout buttons. When the
-user selects Link with a condition such as "if it is there" or "if available",
-pass `stripe-link` as the selected provider. Do not turn that condition into a
-requirement for a merchant Link button. Browser checkout permits `Use another
-method` through browser takeover. Present that choice with the other eligible
-routes. When the user selected it,
-state that they will enter payment during browser takeover. Do not include card
-details.
+- For a request to buy, say explicitly that the task completes checkout and confirms the order was placed. Ask it to stop after cart preparation only when that is what the user requested. The browser inspects the cart, presents cart and payment decisions, enters the approved card and checks the merchant's confirmation. Do not direct it through provider setup or individual checkout actions.
 
-## Add catalog route information
+- Pass a payment preference in ordinary terms. A wallet card goes in `wallet`, with its masked label in `task`; never put opaque method IDs or payment tokens in `task`. Do not forward card details supplied in chat. Follow `~/docs/chat/payments-and-purchases.md` for Wallet setup or browser takeover. A merchant's Link or Shop Pay button is not evidence of the workflow's supported payment routes.
 
-Some products returned by `shopping product-details` include a
-`hatch_telemetry_context`. For those products, add `shopping_checkout` to the
-browser task. Copy each product's complete `hatch_telemetry_context` into
-`products` without changing it. This information records why browser checkout
-was used. It does not change the checkout.
+- Mention any payment refusal, checkout failure or unresolved earlier outcome for this purchase.
 
-Set `stage` and `reason` from the situation that started the browser task:
-
-| Situation | `stage` | `reason` |
-|---|---|---|
-| Agentic checkout creation was unavailable, and `checkout create` was not called | `checkout_start` | `agentic_creation_ineligible` |
-| The user chose browser checkout before `checkout create` was called | `checkout_start` | `user_selected_browser` |
-| Shop Pay must finish in the browser | `payment_lane` | `shop_pay_selected` |
-| `checkout create` failed | `agentic_fallback` | `agentic_create_failed` |
-| The user chose browser checkout after `checkout create` | `agentic_fallback` | `user_selected_browser` |
-| The selected provider requires browser checkout | `agentic_fallback` | `provider_requires_browser` |
-| Agentic checkout completion was unavailable | `agentic_fallback` | `agentic_completion_ineligible` |
-| The browser must collect required buyer details | `agentic_fallback` | `buyer_details_required` |
-| Stripe Link was unavailable for agentic completion | `agentic_fallback` | `stripe_link_unavailable` |
-
-Do not add `shopping_checkout` for a product found only by the browser.
-
-Example:
-
-```js
-{
-  "task": "<self-contained browser checkout task>",
-  "shopping_checkout": {
-    "products": [<complete hatch_telemetry_context for each catalog product>],
-    "stage": "checkout_start",
-    "reason": "agentic_creation_ineligible"
-  }
-}
-```
+- Keep the strongest alternative offers and when you checked them in your own context. Do not invent a quote that you did not observe.
 
 ## Continue the purchase
 
-Follow the acknowledgment returned by `browser.spawn_task`. Continue the same
-task with `browser.steer_task`. Do not replace it with a new task during wallet
-setup or confirmation.
+- Continue the same task with `browser.browse` and its `task_id` for corrections and new information<!-- purchase-preapproval-on-only:start -->, unless changed terms require renewed purchase preapproval<!-- purchase-preapproval-on-only:end -->. Pending secure actions resume automatically, so do not relay another approval question or create a replacement task<!-- purchase-preapproval-on-only:start --> while one is pending<!-- purchase-preapproval-on-only:end -->.
+
+- When the browser asks you to review the cart, check it against <!-- purchase-preapproval-on-only:start -->the saved approved terms when supplied, or <!-- purchase-preapproval-on-only:end -->the user's request<!-- purchase-preapproval-on-only:start --> otherwise<!-- purchase-preapproval-on-only:end -->. Confirm it or explain what to change, answering the pending question as `~/docs/chat/payments-and-purchases.md` describes.
+
+- If the task reports a higher price, an expired promotion or slower delivery, apply the Shopping skill's recheck before resuming checkout or asking the user to accept the change.
+
+- Report completion only from verified merchant evidence.

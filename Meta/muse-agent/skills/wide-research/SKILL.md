@@ -1,9 +1,3 @@
----
-name: "wide_research"
-description: "Use when the user needs broad parallel research across many independent inputs with a shared output schema."
-metadata: { "includeInPrompt": false }
----
-
 # Wide Research
 
 ## Purpose
@@ -42,3 +36,11 @@ Manager output contract:
 5. If completeness matters and some inputs fail, retry only the failed inputs, once, when feasible.
 6. Reply to the user immediately that wide research has started; do not block on completion.
 7. In the final user-facing output, always report coverage (`success_count/total`) and unresolved gaps.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

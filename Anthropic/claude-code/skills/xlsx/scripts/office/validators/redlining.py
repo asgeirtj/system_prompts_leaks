@@ -16,9 +16,9 @@ document rewrites.
 """
 
 import re
-import subprocess
 import tempfile
 import zipfile
+from difflib import SequenceMatcher
 from pathlib import Path
 
 import defusedxml.ElementTree as ET
@@ -30,12 +30,32 @@ from helpers import rendered_text, safe_extract
 XML_ERRORS = (ET.ParseError, DefusedXmlException, LookupError, ValueError)
 
 
+class _WorkSpent(Exception):
+
+    pass
+
+
+class _Matcher(SequenceMatcher):
+
+    def __init__(self, a, b, allowance):
+        self.allowance = allowance  
+        super().__init__(None, a, b, autojunk=False)
+
+    def find_longest_match(self, alo=0, ahi=None, blo=0, bhi=None):
+        items = self.a[alo:ahi]
+        self.allowance[0] -= len(items) + sum(len(self.b2j.get(x, ())) for x in items)
+        if self.allowance[0] < 0:
+            raise _WorkSpent
+        return super().find_longest_match(alo, ahi, blo, bhi)
+
+
 class RedliningValidator:
 
     def __init__(self, unpacked_dir, original_docx, verbose=False):
         self.unpacked_dir = Path(unpacked_dir)
         self.original_docx = Path(original_docx)
         self.verbose = verbose
+        self._work_left = [self.WORK_ALLOWED]
         self.namespaces = {
             "w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
         }
@@ -199,6 +219,7 @@ class RedliningValidator:
         return new
 
     def _generate_detailed_diff(self, differences):
+        self._work_left = [self.WORK_ALLOWED]
         error_parts = [
             "FAILED - Document text doesn't match after removing the tracked changes",
             "",
@@ -226,92 +247,81 @@ class RedliningValidator:
             heading = "Differences:" if body else f"Differences in {part}:"
             if error_parts[-1]:
                 error_parts.append("")  
-            git_diff = self._get_git_word_diff(original_text, modified_text)
-            if git_diff:
-                error_parts.extend([heading, "=" * len(heading), git_diff])
-                if re.search(r"\{(%s)\}" % "|".join(self.PAGE_FIELDS), git_diff):
-                    explain_page_fields = True
-            else:
-                error_parts.extend(
-                    [heading, "Unable to generate word diff (git not available)"]
-                )
+            word_diff = self._word_diff(original_text, modified_text)
+            error_parts.extend([heading, "=" * len(heading), word_diff])
+            if original_text.replace("\n", "") == modified_text.replace("\n", ""):
+                error_parts.append("Only paragraph breaks differ here.")
+            if re.search(r"\{(%s)\}" % "|".join(self.PAGE_FIELDS), word_diff):
+                explain_page_fields = True
         if explain_page_fields:
             error_parts.extend(["", self.PAGE_FIELD_NOTE])
+        if self._work_left[0] < 0:
+            error_parts.extend(["", self.WORK_SPENT_NOTE])
 
         return "\n".join(error_parts)
 
-    def _get_git_word_diff(self, original_text, modified_text):
+    def _word_diff(self, original_text, modified_text):
+        out = []
+        steps = self._steps(original_text.split("\n"), modified_text.split("\n"))
+        for tag, was, now in steps:
+            if tag == "replace" and len(was) == len(now):
+                out.extend(self._mark_changes(x, y) for x, y in zip(was, now) if x != y)
+            elif tag != "equal":
+                out.append(self._mark_changes("\n".join(was), "\n".join(now)))
+        return "\n".join(out)
+
+    def _mark_changes(self, old, new, by_character=False, trim=True):
+
+        def mark(text, opening, closing):
+            marked = re.sub(r"[^\n]+", lambda m: opening + m[0] + closing, text)
+            return marked if marked.strip("\n") or opening == "{+" else ""
+
+        pattern = "(?s)." if by_character else r"\S+\s*|\s+"
+        out = []
+        steps = self._steps(re.findall(pattern, old), re.findall(pattern, new), trim)
+        for tag, was, now in steps:
+            lone_word = len(was) == len(now) == 1
+            was, now = "".join(was), "".join(now)
+            if tag == "equal":
+                out.append(now)
+            elif tag == "replace" and not by_character:
+                long_word = lone_word and min(len(was), len(now)) > self.LONG_WORD
+                marked = self._mark_changes(was, now, by_character=True, trim=long_word)
+                out.append(marked)
+            else:
+                out.append(mark(was, "[-", "-]") + mark(now, "{+", "+}"))
+        return "".join(out)
+
+    WORK_ALLOWED = 10_000_000
+    LONG_WORD = 200
+
+    def _steps(self, a, b, trim=True):
+
+        def shared_start(x, y):
+            return next(
+                (i for i, (p, q) in enumerate(zip(x, y)) if p != q), min(len(x), len(y))
+            )
+
+        head = shared_start(a, b) if trim else 0
+        tail = shared_start(a[head:][::-1], b[head:][::-1]) if trim else 0
+        a_mid, b_mid = a[head : len(a) - tail], b[head : len(b) - tail]
         try:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_path = Path(temp_dir)
-
-                original_file = temp_path / "original.txt"
-                modified_file = temp_path / "modified.txt"
-
-                original_file.write_text(original_text, encoding="utf-8")
-                modified_file.write_text(modified_text, encoding="utf-8")
-
-                result = subprocess.run(
-                    [
-                        "git",
-                        "diff",
-                        "--word-diff=plain",
-                        "--word-diff-regex=.",  
-                        "-U0",  
-                        "--no-index",
-                        str(original_file),
-                        str(modified_file),
-                    ],
-                    capture_output=True,
-                    encoding="utf-8",
-                    errors="replace",
-                )
-
-                if result.stdout.strip():
-                    lines = result.stdout.split("\n")
-                    content_lines = []
-                    in_content = False
-                    for line in lines:
-                        if line.startswith("@@"):
-                            in_content = True
-                            continue
-                        if in_content and line.strip():
-                            content_lines.append(line)
-
-                    if content_lines:
-                        return "\n".join(content_lines)
-
-                result = subprocess.run(
-                    [
-                        "git",
-                        "diff",
-                        "--word-diff=plain",
-                        "-U0",  
-                        "--no-index",
-                        str(original_file),
-                        str(modified_file),
-                    ],
-                    capture_output=True,
-                    encoding="utf-8",
-                    errors="replace",
-                )
-
-                if result.stdout.strip():
-                    lines = result.stdout.split("\n")
-                    content_lines = []
-                    in_content = False
-                    for line in lines:
-                        if line.startswith("@@"):
-                            in_content = True
-                            continue
-                        if in_content and line.strip():
-                            content_lines.append(line)
-                    return "\n".join(content_lines)
-
-        except (subprocess.CalledProcessError, FileNotFoundError, Exception):
-            pass
-
-        return None
+            if self._work_left[0] < len(a_mid):
+                self._work_left[0] = -1
+                raise _WorkSpent
+            numbers = {}
+            numbered = [
+                [numbers.setdefault(x, len(numbers)) for x in s] for s in (a_mid, b_mid)
+            ]
+            opcodes = _Matcher(*numbered, self._work_left).get_opcodes()
+            steps = [(tag, a_mid[i:j], b_mid[m:n]) for tag, i, j, m, n in opcodes]
+        except _WorkSpent:
+            steps = [("replace", a_mid, b_mid)]
+        return [
+            ("equal", a[:head], b[:head]),
+            *steps,
+            ("equal", a[len(a) - tail :], b[len(b) - tail :]),
+        ]
 
     def _remove_tracked_changes(self, root, targets):
         w = self.namespaces["w"]
@@ -403,6 +413,13 @@ class RedliningValidator:
         "Note: {PAGE}, {NUMPAGES} or {SECTIONPAGES} above stands for a page-number\n"
         "field. Word recomputes the number it displays, so the number stored in\n"
         "the file is not compared, but adding or removing the field still counts."
+    )
+
+    WORK_SPENT_NOTE = (
+        "Note: the texts were too long or repetitive to compare closely all the\n"
+        "way through, so a passage shown whole, as removed and then added, may\n"
+        "differ in only a few characters. Compare such a passage with the\n"
+        "original directly to find the edit."
     )
 
     def _paragraph_text(self, p_elem):

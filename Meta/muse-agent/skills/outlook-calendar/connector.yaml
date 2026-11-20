@@ -1,0 +1,16 @@
+id: outlook_calendar
+title: "Outlook Calendar"
+description: "Read Outlook and Microsoft 365 calendars, and create, update or delete events and meeting invitations."
+aliases: [outlook-calendar, outlook_calendar]
+include_in_prompt: false
+onboarding: true
+domain: calendar
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli
+sync:
+  fetch_kind: connector_sync_outlook_calendar
+  cadence_minutes: 30
+  read_methods: [events.list, events.get]
+  content_hints: [calendar]

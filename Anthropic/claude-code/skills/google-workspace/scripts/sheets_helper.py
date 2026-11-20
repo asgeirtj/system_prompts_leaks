@@ -22,9 +22,9 @@ Usage:
       Error cells are marked. Use it to read formulas, which get_values
       does not return.
 
-META.json and GRID.json may be the raw JSON or a result the app saved to disk,
-either the {"content": "<json string>"} wrapper or a list of content blocks,
-[{"type": "text", "text": "<json string>"}].
+META.json and GRID.json may be the raw JSON, or a result the app saved to disk, as saved.
+That result is a list of content blocks, [{"type": "text", "text": "<json string>"}], or a
+{"content": ...} wrapper around an object, a JSON string or such a list, and these can nest.
 
 FORMAT SPEC (JSON):
   {
@@ -63,12 +63,11 @@ NUMBER_FORMATS = {
 def unwrap(data):
     """Return the API JSON inside a saved tool result, however many wrappers it has.
 
-    Accepts the raw API JSON, the {"content": "<json string>"} wrapper some apps save,
-    and the list of content blocks others save, [{"type": "text", "text": "<json string>"}],
-    whose text can itself be the {"content": ...} wrapper. Non-text blocks are ignored.
+    A wrapper is a list of content blocks, [{"type": "text", "text": "<json string>"}], or
+    {"content": X}, where X is an object, a JSON string or such a list. Non-text blocks are ignored.
     """
     while True:
-        if isinstance(data, dict) and isinstance(data.get("content"), (str, list)):
+        if isinstance(data, dict) and isinstance(data.get("content"), (str, list, dict)):
             # No Docs, Sheets or Slides resource has a top-level "content" field.
             data = data["content"]
             if isinstance(data, str):
@@ -339,7 +338,7 @@ def scalar(v):
 
 def cmd_cells(args):
     grid = load_json(args.grid)
-    errors = 0
+    errors = cells = 0
     for sheet in grid.get("sheets", []):
         title = sheet.get("properties", {}).get("title", "?")
         for block in sheet.get("data", []):
@@ -349,6 +348,7 @@ def cmd_cells(args):
                 for ci, cell in enumerate(row.get("values", [])):
                     if not cell:
                         continue
+                    cells += 1
                     entered = scalar(cell.get("userEnteredValue"))
                     shown = cell.get("formattedValue", "")
                     err = "errorValue" in cell.get("effectiveValue", {})
@@ -359,6 +359,10 @@ def cmd_cells(args):
                     mark = "  <-- ERROR " + cell["effectiveValue"]["errorValue"].get("type", "") if err else ""
                     print(f"{title}!{addr}\t{entered!r}\t-> {shown!r}{mark}")
     print(f"errors: {errors}")
+    if not cells:
+        print('WARNING: read no cells from this file, so "errors: 0" says nothing about the sheet. Read the range '
+              'again with the get_spreadsheet call under "Formulas, raw values, and errors" in references/sheets.md. '
+              "If that also reads no cells, the range is empty.", file=sys.stderr)
 
 
 def main():

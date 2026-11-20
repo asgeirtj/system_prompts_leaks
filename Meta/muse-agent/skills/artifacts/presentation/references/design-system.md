@@ -4,19 +4,13 @@ description: The CSS contract slides are authored against, covering theme tokens
 
 # Slide design system
 
-The CSS contract every slide is authored against: the theme token set, the canvas, and the
-hero / lockup / content-layout scaffolds. The `StylePlan` you were handed supplies the token
-values (`css_variables`) and picks each slide's layout + the deck's lockup pair. All of it lives
-in the deck's own `.src/slides/deck.css`, which every slide file links; no external foundation
-CSS, and the one external reference the deck carries is the theme's Google Fonts stylesheet,
-imported at the top of `deck.css` (see below).
+- This is the CSS contract every slide is authored against: the theme tokens, the canvas and the hero, lockup and content-layout scaffolds. The StylePlan supplies the token values (`css_variables`), picks each slide's layout and picks the deck's lockup pair.
 
-## Theme tokens (`:root`)
+- All of it lives in the deck's own `.src/slides/deck.css`, which every slide file links. There is no external foundation CSS and no external font reference: `embed_deck_fonts.mjs` writes the theme's fonts into `deck.css`.
 
-Emit the `StylePlan.css_variables` verbatim into a single `:root` block, then reference the
-variables everywhere. Never hardcode a theme hex or font-family name; never redefine these.
-(The page backdrop, the hero-scrim fallback, and hero-overlay text below are the intended
-literal-color exceptions.)
+## Theme tokens
+
+- Emit the StylePlan's `css_variables` verbatim into a single `:root` block, then reference the variables everywhere. Never hardcode a theme hex or font-family name and never redefine these tokens. The page backdrop, the hero-scrim fallback and hero-overlay text below are the intended literal-color exceptions.
 
 ```css
 :root {
@@ -30,39 +24,31 @@ literal-color exceptions.)
 }
 ```
 
-`--hero-scrim-color` is set per-slide only on a full-bleed hero (a dark tone sampled from the
-image), never in `:root`; the `var(--hero-scrim-color, #1a1a2e)` fallback keeps an unset value
-safe.
+- Set `--hero-scrim-color` only on a full-bleed hero slide, as a dark tone sampled from its image, never in `:root`. The `var(--hero-scrim-color, #1a1a2e)` fallback keeps an unset value safe.
 
-**Name the theme fonts in `:root`, and write no font URL anywhere.** Both `StylePlan` fonts are
-Google Fonts families, but a deck never references Google. Write **no `@import`, no `<link>`, and no
-`fonts.googleapis.com` or `fonts.gstatic.com`**, in `deck.css` or in any slide file. You name each
-family in `--slide-font-display` and `--slide-font-body`. Then `embed_deck_fonts.mjs` (workflow.md
-step 7) downloads those faces and writes them into `deck.css`. The render browser cannot fetch a
-webfont at all. So an external reference is what makes the font gate fail, not what satisfies it.
+## Name the fonts and write no font URL
 
-Those `:root` names are the download's only input. Spell each family exactly as Google publishes it.
-Weights come from the CSS you write, so `font-weight: 900` is what fetches a real 900 face. Google
-returns only the weights a family publishes; all current StylePlan families publish `400`,
-while single-weight display families such as `Bebas Neue`, `Anton`, `DM Serif Display`, and
-`Archivo Black` do not publish `600` or `700`. Never hand-write an `@font-face` rule or its base64.
-One face is over 100 KB, and the script is the only thing that should write it.
+- Both StylePlan fonts are Google Fonts families, but a deck never references Google. Write no `@import`, no `<link>` and no `fonts.googleapis.com` or `fonts.gstatic.com` URL, in `deck.css` or in any slide file.
 
-**Keep each exact StylePlan family first in its `:root` font stack; never substitute a local
-family for it.** A secondary local/generic fallback may follow for an HTML deliverable opened
-offline, but it does not satisfy the slide render gate. The report distinguishes an unavailable
-theme face (`fonts.missing`) from one that resolved but no element used (`fonts.unused`), and
-`fonts.used` lists the families Chromium actually rasterized. Replacing the primary family with
-`Liberation` or `Noto` does not fix a load failure; it permanently ships the deck in a generic
-system face. The slide render uses `--require-webfonts`, so even an installed local face with the
-same family name cannot satisfy the webfont policy. If the gate flags a face, check the family
-spelling in `:root`, re-run `embed_deck_fonts.mjs`, and re-render. Gate both families at `400`;
-add a heavier face to the gate only when the family publishes that exact weight.
+- Name each family in `--slide-font-display` and `--slide-font-body`. Step 7 of the workflow runs `embed_deck_fonts.mjs`, which downloads those faces and writes them into `deck.css`. The render browser cannot fetch a webfont at all, so an external reference makes the font gate fail rather than satisfying it.
+
+- Those `:root` names are the download's only input, so spell each family exactly as Google publishes it.
+
+- Weights come from the CSS you write, so `font-weight: 900` is what fetches a real 900 face. Google returns only the weights a family publishes. Every current StylePlan family publishes `400`, while single-weight display families such as `Bebas Neue`, `Anton`, `DM Serif Display` and `Archivo Black` do not publish `600` or `700`.
+
+- Never hand-write an `@font-face` rule or its base64. One face is over 100 KB, and the script is the only thing that should write it.
+
+- Keep each exact StylePlan family first in its `:root` font stack and never substitute a local family for it. A local or generic fallback may follow it for an HTML deliverable opened offline, but it does not satisfy the slide render gate.
+
+- The report separates a theme face that was unavailable (`fonts.missing`) from one that resolved but no element used (`fonts.unused`). `fonts.used` lists the families Chromium actually rasterized.
+
+- Replacing the primary family with `Liberation` or `Noto` does not fix a load failure. It ships the deck in a generic system face. The slide render uses `--require-webfonts`, so even an installed local face with the same name cannot satisfy the webfont policy.
+
+- When the gate flags a face, check the family spelling in `:root`, run `embed_deck_fonts.mjs` again and re-render. Gate both families at `400`, and add a heavier face to the gate only when the family publishes that exact weight.
 
 ## Canvas
 
-Each slide is one `section.slide`, authored in its own file; assemble stacks them into the
-deck's one self-contained document. These rules live in `deck.css`.
+- Each slide is one `section.slide` in its own file, and assembly stacks them into the deck's one self-contained document. These rules live in `deck.css`:
 
 ```css
 * { box-sizing: border-box; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
@@ -79,37 +65,34 @@ section.slide {
 section.slide:last-child { page-break-after: auto; break-after: auto; }
 ```
 
-Put the layout class on the section: `<section class="slide slide-hero-stats">`.
+- Put the layout class on the section, as in `<section class="slide slide-hero-stats">`.
 
 ## Content layout classes
 
-Eight content layouts (the ninth/tenth are `cover` and `closing`). The StylePlan assigns one
-per slide; treat it as the default and let content drive the final choice (a light slide can
-drop to a simpler layout). Author each with CSS Grid per `authoring.md`; sizes come from the
-typography rules there.
+- There are eight content layouts, plus `cover` and `closing`. The StylePlan assigns one per slide, which is the default, and a light slide can drop to a simpler layout. Build each with CSS Grid as [authoring](authoring.md) describes, using its type sizes:
+  - `slide-two-column` holds two side-by-side prose or image columns.
+  - `slide-bento` is a balanced grid of mixed stat, text and image cells.
+  - `slide-hero-stats` holds up to three big stat lockups, each a number over its label.
+  - `slide-headline-bullets` is a heading with up to five bullets.
+  - `slide-steps` is an ordered, left-aligned vertical sequence.
+  - `slide-comparison` holds before-and-after or A-versus-B blocks.
+  - `slide-statement` is one centered editorial statement.
+  - `slide-gallery` shows two or three subject-filling images in a row.
 
-| Class | For |
-|---|---|
-| `slide-two-column` | two side-by-side prose/image columns |
-| `slide-bento` | a balanced grid of mixed cells (stat, text, image) |
-| `slide-hero-stats` | up to 3 big stat lockups (number over label) |
-| `slide-headline-bullets` | a heading + ≤5 bullets |
-| `slide-steps` | an ordered, left-aligned vertical sequence |
-| `slide-comparison` | before/after or A-vs-B blocks |
-| `slide-statement` | one centered editorial statement |
-| `slide-gallery` | 2-3 subject-filling images in a row |
-
-`slide-statement`, `slide-hero-stats`, and the cover/closing use editorial-scale sizing (let
-the heading/number be large); the rest follow the content sizes in `authoring.md`.
+- `slide-statement`, `slide-hero-stats`, the cover and the closing use editorial-scale sizing, so let the heading or number be large. The rest follow the content sizes in [authoring](authoring.md).
 
 ## Cover hero scaffolds
 
-The cover carries the hero image + the title only (see `authoring.md`). Pick the scaffold that
-fits the image's composition. Fill the image edge-to-edge; never letterbox a hero; no
-`border-radius`/`border`/`box-shadow`/padding on a hero image.
+- The cover carries only the hero image and the title. Pick the scaffold that fits the image's composition.
 
-**Full-bleed** (suits a 16:9 image, the usual choice; title sits in the image's empty region).
-The scaffold is shared, so it goes in `deck.css`:  
+- Fill the hero edge to edge and never letterbox it. Give a hero image no `border-radius`, `border`, `box-shadow` or padding.
+
+- Every cover scaffold splits the same way: the structure is shared in `deck.css`, and the embedded image sits in the slide file's own `<style>`, scoped to its ID. A `data:` hero in `deck.css` would make every slide carry one slide's image, and assembly refuses an unscoped selector in a slide file.
+
+### Full-bleed
+
+- Full-bleed suits a 16:9 image and is the usual choice. The title sits in the image's empty region. The shared scaffold goes in `deck.css`:
+
 ```css
 section.slide.cover {
   background-color: var(--slide-bg);
@@ -124,8 +107,8 @@ section.slide.cover::after {              /* bottom-band scrim ONLY, never inset
 .cover .title-block { position: absolute; bottom: 40px; left: 56px; right: 56px; z-index: 2; color: #fff; }
 ```
 
-The embedded hero and its sampled scrim tone belong to that one slide, so they go in the slide
-file's own `<style>`, scoped to its id (`workflow.md` step 5):  
+- The embedded hero and its sampled scrim tone belong to that one slide, so they go in its own scoped `<style>`:
+
 ```html
 <style>
   #cover {
@@ -135,8 +118,10 @@ file's own `<style>`, scoped to its id (`workflow.md` step 5):
 </style>
 ```
 
-**Split panel** (suits a tall/portrait image, image ≥50%, edge-bleed, text on its own panel).
-Shared scaffold, in `deck.css`, image left out:  
+### Split panel
+
+- A split panel suits a tall or portrait image. The image takes at least half the slide and bleeds to the edge, with the text on its own panel. The shared scaffold, without the image, goes in `deck.css`:
+
 ```css
 section.slide.cover { display: flex; padding: 0; }
 .cover .image-panel {
@@ -149,16 +134,21 @@ section.slide.cover { display: flex; padding: 0; }
   padding: 64px 56px; color: var(--slide-fg);
 }
 ```
-The hero itself belongs to that one slide, so it goes in the slide file's own `<style>`, scoped:  
+
+- The hero goes in the slide file's own scoped `<style>`:
+
 ```html
 <style>
   #cover .image-panel { background-image: url('data:image/...'); }
 </style>
 ```
-Put `.text-panel` first in DOM order to flip the image right. No standalone accent-bar div.
 
-**Diagonal split** (one clean full-height diagonal; text on the plain `var(--slide-bg)`).
-Shared scaffold, in `deck.css`, image left out:  
+- Put `.text-panel` first in DOM order to move the image to the right. Do not add a standalone accent-bar element.
+
+### Diagonal split
+
+- A diagonal split uses one clean full-height diagonal, with the text on the plain `var(--slide-bg)`. The shared scaffold, without the image, goes in `deck.css`:
+
 ```css
 section.slide.cover { position: relative; padding: 0; background: var(--slide-bg); }
 .cover .image-panel {
@@ -172,31 +162,24 @@ section.slide.cover { position: relative; padding: 0; background: var(--slide-bg
   padding: 56px 60px 56px 40px; z-index: 2; color: var(--slide-fg);
 }
 ```
-Hero in the slide file's own `<style>`, scoped the same way:  
+
+- The hero goes in the slide file's own scoped `<style>`:
+
 ```html
 <style>
   #cover .image-panel { background-image: url('data:image/...'); }
 </style>
 ```
-Don't give `.text-panel` its own background/border (that creates a second straight edge).
 
-Every cover scaffold splits the same way: structure shared in `deck.css`, the embedded image in the
-slide's own scoped `<style>`. A `data:` hero in `deck.css` would make every slide carry one slide's
-image, and an unscoped selector in a slide file is refused by assemble.
+- Do not give `.text-panel` its own background or border, which would create a second straight edge.
 
-## Lockups (text + image on a content slide)
+## Lockups
 
-Use only the deck's two assigned lockups (`StylePlan.lockups`, drawn from L1/L2/L4). Fill the
-image cell edge-to-edge (`width:100%; height:100%; object-fit:cover; border-radius:20px`) so no
-blank band shows.
-
-- **L1 left-heavy**: `grid-template-columns:55fr 45fr; grid-template-rows:auto 1fr;` image cell
-  `grid-row:2; grid-column:1`, text cell `grid-column:2` vertically centered (`align-self:center`).
-- **L2 right-heavy**: L1 mirrored (text column 1, image column 2).
-- **L4 asymmetric** (the strongest; prefer it): 60/40 grid, image fills its cell, text inset
-  with 56px padding.
+- A lockup pairs text and an image on a content slide. Use only the deck's two assigned lockups (`StylePlan.lockups`, drawn from L1, L2 and L4). Fill the image cell edge to edge with `width: 100%; height: 100%; object-fit: cover; border-radius: 20px` so no blank band shows.
+  - L1, left-heavy, uses `grid-template-columns: 55fr 45fr; grid-template-rows: auto 1fr;`. The image cell takes `grid-row: 2; grid-column: 1`, and the text cell takes `grid-column: 2`, vertically centered with `align-self: center`.
+  - L2, right-heavy, mirrors L1 with the text in column 1 and the image in column 2.
+  - L4, asymmetric and the strongest, is a 60/40 grid with the image filling its cell and the text inset by 56 pixels of padding. Prefer it.
 
 ## Closing
 
-Centered text on one uniform background (see `authoring.md` for the full closing rule). No
-scrim unless text overlays a background photo.
+- The closing slide is centered text on one uniform background, as [authoring](authoring.md) describes. Add no scrim unless the text overlays a background photo.

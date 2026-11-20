@@ -1,25 +1,23 @@
 # Code Connect
 
-Use Code Connect only for published components on an Organization or Enterprise
-plan. The Figma URL must identify a node.
+- Code Connect works only for published components on an Organization or Enterprise plan, and the Figma URL must point to a node.
 
-1. Call `get_code_connect_suggestions` with `excludeMappingPrompt` enabled to
-   discover published, unmapped components in the selection.
-2. For each returned main component ID, call
-   `get_context_for_code_connect`. Supply the project's actual language and
-   framework, inferred from its source and `figma.config.json`.
-3. Inspect the codebase and match each Figma component to a real code component
-   by purpose, property types, variants, and import configuration. If more than
-   one candidate is plausible, confirm the match with the user before writing.
-4. Account for every Figma property that has a legitimate code equivalent.
-   Map every variant value exhaustively; omit properties with no corresponding
-   code prop instead of inventing one. Resolve configurable nested components
-   dynamically rather than hardcoding their output.
-5. Validate the mapping against the code component's real prop types and the
-   complete Figma property set before publishing it with an advertised Code
-   Connect management tool.
+## Map components
 
-For parserless templates, create `ComponentName.figma.ts`, use the `figma.code`
-tagged-template form, and do not replace an existing parser-based `.figma.tsx`
-mapping. Follow the project's existing Code Connect format when it has already
-standardized on another supported workflow.
+- Call `get_code_connect_suggestions` with `excludeMappingPrompt` enabled to find published, unmapped components in the selection.
+
+- For each returned main component ID, call `get_context_for_code_connect` with the project's actual language and framework. Infer them from the source code and `figma.config.json`.
+
+- Match each Figma component to a real code component by purpose, property types, variants and import configuration. When more than one candidate fits, confirm the match with the user before writing.
+
+- Map every Figma property that has a real code equivalent, and every value of each variant. Leave out a property with no matching code prop rather than inventing one.
+
+- Resolve configurable nested components dynamically instead of hardcoding their output.
+
+## Publish the mapping
+
+- Check the mapping against the code component's real prop types and the complete Figma property set. Then publish it with the Code Connect management tool that `list-tools` advertises.
+
+- For a parserless template, create `ComponentName.figma.ts` with the `figma.code` tagged template. Never replace an existing parser-based `.figma.tsx` mapping.
+
+- When the project already uses another supported Code Connect format, follow it.

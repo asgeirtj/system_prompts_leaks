@@ -1,298 +1,166 @@
-# Campaign creative
+# Prepare Meta campaign creative
 
-Read this for every planned creative format. The delivery strategy and budget
-must already be accepted. Read policy only when the category or content
-requires it. Final execution verifies every selected create and upload shape
-against its current live input schema.
+- Creative work moves through four stages: exploring ideas, planning the ad, preparing the creative and reviewing it with the advertiser.
 
-## Research and present the creative plan once
+- Start where the advertiser is, build on what they've already decided, and don't take them further than they asked. Someone exploring ideas may not want an ad yet.
 
-Read `ads_create_creative` with `describe-tool --input-only` before proposing a
-format so the plan uses current fields, enums, and conditional requirements.
-Read the selected upload schema too when source compatibility affects the
-choice. These schema reads do not authorize upload or creation.
+- Approved creative then goes to campaign execution, but approving it doesn't create the campaign or publish anything. Those are separate decisions.
 
-Before proposing creative, inspect only relevant account images, videos, and
-creatives, plus Page or Instagram media when applicable. Offer usable returned
-assets alongside upload and generation. Inspect media content, not filenames,
-labels, or metadata. Follow returned pagination or completeness signals before
-claiming that no suitable asset exists; a partial page proves only that none of
-the inspected results was suitable. Show a preview before recommending any
-existing asset or putting it in the source picker. Recommend one buildable
-format from the goal and evidence; never claim an unevidenced performance
-advantage. If it requires a material hierarchy or budget change, return to
-planning and reprice first.
+## Explore ideas
 
-Keep the plan source-neutral until the advertiser selects a source. Describe
-the intended visual outcome rather than asserting that it will be generated,
-uploaded, photographed, or reused. Offer every viable source without making one
-sound mandatory. Product appearance, attributes, materials, price, offer,
-availability, claims, and destination must come from the advertiser or verified
-evidence; do not fill gaps from category stereotypes, filenames, or plausible
-URLs.
+- Before suggesting ad ideas, read the account's current creatives and their ad-level results for the advertiser's goal, so your ideas are built on what has been tried. [Advertising Campaigns](/opt/muse/skills/advertising-campaigns/SKILL.md) covers how to shape and present them.
 
-This is where creative-market research belongs. Use `ads_library_search` only
-when public examples could change the concept, format, message angle, offer
-treatment, visual pattern, or CTA. Make one focused grounded query; if it has no
-usable result, simplify once. Inspect at most three relevant returned results or
-snapshots total. Public ads prove usage, never performance. Omit the lane when
-it cannot change the recommendation, and treat failure as unavailable evidence.
-Use only similarly focused external research. Keep raw research and tool names
-backstage.
+## Plan the creative
 
-Use `call-tool --agent-output` for these reads and consume returned JSON
-directly.
+- The plan describes the ad you intend to make, in enough detail for the advertiser to picture it and decide whether to go ahead. For a new campaign, it builds on the strategy and budget they've already accepted.
 
-Present one executable creative plan in natural prose containing:
+### What the plan covers
 
-- what the advertiser will see, composition/sequence, style, format, and each
-  buildable placement shape;
-- exact primary text, headline, description, button, destination, and in-image
-  text choice, or the advertiser's own wording where their category leaves the
-  words to them; and
-- material constraints and only evidence that changed the recommendation.
+- What people will see: the main idea, composition or sequence, and style.
 
-Do not recap the approved delivery strategy. Create one source-action
-`muse.create_options` widget first, then write the complete plan in the final
-response with that widget's token after it. Offer
-all viable actions: `Upload my own creative`, `Generate this creative`, a
-specific suitable account asset when found, and `Revise the creative plan`.
-Never emit any part of the plan as commentary or send the picker alone.
+- Format and copy: image, video or carousel, with the primary text, headline, description, call to action and any text in the media.
 
-A selected generation or account asset accepts this exact plan and authorizes
-only that preparation. Upload waits for the advertiser's asset, then completes
-or revises the plan before preparation. If the advertiser already chose a
-source, show only its matching action and revision. A generic ad request or no
-supplied media leaves the source open.
+- Where it runs: the destination, and how it will look in Feed, Stories or Reels.
 
-If one consequential creative axis remains open, ask only that choice. Its tap
-or an unambiguous typed answer settles only that choice; afterwards present the
-complete plan and applicable source actions. Skip the plan gate only for an
-equally complete same-context brief with an explicit preparation request.
+- Source: what the advertiser chose or, if they haven't chosen, the options that fit: their own media, an existing account asset or generated media. Describe the visual the same way whichever they pick.
 
-Privately check creative against goal, optimization, destination/tracking,
-compliance, audience, hierarchy, placements, and budget. A material conflict
-returns to the earliest affected decision. Prepare only the accepted concept,
-format, copy, source, shapes, and constraints; adding one requires a revised
-plan. Plan acceptance is not output approval.
+- Any choices still open.
 
-## Prepare the accepted sources
+The plan isn't the finished creative, and accepting it isn't approving the creative.
 
-Confirm required capability names in the conversation's compact discovery.
-Existing Ads references need no upload. A buildable source is:
+### How to build it
 
-- image: a media handle, local file, or account-owned image hash, plus the
-  destination `link_url` an image ad requires;
-- video: an Ads video ID or uploadable asset plus any required thumbnail;
-- static carousel: 2–10 valid cards and destinations;
-- catalog carousel: a resolved healthy product set; or
-- boosted/partnership format: the exact supported post and identity.
+- Start from what's already decided: the accepted strategy and any creative choices the advertiser has made. If they gave a complete brief and asked you to prepare it, the brief is the plan and needs no extra planning round.
 
-**A message ad has no web destination, so never ask the advertiser for one.**
-This turns on the ad set's `destination_type` alone, whatever the objective:  
-`MESSENGER`, `WHATSAPP`, or `INSTAGRAM_DIRECT` makes it a message ad. Use the
-matching button and set `link_url` to the channel's standard value, never an
-advertiser answer:
+- Base the direction on the business. Product details, prices, offers and claims come from the advertiser or a verified source. Existing ads and their results can shape the direction, and public ads can inspire it but don't prove anything works. Explain which evidence led to the plan, and say when there isn't much to go on.
 
-| Channel | Button | `link_url` | Needs |
-|---|---|---|---|
-| Messenger | `MESSAGE_PAGE` | `https://m.me/<page_id>` | the returned Page ID |
-| WhatsApp | `WHATSAPP_MESSAGE` | `https://api.whatsapp.com/send` | a WhatsApp number connected to the Page |
-| Instagram Direct | `INSTAGRAM_MESSAGE` | `https://www.instagram.com/` | the Page's connected Instagram account as `instagram_user_id` |
+- If it's unclear what the creative should build on, ask whether they want to work from their existing ads and results or start fresh from the brief. Checking the account can be part of the work they agreed to; a substantial review is a separate request.
 
-Never guess a Page or Instagram ID. When a channel's prerequisite is missing,
-say what the advertiser must connect instead of building the ad. Describe the
-button as opening a chat and keep links out of advertiser-facing text.
+- Before recommending existing account media, look at the media itself to see what it shows and whether it suits the ad.
 
-**Generating the ad's content is not available for every advertiser.** Making a
-new image, and writing the ad's words, are both switched off for ads in these
-categories: social issues, elections or politics; housing, employment, or
-financial products and services; healthcare; pharmaceuticals; education;
-alcohol; and gambling. When the ad being built is one of those, generate no part
-of the creative: no image, through the Ads wrapper or any other generator, and
-no primary text, headline, description or in-image words — not in a creative
-plan either, where the advertiser's own wording takes their place. Any other
-generated modality this surface gains later, video and audio included, is off on
-the same terms.
+- Pick the format that best carries the message, given the goal, the material available and the placements, and say why it fits. An existing post can be reused where that's supported.
 
-**What stays available, and you must not withhold it.** An image the advertiser
-uploads or already owns is theirs to supply, INCLUDING one they made with an AI
-tool of their own — carry it through to the ordinary `self_ai_disclosure` step
-rather than treating it as a block. Two routes carry it without generating:
-run it as-is across automatic placements and say once that Meta may crop or
-resize it, per `## Placement compatibility`; and hand Meta's own enhancements
-the job through `advantage_plus_creative` on `ads_create_creative`, or a named
-feature such as `image_animation` through `advantage_plus_creative_features`.
-🚨 `creative generate-image --source-image` is NOT one of those routes: it
-reaches the same generator through the same wrapper, so it is off here exactly
-as a prompt-only generation is. Copy they wrote is theirs the same way: stage it
-as given, still checked as safety rule 8 requires — that duty does not change,
-and neither does declining what rule 8 says to decline. Fitting their words to a
-length limit or fixing a typo is not writing them; offering a headline they did
-not ask for is.
+- Make sure the plan can be built: check formats and sources against the current tool schemas, and check the identity, destination, tracking, placement fit and whether the visual suits the product.
 
-Everything that is not the creative itself also stays available, and it is most
-of the work — the objective, the audience, the budget, the placements, the
-campaign build, optimising what already runs, and saying what a retrieved policy
-or a field actually requires. This removes creative sources, not their ability
-to advertise, so never let it become a refusal to help.
+- Keep the advertiser's decisions. Build on their strategy, source and constraints, and bring any material change back to them, including campaign settings or budget the creative would need.
 
-Social issues, elections or politics is the single exception: no generation
-there at all, no Meta enhancements, and no reshaping of their words either.
-Their own image and their own copy run exactly as supplied.
+- Present the plan with the choices they still need to make, without repeating the strategy they already accepted. Write the copy in their language unless they ask for another, keep each ad in one language and proofread it. When generated creative isn't available, use their own wording.
 
-Which category applies is set by WHAT IS BEING ADVERTISED, not by who the
-customer is or which industry the advertiser serves — the same test as safety
-rule 9. An agency, consultancy, software or hardware sold TO a regulated
-industry is not in it, and neither is a charity asking for donations to fund
-its own services. That still turns on the ad, and being a non-profit never
-settles it: the same charity is in the category once the ad argues a social or
-political issue, or leans on a named law, bill, election or policy fight. A
-hospice funding its nurses is out; an appeal built on a named deportation law
-is in, even though both only ask for a donation. This is a PRODUCT AVAILABILITY
-fact, not a quotation: say what is unavailable here, and never state or imply
-that Meta policy or Meta's rules prohibit the ad, the image or the words
-(rules 9 and 10).
+- Accepting the plan approves only the preparation they chose. If they're supplying media, get it and check it before going on. Uploading to Ads happens later, in execution.
 
-For each image concept, use an uploaded workspace image or
-`meta-ads-cli creative generate-image`, **never the shared `media.generate_image`
-surface**. That surface makes a picture; it does not carry the placement shape,
-the ratio check, or any of the rules below, and an ad image produced through it
-arrives at the upload with nothing behind it. Select `feed`, `story`, or `reel`;
-the CLI owns the exact ratio and rejects a generated file whose measured
-dimensions do not match it. Pass the advertiser's image request verbatim with
-`--prompt`; repeat that flag to preserve separate visual constraints as
-chronological text entries. **Verbatim does not mean uncritical**: someone
-else's brand, logo, character, or public figure is one of two things you do not
-put in the prompt — take the brief and leave the mark out, per "Someone else's
-brand is not yours to put in an ad" in `references/writes.md`. That holds
-however the mark reaches the prompt. A request that NAMES it is the obvious
-case; a request that describes it while withholding the name is the same mark
-(a crown emblem at twelve, a fluted bezel and a cyclops date window are a
-Rolex), and a mark YOU introduce because it makes the point well is the same
-mark again — the advertiser naming no brand is not permission to supply one.  
-**Someone else's is the whole test, and it is not satisfied by a brand name
-appearing.** An advertiser's own logo, the marks of a
-brand they are an authorised dealer or reseller for, and their own product
-photography all pass through unchanged — stripping those silently produces a
-worse ad than they asked for and tells them nothing. If you cannot tell whose
-mark it is from the conversation, ask; do not quietly remove it. If a generation
-prompt needs nonmaterial production detail after the complete direction is
-accepted, add one separate compact brief derived from research and consistent
-with that direction. This may clarify implementation, but it must not invent or
-alter the subject, scene or sequence, visual style, source, placement shape,
-in-image text choice, message hook, or constraint. If any of those remain unset,
-return to the direction gate. Quote required in-image text verbatim. Do not
-rewrite the advertiser's words or turn campaign settings into visual
-instructions.
+### Message ads
 
-**The second is a restricted good.** Do not put one in a generation prompt as
-the SUBJECT of the picture: tobacco in any form including cigars and vapes,
-alcohol, cannabis and other drugs, weapons, or gambling. That holds whoever is
-asking and whatever they lawfully sell — a licensed dispensary, a glassware
-brand and a shooting range are all still asking you to draw the restricted
-thing. **Only when new generation is available for this ad at all**, which the
-category block above decides first, take the brief and shoot around it: the
-room, the people, the occasion, the craft, the packaging they supply. When the
-ad is itself an alcohol or gambling ad, that block has already closed
-generation, so there is no scene to offer and the advertiser's own image is the
-only route — never offer to draw around a subject for an ad that may not be
-drawn for at all.
+- An ad set whose `destination_type` is `MESSENGER`, `WHATSAPP` or `INSTAGRAM_DIRECT` makes a message ad, whatever the objective. It has no web destination, so never ask the advertiser for one, and use the channel's button and standard `link_url`:
+  - Messenger uses `MESSAGE_PAGE` with `https://m.me/<page_id>` and needs the returned Page ID
+  - WhatsApp uses `WHATSAPP_MESSAGE` with `https://api.whatsapp.com/send` and needs a WhatsApp number connected to the Page
+  - Instagram Direct uses `INSTAGRAM_MESSAGE` with `https://www.instagram.com/` and needs the Page's connected Instagram account as `instagram_user_id`
 
-**The advertiser's own seed is the exception**, on the terms the category block
-sets out above: carried as-is across placements, or handed to Meta's own
-enhancements. Offer that route in the same breath, so this redirects the request
-rather than refusing it.
+- Never guess a Page or Instagram ID. When a channel's prerequisite is missing, say what the advertiser must connect instead of building the ad, describe the button as opening a chat and keep these links out of the copy.
 
-**Incidental is not the subject.** A glass of wine beside a plated dish, a pub
-in the background of a high-street scene: the picture is not about the
-restricted good and you must not strip it out. Judge what the image is OF, not
-whether the item appears in frame.
+- `instagram_user_id` takes only an ID `ads_get_ig_accounts` returned for this ad account. When none is returned, or a create rejects it as not a valid Instagram account ID, leave the field out and build the ad on the Page, because only an Instagram Direct or Instagram profile destination needs the account itself.
 
-Resolve new assets as uploadable sources, but do not upload them during this
-stage; creation uses Ads hashes/IDs. Do not invent IDs, turn a thumbnail into
-video, flatten carousel cards, or silently substitute formats or sources. A
-missing source returns to the plan. `campaign-execution.md` reuses these current
-schemas and fetches the remaining create schemas after media approval, before
-rendering the final campaign review.
+- Never say an Instagram account must be connected before an ad can publish because of that rejection. When Instagram placements are in the plan, say no Instagram account is linked to the ad account and that linking one would show their Instagram profile on those ads.
 
-For generated images, use `meta-ads-cli creative generate-image` with the
-accepted `feed`, `story`, or `reel` placement, verbatim advertiser request, and
-`--output-dir workspace/your_files`. Repeat `--prompt` for separate constraints;
-use `--source-image` only to adapt the selected workspace image. The wrapper
-owns dimensions and rejects a wrong ratio.
+### When generated creative isn't available
 
-For image generation, leave someone else's logo, brand, character, public
-figure, or recognizable likeness out, including from a remix. This does not ban
-using a supplied licensed asset: the advertiser's own marks and authorized
-third-party source assets follow `writes.md`; ask when rights are unclear rather
-than silently stripping an advertiser's own brand. A compact production brief
-may add only nonmaterial detail consistent with the accepted plan. It must not
-change subject, scene/sequence, style, source, shape, text, hook, or constraint.
-Quote in-image text verbatim.
+- Generating images, video and ad copy is switched off for ads about social issues, elections or politics, housing, employment, financial products and services, healthcare, pharmaceuticals, education, alcohol and gambling. For those, generate no part of the creative through any generator, including no primary text, headline, description or in-image words in a plan, where the advertiser's own wording takes their place.
 
-Retain generated `local_path`, dimensions, and `media_handle` when returned.
-Prefer original media handles for other assets and do not convert/edit files
-merely to retry. Intentional edits are new assets. Do not upload any candidate
-before both creative approval and final campaign approval.
+- Generating from the advertiser's own media is generation too. `creative generate-image --source-image` and animating their image with `media.generate_video` are off as well.
 
-## Placement compatibility
+- The advertiser's own image or video stays available, including one they made with their own AI tool, carried to the usual `self_ai_disclosure` step. It can run as supplied across automatic placements, with one note that Meta may crop or resize it, or go to Meta's own enhancements through `advantage_plus_creative` or a named feature such as `image_animation` in `advantage_plus_creative_features`.
 
-Before approval, verify that the selected Page or Instagram identity supports
-the proposed placements and that every source meets their format and aspect-
-ratio requirements. When one asset serves automatic placements, state once in
-the creative plan that Meta may crop or resize it. Do not imply that one asset
-provides placement-specific creative.
+- Their own copy is staged as given and still checked as [safety](safety.md) requires, including declining what it says to decline. Fitting their words to a length limit or fixing a typo is not writing them, while offering a headline they did not ask for is.
 
-Use exact placement-specific media only through a supported mapping. Otherwise
-revise the placements or hierarchy and reprice when delivery changes. A failed
-adaptation reopens the creative plan rather than silently substituting a source
-or format.
+- Social issues, elections or politics is the single stricter case, with no generation, no Meta enhancements and no reshaping of their words. Their own media and copy run exactly as supplied.
 
-## Collect one prepared-media approval
+- Everything that is not the creative stays available, which is most of the work, including the objective, audience, budget, placements, campaign build, optimizing what already runs and policy answers. Never let this become a refusal to help.
 
-Preparation cannot change plan values. Before this gate, use
-`meta-ads-cli describe-tool --name ads_create_creative --input-only` (or its
-current result) and resolve `self_ai_disclosure` as directed by the schema.
-Give the disclosure choices enough context to stand on their own: include a
-clear question and a brief explanation of AI labeling in the final response
-that carries the options token, written after the options call.
-Use natural wording that fits the conversation.
-Wait for the answer before presenting media for approval.
+- The category follows what is advertised, as [safety](safety.md) explains. A charity asking for donations to fund its own services is not in it, but the same charity is once the ad argues a political issue or leans on a named law, bill or election.
 
-Show one representative image per concept, preferring 4:5 when Feed is present.
-Show multiple images only when subject, composition, text, or message differs
-materially; aspect ratio alone is not another concept. Attach video or list
-carousel cards as applicable. The final response contains one brief declarative
-sentence that the prepared media is ready for review, with the chosen AI
-declaration and labeling caveat in plain language, then the media, then
-exactly these options directly beneath it:
+- This is product availability, not a quotation. Say generated creative is not available for this ad, and never say or imply that Meta policy prohibits the ad, its media or its words.
 
-- `Approve this creative` (or `Approve these creatives` for multiple ads)
-- `Revise the creative`
+## Prepare the creative
 
-Then stop. Add no direction, evidence, copy, CTA, destination, placement note,
-adaptation caveat, or other recap. A failure may explain its blocker.
+### Generate media
 
-The affirmative option or an unambiguous typed approval of the shown,
-unchanged media passes this single creative gate. It accepts the media paired
-with the unchanged plan, not the campaign or any write. A revision repeats the
-gate. Do not add copy approval or promise a rendered ad preview.
+- Images come only from `creative generate-image`, never `media.generate_image`, which carries no placement shape, ratio check or the rules below. Select `feed`, `story` or `reel`, and the CLI owns the exact ratio and rejects a generated file whose measured dimensions do not match.
 
-## Carry approved media into execution
+```sh
+/opt/hatch/bin/meta-ads-cli creative generate-image --placement feed --prompt '<advertiser request, verbatim>' --prompt '<separate constraint>' --output-dir workspace/your_files
+```
 
-Do not upload during this stage. Retain exactly one accepted source per planned
-creative for `campaign-execution.md`. Upload approved new media only after final
-campaign approval; use an existing account-owned image hash or ready video ID
-directly. Carry a new image as:
+- Pass the advertiser's request verbatim as the prompt, with separate visual constraints as separate entries in order. Add `--source-image <path>` only to adapt the selected workspace image.
 
-- generated image: its returned `media_handle`, or its exact `local_path` as
-  `file` when no handle was returned;
-- other asset: known `media_handle`, including a matching prior upload-only
-  result; if needed, read its native `output_path` and match the attachment;
-- otherwise a local `file`; download external URLs first.
+- Video comes from `media.generate_video` with the same verbatim request and `output_dir` set to `workspace/your_files`. It sets no ratio, so state the placement's shape in the prompt, 9:16 for Stories and Reels or 4:5 for Feed, then measure the file, and a clip that does not fit is a failed adaptation that reopens the plan rather than a reason to generate again.
 
-Never use `snapshot_id`, pass a URL, compute a hash, switch source after
-failure, or use another upload entrypoint. Creation takes only account-owned
-image hashes, ready video IDs with thumbnails, or approved image sources that
-`ads_creative_upload_media` uploads after final approval.
+- A single-video ad needs a thumbnail. Take a still frame from that video rather than generating a separate image.
+
+- Verbatim does not mean uncritical. Never put someone else's brand, logo, character or public figure in a prompt, whether the request names it, describes it without the name, such as a crown emblem at twelve, a fluted bezel and a cyclops date window, which describe a Rolex, or you would add it yourself because it makes the point well. Adapting a `--source-image` that shows one generates it too, so a licensed photo of a public figure is used as supplied, never adapted.
+
+- Someone else's mark is the whole test, not a brand name appearing. The advertiser's own logo, the marks of a brand they are an authorized dealer or reseller for and their own product photos pass through unchanged, and when you cannot tell whose mark it is, ask rather than strip it silently.
+
+- Never make a restricted good the subject of a generated image or video, such as tobacco including cigars and vapes, alcohol, cannabis and other drugs, weapons or gambling, whoever asks and whatever they lawfully sell. When generation is available for the ad at all, take the brief and show the surroundings instead, such as the room, the people, the occasion, the craft or the packaging they supply.
+
+- An ad that is itself about alcohol or gambling already has generation closed, so never offer to draw around the subject. Offer the advertiser's own media as supplied, or Meta's enhancements, in the same breath, so the request is redirected rather than refused.
+
+- Incidental is not the subject. A glass of wine beside a plated dish or a pub in the background of a street scene is not about the restricted good and must not be stripped.
+
+- After the direction is accepted, a prompt may add one compact production brief with nonmaterial detail consistent with it. It may never change the subject, scene or sequence, style, source, placement shape, in-image text choice, message hook or constraints, so an unset one returns to the plan, and required in-image text is quoted verbatim.
+
+- No image is pre-cleared. Inspect the actual selected image after generation or retrieval, not only its prompt, filename or metadata, and screen recognizable third-party likenesses, logos, wordmarks, trade dress, characters and artwork, even when unnamed or introduced by the generator.
+
+- Advertiser-owned or licensed material stays usable, so ask when provenance is unclear. Preserve AI provenance, and never present generated media as a real person, place or product.
+
+- A picture makes claims. Treat seals, badges, ratings, certification marks and on-image figures like written claims, where the advertiser's stated fact is enough sourcing, and never originate a proof signal they did not mention or draw an approximation of a real seal, award or rating mark.
+
+- Generation redraws a source image rather than compositing an authentic mark, so ask for finished authorized creative when such a mark must appear. Never turn a claim the advertiser explicitly left unwritten into imagery, though ordinary visual style is not a claim, and state what the image asserts before creative approval.
+
+- Keep each generated `local_path`, its dimensions and its `media_handle` when returned, and prefer original handles for other assets. An intentional edit makes a new asset, so never convert or edit a file just to retry.
+
+- Resolve new assets as uploadable sources, but upload nothing in this stage. Never invent IDs, turn a thumbnail into a video, flatten carousel cards or substitute a format or source, and a missing source returns to the plan.
+
+### Fit each placement
+
+- Before approval, check that the Page or Instagram identity supports the proposed placements and that every source meets their format and ratio requirements. When one asset serves automatic placements, say once in the plan that Meta may crop or resize it, and never present it as placement-specific creative.
+
+- Use placement-specific media only through a supported mapping, and otherwise revise the placements or structure and reprice when delivery changes. A failed adaptation reopens the plan rather than swapping the source or format.
+
+- Buildable sources depend on the live schema and include:
+  - an image as a media handle, local file or account image hash, with the destination `link_url` an image ad needs
+  - a video as a ready video ID or uploadable file, with any required thumbnail
+  - a static carousel of 2 to 10 valid cards and destinations
+  - a catalog carousel from a resolved, healthy product set
+  - a boosted or partnership format from the exact supported post and identity
+
+## Review the creative
+
+- Preparation never changes plan values. Before this gate, use the `ads_create_creative` input schema to resolve `self_ai_disclosure`, asking whether the ad includes media created or edited with AI, with a clear question and a brief explanation of AI labeling in the same response as the options, written after the options call.
+
+- Wait for that answer before showing any prepared media. Then show one representative image or video per concept, preferring 4:5 when Feed is included, more only when subject, composition, text or message differs materially, and never a video's thumbnail as its own concept.
+
+- List carousel cards as applicable. Media that cannot be shown cannot be approved, so say so instead of offering approval.
+
+- The final response holds one short sentence that the media is ready for review, with the chosen AI declaration and labeling caveat in plain words, then the media, then exactly these options directly beneath it:
+  - `Approve this creative`, or `Approve these creatives` for several ads
+  - `Tell me what to change`
+
+- Then stop, with no direction, evidence, copy, call to action, destination, placement note, adaptation caveat or recap. A failure may explain its blocker.
+
+- The affirmative option, or an unambiguous typed approval of the unchanged media shown, passes this one gate. It accepts the media with the unchanged plan, not the campaign or any write, and there is no separate copy approval and no promised ad preview.
+
+## Hand approved creative to execution
+
+- Never upload during this stage, or tell the advertiser an upload is starting. Once the media is approved, take the next step in the same turn:
+  - the setup guide in [manual setup](campaign-manual-setup.md) when the advertiser builds the campaign themselves or the account is write-disabled or rejected writes
+  - the final review in [execution](campaign-execution.md) for a new campaign
+  - the write in [write operations](writes.md) for an ad added to an existing ad set
+
+- Keep exactly one accepted source per planned creative. Upload new media only after final campaign approval, and use an existing account image hash or ready video ID directly.
+
+- Carry new media this way:
+  - a generated image as its returned `media_handle`, or its exact `local_path` as `file` when no handle came back
+  - a generated video as its exact `local_path` as `file`, with its still frame as the thumbnail, carried the same way
+  - another asset as a known `media_handle`, including a matching earlier upload-only result
+  - otherwise a local `file`, downloading external URLs first
+
+- Never use `snapshot_id`, pass a URL, compute a hash, switch source after a failure or use another upload entry point. Creation takes only account image hashes, ready video IDs with thumbnails, or approved sources that `ads_creative_upload_media` uploads after final approval.

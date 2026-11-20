@@ -1,8 +1,37 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: gmail
+  required: true
+  client_id: "138594053405-tapch3sk6u6q2mqnuo28ks90fm4q26an.apps.googleusercontent.com"
+  authorization_query:
+    prompt: consent select_account
+  identity:
+    endpoint: https://gmail.googleapis.com/gmail/v1/users/me/profile
+    display_name_fields:
+      - emailAddress
 connector: gmail
 category: productivity
 display_name: Gmail
 description: You can give read-only or read and write access
+icon: gmail
+multi_account:
+  backend: oauth
+  credential_namespace: google_oauth_accounts
+  domains:
+    - batch.googleapis.com
+    - gmail.googleapis.com
+    - calendar.googleapis.com
+    - drive.googleapis.com
+    - people.googleapis.com
+    - docs.googleapis.com
+    - sheets.googleapis.com
+    - slides.googleapis.com
+    - forms.googleapis.com
+    - tasks.googleapis.com
+    - content.googleapis.com
+    - www.googleapis.com
 request_quota:
   mode: enforce
   workers:
@@ -142,6 +171,8 @@ actions:
           - https://www.googleapis.com/auth/gmail.readonly
           - https://www.googleapis.com/auth/gmail.modify
       users.settings.read:
+        # Temporarily withheld from Settings and rejected by the CLI pending scope approval.
+        # Keep the key and saved permissions for re-enablement.
         label: Access Gmail settings
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.settings.basic
@@ -152,8 +183,29 @@ actions:
     label: Write and delete permissions
     methods:
       users.messages.send:
+        approval_policy: fresh_consent_or_task_allow
+        # A task pre-approval binds the exact recipients and thread, which
+        # Sentinel reads from the verified prepared send at execution.
+        preapproval: recipients_and_thread
         label: Send emails
         approval_phrase: send this email in Gmail
+        approval_buttons:
+          allow_once: "Send"
+          deny: "Don't send"
+          deny.task: "Don't send"
+        approval_button_variants:
+          reply:
+            allow_once: "Reply"
+            deny: "Don't reply"
+            deny.task: "Don't reply"
+          reply_all:
+            allow_once: "Reply all"
+            deny: "Don't reply all"
+            deny.task: "Don't reply all"
+          forward:
+            allow_once: "Forward"
+            deny: "Don't forward"
+            deny.task: "Don't forward"
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.send
           - https://www.googleapis.com/auth/gmail.compose
@@ -162,12 +214,20 @@ actions:
         default: ask
         label: Unsubscribe from emails
         approval_phrase: unsubscribe from email lists
+        approval_buttons:
+          allow_once: "Unsubscribe"
+          deny: "Don't unsubscribe"
+          deny.task: "Don't unsubscribe"
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.readonly
           - https://www.googleapis.com/auth/gmail.modify
       users.drafts.create:
         default: allow
         label: Draft emails
+        approval_buttons:
+          allow_once: "Draft"
+          deny: "Don't draft"
+          deny.task: "Don't draft"
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.compose
           - https://www.googleapis.com/auth/gmail.modify
@@ -178,12 +238,18 @@ actions:
           - https://www.googleapis.com/auth/gmail.modify
       users.messages.trash:
         default: allow
-        label: Move emails to trash
+        label: Move emails to or from trash
+        approval_phrase: move emails to or from trash in Gmail
+        approval_buttons:
+          allow_once: "Move"
+          deny: "Don't move"
+          deny.task: "Don't move"
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.modify
       users.labels.manage:
         default: allow
         label: Manage labels
+        approval_phrase: create, edit or delete labels, or change labels on emails, in Gmail
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.modify
       users.filters.manage:
@@ -195,10 +261,16 @@ actions:
       users.messages.import:
         default: allow
         label: Import emails
+        approval_buttons:
+          allow_once: "Import"
+          deny: "Don't import"
+          deny.task: "Don't import"
         requires_scopes:
           - https://www.googleapis.com/auth/gmail.insert
           - https://www.googleapis.com/auth/gmail.modify
       users.settings.manage:
+        # Temporarily withheld from Settings and rejected by the CLI pending scope approval.
+        # Keep the key and saved permissions for re-enablement.
         label: Manage Gmail settings
         approval_phrase: manage settings in Gmail
         requires_scopes:

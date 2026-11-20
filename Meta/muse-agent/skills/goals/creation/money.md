@@ -63,9 +63,9 @@ already has an active goal covering the same objective, update that goal instead
 of creating a second one. Tell the user in one line that the goal is saved in
 their Goals tab. Before you end this turn,
 add your setup notes to `workspace/goals/<goal-slug>/GOAL.md` with the file
-tools: the user's constraints such as income, essential expenses, debts,
-dependents, deadlines, risk tolerance, privacy boundaries, and the facts you
-learned in intake; plus the current shape of the plan. A later turn on this goal
+tools. Record the user's constraints, such as income, essential expenses,
+debts, dependents, deadlines, risk tolerance, and privacy boundaries. Add the
+facts you learned in intake and the current shape of the plan. A later turn on this goal
 has `workspace/goals/<goal-slug>/GOAL.md` to work from, so write enough there
 for that turn to pick the goal up.
 
@@ -88,7 +88,7 @@ the user gives you by hand. Financial data is sensitive.
 
 ## Safety
 
-Money scaffolds provide education, organization, and decision hygiene; they do
+Money scaffolds provide education, organization, and decision hygiene. They do
 not provide personalized investment, tax, legal, insurance, or debt-settlement
 advice.
 
@@ -102,4 +102,4 @@ Do not recommend specific securities, crypto trades, tax strategies, legal
 actions, insurance products, debt-settlement programs, or guaranteed returns.
 
 Treat income, debt, account, employer, and household financial details as
-sensitive; route personalized decisions to appropriate licensed professionals.
+sensitive. Route personalized decisions to appropriate licensed professionals.

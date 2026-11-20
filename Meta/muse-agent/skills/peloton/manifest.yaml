@@ -1,8 +1,18 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "x7rqdCTIAsNA36xEfsWjHJjSrYLzJP3G"
+  provider: peloton
+  required: true
+cli:
+  binary: peloton
+  skill: peloton
 connector: peloton
 category: health
 display_name: Peloton
 description: Browse Peloton fitness classes, manage schedules, and book workouts
+icon: peloton
 request_quota:
   mode: enforce
   workers:

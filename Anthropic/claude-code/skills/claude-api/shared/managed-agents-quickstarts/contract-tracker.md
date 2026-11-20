@@ -22,9 +22,14 @@ mcp_servers:
     url: https://mcp.box.com
   - name: asana
     type: url
-    url: https://mcp.asana.com/sse
+    url: https://mcp.asana.com/v2/mcp
 tools:
   - type: agent_toolset_20260401
+    configs:
+      - name: web_search
+        enabled: false
+      - name: web_fetch
+        enabled: false
   - type: mcp_toolset
     mcp_server_name: box
   - type: mcp_toolset

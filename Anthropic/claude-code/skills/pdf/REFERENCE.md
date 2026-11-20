@@ -39,7 +39,8 @@ import pypdfium2 as pdfium
 
 pdf = pdfium.PdfDocument("document.pdf")
 for i, page in enumerate(pdf):
-    text = page.get_text()
+    textpage = page.get_textpage()
+    text = textpage.get_text_range()
     print(f"Page {i+1} text length: {len(text)} chars")
 ```
 
@@ -350,12 +351,12 @@ import pdfplumber
 
 with pdfplumber.open("document.pdf") as pdf:
     page = pdf.pages[0]
-    
+
     # Extract all text with coordinates
     chars = page.chars
     for char in chars[:10]:  # First 10 characters
         print(f"Char: '{char['text']}' at x:{char['x0']:.1f} y:{char['y0']:.1f}")
-    
+
     # Extract text by bounding box (left, top, right, bottom)
     bbox_text = page.within_bbox((100, 100, 400, 200)).extract_text()
 ```
@@ -367,7 +368,7 @@ import pandas as pd
 
 with pdfplumber.open("complex_table.pdf") as pdf:
     page = pdf.pages[0]
-    
+
     # Extract tables with custom settings for complex layouts
     table_settings = {
         "vertical_strategy": "lines",
@@ -376,7 +377,7 @@ with pdfplumber.open("complex_table.pdf") as pdf:
         "intersection_tolerance": 15
     }
     tables = page.extract_tables(table_settings)
-    
+
     # Visual debugging for table extraction
     img = page.to_image(resolution=150)
     img.save("debug_layout.png")
@@ -441,21 +442,21 @@ import numpy as np
 
 def extract_figures(pdf_path, output_dir):
     pdf = pdfium.PdfDocument(pdf_path)
-    
+
     for page_num, page in enumerate(pdf):
         # Render high-resolution page
         bitmap = page.render(scale=3.0)
         img = bitmap.to_pil()
-        
+
         # Convert to numpy for processing
         img_array = np.array(img)
-        
+
         # Simple figure detection (non-white regions)
         mask = np.any(img_array != [255, 255, 255], axis=2)
-        
+
         # Find contours and extract bounding boxes
         # (This is simplified - real implementation would need more sophisticated detection)
-        
+
         # Save detected figures
         # ... implementation depends on specific needs
 ```
@@ -472,7 +473,7 @@ logger = logging.getLogger(__name__)
 
 def batch_process_pdfs(input_dir, operation='merge'):
     pdf_files = glob.glob(os.path.join(input_dir, "*.pdf"))
-    
+
     if operation == 'merge':
         writer = PdfWriter()
         for pdf_file in pdf_files:
@@ -484,10 +485,10 @@ def batch_process_pdfs(input_dir, operation='merge'):
             except Exception as e:
                 logger.error(f"Failed to process {pdf_file}: {e}")
                 continue
-        
+
         with open("batch_merged.pdf", "wb") as output:
             writer.write(output)
-    
+
     elif operation == 'extract_text':
         for pdf_file in pdf_files:
             try:
@@ -495,12 +496,12 @@ def batch_process_pdfs(input_dir, operation='merge'):
                 text = ""
                 for page in reader.pages:
                     text += page.extract_text()
-                
+
                 output_file = pdf_file.replace('.pdf', '.txt')
                 with open(output_file, 'w', encoding='utf-8') as f:
                     f.write(text)
                 logger.info(f"Extracted text from: {pdf_file}")
-                
+
             except Exception as e:
                 logger.error(f"Failed to extract text from {pdf_file}: {e}")
                 continue
@@ -533,7 +534,7 @@ with open("cropped.pdf", "wb") as output:
 - Process pages individually with pypdfium2
 
 ### 2. For Text Extraction
-- `pdftotext -bbox-layout` is fastest for plain text extraction
+- `pdftotext` is fastest for plain text extraction
 - Use pdfplumber for structured data and tables
 - Avoid `pypdf.extract_text()` for very large documents
 
@@ -551,14 +552,14 @@ with open("cropped.pdf", "wb") as output:
 def process_large_pdf(pdf_path, chunk_size=10):
     reader = PdfReader(pdf_path)
     total_pages = len(reader.pages)
-    
+
     for start_idx in range(0, total_pages, chunk_size):
         end_idx = min(start_idx + chunk_size, total_pages)
         writer = PdfWriter()
-        
+
         for i in range(start_idx, end_idx):
             writer.add_page(reader.pages[i])
-        
+
         # Process chunk
         with open(f"chunk_{start_idx//chunk_size}.pdf", "wb") as output:
             writer.write(output)

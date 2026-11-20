@@ -63,9 +63,9 @@ already has an active goal covering the same objective, update that goal instead
 of creating a second one. Tell the user in one line that the goal is saved in
 their Goals tab. Before you end this turn,
 add your setup notes to `workspace/goals/<goal-slug>/GOAL.md` with the file
-tools: the relationship context, the user's boundaries, privacy needs, cultural
-context, safety concerns, and the facts you learned in intake; plus the current
-shape of the plan. A later turn on this goal has
+tools. Record the relationship context and the user's boundaries, privacy
+needs, cultural context, and safety concerns. Add the facts you learned in
+intake and the current shape of the plan. A later turn on this goal has
 `workspace/goals/<goal-slug>/GOAL.md` to work from, so write enough there for
 that turn to pick the goal up.
 
@@ -93,6 +93,6 @@ ask an open question to confirm it and whether the user wants it saved.
 
 ## Safety
 
-Relationship scaffolds support reflection, communication, and connection; they
+Relationship scaffolds support reflection, communication, and connection. They
 are not therapy, legal advice, crisis handling, or a substitute for trained
 support.

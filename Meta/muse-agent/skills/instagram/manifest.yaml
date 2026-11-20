@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: instagram
+  required: true
+cli:
+  binary: instagram-cli
+  skill: instagram
 connector: instagram
 category: social
 display_name: Instagram
 description: Catch up on friends and the creators you love
+icon: instagram
 request_quota:
   mode: shadow
   workers:
@@ -10,6 +19,62 @@ request_quota:
     - instagram-messages-cli
   queries_per_minute: 600
   burst: 100
+# Tool-variant labels for runtime telemetry. The connect and disconnect URL
+# helpers run before the tool pipeline and are not listed.
+cli_subcommands:
+  - "accounts"
+  - "help"
+  - "profile"
+  - "posts"
+  - "feed"
+  - "user-profile"
+  - "tagged-posts"
+  - "post"
+  - "saved-posts"
+  - "own-stories"
+  - "own-stories-archive"
+  - "stories-tray"
+  - "story-media"
+  - "account-search"
+  - "location-search"
+  - "media-understanding"
+  - "engagement-sync"
+  - "followers"
+  - "following"
+  - "close-friends"
+  - "activity-notifications"
+  - "fetch-post-comments"
+  - "fetch-post-likers"
+  - "recently-liked-posts"
+  - "recently-commented-posts"
+  - "account-insights"
+  - "saved-collections"
+  - "analytics-metric-metadata"
+  - "analytics-account-insights"
+  - "individual-post-insights"
+  - "analytics-top-post"
+  - "analytics-follower-count-delta"
+  - "analytics-metric-cards"
+  - "current-interests"
+  - "create-interest"
+  - "update-interest"
+  - "delete-interest"
+  - "update-interests"
+  - "post-feed"
+  - "post-story"
+  - "comment-reply"
+  - "archive-post"
+  - "hide-comment"
+  - "update-post-setting"
+  - "create-saved-collection"
+  - "rename-saved-collection"
+  - "save-post"
+  - "unsave-post"
+  - "set-profile-picture"
+  - "update-bio"
+  - "profile-banner"
+  - "rename-highlight"
+  - "mute-user"
 # The `account-insights` command is keyed to interactions.read but returns the
 # account-level insight metrics "Access analytics" (analytics.read) governs, so
 # interactions.read is an account-insights DATA CLASS emitter. While analytics
@@ -43,6 +108,7 @@ actions:
     label: Write and delete permissions
     methods:
       profile.edit:
+        approval_policy: fresh_consent_or_task_allow
         label: Edit your profile
         approval_phrase: edit your Instagram profile
       algorithm.update:
@@ -50,9 +116,92 @@ actions:
         label: Edit your algorithm
         approval_phrase: update your Instagram algorithm
       content.post:
-        label: Post content
-        approval_phrase: post this content to Instagram
+        approval_policy: fresh_consent_or_task_allow
+        label: Post and edit content
+        approval_phrase: post or edit your content on Instagram
+      settings.edit:
+        # Account settings such as muting change what the user sees; reusable consent stays task-scoped.
+        approval_policy: fresh_consent_or_task_allow
+        label: Change your settings
+        approval_phrase: change your Instagram settings
       saved.write:
         default: allow
         label: Manage saved posts
         approval_phrase: manage your saved posts on Instagram
+commands:
+  # Credential-free URL helpers handled by the binary before the tool pipeline.
+  connect-url: null
+  disconnect-url: null
+  # Account discovery; not policy-gated.
+  accounts: null
+  # Service command catalog with no account data; not policy-gated.
+  help: null
+  profile: content.read
+  mute-user: settings.edit
+  rename-highlight: profile.edit
+  posts: content.read
+  feed: content.read
+  user-profile: content.read
+  tagged-posts: content.read
+  post: content.read
+  saved-posts: content.read
+  own-stories: content.read
+  own-stories-archive: content.read
+  stories-tray: content.read
+  story-media: content.read
+  account-search: content.read
+  location-search: content.read
+  media-understanding: content.read
+  followers: interactions.read
+  following: interactions.read
+  close-friends: interactions.read
+  activity-notifications: interactions.read
+  fetch-post-comments: interactions.read
+  fetch-post-likers: interactions.read
+  recently-liked-posts: interactions.read
+  recently-commented-posts: interactions.read
+  account-insights: interactions.read
+  saved-collections: interactions.read
+  analytics-metric-metadata: analytics.read
+  analytics-account-insights: analytics.read
+  individual-post-insights: analytics.read
+  analytics-top-post: analytics.read
+  analytics-follower-count-delta: analytics.read
+  analytics-metric-cards: analytics.read
+  current-interests: algorithm.read
+  create-interest: algorithm.update
+  update-interest: algorithm.update
+  delete-interest: algorithm.update
+  update-interests: algorithm.update
+  post-feed: content.post
+  post-story: content.post
+  archive-post: content.post
+  hide-comment: content.post
+  comment-reply: content.post
+  create-saved-collection: saved.write
+  rename-saved-collection: saved.write
+  save-post: saved.write
+  unsave-post: saved.write
+  set-profile-picture: profile.edit
+  update-bio: profile.edit
+  profile-banner: profile.edit
+  update-post-setting: content.post
+
+# The daemon sends this screen only on a confidential VM, the only place
+# Instagram needs consent (auth.confidential_vm_consent in connector.yaml).
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with Instagram"
+      text: "Muse will access things like your Instagram feed and followers."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "Instagram is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+      placement: callout
+    - "Muse will exchange info with Instagram. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

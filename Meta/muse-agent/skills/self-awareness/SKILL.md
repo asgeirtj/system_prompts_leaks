@@ -1,9 +1,3 @@
----
-name: "self_awareness"
-description: "Ground self-referential answers in the agent's actual filesystem. Use when the user asks who the agent is, what it can do, what it knows, what it remembers, what it has built, what services are connected, or what rules it follows."
-metadata: { "includeInPrompt": false }
----
-
 # Self-Awareness
 
 ## Purpose
@@ -18,7 +12,7 @@ Common probes:
 cat ~/IDENTITY.md ~/SOUL.md ~/AGENTS.md ~/TOOLS.md 2>/dev/null
 cat ~/USER.md ~/MEMORY.md ~/TOMM.md 2>/dev/null
 ls ~/memory/*.md 2>/dev/null
-ls /opt/hatch/skills/ ~/workspace/skills/ 2>/dev/null
+ls /opt/muse/skills/ /opt/hatch/connectors/ ~/workspace/custom-skills/ ~/workspace/custom-connectors/ 2>/dev/null
 find ~/workspace/ -maxdepth 3 -type f \( -name "*.html" -o -name "*.md" -o -name "*.json" \) 2>/dev/null
 ```
 
@@ -33,3 +27,11 @@ Read [references/extensions.md](references/extensions.md) only when the user exp
 4. Separate observed facts from inference. Cite file paths when it helps the user trust the answer.
 5. Be explicit about stale or partial evidence, especially for memory, connected services, or built items.
 6. Stay within the scope of the question. Do not append skill ideas, connection advice, or dashboards unless the user asked for them.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

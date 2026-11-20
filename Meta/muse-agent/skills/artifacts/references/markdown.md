@@ -1,33 +1,43 @@
 ---
-description: Formatting rules for artifact markdown, covering .md deliverables, reports, and content exported to PDF or Word.
+description: Format Markdown documents with readable headings, lists, tables and links that survive export.
 builders: file
 kinds: markdown, pdf, document
 ---
 
-# Markdown formatting for artifact files
+# Markdown documents
 
-These rules apply to artifact markdown: `.md` deliverables, reports, and any artifact content
-that may be exported to PDF or Word.
+- These rules apply to artifact Markdown: `.md` deliverables, reports and any artifact content that may be exported to PDF or Word.
 
-**Tables:**
-- Cap cell content at ~25 characters. If a cell needs more, abbreviate or move details to a footnote below the table.
-- No full sentences in cells. Use short phrases, keywords, or values only.
-- No URLs in table cells. Put links in a "Sources" section or footnotes below.
-- 3-4 columns max. If you need more, split into multiple tables or use a definition list.
-- Right-align numeric columns with `---:` for scannability.
+## Make the structure easy to follow
 
-**Lists:**
-- One blank line between top-level bullets when each item has a sub-description or is longer than a few words.
-- No blank line between sub-bullets; keep them tight under their parent.
-- **Bold the lead phrase**, then follow with the description: `**Thing**: explanation here`.
-- Max 2 levels of nesting. If you need a third level, restructure into sections with headers.
+- Use descriptive headings in sentence case, such as `## Key findings`, unless the heading is a proper title. Keep heading levels consistent and put a blank line before the content under each heading.
 
-**Emojis:**
-- No emojis in exportable documents (`.md` files intended for PDF/Word conversion). They render as boxes or missing glyphs in most PDF engines.
-- Use text markers instead: `**Note:**` for callouts, `-->` for flow, plain `*` bullets, `---` for dividers.
-- Section headers in `.md` files: use plain text (`## Design`), not emoji-prefixed (`## 🎨 Design`).
+- Use paragraphs for explanation and lists for steps or parallel points.
 
-**General:**
-- Use `---` horizontal rules between major sections for visual breathing room.
-- Use `> [!NOTE]` / `> [!WARNING]` / `> [!TIP]` for callouts on GitHub. For portable output, use `**Note:**` bold prefixes.
-- Sentence case for headings (`## Key findings`), not title case unless it's a proper title.
+- Put a blank line between top-level bullets when each item carries a description or runs longer than a few words. Keep sub-bullets tight under their parent.
+
+- Nest lists at most two levels deep. When a third level seems necessary, restructure into sections with headings.
+
+- Use emphasis to help the reader find a meaningful word or choice. Avoid adding a bold label and colon to every bullet.
+
+## Keep tables readable
+
+- Use a table when shared columns make values or options easier to compare.
+
+- Keep cells to short phrases, keywords or values of roughly 25 characters, not full sentences. Move longer detail into a note below the table without dropping a qualification the reader needs.
+
+- Keep a table to three or four columns at the intended page width. Split a wider one into several tables or a definition list.
+
+- Right-align numeric columns with `---:`. Keep units and currency clear and use the same precision for comparable values.
+
+- Keep URLs out of table cells and put them in a sources section or notes below the table.
+
+## Check the exported result
+
+- Use plain text headings and standard list markers. Leave emoji out of files intended for PDF or Word, including emoji-prefixed headings, because most PDF engines render them as boxes or missing glyphs.
+
+- Give links descriptive text and check that they still work after export.
+
+- Add a callout or horizontal rule only when it separates information the reader needs to notice. Ordinary prose should not need a series of note and warning labels. When a callout is warranted, use `> [!NOTE]`, `> [!WARNING]` or `> [!TIP]` for Markdown rendered on GitHub and a short bold lead word for portable output.
+
+- Inspect the rendered file for broken tables, missing characters, lost links and awkward page breaks, and follow the format's production guide for export.

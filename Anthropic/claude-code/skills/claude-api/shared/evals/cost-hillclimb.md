@@ -28,15 +28,17 @@ in the shipped package; its load-bearing practices: re-verify cache health after
 every change, not just at setup; know what a healthy cache loop looks like in the
 usage fields; and when reads drop, hunt down the specific invalidator) - but
 re-run this health check after EVERY model or effort decision below. Two scoping facts matter for every
-step below: the cache is per-model, and effort participates in the prompt-cache key on
-the Messages API - a mid-conversation effort switch costs one full prefix rewrite
-(probe-measured on a current top-tier model against the raw API: 3/3 effort switches
-re-billed the full prefix; 0/9 same-effort continuations did). Reports from first-party
-product surfaces that effort can be switched without losing the cache do not transfer
-to API customers - the serving path differs; trust an API-side probe. The upshot: a
-lever change silently converts a healthy cache into a cost regression that looks like
-model behavior, so re-verify cache health after every step of the model×effort walk
-(Step 2), not only at setup.
+step below: the cache is per-model, and on the Messages API the top-level effort shapes
+the rendered prompt. A mid-conversation change of the top-level effort can invalidate
+all or part of the cache (the **Effort Parameter** URL in `shared/live-sources.md`; a
+raw-API probe on a current top-tier model re-billed the full prefix on 3 of 3 effort
+switches and on none of 9 same-effort continuations). The per-message form keeps the
+cache on the models and `thinking` settings that accept it (the **Per-message Effort**
+URL). Reports from first-party product surfaces about keeping the cache do not transfer
+to API customers, because the serving path differs: check any such claim with an
+API-side probe. The upshot: a lever change silently converts a healthy cache into
+a cost regression that looks like model behavior, so re-verify cache health after every
+step of the model×effort walk (Step 2), not only at setup.
 
 **Step 1 - Audit the existing prompt and request config.**
 Dated prompt content and legacy request parameters corrupt every later comparison: in
@@ -229,8 +231,8 @@ you, in one bounded probe.
   sampling cannot see. If a step right does not change realized thinking tokens, the
   dial is dead for that family - further rightward cells are the same cell at a
   higher price, so treat the row as exhausted.
-- **Walk cost readings are cache-cold.** Cells never share cache - the cache is
-  per-model and effort participates in the cache key (Step 0) - so production cost
+- **Walk cost readings are cache-cold.** Don't count on cells sharing cache - the cache is
+  per-model and top-level effort shapes the rendered prompt (Step 0) - so production cost
   will be cheaper than walk cost by the cache rate; either warm each cell or
   annotate the readings. Keep effort fixed within any session whose cost is being
   measured, or cache invalidation noise lands in the effort arm's numbers.

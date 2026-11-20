@@ -1,8 +1,18 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "c1c36b7ee8604c2c91aa07470b8ccaee"
+  provider: spotify
+  required: true
+cli:
+  binary: spotify-api
+  skill: spotify
 connector: spotify
 category: social
 display_name: Spotify
 description: Play music and manage your library
+icon: spotify
 request_quota:
   mode: enforce
   workers:
@@ -28,9 +38,47 @@ actions:
       playback.control:
         default: allow
         label: Manage playback
+        approval_button_variants:
+          play:
+            allow_once: "Play"
+            deny: "Don't play"
+            deny.task: "Don't play"
+          pause:
+            allow_once: "Pause"
+            deny: "Don't pause"
+            deny.task: "Don't pause"
+          resume:
+            allow_once: "Resume"
+            deny: "Don't resume"
+            deny.task: "Don't resume"
       content.manage:
         label: Publish and manage content
         approval_phrase: publish and manage content on Spotify
+        approval_button_variants:
+          create_show:
+            allow_once: "Create show"
+            deny: "Don't create"
+            deny.task: "Don't create"
+          save_episode:
+            allow_once: "Save episode"
+            deny: "Don't save"
+            deny.task: "Don't save"
+          create_show_and_save_episode:
+            allow_once: "Create show and save episode"
+            deny: "Don't create or save"
+            deny.task: "Don't create or save"
+          delete_show:
+            allow_once: "Delete show and all episodes"
+            deny: "Don't delete"
+            deny.task: "Don't delete"
+          delete_episode:
+            allow_once: "Delete episode"
+            deny: "Don't delete"
+            deny.task: "Don't delete"
+          delete_timeline:
+            allow_once: "Delete timeline"
+            deny: "Don't delete"
+            deny.task: "Don't delete"
 commands:
   status: null
   disconnect: null
@@ -41,6 +89,7 @@ commands:
   library: access.read
   search: access.read
   wearable-play: access.read
+  wearable-start: playback.control
   now-playing: access.read
   devices: access.read
   get-queue: access.read

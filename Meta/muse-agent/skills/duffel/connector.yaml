@@ -1,0 +1,17 @@
+id: duffel
+title: "Duffel"
+description: "Search, book and cancel complete flight itineraries through Duffel, reserve and cancel pay-at-pickup rental cars, and recheck the fare of a booked trip."
+aliases: [duffel]
+include_in_prompt: true
+features:
+  duffel-rental-cars:
+    gk: hatch_duffel_rental_cars
+    description_phrase: "reserve and cancel pay-at-pickup rental cars,"
+    # Reading and cancelling a reservation stay available when the gate closes.
+    methods: [car.quote, car.book]
+  duffel-bags:
+    gk: hatch_duffel_bags
+    # --bag on validate-booking and book is refused by the CLI's own check.
+    methods: [flight.bags]
+availability:
+  confidential_vm: true

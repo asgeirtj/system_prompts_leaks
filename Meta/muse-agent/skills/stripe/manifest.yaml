@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: stripe
+  required: true
 connector: stripe
 category: business
 display_name: Stripe

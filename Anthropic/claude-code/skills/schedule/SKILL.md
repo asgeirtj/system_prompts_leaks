@@ -69,6 +69,8 @@ For a recurring schedule:
 
 For a one-time run, replace `"cron_expression": "CRON_EXPR"` with `"run_once_at": "YYYY-MM-DDTHH:MM:SSZ"` (RFC3339 UTC, must be in the future). Everything else is identical.
 
+If the user asked for no connectors, add `"clear_mcp_connections": true` at the top level of the body, beside `name` and not inside `job_config`.
+
 Generate a fresh lowercase UUID for `events[].data.uuid` yourself.
 
 Every `events[].data.message` must be the API message shape `{"role": "user", "content": "..."}` — the `role` field is required, never omit it. If you instead write the body in the `session_request` form that list and get return, the same rule applies to `session_request.events[].payload.message`.
@@ -109,16 +111,19 @@ Use the `id` value as the `environment_id` in `job_config.ccr.environment_id`.
 
 ### Create Routine — Optional Fields
 - `enabled` (boolean, default: true)
-- `mcp_connections` (array) — MCP servers to attach:  
+- `mcp_connections` (array) — MCP servers to attach:
   ```json
   [{"connector_uuid": "uuid", "name": "server-name", "url": "https://..."}]
   ```
+- `clear_mcp_connections` (boolean) — Create the routine with an empty stored connector list. Send it only when the user asked for none. The server rejects it alongside a non-empty `mcp_connections`.
+
+If both are left out, or `mcp_connections` is empty, the server normally attaches the user's connected connectors. Only `clear_mcp_connections: true` reliably leaves the routine's stored list empty. Connectors an organization admin set up can still reach its runs, so do not promise the user that a run has no connectors.
 
 ### Update Routine — Optional Fields
 All fields optional (partial update):
 - `name`, `cron_expression`, `run_once_at`, `enabled`, `job_config`
-- `mcp_connections` — Replace MCP connections
-- `clear_mcp_connections` (boolean) — Remove all MCP connections
+- `mcp_connections` — Replace MCP connections (an empty list changes nothing)
+- `clear_mcp_connections` (boolean) — Empty the routine's stored MCP connection list
 
 ### Cron Expression Examples
 
@@ -149,8 +154,8 @@ When /schedule was invoked it was **Thu, Oct 8, 2026 at 06:52 AM** (Atlantic/Rey
    - Explicit about what actions to take (open PRs, commit, just analyze, etc.)
 3. **Set the schedule** — Ask when and how often. The user's timezone is Atlantic/Reykjavik. When they say a time (e.g., "every morning at 9am"), assume they mean their local time and convert to UTC for the cron expression. Always confirm the conversion: "9am Atlantic/Reykjavik = Xam UTC." If they want a one-time run (e.g., "once at 3pm", "tomorrow morning", "remind me to check X later"), use `run_once_at` instead of `cron_expression` — same timezone conversion applies. **First re-check the current time with `date -u` via Bash** (the reference time above may be stale in a long conversation), resolve the relative phrase against that fresh value, and confirm the resulting absolute timestamp with the user.
 4. **Choose the model** — Default to `claude-sonnet-5-5`. Tell the user which model you're defaulting to and ask if they want a different one.
-5. **Validate connections** — Infer what services the agent will need from the user's description. For example, if they say "check Datadog and Slack me errors," the agent needs both Datadog and Slack MCP connectors. Cross-reference with the connectors list above. If any are missing, warn the user and link them to https://claude.ai/customize/connectors to connect first. The default git repo is already set to `https://github.com/acme-corp/acme-app`. Ask the user if this is the right repo or if they need a different one.
-6. **Review and confirm** — Show the full configuration before creating. Let them adjust.
+5. **Validate connections** — Infer what services the agent will need from the user's description. For example, if they say "check Datadog and Slack me errors," the agent needs both Datadog and Slack MCP connectors. Cross-reference with the connectors list above. If any are missing, warn the user and link them to https://claude.ai/customize/connectors to connect first. If the routine seems to need no connectors, tell the user it will normally still get any connectors connected to their account unless they ask for none, and send `clear_mcp_connections: true` only if they do. The default git repo is already set to `https://github.com/acme-corp/acme-app`. Ask the user if this is the right repo or if they need a different one.
+6. **Review and confirm** — Show the full configuration before creating, including which connectors the routine will get. Let them adjust.
 7. **Create it** — Call `RemoteTrigger` with `action: "create"` and show the result. The response includes the routine ID. Always output a link at the end: `https://claude.ai/code/routines/{ROUTINE_ID}`
 
 ### UPDATE a routine:

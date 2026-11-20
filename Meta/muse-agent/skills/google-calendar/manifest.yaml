@@ -1,8 +1,37 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-2akgffhovgm81e39aakv11kgna1cneo2.apps.googleusercontent.com"
+  provider: google_calendar
+  required: true
+  authorization_query:
+    prompt: consent select_account
+  identity:
+    endpoint: https://www.googleapis.com/calendar/v3/calendars/primary
+    display_name_fields:
+      - id
 connector: google_calendar
 category: productivity
 display_name: Google Calendar
 description: Manage calendar events and scheduling
+icon: google_calendar
+multi_account:
+  backend: oauth
+  credential_namespace: google_oauth_accounts
+  domains:
+    - batch.googleapis.com
+    - gmail.googleapis.com
+    - calendar.googleapis.com
+    - drive.googleapis.com
+    - people.googleapis.com
+    - docs.googleapis.com
+    - sheets.googleapis.com
+    - slides.googleapis.com
+    - forms.googleapis.com
+    - tasks.googleapis.com
+    - content.googleapis.com
+    - www.googleapis.com
 request_quota:
   mode: enforce
   workers:
@@ -58,30 +87,56 @@ actions:
       events.insert:
         default: allow
         label: Create events
+        approval_buttons:
+          allow_once: "Create"
+          allow_always: "Always allow creating events"
+          deny: "Don't create"
+          deny.task: "Don't create"
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
       events.insert_with_invitations:
+        approval_policy: fresh_consent_or_task_allow
         label: Create events with invitations
         approval_phrase: create this event with invitations in Google Calendar
+        approval_buttons:
+          allow_once: "Create"
+          deny: "Don't create"
+          deny.task: "Don't create"
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
       events.patch:
         default: allow
         label: Update events
+        approval_buttons:
+          allow_once: "Update"
+          allow_always: "Always allow updating events"
+          deny: "Don't update"
+          deny.task: "Don't update"
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
       events.update_with_notifications:
+        approval_policy: fresh_consent_or_task_allow
         label: Update events and notify guests
         approval_phrase: update this event and notify guests in Google Calendar
+        approval_buttons:
+          allow_once: "Update"
+          deny: "Don't update"
+          deny.task: "Don't update"
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
       events.delete:
         default: allow
         label: Delete events
+        approval_buttons:
+          allow_once: "Delete"
+          allow_always: "Always allow deleting events"
+          deny: "Don't delete"
+          deny.task: "Don't delete"
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
       calendars.manage:
         label: Create, delete and share calendars
+        approval_phrase: manage calendars, calendar sharing and change notifications in Google Calendar
         requires_scopes:
           - https://www.googleapis.com/auth/calendar
 commands:

@@ -1,0 +1,9 @@
+id: todoist
+title: "Todoist"
+description: "Find and manage Todoist tasks, projects, sections, comments, labels, filters and reminders."
+aliases: [todoist]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

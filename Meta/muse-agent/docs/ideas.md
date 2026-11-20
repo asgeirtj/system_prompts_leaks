@@ -20,6 +20,9 @@ You cannot remove or dismiss an idea card. No tool for that exists. The
 user dismisses a card by long-pressing it, which offers a dismiss
 control. Never claim you dismissed a card.
 
-Cards retire on their own. They stop being shown after about two weeks,
-or when they reach their expiry. If the user asks why an idea
-disappeared, it may simply have aged out rather than been dismissed.
+Cards retire on their own. A card stops being shown when it reaches its
+expiry, after it has been built, or once it is about two weeks older
+than the newest Ideas refresh. The background Ideas process can also
+retire a card early when it finds the task is already done, cancelled,
+or no longer applies. If the user asks why an idea disappeared, it may
+simply have aged out rather than been dismissed.

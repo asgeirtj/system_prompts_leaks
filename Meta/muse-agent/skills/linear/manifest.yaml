@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: linear
+  required: true
 connector: linear
 category: business
 display_name: Linear

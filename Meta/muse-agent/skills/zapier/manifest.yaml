@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: zapier
+  required: true
 connector: zapier
 category: business
 display_name: Zapier
@@ -30,9 +35,12 @@ actions:
       skills.read:
         label: Read Zapier skills
         approval_phrase: read skills in Zapier
+      workflows.read:
+        label: Read workflows and triggers
+        approval_phrase: read workflows and triggers
   write:
     default: ask
-    label: Write permissions
+    label: Write and delete permissions
     methods:
       actions.execute_read:
         label: Run Zapier-labeled read actions
@@ -55,6 +63,16 @@ actions:
       feedback.send:
         label: Send feedback
         approval_phrase: send feedback to Zapier
+      workflows.manage:
+        label: Manage workflows
+        approval_phrase: manage workflows
+      workflows.delete:
+        label: Delete workflows and drafts
+        approval_phrase: delete workflows and drafts
+      workflow_drafts.manage:
+        default: allow
+        label: Create or edit workflow drafts
+        approval_phrase: create or edit workflow drafts in Zapier
 commands:
   status: null
   authorize-url: null

@@ -3,7 +3,6 @@ name: run-skill-generator
 description: Author or improve the run-<unit> skill - a per-project skill that tells agents how to build, launch, and drive this project's app. Use when the user asks to set up the project, get it running, write run instructions, or verify build/run steps work from a clean environment.
 disable-model-invocation: true
 ---
-
 Your job is to produce a **skill** at `<unit>/.claude/skills/run-<unit-name>/`
 that lets a future agent build, launch, and **drive** this project from
 a clean machine.
@@ -75,7 +74,7 @@ test suite wants to reuse - shared launch helpers, a real e2e harness -
 move it to `scripts/` or `e2e/` and update `SKILL.md` to reference the
 new path. The skill stays; the driver finds a better home.
 
-The exact shape depends on the project, but the principle is constant:
+The exact shape depends on the project, but the principle is constant:  
 **the driver is the deliverable.** The `SKILL.md` is its man page. For
 a web app, the driver already exists - `chromium-cli`
 ([examples/playwright.md](examples/playwright.md)) - and the skill is
@@ -96,11 +95,13 @@ Claude Code **natively discovers** skills from nested `.claude/skills/`
 directories: an agent working anywhere inside `<unit>` will see
 `/run-<unit-name>` as an available skill, and it auto-loads when the
 request matches its description (e.g. "run the desktop app," "take a
-screenshot of billing").
+screenshot of billing"). With the Bash sandbox on, a session started above
+`<unit>` does not load it; one started in `<unit>`, or moved there with
+`/cd`, does.
 
 - **Single-project repo:** `.claude/skills/run-<repo-name>/` at repo root.
-- **Large repo with many apps:** one per app, colocated -
-  `apps/billing/.claude/skills/run-billing/`,
+- **Large repo with many apps:** one per app, colocated -  
+  `apps/billing/.claude/skills/run-billing/`,  
   `apps/desktop/.claude/skills/run-desktop/`.
 - **App with multiple binaries:** still **one** skill at the app's
   root with a section per binary. They share setup. Start from the
@@ -128,7 +129,7 @@ d=$PWD; while :; do
 done
 ```
 
-If one is about launching/driving this app - whatever it's named -
+If one is about launching/driving this app - whatever it's named -  
 **refine, don't rewrite**: verify its claims, fix what's wrong, add
 what's missing, preserve what works. Re-run the driver if there is
 one. Keep its existing name.
@@ -191,21 +192,21 @@ Troubleshooting section.
   app that lets you send input and observe output programmatically.
   The shape depends on the project (see table below).
 
-  **Cover the layer(s) PRs actually touch.** A tmux driver that pokes
-  the CLI's user surface is the right handle for UI changes - and the
-  wrong one for a PR that touches one internal function. For the
-  latter an agent wants `NODE_ENV=test bun run script.ts` (or
-  equivalent): import the function, call it, observe. If most PRs
-  here touch internals, that direct-invocation path is the driver's
-  main entry point, and the tmux launch is secondary. Look at recent
+  **Cover the layer(s) PRs actually touch.** A tmux driver that pokes  
+  the CLI's user surface is the right handle for UI changes - and the  
+  wrong one for a PR that touches one internal function. For the  
+  latter an agent wants `NODE_ENV=test bun run script.ts` (or  
+  equivalent): import the function, call it, observe. If most PRs  
+  here touch internals, that direct-invocation path is the driver's  
+  main entry point, and the tmux launch is secondary. Look at recent  
   merged PRs: what layer do they touch? Cover that.
 
-  For a **web** app, `chromium-cli` is the driver - you script it,
-  you don't write it (see [examples/playwright.md](examples/playwright.md)).
-  For a **desktop** GUI (Electron), write a REPL driver (stdin
-  commands -> click/type/screenshot), run it inside tmux, and use
-  `send-keys` / `capture-pane`. You will iterate on that driver - it
-  starts minimal (`launch`, `ss`, `quit`) and grows whatever commands
+  For a **web** app, `chromium-cli` is the driver - you script it,  
+  you don't write it (see [examples/playwright.md](examples/playwright.md)).  
+  For a **desktop** GUI (Electron), write a REPL driver (stdin  
+  commands -> click/type/screenshot), run it inside tmux, and use  
+  `send-keys` / `capture-pane`. You will iterate on that driver - it  
+  starts minimal (`launch`, `ss`, `quit`) and grows whatever commands  
   you need to reach the interesting part of the app.
 - **Do one real user flow end-to-end.** Click the button. Fill the
   form. See the result in the DOM. Take a screenshot. **Actually look

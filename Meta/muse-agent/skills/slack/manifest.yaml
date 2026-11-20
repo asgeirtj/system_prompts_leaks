@@ -1,4 +1,10 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "12032251177509.12069390060453"
+  provider: slack
+  required: true
 connector: slack
 category: business
 display_name: Slack
@@ -16,6 +22,16 @@ cli:
 # Slack's fixed Marketplace consent requests the complete provider-documented
 # scope set. This connector does not use progressive OAuth grants.
 declarable_scopes: []
+# Slack message searches return message content even though they authorize
+# under a separate Search Slack permission. Reaction reads can carry the
+# message they describe. The worker refuses these whole while message reads
+# are not allowed; the MCP response has no trusted partial projection.
+data_classes:
+  message_content:
+    governed_by: messages.read
+    emitted_by:
+      - search.read
+      - reactions.read
 actions:
   read:
     default: allow

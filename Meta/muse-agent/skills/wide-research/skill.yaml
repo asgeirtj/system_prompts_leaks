@@ -1,0 +1,7 @@
+name: wide_research
+title: "Wide Research"
+description: "Use when the user needs broad parallel research across many independent inputs with a shared output schema."
+category: "Work and knowledge"
+include_in_prompt: false
+availability:
+  confidential_vm: true

@@ -1,0 +1,9 @@
+id: ghl
+title: "HighLevel"
+description: "Manage HighLevel CRM contacts, opportunities and pipelines, appointments, workflow automations and campaigns, invoices and payments, and read, send or schedule messages in customer conversations."
+aliases: [ghl, gohighlevel]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

@@ -1,0 +1,12 @@
+id: meta_ads
+title: "Meta Business Manager"
+description: "Help with Facebook and Instagram ads using the advertiser's Meta ad accounts: come up with ad ideas and creative based on what the account already runs, read spend, results, campaigns, audiences, catalogs, pixels and experiments, price and create paused campaigns, and answer Meta advertising policy questions from Meta's own policy source, which is more current and reliable than web results."
+aliases: [meta-ads, meta_ads, "facebook ads", "instagram ads"]
+wire_id: meta_business
+include_in_prompt: true
+availability:
+  confidential_vm: true
+auth:
+  connect: professional_consent
+  disconnect: cli
+  hidden: true

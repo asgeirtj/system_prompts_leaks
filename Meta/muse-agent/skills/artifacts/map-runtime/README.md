@@ -4,12 +4,12 @@ Bundles `@meta/maps` into a standalone script that a generated web artifact can
 load with two plain tags. Artifacts have no bundler and no React, so they cannot
 use the component API directly.
 
-Built output is vendored into the bundle at `/opt/hatch/skills/artifacts/map-runtime/dist/`:
+Built output is vendored into the bundle at `/opt/muse/assets/artifacts/map-runtime/dist/`:
 
-| File | Purpose |
-|---|---|
-| `hatch-maps.js` | IIFE exposing `window.HatchMaps` — `mountMap` and `isMetaMapSupported` |
-| `hatch-maps.css` | MapLibre control and canvas styles |
+- `hatch-maps.js`: IIFE exposing `window.HatchMaps` — `mountMap` and `isMetaMapSupported`
+
+- `hatch-maps.css`: MapLibre control and canvas styles
+
 
 **Both are required.** Loading the script without the stylesheet stacks the
 tiles on top of each other, so the map looks broken rather than missing.
@@ -22,7 +22,7 @@ origin, so referencing `/opt/hatch/...` from the page 404s and leaves
 `HatchMaps` undefined.
 
 ```bash
-cp /opt/hatch/skills/artifacts/map-runtime/dist/hatch-maps.{js,css} <assets>/
+cp /opt/muse/assets/artifacts/map-runtime/dist/hatch-maps.{js,css} <assets>/
 ```
 
 ```html
@@ -72,8 +72,8 @@ so declining is the honest default rather than a silent failure. A page that map
 an RTL-script region and can serve the asset from its own origin passes the URL.
 
 Attribution is mounted by the map control. It is mandatory — do not hide,
-overlay, or reimplement it. See  
-`hatch-skills/skills/artifacts/references/maps.md`.
+overlay, or reimplement it. See
+`hatch-skills/runtime-assets/artifacts/references/maps.md`.
 
 ## Maps do not render in every artifact surface
 

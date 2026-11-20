@@ -206,7 +206,7 @@ node "$B" .claude/hillclimb/<flow>/
 
 Once it looks right, hand over `.claude/hillclimb/<flow>/report.html` as **the** deliverable. The handover message is: the file path (or open the file for them), plus a one-line headline ("baseline scores X on N cases - every row links to its transcript"). Prefer that over enumerating cases or scores in the chat - the viewer is where per-case detail lives, and a wall of plaintext makes the user less likely to open it; call out one or two specific cases only when there's something you want them to look at first. The Step 4 verification you just did is for *you* to catch render bugs, not to narrate to the user. With only a single baseline variant on disk the report renders as a pure eval viewer - per-case table plus click-through transcripts (trace-file links, with the lite report). Point at `report.html`, not at `results.jsonl`; the raw JSON is an implementation detail.
 
-Summarize where each artifact lives and what the baseline score was. If the reason they wanted an eval was to hill-climb on it, point them at `/claude-api hillclimb`.
+Summarize where each artifact lives and what the baseline score was. If the reason they wanted an eval was to hill-climb on it, point them at `/claude-api hillclimb`; if it was to cut spend or response time while quality holds, at `/claude-api cost-optimize` or `/claude-api latency-optimize`; if it was a move to a newer model not yet made, at `/claude-api migrate`. If one of those workflows sent you here, don't point onward: finish Make it durable below, then go back to it.
 
 ### Make it durable
 

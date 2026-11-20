@@ -1,0 +1,9 @@
+id: evernote
+title: "Evernote"
+description: "Search and manage notes, notebooks, Spaces, tags, tasks and attachments through Evernote's official MCP server."
+aliases: [evernote]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

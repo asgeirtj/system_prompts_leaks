@@ -1,8 +1,20 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Static Meta App client_id. Public-client OAuth with PKCE — no client_secret
+  # required. authd generates a per-flow PKCE verifier + S256 code_challenge on
+  # every `authorize-url` call, and `token_endpoint_auth_method: "none"` in the
+  # connector JSON tells authd to skip client_secret at token exchange. This
+  # requires the Meta App to have PKCE enabled at
+  # developers.facebook.com/apps/1718163845832525/fb-login/settings/.
+  client_id: "1718163845832525"
+  provider: meta_ads
+  required: true
 connector: meta_ads
 category: business
 display_name: Meta Business Manager
-description: Manage your ad accounts, campaigns and insights
+description: Analyze your business performance and get tailored guidance on what to improve
 icon: meta_ads
 cli:
   binary: meta-ads-cli
@@ -43,9 +55,11 @@ actions:
     label: Publishing
     methods:
       advertising.publish:
+        approval_policy: fresh_consent_only
         label: Publish ads
         approval_phrase: publish or run your Meta Ads campaigns or ads
       experiments.start:
+        approval_policy: fresh_consent_only
         label: Start experiments
         approval_phrase: start your Meta Ads experiments
   campaigns_write:
@@ -60,6 +74,7 @@ actions:
         label: Edit or archive ads and campaigns
         approval_phrase: edit or archive your Meta Ads campaigns, ads or creatives
       campaigns.delete:
+        approval_policy: fresh_consent_only
         label: Delete ads and campaigns
         approval_phrase: delete your Meta Ads campaigns, ads or creatives
   audiences_write:
@@ -74,6 +89,7 @@ actions:
         label: Edit existing audiences
         approval_phrase: edit your Meta Ads audiences and their membership
       audiences.delete:
+        approval_policy: fresh_consent_only
         label: Delete audiences
         approval_phrase: delete your Meta Ads audiences
   catalogs_write:
@@ -88,20 +104,22 @@ actions:
         label: Edit existing catalogs and feeds
         approval_phrase: edit or refresh your Meta Ads catalogs, products, feeds or data sources
       catalogs.delete:
+        approval_policy: fresh_consent_only
         label: Delete catalog items and feeds
         approval_phrase: delete your Meta Ads products, product sets, feeds or rules
   pixels_write:
     default: ask
-    label: Pixels
+    label: Pixel event rules and parameters
     methods:
       pixels.create:
         default: allow
-        label: Create new pixel events and parameters
-        approval_phrase: create Meta Pixel events or parameters
+        label: Add event rules and parameters to existing pixels
+        approval_phrase: add event rules or parameters to your existing Meta Pixels
       pixels.edit:
-        label: Edit or archive pixel settings
+        label: Edit or enable pixel event rules, or edit or archive parameters on existing pixels
         approval_phrase: edit or enable your Meta Pixel events or parameters, or archive parameters
       pixels.delete:
+        approval_policy: fresh_consent_only
         label: Delete pixel event rules
         approval_phrase: delete your Meta Pixel event rules
   experiments_write:
@@ -116,10 +134,11 @@ actions:
         approval_phrase: cancel your Meta Ads experiments and discard their results
 commands:
   status: null
+  manage-consent: null
   disconnect-url: null
   list-tools: null
   describe-tool: null
-  estimate-budget: null
+  estimate-budget: ads.read
   # Local deterministic presentation rendering; does not access Meta Ads.
   render-campaign-summary: null
   render-campaign-success: null
@@ -131,7 +150,13 @@ commands:
   call-tool: null
 
 consent_screen:
+  account_disclosure: Business assets you later manage with accounts in the same Accounts Center
+  callout_title: "Non-confidential connector"
   footer_paragraphs:
-    - "Meta AI's suggestions are estimates, not professional advice, and do not guarantee specific performance. They're based on your account info and public information about businesses. Please verify before acting."
-    - "These interactions with Meta AI are subject to the [Commercial Terms](https://www.facebook.com/legal/commercial_terms) and the [AI Terms](https://www.facebook.com/legal/ai-terms), and will be used to improve [AI at Meta](https://www.facebook.com/privacy/genai). If you later move Meta AI to a new Accounts Center, it will no longer help manage your business. [Learn more](https://www.meta.com/help/accounts-center/589288436078759/)"
-    - "By clicking Connect, you agree to the relevant Meta terms, as applicable: [Meta Platform Terms](https://developers.facebook.com/terms/dfc_platform_terms/), [Advertising Standards](https://transparency.meta.com/policies/ad-standards/), [Self-service Ad Terms](https://www.facebook.com/legal/self_service_ads_terms), [Product Catalog Terms](https://www.facebook.com/legal/product_catalog_terms/), [Seller Agreement](https://www.facebook.com/legal/commerce_product_merchant_agreement), [Meta Business Tools Terms](https://www.facebook.com/legal/terms/businesstools), [Customer List Custom Audiences Terms](https://www.facebook.com/legal/terms/customaudience), [Lead Ad Terms](https://www.facebook.com/legal/leadgen/tos), [Ad Creative Generative AI Terms](https://www.facebook.com/legal/terms/ad_creative_generative_ai_terms) and [Pages, groups and events](https://www.facebook.com/policies_center/pages_groups_events)."
+    - "Muse's suggestions are estimates, not professional advice, and do not guarantee specific performance. They're based on your account info and public information about businesses. Please verify before acting."
+    - "These interactions with Muse are subject to the [Commercial Terms](https://www.facebook.com/legal/commercial_terms) and the [AI Terms](https://www.facebook.com/legal/ai-terms), and will be used to improve [AI at Meta](https://www.facebook.com/privacy/genai). If you later move Muse to a new Accounts Center, it will no longer help manage your business. [Learn more](https://www.meta.com/help/accounts-center/589288436078759/)"
+    - "By clicking Connect, you agree to the relevant Meta terms, as applicable: [Meta Platform Terms](https://developers.facebook.com/terms/dfc_platform_terms/), [Advertising Standards](https://transparency.meta.com/policies/ad-standards/), [Self-service Ad Terms](https://www.facebook.com/legal/self_service_ads_terms), [Product Catalog Terms](https://www.facebook.com/legal/product_catalog_terms/), [Seller Agreement](https://www.facebook.com/legal/commerce_product_merchant_agreement), [Meta Business Tools Terms](https://www.facebook.com/legal/terms/businesstools), [Customer List Custom Audiences Terms](https://www.facebook.com/legal/terms/customaudience), [Lead Ad Terms](https://www.facebook.com/legal/leadgen/tos), [Ad Creative Generative AI Terms](https://www.facebook.com/legal/terms/ad_creative_generative_ai_terms) and [Pages, groups and events](https://www.facebook.com/policies_center/pages_groups_events). Disconnect any time in Settings."
+    - variants:
+        confidential_vm:
+          text: "Meta Business Manager is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout

@@ -1,0 +1,9 @@
+id: canva
+title: "Canva"
+description: "Create and edit Canva designs such as social posts, presentations, posters and flyers, generate images and remove backgrounds, resize and export designs, and use brand templates and assets."
+aliases: [canva]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

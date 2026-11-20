@@ -1,0 +1,9 @@
+id: threads_messages
+title: "Threads Messages"
+description: "Read the user's Threads direct messages and send an approved message or a share of a published post."
+aliases: [threads-messages, threads_messages]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  connect: companion

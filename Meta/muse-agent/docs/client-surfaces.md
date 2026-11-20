@@ -1,31 +1,123 @@
 # Where users access Muse
 
-Users reach Muse on iOS, Android, web, or the Mac app. This page lists shared
-functionality on iOS, Android, and web, then platform-specific differences.
-Muse app navigation named here (tabs, Settings paths) lives in the named Muse
-app or on the web at muse.ai; a user messaging from a channel like WhatsApp
-cannot tap it there, so say where it lives.
+Users reach Muse through its iOS, Android, web, and Mac apps, and inside
+Instagram and WhatsApp. This page lists their controls and platform differences.
 
-Muse went live on September 8, 2026. It is available in the US and Canada.
-The iOS app is on the App Store and the Android app is on Google Play Store.
-Details in `~/docs/muse.md`.
+For Instagram and WhatsApp, use the current message's `Sent from` context
+or channel prefix to choose the section below. `Instagram app` and
+`[whatsapp]` identify the app, not the phone's OS. Name any app or website
+a step opens. For other messaging apps, Muse app controls live in the
+Muse app or at muse.ai; say where they live.
+
+Muse went live on September 8, 2026. It is available in the US, Canada,
+Japan, and Singapore. The iOS app is on the App Store and the Android app
+is on Google Play Store. Details in `~/docs/muse.md`.
+
+## Instagram on iOS and Android
+
+### Thread details
+
+In the Muse chat, tap the agent header to open Thread details. On iPhone,
+the info button opens it too. This is separate from Instagram's account
+settings. The page shows the avatar, name, connection status, Activity,
+Approvals, and plan usage when available. Open app opens the Muse app;
+Get app leads to its download.
+
+### Settings
+
+Settings rows, in order:
+
+- Connectors
+- Devices
+- Wallet
+- Secure credentials store
+- Permissions
+
+These pages open inside Instagram.
+For connectors: Muse chat > Thread details > Settings > Connectors.
+Choose the connector and follow its setup; sign-in may open another app
+or website. Read `~/docs/connectors.md` for connection behavior and status.
+
+Account & support rows:
+
+- Data controls (see `~/docs/privacy-and-credentials.md` and
+  `~/docs/data-handling.md` for data actions)
+- Report an issue (opens Instagram's bug reporter on iPhone)
+- Help & support (when available)
+- Legal info
+
+### Platform differences
+
+- **Shortcuts:** Activity, Approvals, and More on both platforms. iPhone
+  also has Mute before More.
+- **More:** Upcoming and Share on iPhone, plus Browser when the live
+  browser is available. Android has Upcoming and Browser.
+- **Chat info:** Library and Identity on both. iPhone also has Ideas;
+  Android puts Ideas in the chat header.
+- **Appearance:** under Preferences in Thread details on iPhone.
+  Android has no Appearance row in Thread details.
+- **Plan changes:** the iPhone usage card has no Upgrade action. On
+  Android, an available upgrade or manage action opens the Muse app's
+  subscription page, or its store page if Muse needs to be installed or
+  updated.
+
+Thread details has no Messaging channels, Notifications, or Disconnect
+rows. The Muse app's notification settings do not control Instagram
+notifications. Availability can vary by account and app version.
+
+## WhatsApp on iOS and Android
+
+### Menu and Chat info
+
+In the Muse chat, the hamburger menu offers Ideas, Library, Connectors,
+and Activity when available. Tap the Muse avatar or name at the bottom
+of that menu to open Chat info. Tapping the Muse avatar or name in the
+chat header opens the same page.
+On iPad and Mac, the shortcuts use a popup menu without the avatar row;
+open Chat info from the chat header.
+
+Chat info settings include:
+
+- Connectors (also in the menu; see `~/docs/connectors.md` for connections)
+- Wallet (see `~/docs/payments-and-purchases.md`)
+- Secure credentials store (saved logins; see `~/docs/privacy-and-credentials.md`)
+- Permissions
+
+These pages open inside WhatsApp; sign-in may continue in another app or
+website.
+
+Other Muse controls in Chat info include Library, Identity, Activity,
+Scheduled tasks, and Data controls when enabled. Android also has Browser
+tasks. Subscription controls are also in Chat info; they can open inside
+WhatsApp or follow a link to the Muse app or a website.
+
+Chat info also offers disconnecting from this Muse while linked. For
+disconnect behavior, read `~/docs/chat-connections/whatsapp.md`. Data
+controls and WhatsApp's Clear chat are different actions; read
+`~/docs/privacy-and-credentials.md` before explaining a reset or export.
+
+For controls documented only in a Muse app section, such as Feed or
+Devices, name that app and give its path. Menus and rows depend on the
+app version, enabled features, and whether Muse is connected.
 
 ## Mac app
 
 The Mac app is a chat surface. It also pairs the user's Mac as a device and
 advertises the capabilities available on that Mac.
 
-Before answering a question about the Mac app or operating the Mac, read  
+Before answering a question about the Mac app or operating the Mac, read
 `~/docs/devices/mac_app.md`.
 
 The Mac app shows the web app inside a Mac window. Its tabs, chat, Library,
-Settings, and approval cards are the web app's, with these Mac-only pieces on  
+Settings, and approval cards are the web app's, with these Mac-only pieces on
 top:
 
 - A menu bar icon with Open Muse, Quick chat, Voice dictation, Check for
   updates… (Install update… once one is downloaded), and Quit. It has no
-  Settings or Log out row. Closing the Muse window does not quit the app; a
-  small floating button stays on screen and reopens it. Settings opens with
+  Settings or Log out row. Closing the Muse window does not quit the app.
+  When the floating button is on, it stays on screen and reopens the window;
+  on a new install it starts off, and Settings > General > Show floating
+  button turns it on or off. Settings opens with
   Cmd-comma. Log out is the last item in the Settings list, and the Muse menu
   in the Mac menu bar also has a Log out item, just above Quit Muse.
 - Quick chat: Option-Spacebar opens a small chat card over whatever app is in
@@ -39,20 +131,21 @@ top:
 - Settings tabs the other surfaces do not have: File system access (Full
   Disk Access; Read only, Read and interact, or Off for Mail.app,
   Messages.app, Notes.app, and WhatsApp.app; a Blocked folders list) and
-  Dictation. General adds Run on startup, Show in menu bar, Show floating
-  button, and an About row with Check for updates. Permissions lists the
-  Mac's own apps under "On this Mac". When voice is on for the account,
-  Voice controls is a row inside Dictation, not its own tab. When the Mac
-  app offers computer use, a Computer use tab shows the Accessibility and
-  Screen Recording status, a per-command policy choice, Keep screen awake,
-  and a Blocked apps list.
+  Dictation. General adds Run on startup, Show in menu bar, Show
+  floating button, an Allow notifications switch that follows the Mac's
+  own notification permission, and an About row with Check for updates.
+  Permissions lists the Mac's own apps under "On this Mac". When voice
+  is on for the account, Voice controls is a row inside Dictation, not
+  its own tab. When the Mac app offers computer use, a Computer use tab
+  shows the Accessibility and Screen Recording status, a per-command
+  policy choice, Keep screen awake, and a Blocked apps list.
 - The app updates itself: Check for updates… is in the menu bar icon, the
   Muse menu, and Settings > General. There is no app store listing.
 
 The Mac app gets no push notifications. It can notify the user only while it
 is running.
 
-## iOS, Android, and web
+## Muse iOS app, Android app, and web
 
 ### Tabs (variations per platform below)
 
@@ -127,7 +220,7 @@ user's own messages. A deleted message means the user removed it on purpose.
 
 Where it lives: the rail's Search entry on web (Cmd+K opens the same
 quick-search palette), the header
-and side-panel search on Android (also the `hatch://search` deep link),
+and side-panel search on Android (also the hatch://search deep link),
 and thread search on iOS.
 
 How it works: the server keeps a full-text index of every visible
@@ -140,19 +233,22 @@ background messages are never in the index, and deleting a message or
 chat removes it from search at the same moment. The chat-list picker
 search is separate and also matches chat titles.
 
-You have no cross-chat search tool of your own: your path is
-`chat.list`, then reading one chat's transcript at a time with
-`chat.read_messages`. `memory_search` searches memory, not chat
-history.
+You have no dedicated chat search tool: your path is `chat.list`, then
+reading one chat's transcript at a time with `chat.read_messages`.
+`memory_search` searches memory. When you run it in the main chat or a
+personal side chat, it also returns a Past conversations section with
+keyword matches from the main chat and personal side chats; open a hit
+with `chat.read_messages` by its message id. That search can fail, so
+only that section in a result confirms a match.
 
 ### Status screen (tap your avatar)
 
-Has Activity, Approvals, Upcoming, and Identity on all surfaces. There is no Skills tab anywhere; connected skills live under Settings > Connectors. On Android the panel opens on Approvals when one is waiting, otherwise Activity. On iOS and web, tapping the avatar always opens Activity; Approvals opens when the user comes in through an approval prompt itself.
+Has Activity, Approvals, and Upcoming on all surfaces. Identity also appears on web and, for most accounts, on iPhone. The current Android app has no Identity tab, though older versions may still show one; on some Android accounts, tapping the avatar at the top of the open panel shows an edit menu with Change avatar and Edit name. On every surface, Change avatar and Edit name start a message in the chat box (for example "Change your avatar to") for the user to finish and send, and you make the change from that message. There is no Skills tab anywhere; connected skills live under Settings > Connectors. On Android the panel opens on Approvals when one is waiting, otherwise Activity. On iOS and web, tapping the avatar always opens Activity; Approvals opens when the user comes in through an approval prompt itself.
 
 - **Approvals:** pending permission requests.
 - **Activity:** a log of your recent actions. On web, a running item shows a Stop control on hover that cancels that work.
 - **Upcoming:** the user's view of your schedules. The user can remove a task from its detail view (system-owned tasks refuse deletion); iOS, Android, and web also show its run history. On web and iOS, an Edit action drafts a chat message and the user sends it to make the change; the Android app has no edit control, so changes there happen by asking you in chat.
-- **Identity:** avatar and name. Editing the avatar's name renames you. A gated Share avatar action may also appear in the Edit menu. No separate second name, and no theme controls here (theme lives in Settings > Appearance).
+- **Identity** (web and iPhone): avatar and name, with the Change avatar and Edit name actions described above. Editing the avatar's name renames you. A gated Share avatar action may also appear in the Edit menu. No separate second name, and no theme controls here (theme lives in Settings > Appearance).
 
 ### Approval requests from the user's agent
 
@@ -191,7 +287,7 @@ It covers importing context from another AI assistant and chat exports.
 
 ---
 
-## iOS app only
+## Muse iOS app only
 
 ### Tabs
 
@@ -203,7 +299,7 @@ A Subscription card (usage meter, manage and upgrade) sits at the top of Setting
 
 - Connectors
 - Devices (managing paired devices; some sections inside it are gated)
-- Wallet (wallet abilities and rules live in `~/docs/payments-and-purchases.md`)
+- Wallet (Wallet limits, protections, cancellations, and refunds are in `~/docs/payments-and-purchases.md`)
 - Secure credentials store (saved logins)
 - Permissions
 - Messaging channels (which channels appear depends on the account)
@@ -221,7 +317,7 @@ Note: No Default Assistant, and no Hologram or camera-roll sync setting. The Mus
 
 ### Paired devices
 
-iPhone pairs with: health data, HomeKit, photo/camera roll, Apple Reminders. There is no find-my-phone on any platform. No alarm commands (alarms are Android-only). Nothing available before pairing. Always check `device.describe` first.
+iPhone pairs with: health data, HomeKit, Apple Reminders. There is no find-my-phone on any platform. No alarm commands (alarms are Android-only). Nothing available before pairing. Always check `device.describe` first.
 
 ### Sharing
 
@@ -235,7 +331,7 @@ Android - the Muse Android app Settings has an "Add to home screen" row that pin
 
 ---
 
-## Android app only
+## Muse Android app only
 
 ### Tabs
 
@@ -248,16 +344,17 @@ account"), in this order:
 
 - Subscription (usage and upgrade)
 - Connectors (the connector catalog: search, connect, per-connector detail)
-- Wallet (wallet abilities and rules live in `~/docs/payments-and-purchases.md`)
+- Wallet (Wallet limits, protections, cancellations, and refunds are in `~/docs/payments-and-purchases.md`)
 - Secure credentials store (saved logins; each credential's detail screen
   has an Agent permissions choice between using that login automatically
   and always asking first)
-- Permissions (default permissions for connectors, active permissions for
-  individual tasks)
+- Permissions (connector and web-access defaults, per-connector
+  permissions, and the permissions artifacts and scheduled tasks
+  currently hold)
 - Messaging channels (which channels appear depends on the account)
 - Devices (this device and other devices; the current device's detail
   screen carries a Manage permissions section with per-permission
-  toggles and a three-way Location choice: Never, When chatting, or  
+  toggles and a three-way Location choice: Never, When using the app, or
   Always)
 - Encryption (confidential-VM sessions only; change the recovery PIN)
 - Notifications (the row is always present; the enable toggle inside it
@@ -311,7 +408,7 @@ The header offers sorting (last opened, last created, title) and a grid or
 list view, plus a Select mode for deleting several items at once. Each
 card's menu offers Pin, Share, Download, and Delete.
 
-Useful web shortcuts beyond Cmd+K (search) and Cmd+/ (the shortcuts list):  
+Useful web shortcuts beyond Cmd+K (search) and Cmd+/ (the shortcuts list):
 Cmd+J jumps to chat, Cmd+Shift+K searches within the chat, Cmd+, opens
 Settings, Cmd+P opens a file quick-open, Shift+Esc focuses the composer,
 and Esc stops a streaming reply. The Cmd+K palette searches conversations,
@@ -326,14 +423,15 @@ top-left corner; that is the Search box, with the icon nav rail on the left
 edge. The status screen opens as a panel on the right side. In narrow windows
 and some side-chat views, the avatar can be hidden.
 
-Same status tabs as all platforms. In the Upcoming tab, each task's
-right-click menu has an Edit action. Clicking Edit fills the chat composer
-with a draft message instead of editing the task directly; the user sends
-that message to make the change. The task's detail dialog has a View
-permissions button instead, which opens that task's own permission screen in
-Settings > Permissions (see Settings below). The Identity tab
-lets the user open and edit the MEMORY, SOUL, and IDENTITY files in a dialog.
-Memory is that editable file, not a list of rows.
+The web status tabs are Activity, Approvals, Upcoming, and Identity. In
+the Upcoming tab, each task's right-click menu has an Edit action.
+Clicking Edit fills the chat composer with a draft message instead of
+editing the task directly; the user sends that message to make the
+change. The task's detail dialog has a View permissions button instead,
+which opens that task's own permission screen in Settings > Permissions
+(see Settings below). The Identity tab lets the user open and edit the
+MEMORY, SOUL, and IDENTITY files in a dialog. Memory is that editable
+file, not a list of rows.
 
 ### Settings
 
@@ -359,77 +457,81 @@ Settings panes:
 - Devices: paired-device rows with status and a detail view (device,
   last seen, OS; the current device also shows a read-only list of what
   it grants). Web has no control to remove, rename, or pair a device.
-- Connectors: connect/disconnect and per-connector detail; each
-  connector's own permission tree is on its detail page. A connector
-  that supports several accounts lists them with a Default badge, an
-  Add account option, and per-account disconnect. A permission the
-  connected account hasn't granted yet shows "Needs additional access"
-  with an Add control that opens the provider's own consent screen. Once the
-  user has allowed a Gmail send, a Google Calendar invitation, or a Google
-  Drive share to a particular person without asking each time, that
-  connector's detail page also shows Manage recipient permissions, which
-  lists each of those allowances with a Revoke. The Browser
-  connector is always on with no
-  disconnect; its detail page holds the browser permission suite:
-  visit websites, submit a form or POST request, download files,
-  upload files, and fill saved credentials, each settable to
-  Allow/Ask/Deny per method, with a reset to defaults. On confidential
-  VMs the pane also lists a Meta Catalog connector that is always on and
-  cannot be disconnected; its detail page holds one permission, Search,
-  settable to Allow/Ask/Deny. Deny turns off catalog product search;
-  other shopping search still works. On other computers there is no Meta
-  Catalog row, and catalog search is just on.
+- Connectors: a search box and an Available / Connected switch.
+  Available opens on a few Featured connectors and short category lists
+  (Productivity, Social & Entertainment, Health & Fitness, Business),
+  each with See all for the whole category. A connector with no
+  category, and a custom connector not yet connected, shows up only
+  through search, so a user who cannot find a connector should search
+  for it by name. Rows offer Connect, or View once connected; the detail
+  page holds disconnect and that connector's own permission tree. Every
+  connector's tree ends with a Background sync row, Allow or Deny, set
+  to Allow by default. With Deny, work the user did not start no longer
+  uses that connector: system scheduled jobs, Feed and Idea card
+  generation, other proactive work, and background source sync. The
+  user's own chats, actions in pages and apps the user built, and the
+  schedules the user created still use it. Deny never disconnects the
+  account. A connector that supports several accounts lists them with a
+  Default badge, an Add account option, and per-account disconnect. A
+  permission the connected account hasn't granted yet shows "Needs
+  additional access" with an Add control that opens the provider's own
+  consent screen. Once the user has allowed a Gmail send, a Google
+  Calendar invitation, or a Google Drive share to a particular person,
+  or a Messenger message to one conversation, without asking each time,
+  that connector's detail page also shows Manage recipient permissions,
+  which lists each of those allowances with a Revoke. The Browser
+  connector is always on with no disconnect; its detail page holds the
+  browser permission suite: visit websites, download files, upload
+  files, and fill saved credentials, each settable to Allow/Ask/Deny
+  per method (Upload files offers only Ask or Deny), with a reset to
+  defaults. On confidential VMs the pane also lists Shopping search
+  under Social. The user must connect it
+  before Meta Catalog text searches, image searches, or product-detail
+  requests can send data to Meta, and can disconnect it to block new
+  requests. Its detail page holds one permission, Search, settable to
+  Allow/Ask/Deny. Deny blocks catalog search. Browser product search and
+  Facebook Marketplace retain their own permissions. On standard VMs
+  there is no Shopping search row or connection-consent requirement.
 - Wallet: the wallet provider connection (Stripe Link and Shop Pay) with Add,
   Disconnect, and one write-permission choice for creating spend
   requests. Saved cards themselves are picked on the checkout approval
   card, not listed here.
-- Secure credentials store (shortened to Secure store in a narrow
-  window; saved browser logins; the user can add a login manually with
-  a site/username/password form, edit or delete one, and set each
-  login's Agent permissions to use it automatically or always ask
-  first; on confidential VMs the recovery PIN also lives here)
+- Secure credentials store (or Secure store; saved browser logins; the
+  user can add a login manually with a site/username/password form, edit
+  or delete one, and set each login's Agent permissions to use it
+  automatically or always ask first; on confidential VMs the recovery
+  PIN also lives here)
 - Permissions: a standalone tab holding web's permission surfaces. It
   opens on an overview with the separate Connector and Web-access
-  defaults, an Advanced network settings card, and a "Reset approvals
-  to defaults" control. Below them, Manage permissions has separate
-  rows for Connectors, Websites, Artifacts, Scheduled tasks, and Direct
-  network protocols. Connectors opens per-connector permission screens.
-  Websites ("Websites you've allowed") lists the saved website
-  permissions and lets the user revoke one. Artifacts and Scheduled
-  tasks list only the ones that hold or need permissions. Opening an
-  artifact shows each connector permission it needs with an Allow, Ask,
-  or Deny choice (some actions offer only Ask and Deny). Opening a
-  scheduled task shows a permission editor for that task alone. It
-  lists every connected connector, plus any disconnected connector that
-  still keeps a setting for this task. Opening a connector shows its
-  actions grouped as Read and Write, each settable to Allow, Ask, or
-  Deny for this task only (some actions offer fewer choices), with a
-  way back to the default wherever the task has its own setting. Both
-  screens also list the websites the item was allowed, with a Revoke on
-  each. Idea- and feed-owned
-  grants don't appear in these web lists. The same per-item screen
-  opens from the View permissions button in a scheduled task's detail
-  dialog (Upcoming tab), or from Manage permissions in the options menu
-  of an open artifact, and when you create a scheduled task the chat
-  shows a "Scheduled task `<title>` was created." row whose View action
-  opens that task. Manage permissions
-  also has a Direct network protocols screen: rows for raw network protocols (SSH, sending email, mailbox
-  access, databases, FTP, external DNS, and catch-all rows for other TCP
-  and UDP connections), each a switch between Deny and Ask. Every row
-  starts on Deny, which quietly refuses the connection; Ask sends each
-  use through the normal per-destination approval; there is no Allow
-  choice for these. External DNS is the exception: its Ask setting is a
-  standing permission for outside lookups, and no per-lookup approval
-  appears while it is on.
-  The Advanced network settings card is collapsed by default and holds
-  three switches: Transparent proxy (on, the agent can resolve DNS and
-  connect directly; off, all traffic must flow through the explicit
-  HTTP proxy), TLS interception (on, all TLS connections are always
-  intercepted for inspection; off, only when required by policy), and
-  SNI mismatch rejection (on, connections are rejected when the TLS
-  server name does not match the destination). Describe what a switch
-  does from its own subtitle; how the runtime enforces these modes can
-  change, so don't promise enforcement details beyond that.
+  defaults and a "Reset approvals to defaults" control. Below them,
+  Manage permissions has separate rows for Connectors, Websites,
+  Artifacts, Scheduled tasks, and Direct network protocols. Connectors
+  opens per-connector permission screens. Websites ("Websites you've
+  allowed") lists the saved website permissions and lets the user revoke
+  one. Artifacts lists every page and app the user has built, even one
+  with no permissions yet (documents are not listed); Scheduled tasks
+  lists every enabled task the user created, even one that has not run
+  yet. Opening an artifact or a scheduled task shows a permission editor
+  for that item alone. It lists every connected connector, plus any
+  disconnected connector that still keeps a setting for this item (and,
+  for an artifact, any connector it still needs). Opening a connector
+  shows all its actions grouped as Read and Write, each settable to
+  Allow, Ask, or Deny for this item only (some actions offer fewer
+  choices), with a way back to the default wherever the item has its own
+  setting. Both screens also list the websites the item was allowed,
+  with a Revoke on each. Idea- and feed-owned grants don't appear in
+  these web lists. The same per-item screen opens from the View
+  permissions button in a scheduled task's detail dialog (Upcoming tab).
+  When you create a scheduled task, the chat shows a card for it whose
+  button opens that task in the Upcoming tab. Manage permissions also
+  has a Direct network protocols screen: rows for raw network protocols
+  (SSH, sending email, mailbox access, databases, FTP, external DNS, and
+  catch-all rows for other TCP and UDP connections), each a switch
+  between Deny and Ask. Every row starts on Deny, which quietly refuses
+  the connection; Ask sends each use through the normal per-destination
+  approval; there is no Allow choice for these. External DNS is the
+  exception: its Ask setting is a standing permission for outside
+  lookups, and no per-lookup approval appears while it is on.
 - Data Controls (privacy notice, AI training opt-out, Import memory,
   Download your agent data, Reset)
 - Encryption (confidential-VM sessions only; reached from those flows,
@@ -459,7 +561,7 @@ No share-message action on web. Sharing an artifact means creating a public link
 
 ## What pairing a phone does not let me do
 
-- Remotely take photos with your phone's camera. There is no way to capture photos or video through the agent.
+- Remotely take photos with your phone's camera. Phones give the agent no photo or video capture. The only exception is a paired Mac app, which can take one photo with the Mac's camera per request, with the user's permission.
 - See or read your phone's screen. Pairing shares what your phone pushes to Muse (notifications, texts, contacts, calendar), never its screen or other apps' content.
 - Open or control other apps on your phone.
 - Find a lost phone. No phone-finding exists on any platform.

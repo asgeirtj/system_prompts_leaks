@@ -1,103 +1,57 @@
-# Campaign delivery compatibility
+# Keep campaign settings compatible
 
-Use this gate while choosing delivery and again on the exact create arguments
-before final review. It prevents a plausible setting in isolation from becoming
-an invalid campaign when combined with the others.
+- Check this while choosing delivery settings and again on the exact create arguments before final review. A setting valid on its own can still make an invalid campaign when combined with the others.
 
-Treat each ad set's business outcome, campaign objective, optimization goal,
-destination, required signal or promoted object, and billing event as one
-decision. Settle the tuple only when every leg agrees:
+- Treat each ad set's business outcome, campaign objective, optimization goal, destination, required signal or promoted object, and billing event as one decision. Settle it only when every part agrees:
+  - the objective supports the optimization goal
+  - the destination can produce the event being optimized
+  - every required Page, form, messaging identity, dataset or pixel, and event was returned for the selected account and fits its role
+  - the promoted object has exactly the fields the goal and destination require
+  - the billing event and the budget and bid level work with the same setup
 
-- the objective supports the optimization goal;
-- the destination can produce the event being optimized;
-- every required Page, form, messaging identity, dataset/pixel, and event was
-  returned for the selected account and belongs to the intended role. No tool
-  lists an account's apps, so an app ID and store URL come from the advertiser
-  or an existing ad set's promoted object; never invent either;
-- the promoted-object shape contains exactly the fields that goal and
-  destination require; and
-- the billing event and budget/bid level are supported by the same setup.
+- No tool lists an account's apps, so a Meta app ID, which differs from the store's numeric ID, and a store URL come from the advertiser or an existing ad set's promoted object.
 
-The plan must describe the result it actually optimizes. A plan cannot promise
-purchases while optimizing visits, call a website visit an on-ad lead, or call
-Page Likes a Traffic result. An upstream event is a different delivery path;
-present and settle it as such rather than relabelling the advertiser's outcome.
+- The plan describes the result it actually optimizes. It cannot promise purchases while optimizing visits, call a website visit an on-ad lead or call Page likes a traffic result, and an upstream event is a different delivery path to present and settle as such, never a relabeled outcome.
 
-## Common recommendation families
+## Match the setup to the outcome
 
-Use these families for ordinary recommendations. Codes are internal planning
-values; use advertiser-facing names in responses.
+- Use these families for ordinary recommendations, keeping the codes in arguments and plain names in replies:
+  - awareness or reach uses `OUTCOME_AWARENESS` with `REACH`, `IMPRESSIONS` or another live-supported awareness goal
+  - website visits use `OUTCOME_TRAFFIC` with `LANDING_PAGE_VIEWS` or `LINK_CLICKS`, a verified website URL and only the tracking fields that goal supports
+  - website purchases or conversion value use `OUTCOME_SALES` with `OFFSITE_CONVERSIONS` or `VALUE`, a website destination and a returned eligible conversion source with a supported event, sent as the promoted object's `pixel_id` and `custom_event_type`
+  - website lead conversions use `OUTCOME_LEADS` with `OFFSITE_CONVERSIONS`, a website destination and a returned conversion source with the selected lead event, sent the same way
+  - instant-form leads use `OUTCOME_LEADS` with `LEAD_GENERATION` or `QUALITY_LEAD`, an on-ad destination, a returned Page with `leadgen_tos_accepted` true as the promoted object's `page_id`, since lead ads run only on Pages that accepted the Lead Ads terms, and the returned form, which belongs to the creative rather than the promoted object
+  - messaging conversations use an objective matching the stated outcome with `CONVERSATIONS`, the ad set's `destination_type` set to the Messenger, WhatsApp or Instagram Direct channel, only WhatsApp under `OUTCOME_LEADS`, and its returned identity, and the creative uses the channel's message button and standard link from [creative preparation](campaign-creative.md), never an advertiser URL
+  - Page likes use `OUTCOME_ENGAGEMENT` with `PAGE_LIKES`, the Page destination and the returned Page, with a live-supported billing event, normally impressions
+  - post engagement uses `OUTCOME_ENGAGEMENT` with `POST_ENGAGEMENT`, an on-post destination and the returned Page and post or a supported new-ad shape
+  - profile visits use `OUTCOME_TRAFFIC` with `VISIT_INSTAGRAM_PROFILE` or `PROFILE_VISIT` and the matching returned profile destination
+  - video views use `OUTCOME_AWARENESS` or `OUTCOME_ENGAGEMENT` with a live-supported video-view goal and destination
+  - app installs or app events use `OUTCOME_APP_PROMOTION` with an app goal, an app destination and the advertiser's app ID and store URL or event identity
+  - calls use a goal-matched objective with a live-supported call goal, a phone destination and returned Page and number inputs
 
-| Intended result | Compatible delivery family |
-|---|---|
-| Awareness or reach | `OUTCOME_AWARENESS` with `REACH`, `IMPRESSIONS`, or another live-supported awareness goal |
-| Website visits | `OUTCOME_TRAFFIC` with `LANDING_PAGE_VIEWS` or `LINK_CLICKS`, a verified website URL, and only tracking fields supported by that goal |
-| Website purchases or conversion value | `OUTCOME_SALES` with `OFFSITE_CONVERSIONS` or `VALUE`, a website destination, and a returned eligible conversion source plus a supported event |
-| Website lead conversions | `OUTCOME_LEADS` with `OFFSITE_CONVERSIONS`, a website destination, and a returned eligible conversion source plus the selected lead event |
-| Instant-form leads | `OUTCOME_LEADS` with `LEAD_GENERATION` or `QUALITY_LEAD`, an on-ad destination, and the returned Page and form |
-| Messaging conversations | An objective matching the stated outcome with `CONVERSATIONS`, a matching Messenger, WhatsApp, or Instagram Direct destination, and its returned identity; the creative uses the channel's message button and standard link per `campaign-creative.md`, never an advertiser-supplied URL |
-| Page Likes | `OUTCOME_ENGAGEMENT` with `PAGE_LIKES`, the Page destination and returned Page; use a live-supported billing event, normally impressions |
-| Post engagement | `OUTCOME_ENGAGEMENT` with `POST_ENGAGEMENT`, an on-post destination, and the returned Page/post or supported new-ad shape |
-| Profile visits | `OUTCOME_TRAFFIC` with `VISIT_INSTAGRAM_PROFILE` or `PROFILE_VISIT` and the matching returned profile destination |
-| Video views | `OUTCOME_AWARENESS` or `OUTCOME_ENGAGEMENT` with a live-supported video-view goal and destination |
-| App installs or app events | `OUTCOME_APP_PROMOTION` with an app goal, app destination, and the advertiser-supplied app ID and store URL or event identity |
-| Calls | A goal-matched objective with a live-supported call goal, phone destination, and returned Page/number inputs |
+- These families do not replace the tool contract. An account-gated or unlisted combination is settled only when current tool evidence proves the whole combination and its inputs, and a field appearing in a schema does not prove every combination using it is valid.
 
-These are recommendation families, not a substitute for the current tool
-contract. An account-gated or unlisted combination is settled only when current
-tool evidence proves the complete combination and its required inputs. A field
-being present in a schema does not prove that every combination using it is
-valid.
+## Rules the fields do not show
 
-## Rules the tuple does not show
+- These combinations pass every field check and are still rejected:
+  - one goal per lowest-cost campaign budget, so when the campaign holds the budget with the lowest-cost bid strategy, every ad set, including one added later, uses the same optimization goal, and a different goal needs its own campaign
+  - a lifetime budget needs an end, so when the ad set's or its campaign's budget is lifetime, the ad set needs an end time more than 24 hours after its start
+  - an app ad targets the app's platform, so targeting is restricted to the app's operating system, iOS for an App Store app and Android for a Google Play app, with the value taken from the live schema or a targeting search
+  - the conversion event has to match the campaign objective, as the families above pair them, so when Meta rejects the event, offer an event the objective supports or a new campaign with the matching objective
+  - iOS 14 and later attribution needs a matching campaign, so send the ad set's `campaign_attribution` (`SKAN` or `AEM`) only under a campaign created here with `is_skadnetwork_attribution: true`, or one the advertiser says is an iOS 14 campaign
 
-These combinations pass every individual field check and are still rejected:
+- Read the existing ad sets' goal and the parent's budget before adding an ad set to an existing campaign. When a lifetime budget lacks an end date, ask for one, and never switch the advertiser's lifetime budget to daily yourself.
 
-- **One goal per lowest-cost campaign budget.** When the campaign carries the
-  budget with the lowest-cost bid strategy, every ad set in it, including one
-  added later, uses the same optimization goal. Before adding an ad set, read
-  the existing ad sets' goal; a different goal needs its own campaign.
-- **A lifetime budget needs an end.** When the ad set's own budget or its
-  parent campaign's budget is a lifetime budget, the ad set needs an end time
-  more than 24 hours after its start. Read the parent's budget before adding an
-  ad set to an existing campaign. Without an end date, ask for one; never
-  switch the advertiser's lifetime budget to a daily one yourself
-  (`references/writes.md` treats budget cadence as their decision).
-- **An app ad targets the app's platform.** When the promoted object names an
-  app, restrict targeting to that app's operating system: an App Store app is
-  iOS and a Google Play app is Android. Leaving the operating system open is
-  rejected as a mismatch. Take the value from the live schema or a targeting
-  search, never a guessed string.
-- **iOS 14+ attribution needs an iOS 14+ campaign.** Send the ad set's
-  `campaign_attribution` (`SKAN` or `AEM`) only under a campaign created in
-  this conversation with `is_skadnetwork_attribution: true`, or one the
-  advertiser says is an iOS 14+ campaign. Reads cannot show that setting on an
-  existing campaign, so otherwise omit it. Take field names from the live
-  schema.
+- Reads cannot show an existing campaign's iOS 14 setting, so otherwise omit `campaign_attribution`, taking field names from the live schema.
 
-## Resolve incompatibility before pricing
+## Resolve conflicts before pricing
 
-When supplied values cross families, preserve each stated intent as a
-constraint and show one bounded choice between executable paths. For example,
-a request for website Traffic optimized for Page Likes becomes a choice between
-website visits and Page Likes; neither setting silently overwrites the other.
-Missing required conversion signals likewise becomes a choice between restoring
-that measurement and accepting a clearly named upstream delivery path.
+- When supplied values cross families, keep each stated intent as a constraint and offer one bounded choice between executable paths. Website traffic optimized for Page likes becomes a choice between website visits and Page likes, and neither silently overwrites the other.
 
-Until the tuple is compatible, keep it open. Do not price it, present a complete
-strategy, plan creative against it, render final review, or call an Ads create
-tool.
+- A missing conversion signal becomes a choice between restoring that measurement and accepting a clearly named upstream path. Until the combination is compatible, keep it open, and do not price it, present a strategy, plan creative against it, render the final review or call a create tool.
 
 ## Recheck the exact create arguments
 
-After fetching the selected live create schemas, apply their conditional and
-mutual-exclusion descriptions—not only their `required` arrays—to the exact
-arguments. Confirm the campaign objective and budget ownership against every ad
-set's optimization goal, destination, promoted object, billing event and bid
-fields; then confirm targeting/placements, one creative family with all of its
-identity/media/link requirements, and the intended ad-set/creative references.
+- After fetching the live create schemas, apply their conditional and mutual-exclusion descriptions, not only their `required` lists, to the exact arguments. Confirm the objective and budget owner against every ad set's goal, destination, promoted object, billing event and bid fields, then the targeting and placements, one creative family with all its identity, media and link needs, and the ad-set and creative references.
 
-The live descriptors win if this reference and the current contract differ.
-Return to the earliest affected planning decision and obtain a revised approval;
-do not rely on create-time defaulting or auto-correction, and do not use a
-failed create as compatibility discovery.
+- The live descriptors win when they differ from this guide. Return to the earliest affected decision for a revised approval, never rely on create-time defaults or corrections, and never use a failed create to discover compatibility.

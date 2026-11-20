@@ -1,11 +1,15 @@
 ---
-name: session-start-hook
-description: Creating and developing startup hooks for Claude Code on the web. Use when the user wants to set up a repository for Claude Code on the web, create a SessionStart hook to ensure their project can run tests and linters during web sessions.
+name: startup-hook-skill
+description: Creating and developing startup hooks for Claude Code cloud sessions. Use only when the user asks for a SessionStart hook committed to their repository. Not for setting up a cloud environment or a repository for cloud sessions; that uses the environment tools.
 ---
 
-# Startup Hook Skill for Claude Code on the web
+# Startup Hook Skill for Claude Code cloud sessions
 
-Create SessionStart hooks that install dependencies so tests and linters work in Claude Code on the web sessions.
+Create SessionStart hooks that install dependencies so tests and linters work in Claude Code cloud sessions.
+
+If the user asked to set up an environment rather than for a hook, stop here and commit nothing.  
+Use `get_environment`, then `create_environment` or `update_environment` as it says, if you have them.  
+Otherwise tell the user to set it up in the environment's settings.
 
 ## Hook Basics
 
@@ -38,7 +42,7 @@ The hook runs in background while the session starts. Using async mode reduces l
 Available environment variables:
 - `$CLAUDE_PROJECT_DIR` - Repository root path
 - `$CLAUDE_ENV_FILE` - Path to write environment variables
-- `$CLAUDE_CODE_REMOTE` - If running in a remote environment (i.e. Claude code on the web)
+- `$CLAUDE_CODE_REMOTE` - If running in a remote environment (i.e. a Claude Code cloud session)
 
 Use `$CLAUDE_ENV_FILE` to persist variables for the session:
 ```bash
@@ -76,6 +80,11 @@ Create a script that installs dependencies.
 - Write the hook only for the web unless user asks otherwise (see $CLAUDE_CODE_REMOTE)
 - The container state gets cached after the hook completes, prefer dependency install methods that take advantage of that (i.e. prefer npm install over npm ci)
 - Be idempotent (safe to run multiple times)
+- Skip an install that is already done. The hook runs at every session start, resume, clear and compact, and a synchronous hook holds the user's message until it ends. Run an install only if a file that decides what gets installed has changed since the install last succeeded (see the template below)
+- Store the hash file inside the directory that the install fills. The file then disappears with the packages. If that directory is in the repository, git must ignore it (for example node_modules, or a .venv that pip installs into), so that `git add` leaves the file out
+- pip into the system Python fills a directory outside the repository. Give that install a check of its own, with its own hash file in that directory: `pyhashes="$(python3 -I -c 'import sysconfig; print(sysconfig.get_path("purelib"))')/.session-start.sha256"`. Install with `python3 -m pip`, the pip of that same Python. A hash file in the repository won't do: an environment can keep the checkout but start a new container without the packages, and the check would then skip an install that is needed
+- For Python, also hash each file that a requirements file includes with `-r` or `-c`. Install the repository's own package editable (`pip install -e .`): a plain `pip install .` copies the code, which the check doesn't hash, so the copy would go stale. If that package has code to compile, install it outside the check, because an editable install doesn't rebuild that code when it changes
+- Put apt packages and global tools outside the checks and ahead of them, and install only what is missing: `if ! command -v shellcheck >/dev/null; then apt-get update; apt-get install -y shellcheck; fi`. For a package with no command, test `dpkg -s libpq-dev >/dev/null 2>&1`. For a tool that the repository pins, test its version too
 - Non-interactive (no user input)
 
 ### 3. Create Hook File
@@ -87,7 +96,28 @@ cat > .claude/hooks/session-start.sh << 'EOF'
 set -euo pipefail
 
 echo '{"async": true, "asyncTimeout": 300000}'
-# Install dependencies here
+
+cd "${CLAUDE_PROJECT_DIR:-.}"
+
+# Install apt packages and global tools here, and only those that are missing
+
+# Run the install only if a listed file has changed since the install last succeeded
+hashes=node_modules/.session-start.sha256
+if ! sha256sum --check --status "$hashes" 2>/dev/null; then
+  # Delete the old hashes first, so a failed install runs again next time
+  rm -f "$hashes"
+
+  # Install dependencies here. A failed install must end the script (no "|| true")
+
+  # List this script and every file that decides what gets installed
+  # (in a workspace, each package's manifest too)
+  sha256sum .claude/hooks/session-start.sh package.json package-lock.json 2>/dev/null > "$hashes" || rm -f "$hashes"
+fi
+
+# If the repository installs with pip into the system Python, check that install
+# the same way, with its hash file in that Python's package directory
+
+# Steps that every session needs, such as writing to $CLAUDE_ENV_FILE, go here
 EOF
 
 chmod +x .claude/hooks/session-start.sh
@@ -125,6 +155,8 @@ CLAUDE_CODE_REMOTE=true ./.claude/hooks/session-start.sh
 
 IMPORTANT: Verify dependencies are installed and script completes successfully.
 
+Run it a second time and verify that it skips every install. Then, for each check, change the content of one of its hashed files, verify that its install runs again, and restore the file.
+
 ### 6. Validate Linter
 
 IMPORTANT: Figure out what the right command is to run the linters and run it for an example file. No need to lint the whole project. If there are any issues, update the startup script accordingly and re-test.
@@ -143,9 +175,9 @@ We're all done. In your last message to the user, Provide a detailed summary to 
 
 * Summary of the changes made
 * Validation results
-  1. ✅/‼️ Session hook execution (include details if it failed)
-  2. ✅/‼️ linter execution (include details if it failed)
-  3. ✅/‼️ test execution (include details if it failed)
+  1. ✅/‼[U+FE0F] Session hook execution (include details if it failed)
+  2. ✅/‼[U+FE0F] linter execution (include details if it failed)
+  3. ✅/‼[U+FE0F] test execution (include details if it failed)
 * Hook execution mode: Syncronous
   * inform user that hook is running syncronous and the below trade-offs. Let them know that we can change it to async if they prefer faster session startup.
     * Pros: Guarantees dependencies are installed before your session starts, preventing race conditions where Claude might try to run tests or linters before they're ready

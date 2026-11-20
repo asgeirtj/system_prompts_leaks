@@ -1,0 +1,10 @@
+id: google_drive
+title: "Google Drive"
+description: "Find, upload, download, organize and share the user's files in Google Drive, including the documents, notes and notebooks they keep there."
+aliases: [google-drive, google_drive]
+include_in_prompt: true
+onboarding: true
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_drive authorize-url"

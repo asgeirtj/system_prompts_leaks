@@ -1,14 +1,22 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-aelle8mcqsmepnpffddmvud7jvppg4li.apps.googleusercontent.com"
+  provider: google_tasks
+  required: true
 connector: google_tasks
 category: productivity
 display_name: Google Tasks
 description: Manage and track your to-do lists and tasks
+icon: google_tasks
 request_quota:
   mode: enforce
   workers:
     - hatch-gws-cli-fully-isolated
   queries_per_minute: 60
   burst: 20
+  queries_per_day: 2000
 cli:
   binary: hatch_gws_cli
   skill: google_tasks
@@ -31,6 +39,11 @@ actions:
       tasks.delete:
         label: Delete tasks and lists
         approval_phrase: delete tasks and lists in Google Tasks
+        approval_buttons:
+          allow_once: "Delete"
+          allow_always: "Always allow deleting tasks and lists"
+          deny: "Don't delete"
+          deny.task: "Don't delete"
 commands:
   status: null
   disconnect: null

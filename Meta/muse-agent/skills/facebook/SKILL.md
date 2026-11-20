@@ -1,1 +1,0 @@
-../facebook-cli/SKILL.md

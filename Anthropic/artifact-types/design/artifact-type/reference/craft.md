@@ -24,7 +24,10 @@ subject, asset or brand IS input; with nobody to ask, commit to one
 nameable direction and say so rather than ending on a question. Once
 settled, a decision stays settled. Then commit to a small system:
 
-- A type pairing: Google Fonts load in the artifact (one
+- A type pairing: for new work in Latin script with no brand or design
+  system, type from the brief and subject; if neutral (apps, data), Inter for text and Space Grotesk for headings. Work added to an existing design keeps
+  its faces.
+  Google Fonts load in the artifact (one
   `fonts.googleapis.com/css2?family=…&display=swap` `<link>` in
   `<helmet>`; no other webfont host does); 1–3 families, each with a
   system fallback of close metrics (shown while the font loads and
@@ -54,16 +57,14 @@ direction before building:
 Bold maximalism and refined minimalism both work — the key is
 intentionality, not intensity. Then execute with precision:
 
-- **Typography**: choose fonts that are beautiful, unique, and
-  interesting. Avoid generic fonts like Arial and Inter; opt for
-  distinctive, characterful choices. Pair a distinctive display font
-  with a refined body font.
+- **Typography**: the default pairing above, unless the brief calls
+  for other faces.
 - **Color & theme**: commit to a cohesive aesthetic. Dominant colors
   with sharp accents outperform timid, evenly-distributed palettes.
 - **Motion**: where a design carries animation (CSS in the artboard),
   focus on high-impact moments — one well-orchestrated reveal creates
   more delight than scattered micro-interactions.
-- **Spatial composition**: unexpected layouts. Asymmetry. Overlap.
+- **Spatial composition**: unexpected layouts. Asymmetry. Overlap (never over text).
   Diagonal flow. Grid-breaking elements. Generous negative space OR
   controlled density.
 - **Backgrounds & visual details**: create atmosphere and depth rather
@@ -71,8 +72,8 @@ intentionality, not intensity. Then execute with precision:
   geometric patterns, layered transparencies, dramatic shadows,
   decorative borders, grain overlays.
 
-Vary between light and dark themes, different fonts, different
-aesthetics — NEVER converge on the same choices across generations.
+Vary between light and dark themes and different aesthetics — NEVER
+converge on the same look across generations.
 And match implementation complexity to the aesthetic vision:
 maximalist designs need elaborate effects; minimalist designs need
 restraint, precision, and careful attention to spacing and subtle
@@ -154,14 +155,15 @@ its real viewing distance.
 
 ### Accessible as drawn
 
-Draw controls with the real elements even in a static mockup: `<button>`,
-`<a href>`, and `<input>` paired with a `<label>`. A div or span with
-`role` or `onClick` looks the same, but Tab skips it and a screen reader
-has nothing to announce. Give an icon-only button an `aria-label`. Keep
-text at a contrast of at least 4.5:1 against what is behind it (3:1 from
-24px). What fails most often is caption grey, and coloured fills under
-white text: darken both. Colors that must be told apart also differ in
-lightness, not hue alone; prefer blue/orange to red/green.
+Draw controls with real elements even in a static mockup: `<button>`,
+`<a href>`, and `<input>` with a `<label>`. A div or span with `role` or
+`onClick` looks the same, but Tab skips it. Give an icon-only button an
+`aria-label`. SVG: decor `aria-hidden="true"`, else
+`role="img" aria-label`. Keep text at a contrast of at least 4.5:1
+against what is behind it (3:1 from 24px). Caption grey and coloured
+fills under white text fail most often: darken both. Colors that must be
+told apart also differ in lightness, not hue alone; prefer blue/orange to
+red/green.
 
 ### Landing pages and marketing artboards
 
@@ -234,6 +236,11 @@ copyrighted-designs rule governs whether to recreate at all.)
 
 ## Content and design rules shared by every appifact family
 
+<!-- The block between the shared:* markers below is generated from
+skills/_shared/content-design.md by scripts/inline-shared.ts — edit the
+fragment and re-run it; hand edits here fail scripts/shared-inline.test.ts. -->
+
+<!-- shared:content-design -->
 These rules are about the CONTENT authored into the appifact — the
 deck, the artboards, the dashboard, the seeded cards and rows — as
 opposed to its chrome (the kit, the toolbar, the document machinery).
@@ -267,10 +274,9 @@ top), and none of them changes a kit rule.
   etc.
 - **Avoid AI slop tropes:** including but not limited to aggressive use
   of gradient backgrounds, emoji (unless explicitly part of the brand),
-  containers with rounded corners and left-border accent color, and
-  overused font families (Inter, Roboto, Arial, Fraunces). Emoji in
-  content: only if the brand or design system uses them. (Appifact
-  chrome is stricter still — never emoji as UI glyphs —
+  and containers with rounded corners and left-border accent color.
+  Emoji in content: only if the brand or design system uses them.
+  (Appifact chrome is stricter still — never emoji as UI glyphs —
   that rule is unconditional.)
 - **Recreate from source, not from memory or screenshots.** When asked
   to recreate a UI or design whose source you can reach — a repo, a
@@ -291,3 +297,4 @@ top), and none of them changes a kit rule.
   account email-domain signal, so this rests on what the user tells you
   about where they work — ask when it's unclear.)
 
+<!-- /shared:content-design -->

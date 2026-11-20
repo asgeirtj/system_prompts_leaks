@@ -1,111 +1,90 @@
-# Editing existing Word documents
+# Edit an existing Word document
 
-A `.docx` (and a `.dotx` template, handled identically) is a ZIP archive of
-XML parts. Route by what the edit needs:
+- A `.docx` (and a `.dotx` template, handled the same way) is a ZIP archive of XML parts. Choose the route that preserves what the edit touches:
+  - For a document generated here, edit its `.src/` generator and regenerate.
+  - For simple content changes to an uploaded document, open it with `python-docx`, edit and save.
+  - For tracked changes, comments or edits that must keep precise formatting, edit the raw XML. `python-docx` cannot express these.
+  - To read or extract content, `muse.read` opens a `.docx` as paged Markdown. Use `python-docx` when you need structure the Markdown flattens.
+  - Convert a legacy `.doc` first with `soffice --headless --convert-to docx file.doc`, then treat it as above.
 
-| Edit | Path |
-|---|---|
-| Content changes on a doc you generated | Revise the `.src/` generator and regenerate |
-| Simple content changes on an uploaded doc | Open it with `python-docx`, edit, save |
-| Tracked changes (redlines), comments, format-preserving surgical edits | Raw XML: unpack, edit `word/document.xml`, repack (`python-docx` cannot express these) |
-| Read or extract content | `muse.read` opens a .docx directly (converted to markdown, paged); iterate with `python-docx` when you need structure the markdown flattens |
-| Legacy `.doc` | Convert first: `soffice --headless --convert-to docx file.doc`, then treat as above |
+## Unpack and repack safely
 
-## The raw-XML round trip
+- Unpack the archive into `$WORK`. An uploaded document is not in `project_dir` yet, so copy it to `$DIR/$FILE` first:
 
 ```bash
-unzip -q doc.docx -d unpacked/
-find unpacked -type l -delete   # ZIP entries from outside parties can be symlinks; strip before touching the tree
-# edit unpacked/word/document.xml IN PLACE
-(cd unpacked && rm -f ../out.docx && zip -Xr ../out.docx .)
+FILE="<the deliverable's file name, as the output contract names it>"
+DIR="$JARVIS_HOME/<project_dir from the build task, without its leading ~/>"
+WORK="$DIR/.src/unpacked"
+rm -rf "$WORK" && mkdir -p "$WORK" || exit 1
+unzip -q "$DIR/$FILE" -d "$WORK" || exit 1
+find "$WORK" -type l -delete   # an outside archive can contain symlinks
 ```
 
-- Never pretty-print or reindent the XML: added whitespace text nodes
-  perturb `xml:space`-sensitive content and change rendering.
-- Repack from inside the unpacked directory so part paths are
-  archive-root-relative (`word/document.xml`, not `unpacked/word/...`);
-  Word refuses an archive with prefixed paths.
-- `rm -f` the output first: `zip` appends into an existing archive, so a
-  part you deleted from the tree survives without it. `-X` drops
-  uid/gid/timestamp extra fields.
-- When extracting with Python instead, reject symlink entries
-  (`stat.S_ISLNK(info.external_attr >> 16)`) and entries that resolve
-  outside the destination before extraction.
+- Edit `$WORK/word/document.xml`, then run this block to repack `$WORK` into the deliverable. Re-running it keeps your edit.
 
-## Run fragmentation
+```bash
+FILE="<the deliverable's file name, as the output contract names it>"
+DIR="$JARVIS_HOME/<project_dir from the build task, without its leading ~/>"
+WORK="$DIR/.src/unpacked"
+OUT="$DIR/.src/repacked-$FILE"
+rm -f "$OUT" || exit 1
+(cd "$WORK" && zip -qXr "$OUT" .) || exit 1
+python3 -c 'import sys, zipfile, xml.dom.minidom; xml.dom.minidom.parseString(zipfile.ZipFile(sys.argv[1]).read("word/document.xml"))' "$OUT" || exit 1
+mv "$OUT" "$DIR/$FILE"
+```
 
-Word splits visible text across many `<w:r>` runs (revision ids,
-spell-check markers, editing history), so a phrase you can read in the
-document often does not exist as a contiguous string in the XML, and a
-find-and-replace silently misses. Before string edits, coalesce adjacent
-runs whose `<w:rPr>` serialize byte-identically (both absent also
-matches); that criterion provably leaves rendering unchanged. `rsid*`
-attributes and `<w:proofErr>` elements are pure metadata and safe to
-strip. Never merge across two different `<w:ins>`/`<w:del>` wrappers:
-that rewrites tracked-change structure and collapses separate revisions.
+- Word refuses parts under an extra folder, and `zip` appends to an existing archive, so a part you deleted would survive. `-X` drops extra file metadata.
 
-## Tracked changes (redlining)
+- Never pretty-print or reindent the XML. Added whitespace nodes change `xml:space`-sensitive content and its rendering.
 
-Wrap changed runs in `<w:ins>`/`<w:del>`, each carrying `w:id`,
-`w:author`, and `w:date`.
+- When extracting with Python instead, reject symlink entries (`stat.S_ISLNK(info.external_attr >> 16)`) and any entry that resolves outside the destination.
 
-- Inside `<w:del>` the text element is `<w:delText>`, never `<w:t>`;
-  field instructions become `<w:delInstrText>`.
-- A deleted paragraph MARK
-  (`<w:pPr><w:rPr><w:del .../></w:rPr></w:pPr>`) means "merge this
-  paragraph into the next". Deleting a whole paragraph is that plus a
-  `<w:del>` around every run; either half alone is a different edit.
-- Inside `w:rPr` the `<w:del/>` child comes BEFORE the other children;
-  rPr child order is schema-enforced.
-- To reject another author's insertion, nest your `<w:del>` inside their
-  `<w:ins>`; never edit or unwrap their wrapper. To restore their
-  deletion, add your own `<w:ins>` after their `<w:del>`. A change is
-  identified by (kind, author, date, text), so rewriting someone else's
-  wrapper reads as a brand-new change.
-- The silent failure mode is an edit made OUTSIDE any wrapper: invisible
-  in the accepted view and recorded nowhere. After redlining, re-read the
-  XML and confirm every text difference against the original sits inside
-  a `<w:ins>`/`<w:del>` you authored. The document body is where this
-  discipline applies; headers, footers, and footnotes are separate parts,
-  so check them separately if you touched them.
+## Find text split across runs
 
-To hand back a clean all-accepted copy, drive headless LibreOffice with a
-StarBasic macro dispatching `.uno:AcceptAllTrackedChanges`, then verify by
-unpacking the output and grepping that no `w:ins`/`w:del` remain. Two
-gotchas: soffice can hang after storing (a timeout is not a failure;
-verify the output content instead of the exit), and a fully-deleted
-paragraph followed by an empty spacer paragraph can survive as an emptied
-paragraph, showing up as a stray empty bullet when auto-numbered. That
-bullet is an artifact of the accepted view; judge paragraph deletions in
-the XML.
+- Word splits visible text across many `<w:r>` runs, so a phrase you can read often is not one string in the XML and a plain find-and-replace misses it.
 
-## Comments
+- Before a string edit, merge adjacent runs whose `<w:rPr>` serializes byte-for-byte the same, or that both lack one. That merge leaves rendering unchanged. `rsid*` attributes and `<w:proofErr>` elements are metadata and safe to remove.
 
-Comments span six cross-linked locations: `word/comments.xml`,
-`word/commentsExtended.xml`, `word/commentsIds.xml`,
-`word/commentsExtensible.xml`, their four `Relationship` entries in
-`word/_rels/document.xml.rels`, and four `Override` entries in
-`[Content_Types].xml`. The ID chain: `w:comment` carries `w:id` and a
-paragraph `w14:paraId`; commentsExtended keys on that paraId;
-commentsIds maps paraId to a `durableId`; commentsExtensible keys on the
-durableId.
+- Never merge across two different `<w:ins>` or `<w:del>` wrappers. That rewrites the revision history and collapses separate changes into one.
 
-- Parts alone show nothing: anchor with `<w:commentRangeStart w:id="N"/>`
-  ... `<w:commentRangeEnd w:id="N"/>` plus a
-  `<w:commentReference w:id="N"/>` run. Range markers are direct children
-  of `<w:p>`, never inside a `<w:r>`.
-- A reply's `w15:commentEx` sets `w15:paraIdParent` to the parent
-  comment's paraId, and its markers nest inside the parent's range.
-- ID ceilings: `w14:paraId` is hex below `0x80000000`, `durableId` below
-  `0x7FFFFFFF`; generate with `randint(0, 0x7FFFFFFE)` formatted `%08X`.
-  durableId is decimal in `numbering.xml` and hex everywhere else.
-- Declare the full Word namespace set (plus `mc:Ignorable`) on each new
-  part's root element up front, so appended children never hit
-  undeclared-prefix errors.
+## Make tracked changes
 
-## Verify
+- Wrap each changed run in `<w:ins>` or `<w:del>` carrying `w:id`, `w:author` and `w:date`.
 
-Every edit ends with the render gate in
-`/opt/hatch/skills/artifacts/testing/SKILL.md`: convert to PDF with headless
-LibreOffice, rasterize with pdftoppm, and read every page image before
-returning a link.
+- Inside `<w:del>`, text goes in `<w:delText>`, never `<w:t>`, and field instructions go in `<w:delInstrText>`.
+
+- A deleted paragraph mark (`<w:pPr><w:rPr><w:del .../></w:rPr></w:pPr>`) merges the paragraph into the next one. Deleting a whole paragraph needs both the deleted mark and a `<w:del>` around every run.
+
+- Inside `w:rPr`, put `<w:del/>` before the other children. The schema enforces that order.
+
+- To reject another author's insertion, nest your `<w:del>` inside their `<w:ins>`. To restore their deletion, add your own `<w:ins>` after their `<w:del>`. Never edit or unwrap their wrappers, because a rewritten wrapper reads as a brand-new change.
+
+- An edit made outside any wrapper is invisible in the accepted view and recorded nowhere. After redlining, compare the XML with the original and confirm every text change sits inside a wrapper you authored.
+
+- Headers, footers and footnotes are separate parts. Check each one you touched.
+
+## Hand back an accepted copy
+
+- For a clean copy with every change accepted, run headless LibreOffice with a StarBasic macro that dispatches `.uno:AcceptAllTrackedChanges`.
+
+- Unpack the result and confirm no `w:ins` or `w:del` remains. LibreOffice can hang after saving, so judge a timeout by the output file, not the exit status.
+
+- A fully deleted paragraph followed by an empty spacer paragraph can survive as an empty paragraph, which shows as a stray bullet when numbering is on. Judge paragraph deletions in the XML, not in the accepted view.
+
+## Keep comments connected
+
+- A comment spans six linked places: `word/comments.xml`, `word/commentsExtended.xml`, `word/commentsIds.xml`, `word/commentsExtensible.xml`, four `Relationship` entries in `word/_rels/document.xml.rels`, and four `Override` entries in `[Content_Types].xml`.
+
+- The IDs chain together. A `w:comment` carries `w:id` and a paragraph `w14:paraId`. The extended part keys on that paragraph ID, the IDs part maps it to a `durableId`, and the extensible part keys on the durable ID.
+
+- The parts alone show nothing. Anchor each comment with `<w:commentRangeStart w:id="N"/>`, `<w:commentRangeEnd w:id="N"/>` and a `<w:commentReference w:id="N"/>` run. Range markers are direct children of `<w:p>`, never inside a `<w:r>`.
+
+- A reply's `w15:commentEx` sets `w15:paraIdParent` to the parent comment's paragraph ID, and its markers nest inside the parent's range.
+
+- Keep `w14:paraId` below `0x80000000` and `durableId` below `0x7FFFFFFF`. `randint(0, 0x7FFFFFFE)` formatted as `%08X` satisfies both. `durableId` is decimal in `numbering.xml` and hexadecimal everywhere else.
+
+- Declare the full Word namespace set and `mc:Ignorable` on each new part's root element before adding children, so later elements never hit an undeclared prefix.
+
+## Check the delivered file
+
+- Render the final document through headless LibreOffice, rasterize it with `pdftoppm` and read every page image for missing content, broken layout and wrong revisions. The [artifact verification guide](/opt/muse/assets/artifacts/references/verification.md) lists what to check.

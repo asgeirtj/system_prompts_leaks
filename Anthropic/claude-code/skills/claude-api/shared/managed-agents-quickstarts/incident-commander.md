@@ -31,6 +31,11 @@ mcp_servers:
     url: https://api.githubcopilot.com/mcp/
 tools:
   - type: agent_toolset_20260401
+    configs:
+      - name: web_search
+        enabled: false
+      - name: web_fetch
+        enabled: false
   - type: mcp_toolset
     mcp_server_name: sentry
   - type: mcp_toolset

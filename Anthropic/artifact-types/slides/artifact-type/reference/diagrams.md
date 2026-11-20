@@ -1,6 +1,6 @@
 # Diagrams — flowcharts, swimlanes, org charts, trees, timelines, system maps
 
-Read this if a slide shows boxes connected by lines. **Boxes first, in the file; lines second.** Pick the idiom (`diagram-recipes.md` § Idioms and § Rows), take its row and column numbers, and write `deck.html` with only the boxes (and lanes) plus a node-list comment — `<!-- A 0,0,320,120  B 448,0,320,120 … -->` — then build. Only then add connectors and labels, reading every coordinate off that list. If you notice you are computing connector coordinates before the boxes are written, stop and write the boxes.
+Read this if a slide shows boxes connected by lines. **Boxes first, in the file; lines second.** Pick the idiom (`diagram-recipes.md` § Idioms and § Rows), take its row and column numbers, and write the slide with only the boxes (and lanes) plus a node-list comment: `<!-- A 0,0,320,120  B 448,0,320,120 … -->`. Only then add connectors and labels, reading every coordinate off that list. If you notice you are computing connector coordinates before the boxes are written, stop and write the boxes.
 
 **Source order is paint order and reading order.** A screen reader or the PDF text layer gets only the `<p>`s, in source order — boxes first, so each edge label is heard after every box — and none of the lines. Put the structure in the words: number sequential steps in their box text, carry an edge's word into the step it leads to ("No → escalate to legal"), keep edge labels in the boxes' order, and let the slide's title or the line under it say what the diagram shows ("Four stages; legal gates the last two").
 
@@ -15,31 +15,19 @@ Read this if a slide shows boxes connected by lines. **Boxes first, in the file;
 ## Pinned diagrams
 
 - **Put the boxes on a grid**: Use one regular spacing (pitch) between columns and one between rows. For example, 320px wide boxes at left 0, 448, 896, and 1344px; 120px tall boxes at top 0, 290, and 580px. Keep at least 32px between boxes. Make boxes that represent the same kind of node the same size.
-
 - **No box is narrower than its longest word.** At 24px text a node box is at least 200px wide; that holds a 10-letter word with room to spare (the dense 7–8-column swimlane plan in `diagram-recipes.md` is the one tighter exception, with its own numbers). Add 16px for each letter beyond 10 ("documentation", 13 letters → 248px). At 28px: at least 232px, plus 18px per letter beyond 10. Bold or capitals: add another 10%. Two lines of 24px text need a box about 100px tall; of 28px, about 112px. For a pinned box you set this `width` yourself — `min-width:min-content` is dropped when a box is pinned, and `white-space:nowrap` keeps one line but does not widen the box.
 - **If the columns do not allow that width, use fewer columns — never narrower boxes or smaller text.** Three ways, in order: (1) put consecutive steps that belong to different lanes or rows in the SAME column, one above the other — only step to a new column when the next box is in the same lane; (2) wrap a long chain into two rows (left-to-right, then continue right-to-left below, joined by a `vh` at the turn); (3) merge boxes (one box "Validate & register" instead of two). Shorter label text is also fine. A 1664px host holds at most 7 columns of 200px boxes with 44px gaps (lefts 0, 244, 488, 732, 976, 1220, 1464).
-
 - **Draw connectors from edge point to edge point**:
-
-  - **Edge points.** The middle of the right edge is at `(left+width, top+height/2)`. The middle of the bottom edge is at `(left+width/2, top+height)`. If a connector already uses an edge's midpoint, use another point on that edge.
-
+  - **Edge points.** Give each box `box-sizing:border-box`, or padding and a border push its edges out. The middle of the right edge is at `(left+width, top+height/2)`. The middle of the bottom edge is at `(left+width/2, top+height)`. If a connector already uses an edge's midpoint, use another point on that edge.
   - **Straight.** Draw the connector straight when the two points share a row or a column.
-
   - **`vh` (down, then across).** Use this from a top or bottom edge into a side edge.
-
   - **`hv` (across, then down).** Use this from a side edge into a top or bottom edge.
-
   - **One parent to several children, or several boxes into one: use the bus and join recipes in `diagram-recipes.md` § Rows (or the spine in its § Org chart).** Never join a top or bottom edge to another top or bottom edge (a parent's bottom to a child's top) with `elbow`, `hv` or `vh`: whichever you pick, one leg lies along a box's own border and the head lands sideways. (`vh` from a top or bottom edge into a SIDE edge, as in a swimlane hand-off, is fine.)
-
   - **`elbow` is only for two boxes in different rows AND different columns, side edge to side edge, when the two points are at least as far apart sideways as they are up-and-down** and the gap between the columns is at least 96px — then the middle leg runs down that gap. If the points are farther apart up-and-down than sideways, `elbow` bends the other way and its first leg runs down the box's own side: use `hv`/`vh` from a different edge, or three straight segments (across into the gap, down the gap, across into the box). If you are not sure, do not use `elbow`.
-
   - **Where the legs run.** A horizontal leg runs in the gap between two rows (its y is between the bottom of one row and the top of the next), never at a y where a box sits unless it ends at that box. A vertical leg runs in the gap between two columns, or at a column's centre when it enters a box from above or below. If a leg would have to pass a box at the box's own y (or x), move the leg into the gap: add a segment. A layout note names a leg that runs along a box's edge, through a box, or across a label.
-
   - **Loop-back.** To connect the last box back to the first, go around the outside: down from the last box, along a clear strip below the boxes, then up into the first box. Use three straight connectors with `head="none"`, `"none"`, and `"end"`. Never run a connector through a box.
-
 - **Put text labels in `<p>` elements pinned beside their line**, never on the line: at least 8px clear of the stroke and of every box (an angled label's first letter beside its dot is the one exception). Set the `width` of the `<p>`. Along a rail, path or timeline: period names (months, quarters) go inside or directly under the track; a milestone label sits only at the far end of its own leader line, and neighbouring leaders alternate two lengths (e.g. 40px and 100px) or two sides so the labels cannot touch; flags, ticks and "today" markers never share a label's strip; phase names go in a gutter, not on the track.
-
-- **Angled labels (45°) on maps and dense timelines — use this recipe, do not place them by eye.** `transform:rotate` turns a box about its centre, so a rotated label whose corner is at the dot swings back across the line. For a dot centred at (X, Y), a label that starts beside the dot and runs up and to the right is:  
+- **Angled labels (45°) on maps and dense timelines — use this recipe, do not place them by eye.** `transform:rotate` turns a box about its centre, so a rotated label whose corner is at the dot swings back across the line. For a dot centred at (X, Y), a label that starts beside the dot and runs up and to the right is:
   ```
   <p style="position:absolute; left:{X−23}px; top:{Y−114}px; width:240px; height:34px; line-height:34px; font-size:24px; white-space:nowrap; transform:rotate(-45deg)">Station name</p>
   ```
@@ -47,7 +35,7 @@ Read this if a slide shows boxes connected by lines. **Boxes first, in the file;
 
 - **Keep the slide within budget**: Allow 64px for the title (about 70px tall), a 40px gap, and 700px for the diagram host. That uses 810px of the slide's 824px height. With a pinned legend or source line at the bottom (a footer slide, see layout.md § Footer band), give the slide `padding:128px 128px 160px` and a 16px gap: 786px of a 792px budget. **Use the whole host**: the lowest row of boxes ends below y = 600 (the row tables in `diagram-recipes.md` § Rows do this for you); a diagram squeezed into the top half above an empty band reads as unfinished. If the brief allows two slides, split at about 12 nodes. If it must be one slide, keep 24px text and use the Rows and fewer-columns rules to make it fit; do not shrink the text (the one exception is the dense-swimlane plan in `diagram-recipes.md` § Swimlane).
 
-- **Before you save a pinned diagram, check the source — the geometry is the check.** The build cannot see where connector legs run, SVG lines, angled labels or diamond text, so go down your node list once: (1) every connector's `x1,y1` and `x2,y2` is an edge midpoint of a listed box, or a bus / junction point from a recipe — none is "about there"; (2) every horizontal leg's y is in a gap between rows, and every vertical leg's x is in a gap between columns or at a column centre where it enters a box from above or below; (3) every label `<p>` is at least 8px from every line and every box; (4) boxes are at least 32px apart (except boxes that deliberately touch and share one stroke) and inside the host; (5) the last build printed no `note: layout:` lines. If you built from the recipes, (1) and (2) hold by construction; check the connectors you improvised. Do not take screenshots or build a proof rig.
+- **Before you save a pinned diagram, check the source — the geometry is the check.** Nothing checks where connector legs run, SVG lines, angled labels or diamond text, so go down your node list once: (1) every connector's `x1,y1` and `x2,y2` is an edge midpoint of a listed box, or a bus / junction point from a recipe — none is "about there"; (2) every horizontal leg's y is in a gap between rows, and every vertical leg's x is in a gap between columns or at a column centre where it enters a box from above or below; (3) every label `<p>` is at least 8px from every line and every box; (4) boxes are at least 32px apart (except boxes that deliberately touch and share one stroke) and inside the host; (5) no `note: layout:` lines remain, if you built. If you built from the recipes, (1) and (2) hold by construction; check the connectors you improvised. To look at it, see `viewer.md`.
 
 ## The connector element
 
@@ -94,7 +82,7 @@ Only use an `<svg>` element when the line must be curved. Use a `<path>` with a 
 
 The `width` and `height` of the `<svg>` must match the `viewBox`. Use the `<path>`'s stroke color as the `<marker>`'s fill. Keep the `<path>` at least 2 stroke widths (8px at a 4px stroke) inside the `viewBox` so the head does not get clipped.
 
-Do not put `<text>` or comments inside the `<svg>`. Inside it write a character only as itself (`—`), as its number (`&#8212;`) or as one of XML's five names (`&amp;` `&lt;` `&gt;` `&quot;` `&apos;`): any other `&name;`, or a bare `&`, breaks the drawing. When the curves carry meaning the labels do not (direction, polarity), give the `<svg>` an `aria-label` saying it ("more listings → lower rents"): that is its alt; without one a screen reader skips it.
+Do not put `<text>` or comments inside the `<svg>`. Inside it write a character only as itself (`—`), as its number (`&#8212;`) or as one of XML's five names (`&amp;` `&lt;` `&gt;` `&quot;` `&apos;`). When the curves carry meaning the labels do not (direction, polarity), give the `<svg>` an `aria-label` saying it ("more listings → lower rents"): that is its alt; without one a screen reader skips it.
 
 In the editor, the `<svg>` appears as one image. You cannot edit each arrow separately.
 

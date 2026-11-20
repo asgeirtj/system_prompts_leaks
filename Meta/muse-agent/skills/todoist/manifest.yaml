@@ -1,4 +1,14 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Public PKCE client shared by every Muse connection. Keeping one stable
+  # identity avoids creating a Todoist OAuth client for every VM.
+  # Todoist treats this as a public client and requires PKCE; there is no
+  # client secret to distribute to Muse VMs.
+  client_id: "tdd_7f5a828d24ad452d843b14aba69deeb7"
+  provider: todoist
+  required: true
 connector: todoist
 category: productivity
 display_name: Todoist
@@ -14,13 +24,15 @@ cli:
   skill: todoist
   service: todoist
 # Todoist permissions this client may request. A new connection asks only for
-# data:read; the remaining scopes are added from Settings when a write needs
-# them.
+# data:read; the remaining scopes are added through the method-bound consent
+# link when a write or delete needs them.
 declarable_scopes:
   - data:read
   - data:read_write
   - data:delete
   - project:delete
+# Todoist's authorization endpoint uses commas instead of OAuth's usual spaces.
+oauth_scope_separator: ","
 actions:
   read:
     default: allow

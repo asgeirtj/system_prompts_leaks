@@ -1,7 +1,11 @@
 version: 1
+metadata:
+  visible_in_settings: false
+auth: none
 connector: flightaware
 display_name: FlightAware
-description: Query FlightAware AeroAPI through Muse's server-side broker. No FlightAware credentials live on the VM.
+icon: flightaware
+description: Track flights, airport activity and real-time status updates
 actions:
   read:
     default: allow
@@ -34,3 +38,67 @@ actions:
       flight_intent.create:
         default: allow
         label: Create flight intents
+commands:
+  # Broker reachability check; --verify probes without a connector grant.
+  status: null
+  # Flight-ident and fa_flight_id lookups run without connector authorization.
+  flight: null
+  canonical-flight: null
+  create-flight-intent: flight_intent.create
+  position: null
+  track: null
+  route: null
+  map: null
+  search: flight.search
+  search-positions: flight.search
+  search-count: flight.search
+  search-advanced: flight.search
+  "foresight flight": foresight.read
+  "foresight search-advanced": foresight.read
+  "foresight position": foresight.read
+  airports: airport.read
+  airport: airport.read
+  airport-canonical: airport.read
+  nearby-airports: airport.read
+  airport-delays: airport.read
+  airport-flights: airport.flights.read
+  airport-to: airport.flights.read
+  airport-counts: airport.read
+  airport-weather: airport.read
+  airport-routes: airport.flights.read
+  operators: operator.read
+  operator: operator.read
+  operator-canonical: operator.read
+  operator-flights: operator.flights.read
+  operator-counts: operator.read
+  "history flight": history.read
+  "history track": history.read
+  "history map": history.read
+  "history route": history.read
+  "history airport-flights": history.read
+  "history aircraft-last-flight": history.read
+  "history operator-flights": history.read
+  "aircraft blocked": aircraft.read
+  "aircraft owner": aircraft.read
+  "aircraft type": aircraft.read
+  schedules: schedule.read
+  disruptions: disruption.read
+consent_screen:
+  bullets:
+    - icon: data_types
+      title: "Level up with FlightAware"
+      text: "Muse will access things like flight status, routes, schedules, and airport info."
+    - icon: info
+      title: "You choose what Muse can do"
+      text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."
+    - icon: caution
+      title: "Keep an eye on things"
+      text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
+  footer_paragraphs:
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "FlightAware works by connecting through Meta, which means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout
+    - "Muse will exchange info with FlightAware. To learn more, view their [terms](https://www.flightaware.com/about/terms-of-use) and [privacy policy](https://www.flightaware.com/about/privacy)."

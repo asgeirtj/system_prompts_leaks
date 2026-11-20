@@ -1,8 +1,33 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "1f08d095-3ffb-46fd-b99c-6e939d60cce2"
+  provider: microsoft_calendar
+  required: true
+  authorization_query:
+    prompt: select_account
+  identity:
+    endpoint: https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName
+    provider_account_id_field: id
+    display_name_fields:
+      - mail
+      - userPrincipalName
+      - displayName
+cli:
+  binary: outlook-calendar
+  skill: outlook_calendar
 connector: outlook_calendar
 category: productivity
 display_name: Outlook Calendar
 description: View and manage calendar events and scheduling
+icon: outlook_calendar
+multi_account:
+  backend: oauth
+  credential_namespace: oauth_accounts
+  domains:
+    - graph.microsoft.com
+  expose_routing_metadata: true
 request_quota:
   mode: enforce
   workers:
@@ -38,17 +63,34 @@ actions:
         default: allow
         label: Create events
       events.create_with_invitations:
+        approval_policy: fresh_consent_or_task_allow
         label: Create events with invitations
         approval_phrase: create this event with invitations in Outlook Calendar
       events.update:
         default: allow
         label: Edit events
       events.update_with_notifications:
+        approval_policy: fresh_consent_or_task_allow
         label: Update events and notify guests
         approval_phrase: update this event and notify guests in Outlook Calendar
       events.delete:
         default: allow
         label: Delete events
+commands:
+  status: null
+  accounts: null
+  disconnect: null
+  authorize-url: null
+  exchange-code: null
+  list: events.list
+  get: events.get
+  # events.create_with_invitations instead when an --attendee is given.
+  create: events.create
+  # Reads the event first (events.get), then needs
+  # events.update_with_notifications instead when you organize it and it has
+  # attendees, or when its organizer, attendees or etag cannot be read.
+  update: events.update
+  delete: events.delete
 
 consent_screen:
   bullets:

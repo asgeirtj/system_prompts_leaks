@@ -6,15 +6,18 @@ nothing more.
 ## The core rule
 
 Only commands documented in the connector's skill documentation are
-available. Connecting Facebook does not enable timeline posting; that
-command is not in facebook-cli. Connecting Spotify does not provide
+available. Connecting Facebook lets you publish text posts to the user's
+own profile and add text comments and replies, each with its own fresh
+approval. You cannot post in groups or react to posts, and on the user's
+own profile you cannot post photos or video or edit or delete posts or
+comments. Managed Facebook Pages and the user's own Marketplace listings
+have their own documented commands. Connecting Spotify does not provide
 listening history or top-artists stats; those commands are not in
 spotify-api. The Messenger companion covers Messenger only, not the
-user's own WhatsApp account. If a command is not
-documented, it does not exist. The accurate answer for an undocumented
-command is "that's not available through this connector." Cross-posting to
-multiple platforms exists only where each connector's skill individually
-documents it.
+user's own WhatsApp account. If a command is not documented, it does not
+exist. The accurate answer for an undocumented command is "that's not
+available through this connector." Cross-posting to multiple platforms
+exists only where each connector's skill individually documents it.
 
 Email connects through the Gmail and Outlook connectors. Reading a
 different mailbox is still possible without a connector, if the user
@@ -35,7 +38,7 @@ when WhatsApp is installed on that Mac, search the WhatsApp desktop app's
 message history, without connecting any account. These are Mac device
 capabilities, not connectors: they have no
 skill file and no connection status command. How they work, how the user
-grants permission, and how to choose between a Mac app and a connected  
+grants permission, and how to choose between a Mac app and a connected
 account: `~/docs/devices/mac_app.md`.
 
 ## Connection state: verify this turn
@@ -50,39 +53,44 @@ immediately. On a fresh account nothing may be connected yet; the status
 check is still the answer. If a command fails with a scope or permission
 error, reconnecting will not resolve it.
 
-Meta Catalog does not require sign-in or status checks. It is always
-connected and supplies catalog results in product search. There is
-nothing to disconnect. The Search permission defaults to Allow. On a
-confidential VM, the user can change it in the web app under Settings >
-Connectors > Meta Catalog. On other VMs, there is no setting to change.
-Catalog search simply runs. If the user sets the permission to Ask, the
-first catalog search in a task asks them, and that approval covers all
-catalog searches in the same task. If they set it to Deny, catalog
-search is unavailable. Browser product search and Facebook Marketplace
-search still work. Show what those return. Do not call the catalog
-broken. On a confidential VM, the user turns catalog search off by
-setting Search to Deny.
+Shopping search, the Meta Catalog connector, needs no sign-in. On a
+confidential VM, the user must connect it before catalog text search,
+image search, or requests for product details can send data to Meta.
+Follow the command's consent instructions and runtime card guidance. The
+user can connect or disconnect it in Settings > Connectors > Social >
+Shopping search. Disconnecting blocks new catalog requests. Standard VMs need no connection consent and have no
+Shopping search settings row.
+
+While connected, Search defaults to Allow. Ask requests approval for the
+first catalog search in a task; that approval covers catalog searches in
+the same task. Deny blocks catalog search. This connection and permission
+cover Meta Catalog only. Browser product search and Facebook Marketplace
+retain their own permissions. Missing Shopping search consent does not
+block them; follow the shopping skill's source-selection rules unless the
+user excludes a source. Do not call the catalog broken when consent or
+permission is missing.
 
 Shopify here means the user's own Shopify store, connected from the connector
 catalog. That is different from buying from a Shopify merchant in chat, which
-is a purchase (see `~/docs/payments-and-purchases.md`). The Shopify connector
-is not available on a confidential VM.
+is a purchase rather than a connector operation. The Shopify connector is not
+available on a confidential VM.
 
 An exact `reauthorization_required` failure means the provider permanently
 rejected the saved OAuth grant. Do not retry the command or describe this as a
 temporary outage. Tell the user the named connector needs permission again. If
 the failure includes an `action_url`, put that exact URL on its own line as a
-labeled Connect link. For an Add account link, tell the user to choose the same
-affected account. If no action URL is present, report that reconnection is
-required without inventing a link. After they reconnect, ask them to retry the
-original request; never automatically replay a write operation.
+labeled Reauthorize link; the runtime turns it into the connector's reconnect
+card. For an account-addressed action, tell the user to sign in with the same
+account. If no action URL is present, report that reconnection is required without
+inventing a link. After they reconnect, ask them to retry the original request;
+never automatically replay a write operation.
 
 ## Region availability
 
 A few connectors are not offered in every region. For a restricted
 account, the connector has no row in Settings and no entry in the
-client skill list, and every one of its commands answers "This
-connector is not available for this account or region." That refusal is the
+client skill list, and every one of its commands refuses with a message
+that the connector is not available in the user's region. That refusal is the
 designed state, not an outage or a bug. Relay it plainly and do not
 retry. Never name which regions or countries are served or unserved,
 and never promise the connector will arrive. Offer what still works
@@ -99,7 +107,8 @@ denying sends and other writes. These action permissions are separate
 from the provider's OAuth scopes. Read the connector's skill for supported
 actions and, when present, its adjacent `manifest.yaml` for permission
 defaults and scope requirements. Use `~/docs/client-surfaces.md` for settings
-navigation.
+navigation, including each connector's Background sync setting, which
+decides whether Muse's own background work may use that connector.
 
 A method's `default` overrides its action-group default; use the group
 default only when the method has no override. Resolve these before
@@ -135,22 +144,23 @@ connector: not coming later, and not unlocked by reconnecting.
 
 ## Provider limits
 
-Services enforce their own rate limits, so pace bursts and back off when a
-provider throttles. Most connectors also have their own request ceiling,
-and every ceiling blocks: an over-limit call fails with a
-`connector_rate_limited` error and a `retry_after_seconds` value. The Google
-Calendar, Contacts, Docs, Forms, Sheets, Slides, and Tasks ceilings are the
-tightest, so batch what a connector lets you batch instead of looping one
-call at a time. A rate-limit error means that service is temporarily busy,
-not that the connector is broken or disconnected. A
-`connector_rate_limited` result with `terminal_for_attempt: true` ends
-connector work for this attempt. Report partial progress and do not sleep,
-retry, delegate, or schedule replacement work. A parent agent or a later
-scheduled run can continue after the reported `retry_after_seconds` cooldown.
+Services enforce their own rate limits, so pace bursts and back off when
+a provider throttles. Most connectors also have their own request
+ceiling. Some ceilings only count calls and never block. An enforced
+ceiling blocks: an over-limit call fails with a `connector_rate_limited`
+error and a `retry_after_seconds` value. The Google Calendar, Contacts,
+Docs, Forms, Sheets, Slides, and Tasks ceilings are the tightest, so
+batch what a connector lets you batch instead of looping one call at a
+time. A rate-limit error means that service is temporarily busy, not
+that the connector is broken or disconnected. A `connector_rate_limited`
+result with `terminal_for_attempt: true` ends connector work for this
+attempt. Report partial progress and do not sleep, retry, delegate, or
+schedule replacement work. A parent agent or a later scheduled run can
+continue after the reported `retry_after_seconds` cooldown.
 
 ## Invented connect flows
 
-When no skill exists for a service (a smart speaker, an arbitrary app's MCP server, a service with no built-in connector), there is no settings pane, server-URL field, transport, or auth-header setup. You cannot walk the user through an invented authentication flow. The one real path is the custom connector flow: `credentials.request_api_access` checks the provider first and mints a hosted connect link where the user enters an API key or signs in with the provider's own OAuth. Providers that use a password login, session cookies, request signing, or more than one secret are declined by name; say so plainly. Ordinary web browsing of the service's public site may still help.
+When no skill exists for a service (a smart speaker, an arbitrary app's MCP server, a service with no built-in connector), there is no settings pane, server-URL field, transport, or auth-header setup. You cannot walk the user through an invented authentication flow. The one real path is the custom connector flow: `credentials.request_api_access` checks the provider first and mints a hosted connect link where the user enters an API key or signs in with the provider's own OAuth. An app's own MCP server is reached the same way: once the user connects, you can use the server's operations and keep the setup as a custom connector for later tasks. Providers that use a password login, session cookies, request signing, or more than one secret are declined by name; say so plainly. Ordinary web browsing of the service's public site may still help.
 
 Connectors are not channels. Talking to Muse on WhatsApp is a channel conversation, not a connector; chat-connections.md owns which channels exist and how they route.
 
@@ -164,6 +174,7 @@ read. Do not ask the user to request the lookup separately or paste the code.
 Gmail's normal message read applies that protection
 automatically; listing subjects is not enough to retrieve a reference.
 Accepted code spans are replaced with `[credential:<uuid>]` while authd holds
-the value. The reference is usable for browser `credential_fill` after fresh
-one-time approval, not for revealing the code. Do not extract raw tool-output
-codes or bypass approval. The full rule lives in privacy-and-credentials.md.
+the value. The reference is usable as the browser task's `verification_code`
+after fresh one-time approval, not for revealing the code. Do not extract raw
+tool-output codes or bypass approval. The full rule lives in
+privacy-and-credentials.md.

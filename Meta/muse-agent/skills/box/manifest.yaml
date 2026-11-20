@@ -1,4 +1,11 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Public ID of the dedicated Hatch app. Its secret stays in CAGI.
+  client_id: "wvl0icyy7d75o17763vjveciclbvjs2y"
+  provider: box
+  required: true
 connector: box
 category: business
 display_name: Box

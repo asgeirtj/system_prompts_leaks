@@ -1,0 +1,9 @@
+id: replit
+title: "Replit"
+description: "Find, create and update Replit apps from a description, ask about them and publish them."
+aliases: [replit]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

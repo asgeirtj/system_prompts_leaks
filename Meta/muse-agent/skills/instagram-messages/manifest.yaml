@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: instagram_messages
+  required: true
+cli:
+  binary: instagram-messages-cli
+  skill: instagram_messages
 connector: instagram_messages
 category: social
 display_name: Instagram Messages
 description: Catch up on messages and manage your inbox
+icon: instagram
 actions:
   read:
     default: allow
@@ -16,8 +25,39 @@ actions:
     label: Write and delete permissions
     methods:
       messages.send:
+        approval_policy: fresh_consent_or_task_allow
         label: Send messages
         approval_phrase: send this message on Instagram
+        approval_button_variants:
+          send:
+            allow_once: Send
+            deny: "Don't send"
+      messages.requests:
+        approval_policy: fresh_consent_or_task_allow
+        label: Manage message requests
+        approval_phrase: manage this Instagram message request
+        approval_button_variants:
+          decline:
+            allow_once: "Decline"
+            deny: "Don't decline"
+            deny.task: "Don't decline"
+commands:
+  # Credential-free connect link; no connector authorization.
+  connect-url: null
+  # Account discovery; not policy-gated.
+  accounts: null
+  inbox: messages.read
+  thread: messages.read
+  top-recipients: messages.read
+  keyword-search: messages.read
+  contact-search: messages.read
+  temporal-search: messages.read
+  filtered-inbox: messages.read
+  send: messages.send
+  accept-message-request: messages.requests
+  decline-message-request: messages.requests
+  # Reactions share the send-message permission.
+  react: messages.send
 
 consent_screen:
   bullets:
@@ -30,6 +70,11 @@ consent_screen:
     - icon: caution
       title: "Keep an eye on things"
       text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
   footer_paragraphs:
-    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "Instagram is from Meta. This means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout
     - "Muse will exchange info with Instagram Messages. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

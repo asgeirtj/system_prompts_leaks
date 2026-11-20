@@ -1,0 +1,9 @@
+id: google_sheets
+title: "Google Sheets"
+description: "Create, read and edit the user's Google Sheets spreadsheets, including cells, formulas, tabs and formatting, while preserving the rest of the workbook."
+aliases: [google-sheets, google_sheets]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_sheets authorize-url"

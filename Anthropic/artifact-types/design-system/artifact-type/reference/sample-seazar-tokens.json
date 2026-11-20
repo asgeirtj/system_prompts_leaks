@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Light"
+      },
+      {
+        "id": "dark",
+        "name": "Dark"
+      },
+      {
+        "id": "high-contrast",
+        "name": "High contrast"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "surface",
+        "value": {
+          "light": "#f4f5f7",
+          "dark": "#141619",
+          "high-contrast": "#ffffff"
+        },
+        "usage": "Page background."
+      },
+      {
+        "name": "surface-raised",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#1e2126",
+          "high-contrast": "#ffffff"
+        },
+        "usage": "Cards, menus and the sheet a dialog sits on; in the High contrast theme it is told from `surface` by a `border`, not by shade."
+      },
+      {
+        "name": "border",
+        "value": {
+          "light": "#868b94",
+          "dark": "#70757e",
+          "high-contrast": "#70757f"
+        },
+        "usage": "Input and control outlines and the rules that divide regions — at least 3:1 against `surface` and `surface-raised` in every theme (4.5:1 in the High contrast theme)."
+      },
+      {
+        "name": "line",
+        "value": {
+          "light": "#e3e5e9",
+          "dark": "#2c3037",
+          "high-contrast": "{border}"
+        },
+        "usage": "Decorative hairlines only, never the sole edge of a control; the High contrast theme aliases it to `border`."
+      },
+      {
+        "name": "ink",
+        "value": {
+          "light": "#14171b",
+          "dark": "#eceef1",
+          "high-contrast": "#000000"
+        },
+        "usage": "Primary text on `surface` and `surface-raised`."
+      },
+      {
+        "name": "ink-muted",
+        "value": {
+          "light": "#686f7d",
+          "dark": "#9aa1ad",
+          "high-contrast": "#535863"
+        },
+        "usage": "Secondary text, captions and metadata on `surface` and `surface-raised`; 13px and up."
+      },
+      {
+        "name": "accent",
+        "value": {
+          "light": "#14171b",
+          "dark": "#eceef1",
+          "high-contrast": "#000000"
+        },
+        "usage": "Primary action fill, the selected state, and link text on `surface` and `surface-raised` (links are always underlined). Seazar is ink-on-paper: the accent IS the ink, so it flips with the theme."
+      },
+      {
+        "name": "on-accent",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#14171b",
+          "high-contrast": "#ffffff"
+        },
+        "usage": "Label and icon on an `accent` fill."
+      },
+      {
+        "name": "focus",
+        "value": {
+          "light": "{accent}",
+          "dark": "{accent}",
+          "high-contrast": "{accent}"
+        },
+        "usage": "Keyboard focus ring color (the `focus-ring` shadow draws it outside a 2px gap in the page color); an alias of `accent`, at least 3:1 against `surface` and `surface-raised` in every theme (4.5:1 in the High contrast theme)."
+      },
+      {
+        "name": "success",
+        "value": {
+          "light": "#0072b2",
+          "dark": "#0072b2",
+          "high-contrast": "#025c91"
+        },
+        "usage": "Done, running to time, available — the chip fill. Okabe–Ito blue in Light and Dark; the label it carries is `on-success`. A standalone mark (icon, dot) uses `success-ink`, not this."
+      },
+      {
+        "name": "on-success",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#ffffff",
+          "high-contrast": "#ffffff"
+        },
+        "usage": "Chip label and icon on a `success` fill."
+      },
+      {
+        "name": "success-ink",
+        "value": {
+          "light": "#0072b2",
+          "dark": "#3390d2",
+          "high-contrast": "#025c91"
+        },
+        "usage": "Success as text or a small mark (check icon, dot) on `surface` and `surface-raised`; the word or icon always comes with it."
+      },
+      {
+        "name": "warning",
+        "value": {
+          "light": "#f0e442",
+          "dark": "#f0e442",
+          "high-contrast": "#f0e442"
+        },
+        "usage": "Delayed, needs attention — the chip fill. Okabe–Ito yellow in every theme; its label is always dark (`on-warning`). Warning TEXT is not this yellow: see `warning-ink`."
+      },
+      {
+        "name": "on-warning",
+        "value": {
+          "light": "#14171b",
+          "dark": "#14171b",
+          "high-contrast": "#000000"
+        },
+        "usage": "Chip label and icon on a `warning` fill."
+      },
+      {
+        "name": "warning-ink",
+        "value": {
+          "light": "#94660e",
+          "dark": "#e69f00",
+          "high-contrast": "#765006"
+        },
+        "usage": "Warning as text or a small mark (triangle icon) on `surface` and `surface-raised` — Okabe–Ito orange, darkened in Light and High contrast (the yellow fill cannot make legible text). Red–green color-blind readers cannot tell it from `danger-ink` by color alone, so the icon or word is what differs."
+      },
+      {
+        "name": "danger",
+        "value": {
+          "light": "#d55e00",
+          "dark": "#d55e00",
+          "high-contrast": "#914008"
+        },
+        "usage": "Canceled, failed, destructive — the chip fill. Okabe–Ito vermillion in Light and Dark; a standalone mark uses `danger-ink`."
+      },
+      {
+        "name": "on-danger",
+        "value": {
+          "light": "#14171b",
+          "dark": "#14171b",
+          "high-contrast": "#ffffff"
+        },
+        "usage": "Chip label and icon on a `danger` fill."
+      },
+      {
+        "name": "danger-ink",
+        "value": {
+          "light": "#853802",
+          "dark": "#de6614",
+          "high-contrast": "#552101"
+        },
+        "usage": "Errors and destructive actions as text or a small mark (cross icon) on `surface` and `surface-raised`; an error message starts with the icon. Okabe–Ito vermillion moved only in lightness — darkened well past the floor in Light and High contrast, so there danger text is heavier than warning text as well as different in hue; lifted just to the floor in Dark."
+      },
+      {
+        "name": "info",
+        "value": {
+          "light": "#999999",
+          "dark": "#999999",
+          "high-contrast": "#999999"
+        },
+        "usage": "Notices that are not alarms — the chip fill. A plain mid gray by design: information carries no signal hue."
+      },
+      {
+        "name": "on-info",
+        "value": {
+          "light": "#14171b",
+          "dark": "#14171b",
+          "high-contrast": "#000000"
+        },
+        "usage": "Chip label and icon on an `info` fill."
+      },
+      {
+        "name": "info-ink",
+        "value": {
+          "light": "{ink-muted}",
+          "dark": "{ink-muted}",
+          "high-contrast": "{ink-muted}"
+        },
+        "usage": "Informational text or the info icon on `surface` and `surface-raised`; an alias of `ink-muted`."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [],
+    "families": {
+      "sans": "ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+      "mono": "ui-monospace, \"SF Mono\", Menlo, monospace"
+    },
+    "groups": [
+      {
+        "name": "Text",
+        "family": "sans",
+        "note": "One family; body never below 16px, nothing below 13px.",
+        "styles": [
+          {
+            "name": "display",
+            "fontSize": "32px",
+            "lineHeight": "40px",
+            "fontWeight": 700,
+            "letterSpacing": "-0.01em",
+            "sample": "Platform 4, on time",
+            "usage": "Page titles only."
+          },
+          {
+            "name": "heading",
+            "fontSize": "20px",
+            "lineHeight": "28px",
+            "fontWeight": 600,
+            "sample": "Departures this hour",
+            "usage": "Section headings."
+          },
+          {
+            "name": "body",
+            "fontSize": "16px",
+            "lineHeight": "24px",
+            "fontWeight": 400,
+            "sample": "The 14:05 to the harbor is running to time.",
+            "usage": "Everything else; line length under 75 characters."
+          },
+          {
+            "name": "caption",
+            "fontSize": "13px",
+            "lineHeight": "18px",
+            "fontWeight": 500,
+            "letterSpacing": "0.01em",
+            "sample": "Updated 2 min ago",
+            "usage": "Labels and metadata; the smallest size in the system."
+          }
+        ]
+      },
+      {
+        "name": "Code",
+        "family": "mono",
+        "styles": [
+          {
+            "name": "code",
+            "fontSize": "14px",
+            "lineHeight": "20px",
+            "fontWeight": 400,
+            "sample": "route --id 14"
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "note": "4px base.",
+    "tokens": [
+      {
+        "name": "space-1",
+        "value": "4px",
+        "usage": "Icon-to-label gap."
+      },
+      {
+        "name": "space-2",
+        "value": "8px",
+        "usage": "Inside controls."
+      },
+      {
+        "name": "space-3",
+        "value": "12px",
+        "usage": "Between related rows."
+      },
+      {
+        "name": "space-4",
+        "value": "16px",
+        "usage": "Card padding."
+      },
+      {
+        "name": "space-6",
+        "value": "24px",
+        "usage": "Between sections."
+      }
+    ]
+  },
+  "radius": {
+    "note": "Square-ish; pills only for chips.",
+    "tokens": [
+      {
+        "name": "radius-sm",
+        "value": "4px",
+        "usage": "Inputs."
+      },
+      {
+        "name": "radius-md",
+        "value": "6px",
+        "usage": "Buttons, cards."
+      },
+      {
+        "name": "radius-full",
+        "value": "9999px",
+        "usage": "Status chips."
+      }
+    ]
+  },
+  "size": {
+    "note": "Targets you can hit.",
+    "tokens": [
+      {
+        "name": "control",
+        "value": "40px",
+        "usage": "Height of buttons and inputs."
+      },
+      {
+        "name": "target-min",
+        "value": "24px",
+        "usage": "Nothing clickable is smaller than this in either direction (WCAG 2.2 Target Size minimum); icon buttons pad up to it."
+      }
+    ]
+  },
+  "shadow": {
+    "note": "Two elevations; the High contrast theme drops them for borders.",
+    "tokens": [
+      {
+        "name": "shadow-sm",
+        "value": {
+          "light": "0 1px 2px #14171b14, 0 1px 3px #14171b1f",
+          "dark": "0 1px 3px #000000b3",
+          "high-contrast": "none"
+        },
+        "usage": "Cards and inputs at rest."
+      },
+      {
+        "name": "shadow-lg",
+        "value": {
+          "light": "0 4px 8px #14171b1a, 0 12px 28px -2px #14171b33",
+          "dark": "0 12px 28px -2px #000000cc",
+          "high-contrast": "none"
+        },
+        "usage": "Menus and popovers — which also keep their `border`."
+      },
+      {
+        "name": "focus-ring",
+        "value": {
+          "light": "0 0 0 2px #f4f5f7, 0 0 0 4px #14171b",
+          "dark": "0 0 0 2px #141619, 0 0 0 4px #eceef1",
+          "high-contrast": "0 0 0 2px #ffffff, 0 0 0 4px #000000"
+        },
+        "usage": "Keyboard focus: a 2px gap in the page color, then 2px of `focus` (box-shadow, so it follows the radius). The two hexes per theme are that theme's `surface` and `focus` values; change them together."
+      }
+    ]
+  }
+}

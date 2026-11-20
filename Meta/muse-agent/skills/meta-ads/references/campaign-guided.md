@@ -1,78 +1,41 @@
-# Campaign planning — explicit guided mode
+# Plan a Meta campaign step by step
 
-Read this only when the advertiser explicitly asks to work step by step, decide
-one setting at a time, or review recommendations as research develops. Do not
-offer guided mode or switch into it merely because a decision is uncertain.
+- Use this mode only when the advertiser explicitly asks to work step by step, decide one setting at a time or review recommendations as research develops. Never offer it, or switch into it, because a decision is uncertain.
 
 ## Establish the foundation
 
-If the advertised product or event is too unclear to research, ask only the
-natural missing product facts. Use one picker only when one bounded answer is
-enough; ask a related free-form bundle without a widget otherwise.
+- If the product or event is too unclear to research, ask only the natural missing facts. Use one picker when a single bounded answer is enough, and otherwise ask a related free-form bundle without a widget.
 
-Resolve the account and Page under `account-scope.md`: silently use one clear
-match, ask one named picker when several remain, and continue plan-only when no
-account is available. Read Pages only with `ads_get_ad_account_pages` unless a
-real returned `business_id` makes broader business scope necessary. Confirm a
-material Page/destination brand mismatch with only `Use <Page>` / `Choose
-another Page`. Before recommending or pricing placements that may deliver on
-Instagram, resolve a compatible Instagram identity or exclude Instagram.
+- Resolve the account and Page as [planning](campaign-planning.md) describes. Use one clear match silently, ask with one named picker when several remain, and continue plan-only when no account is available.
 
-Use the conversation's compact discovery, describe only selected current-stage
-tools, and make normal `call-tool --agent-output` reads. Consume Ads JSON
-directly.
+- Confirm a material Page and destination brand mismatch with only `Use <Page>` and `Choose another Page`. Before recommending or pricing placements that may deliver on Instagram, resolve the Instagram identity as planning describes or exclude Instagram.
 
-## Research and ask one steer
+- Use the conversation's compact discovery, describe only current-stage tools, and read with ordinary `call-tool --agent-output` calls.
 
-Research only enough to ground the next consequential decision. Start with
-`ads_insights_advertiser_context` when exposed. Read entity history only when
-that context is absent or lacks a fact that could change the current decision,
-or when a named entity must be resolved. Discard mismatched product, objective,
-destination, audience, or season history. Read tracking, destination,
-audiences, performance, benchmark, and live policy/help only when they can
-change the current steer. Defer asset inventory, market-pattern work, and all
-Ad Library research to `campaign-creative.md`.
+## Research and ask one choice
 
-Connect two to four decision-bearing findings to the next unresolved
-consequential decision, often objective or positioning, then ask one bounded
-non-budget question and stop. Write brief evidence → implication →
-recommendation prose, not a setup report, capability inventory, or process
-narration. Mention a limitation only when it changes the choice. Identity
-confirmation is a separate stop.
+- Research only enough to ground the next consequential decision. Start with `ads_insights_advertiser_context` when exposed, read history only to fill a gap that could change the current decision or to resolve a named object, and discard mismatched product, objective, destination, audience or season history.
 
-After the answer, rerun only affected evidence and settle remaining material
-non-budget inputs one decision at a time. An explicit same-context direction
-may settle a steer when evidence does not challenge it; `use your
-recommendation` alone does not.
+- Read tracking, destination, audiences, performance, benchmarks and live policy or help only when they can change the current choice. Leave asset inventory, market patterns and Ad Library research to [creative preparation](campaign-creative.md).
 
-Resolve objective and optimization from intent, destination, and returned
-tracking facts, and read and apply `campaign-delivery-compatibility.md` before presenting
-that steer or pricing it, then resolve compliance. If the selected audience includes a
-creation-bound interest, language, or non-country location, read
-`campaign-targeting.md` and resolve it before pricing. Broad Advantage+ remains
-the default when the advertiser did not narrow.
+- Connect two to four decision-bearing findings to the next open decision, often the objective or positioning, then ask one bounded non-budget question and stop. Write brief evidence, implication and recommendation, never a setup report, capability inventory or process narration, and mention a limitation only when it changes the choice.
 
-Missing or failed evidence may rule out a setting but does not establish its
-replacement. Keep an unresolved or incompatible delivery tuple as the next
-steer and make no Ads create call.
+- Identity confirmation is a separate stop. After an answer, rerun only affected evidence and settle the remaining material choices one at a time.
 
-Do not mention or price budget, prepare media, or present a complete plan during
-a non-budget steer. The renderer-owned full settings summary remains reserved
-for final create review.
+- A specific same-context direction can settle a choice when evidence does not challenge it. "Use your recommendation" alone does not.
 
-## Separate budget steer
+- Resolve the objective and optimization from intent, destination and returned tracking facts, applying [delivery compatibility](campaign-delivery-compatibility.md) before presenting or pricing that choice, then resolve compliance. Resolve any interest, language or non-country location through [targeting](campaign-targeting.md) before pricing, and keep broad Advantage+ unless the advertiser narrowed it.
 
-When objective, optimization, geography, audience, placements, schedule,
-budget mode, hierarchy, and advertiser constraints are stable, read
-`campaign-budget.md` and make one whole-plan pricing call. Present its exact
-amount and basis plus only useful forecast, source/confidence, and limitation;
-keep other settings backstage unless needed to identify the proposal.
+- Missing or failed evidence may rule out a setting but never establishes its replacement. Keep an unresolved or incompatible delivery combination as the next choice, and create nothing.
 
-Render the applicable budget paths from `campaign-budget.md`. A normal steer
-uses `Use <amount>` (or `Keep <amount>`) and `Change the budget`; a material
-outcome, optimization, target, or spend fork uses that file's alternatives. The
-selection settles only the budget or disputed path. Every successful guided
-pricing result ends in this steer, including a supplied, history-derived, or
-otherwise settled amount; never use the full-research strategy approval here.
-Collect any required amount next and reprice after a material input change. Once
-accepted, route to `campaign-creative.md` without a full strategy recap.
+- During a non-budget choice, never mention or price the budget, prepare media or present a complete plan. The full settings summary is reserved for the final review.
+
+## Settle the budget separately
+
+- Once objective, optimization, geography, audience, placements, schedule, budget mode, structure and the advertiser's constraints are stable, read [campaign budget](campaign-budget.md) and price the whole plan once. Present the exact amount and basis with only the useful forecast, source, confidence and limitations, keeping other settings in the background unless needed to identify the proposal.
+
+- A normal budget choice offers `Use <amount>`, or `Keep <amount>` for a supplied amount, and `Change the budget`. A material fork in outcome, optimization, target or spend uses the alternatives in the budget guide instead.
+
+- Every successful guided pricing result ends in this choice, even for a supplied or history-derived amount, and never in the full-research strategy approval. The selection settles only the budget or the disputed path.
+
+- Collect any required amount next, and reprice after a material change. Once accepted, go to creative preparation without a strategy recap.

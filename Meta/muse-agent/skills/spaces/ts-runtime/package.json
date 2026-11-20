@@ -2,7 +2,7 @@
   "name": "@hatch/ts-runtime-build",
   "private": true,
   "type": "module",
-  "workspaces": ["sdk", "worker", "cvm", "cloudflare"],
+  "workspaces": ["sdk", "base-ui", "muse-ui", "worker", "cvm", "cloudflare"],
   "scripts": {
     "build": "bun build.mjs",
     "build:cloudflare": "bun cloudflare/build-cloudflare.mjs",

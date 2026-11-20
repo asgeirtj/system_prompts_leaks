@@ -6,7 +6,7 @@ This page explains more than just `<img src="photos/reef.jpg" alt="…">`. It co
 
 Every image FILE goes into the artifact's asset store as an upload (Artifact `publish`, `file_path`, `asset:true`; or `upload_asset` where your tool lists that). The slide keeps only the reference that call returns (`/_blob/<id>`), written verbatim as the `src`. The one exception is a design system's picture copied into the deck with its install (`deck-files.md`, "A design system in the deck"): it is not uploaded, and its `src` is its path in the deck, `project/ds/<folder>/<path>`, with no leading `/`. The image data never goes through you and never into a slide: never write a `data:` URI, and never put base64 in a call or a reply. That keeps slide files small.
 
-If you build a `deck.html` with the appifact-slides skill's `scripts/make.ts`, `src` is the file's path, relative to the `.html` file and under its folder or your working folder (each `--assets-from <dir>` adds a folder). The script checks each file, lists the ones to upload (it embeds svg and avif files itself), and takes each url back as `--asset <file>=<url>`. With no asset store, use its `--inline-images` flag, not the empty frames below. The comment at the top of the script lists the flags.
+If you build with the appifact-slides skill's `scripts/make.ts`, `src` is the file's path, relative to the deck and under its folder or your working folder (each `--assets-from <dir>` adds a folder). The script checks each file, lists the ones to upload (it embeds svg and avif files itself), and takes each url back as `--asset <file>=<url>`. With no asset store, use its `--inline-images` flag, not the empty frames below. The comment at the top of the script lists the flags.
 
 - `png`, `jpg`, `webp`, and `gif` files upload as they are. If a photo is much bigger than it will show on the slide, it is worth shrinking it first to about 2× its box.
 
@@ -30,27 +30,27 @@ The clip plays, looping, while its slide is presented, and on the deck's page wh
 
 ## SVG
 
-Use SVG when crisp vector art matters — for example logos and diagrams. You can use `<img src="file.svg" alt="…">` or put the `<svg>…</svg>` code right in the slide. See the "Graphics & live embeds" section of `format.md` for more on this. Either way, the slide viewer treats the SVG as a static, sandboxed image:
+Use SVG when crisp vector art matters — for example logos and diagrams. You can use `<img src="file.svg" alt="…">` or put the `<svg>…</svg>` code right in the slide. See the "Graphics & live embeds" section of `format.md` for more on this. Either way, the slide viewer treats the SVG as a sandboxed image:
 
 - Scripts in the SVG never run.
 - External references the SVG points to never load.
-- SMIL animation in the SVG does not play.
+- Animation in `<svg>` code (CSS or SMIL) plays in the viewer; an uploaded file has it removed. PDF, PNG and PowerPoint draw one still: CSS animations at their end (a loop at rest). With no `format` key, SMIL stops at its end if it has a plain `dur`, `fill="freeze"`, at most a plain time as `begin`, and no `end` or repeat; other SMIL at its first frame.
+- On a deck with a `format` key, SMIL plays only in `<svg>` code on the slide. A picture (`<img>`), a still, PDF, PNG, PowerPoint and Reduce Motion don't play it, so give the element's own attributes the look they should show. With no key, it also plays in a picture whose SVG is embedded in its `src`.
 - If an SVG contains `<foreignObject>`, it cannot be rasterized for PPTX export. The export skips that SVG and shows a warning. Plain SVG is rasterized to a PNG.
 
-If you put `<svg>` code directly in the slide, the build checks it:
+If you put `<svg>` code directly in the slide:
 
 - No script
 - No `on*=` event handlers
 - No `<foreignObject>` elements
-- No SMIL animation
 - No URLs
 - The SVG code must be 52 KB or smaller
 
 The markup inside the `<svg>` is kept exactly as you wrote it, and comes back unchanged when you load the slide to edit it. An `aria-label` on the `<svg>` is its description (the image's alt): set one when the graphic carries meaning — a chart, a plan, a map — and leave it off pure decoration.
 
-The slide shows the `<svg>` as an image, which a browser reads as XML. So inside it write a character only as itself (`—`), as its number (`&#8212;`) or as one of XML's five names (`&amp;` `&lt;` `&gt;` `&quot;` `&apos;`): any other `&name;`, or a bare `&`, breaks the whole drawing.
+The slide shows the `<svg>` as an image, which a browser reads as XML. So inside it write a character only as itself (`—`), as its number (`&#8212;`) or as one of XML's five names (`&amp;` `&lt;` `&gt;` `&quot;` `&apos;`).
 
-Fonts never load inside an SVG. Any `<text>` elements render in a system font, not the deck's font, and the text gets clipped. So keep diagram labels OUT of the SVG. Paint them as real text over the SVG instead. See the "Labels over an image" section of `layout.md`. The build warns you about every `<text>` element it finds in an `<svg>`.
+Fonts never load inside an SVG. Any `<text>` elements render in a system font, not the deck's font, and the text gets clipped. So keep diagram labels OUT of the SVG. Paint them as real text over the SVG instead. See the "Labels over an image" section of `layout.md`. Where a build runs, it warns you about every `<text>` element it finds in an `<svg>`.
 
 ## Display treatment
 
@@ -58,7 +58,7 @@ View each image and decide how it is best shown. Photos fill their box (`object-
 
 If you put text on top of an image, protect it the way the deck's direction would — a card, a scrim (`background:rgba(20,20,19,.6)`), or a `backdrop-filter:blur()` panel. Do it the same way every time.
 
-Do not use emoji or draw your own decorative art, unless the user asks for it. Use the images the user gives you, photos from the photo library where SKILL.md allows them (`photo-library.md`), or a line icon (`<x-icon>`) — but use icons sparingly. If the user does not give you any images, a deck with no images and good structure is a fine deliverable. Never make up an image. Never use an image file that you do not have. If an image file is missing, the build will fail.
+Do not use emoji or draw your own decorative art, unless the user asks for it. Use the images the user gives you, photos from the photo library where SKILL.md allows them (`photo-library.md`), or a line icon (`<x-icon>`) — but use icons sparingly. If the user does not give you any images, a deck with no images and good structure is a fine deliverable. Never make up an image. Never use an image file that you do not have. The deck can't show an image file that's missing.
 
 ## Borders and shadows
 

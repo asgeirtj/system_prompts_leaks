@@ -1,8 +1,30 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "9ae67231-da3a-476b-a3f4-1f89ccb7eb5b"
+  provider: microsoft_email
+  required: true
+  authorization_query:
+    prompt: select_account
+  identity:
+    endpoint: https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName
+    provider_account_id_field: id
+    display_name_fields:
+      - mail
+      - userPrincipalName
+      - displayName
 connector: outlook_mail
 category: productivity
 display_name: Outlook Mail
 description: Manage and organize your inbox
+icon: outlook_mail
+multi_account:
+  backend: oauth
+  credential_namespace: oauth_accounts
+  domains:
+    - graph.microsoft.com
+  expose_routing_metadata: true
 request_quota:
   mode: enforce
   workers:
@@ -35,6 +57,7 @@ actions:
     label: Write and delete permissions
     methods:
       messages.send:
+        approval_policy: fresh_consent_or_task_allow
         label: Send emails
         approval_phrase: send this email in Outlook Mail
       messages.mark_read:
@@ -61,8 +84,18 @@ consent_screen:
 
 cli:
   binary: outlook-mail
-  skill: outlook-mail
+  skill: outlook_mail
 commands:
+  status: null
+  accounts: null
+  disconnect: null
+  authorize-url: null
+  exchange-code: null
   list: messages.list
   search: messages.list
   get: messages.get
+  send: messages.send
+  reply: messages.send
+  mark-read: messages.mark_read
+  mark-unread: messages.mark_read
+  delete: messages.delete

@@ -1,4 +1,4 @@
-`max effort → 5+5 angles × 8 candidates → 1-vote verify → sweep → ≤15 findings`
+`max effort → 5+1 angles × 8 candidates → 1-vote verify → sweep → ≤15 findings`
 
 You are reviewing for **recall** at maximum effort: catch every real bug. At
 this level, catching real bugs matters more than avoiding false positives — a
@@ -13,9 +13,9 @@ include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
 review that target instead. Treat this diff as the review scope.
 
-## Phase 1 — Find candidates (5 correctness angles + 3 cleanup angles + 1 altitude angle + 1 conventions angle, up to 8 each)
+## Phase 1 — Find candidates (5 correctness angles + 1 conventions angle, up to 8 each)
 
-Run **10 independent finder angles** via the Agent tool. Each
+Run **6 independent finder angles** via the Agent tool. Each
 surfaces **up to 8 candidate findings**. Do NOT let one angle's conclusions
 suppress another's — if two angles flag the same line for different reasons,
 record both. If the Agent tool is not available in your current tool set, do not error — perform each angle (and each verification) yourself, sequentially, in this context.
@@ -45,7 +45,7 @@ does a parallel change in the same PR make a call unsafe?
 
 ### Angle D — language-pitfall specialist
 
-Scan for the classic pitfalls of the diff's language/framework — for example:
+Scan for the classic pitfalls of the diff's language/framework — for example:  
 JS falsy-zero, `==` coercion, closure-captured loop var; Python mutable default
 args, late-binding closures; Go nil-map write, range-var capture; SQL injection;
 timezone/DST drift; float equality. Flag any instance the diff introduces.
@@ -59,41 +59,10 @@ through a registry/session/global — e.g. a caching provider holding a
 `delegate.get(...)` will re-enter the cache or recurse. Also check that the
 wrapper forwards all the methods the callers actually use.
 
-### Reuse
-
-The angles above hunt for bugs; this one and the next two hunt for cleanup in
-the changed code. Flag new code that re-implements something the codebase
-already has — Grep shared/utility modules and files adjacent to the change,
-and name the existing helper to call instead.
-
-### Simplification
-
-Flag unnecessary complexity the diff adds: redundant or derivable state,
-copy-paste with slight variation, deep nesting, dead code left behind. Name
-the simpler form that does the same job.
-
-### Efficiency
-
-Flag wasted work the diff introduces: redundant computation or repeated I/O,
-independent operations run sequentially, blocking work added to startup or
-hot paths. Also flag long-lived objects built from closures or captured
-environments — they keep the entire enclosing scope alive for the object's
-lifetime (a memory leak when that scope holds large values); prefer a
-class/struct that copies only the fields it needs. Name the cheaper
-alternative.
-
-### Altitude
-
-Check that each change fixes the root cause at the right depth rather than
-patching a symptom with a fragile bandaid. Special cases layered on shared
-infrastructure are a sign the fix isn't deep enough — prefer the simpler, more
-general change to the underlying mechanism over adding special cases, and name
-that change.
-
 ### Conventions (CLAUDE.md)
 
 Find the CLAUDE.md files that govern the changed code: the user-level
-~/.claude/CLAUDE.md, the repo-root CLAUDE.md, plus any CLAUDE.md or
+`~/.claude/CLAUDE.md`, the repo-root CLAUDE.md, plus any CLAUDE.md or
 CLAUDE.local.md in a directory that is an ancestor of a changed file (a
 directory's CLAUDE.md only applies to files at or below it). Read each one
 that exists, then check the diff for clear violations of the rules they state.
@@ -103,11 +72,10 @@ that breaks it — no style preferences, no vague "spirit of the doc"
 inferences. In the finding, name the CLAUDE.md path and quote the rule so the
 report can cite it. If no CLAUDE.md applies, return nothing for this angle.
 
-Cleanup, altitude, and conventions candidates use the same
-`file`/`line`/`summary` shape; in `failure_scenario`, state the concrete
-cost (what is duplicated, wasted, harder to maintain, or which CLAUDE.md rule
-is broken) instead of a crash. Correctness bugs always outrank cleanup,
-altitude, and conventions findings when the output cap forces a cut.
+Conventions candidates use the output's `file`/`line`/`summary` shape; in
+`failure_scenario`, state which CLAUDE.md rule is broken instead of a crash.
+Correctness bugs always outrank conventions findings when the output cap
+forces a cut.
 
 ## Phase 2 — Verify (1-vote, 3-state)
 
@@ -141,6 +109,8 @@ setup/teardown asymmetry in tests; config defaults flipped.
 Surface **up to 8 additional candidates**, each naming a defect not already on
 the list. If nothing new, return an empty sweep — do not pad.
 
+Then give each finding, the sweep's too, its `severity`, as Output defines it.
+
 ## Output
 
 Return findings as a JSON array of at most 15 objects:
@@ -150,11 +120,36 @@ Return findings as a JSON array of at most 15 objects:
   {
     "file": "path/to/file.ext",
     "line": 123,
-    "summary": "one-sentence statement of the bug",
-    "failure_scenario": "concrete inputs/state → wrong output/crash"
+    "summary": "the problem, where it happens and what sets it off. Fix: the change to make",
+    "failure_scenario": "concrete inputs/state → wrong output/crash",
+    "severity": "one of: important, nit, pre_existing"
   }
 ]
 ```
+
+Every object carries every key shown above. Its `severity` is one of:
+
+- `important`: a bug that should be fixed before merging because this change
+  adds it or makes it worse. If someone can hit it, a rare trigger does not
+  lower the severity.
+- `nit`: a minor issue, worth fixing but not blocking: a broken CLAUDE.md rule,
+  or a bug that harms nobody, such as a misleading log line.
+- `pre_existing`: a bug that exists in the codebase but that this change did
+  not introduce. A bug in unchanged lines is `pre_existing` if the change only
+  fails to fix it, and `important` if the change re-exposes it.
+
+A severity only labels and orders a finding: never drop one for its severity.
+When the limit forces a cut, cut the lowest-ranked first. Most severe means
+`important`, then `pre_existing`, then `nit`.
+
+Write each `summary` in two or three short sentences. Start with the problem as
+a user of the code would see it. Next say where it happens and what sets it
+off. End with "Fix:" and the change to make, or what to check if you are not
+sure.
+
+Beyond Phase 2's dedup, if the same mistake is repeated in several places,
+report it once and name the other places in its `summary`. Different mistakes
+stay separate findings, even when one change would fix them all.
 
 Ranked most-severe first. If more than 15 survive, keep the 15 most
 severe. If nothing survives verification, return `[]`. Do not call the

@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: klaviyo
+  required: true
 connector: klaviyo
 category: business
 display_name: Klaviyo

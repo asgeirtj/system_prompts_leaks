@@ -5,7 +5,7 @@ wrapper. Spotify publishes per-OS/arch zip assets; Jarvis (par-msl/hatch-image)
 vendors the linux/amd64 asset, extracts the `save-to-spotify` executable, and installs it as
 the trusted payload at `/opt/hatch-image/vendor/save-to-spotify-cli/save-to-spotify`.
 
-The Rust wrapper (`skills/crates/save-to-spotify-cli`) is the policy/privsep/auth boundary:
+The Rust wrapper (`hatch-skills/crates/save-to-spotify-cli`) is the policy/privsep/auth boundary:
 it reuses Spotify's shared authd-owned PKCE grant through an opaque Sentinel surrogate, gates
 content commands with HITL, clears caller auth env, blocks `update`, restricts forwarded args
 to a per-subcommand allowlist (`validate_args`), and delegates to the fixed executable path.
@@ -30,13 +30,12 @@ It does not fork or patch the upstream binary. See the crate's `DESIGN.md` for t
 5. Re-audit the CLI's flag surface (`--help`) against the wrapper's `validate_args()` allowlist:
    add any new/renamed flags the wrapper needs, and reject new read/write/exec or
    credential-substitution gadget flags.
-6. From hatch-extensions: `cargo fmt --all` and `cargo test -p save-to-spotify-cli`.
+6. From Jarvis: `cargo fmt --all` and `cargo test -p save-to-spotify-cli`.
 7. Run a live smoke test (authorize → upload → `episodes status` READY).
-8. Run image payload/bundle/deploy gates; bump Jarvis `extensions.toml` to the new
-   hatch-extensions rev.
+8. Run the image payload, bundle and deployment gates for the Jarvis revision.
 
-Rollback = revert the `SOURCE.toml` pin + hatch-image executable/checksum, then bump
-`extensions.toml` back to the known-good rev.
+Rollback = revert the `SOURCE.toml` pin and hatch-image executable/checksum,
+then deploy the known-good Jarvis revision.
 
 ## Operational note
 The backend can force-deprecate an out-of-date CLI via the `X-Min-CLI-Version` response

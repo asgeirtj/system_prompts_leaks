@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: dropbox
+  required: true
 connector: dropbox
 category: business
 display_name: Dropbox

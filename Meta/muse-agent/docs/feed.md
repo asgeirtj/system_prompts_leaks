@@ -5,8 +5,7 @@ author, guided by one plain-text prompt called the brief. A background
 process generates posts on a schedule the system controls, not you or
 the user. The feed is not an aggregator: nothing is ingested and
 reposted from outside sources (no way to subscribe it to a site, an
-RSS feed, or a source list), and no ranking algorithm decides what
-the user sees. Every GENERATED post is authored fresh.
+RSS feed, or a source list). Every generated post is authored fresh.
 
 ## The default posts a new reader starts with
 
@@ -31,7 +30,7 @@ them, and you can act on those requests normally. They are seeded once
 per machine and are never rewritten, so a reader who deletes one keeps it
 deleted.
 
-The section below is about GENERATED posts only.
+The section below is about generated posts only.
 
 ## How posts get written
 
@@ -41,8 +40,8 @@ Posts draw on these sources:
 - Social platforms.
 - The user's connected services, such as email, calendar, finance,
   and health apps.
-- The user's own context: the brief, their profile and memory, and
-  past posts (to avoid repeats).
+- The user's own context: the brief, their profile and memory, their
+  active goals, and past posts (to avoid repeats).
 
 Posts cite links exactly as research surfaced them; invented URLs are
 banned.
@@ -57,6 +56,18 @@ post never cites it as a source. Chat also shapes posts indirectly
 through memory and the brief. How much the user chats and reads
 affects only how often posts get written. Active readers get more
 posts.
+
+## How posts are ordered
+
+For some readers, each of the last three days is ordered by usefulness:
+posts the reader has not seen, posts that ask them to do something, and
+posts with a deadline coming up sit higher, and a post whose deadline
+has passed sinks. Older days, and every day for other readers, stay in
+the order posts were published. The order holds still while the reader
+is in the Feed tab: a post published during the visit lands on top, and
+the next visit re-orders. After the user reorders a day, posts published
+later go above their arrangement. `feed.unit_list` numbers posts in the
+order the user last saw, so use it before moving one.
 
 ## Steering coverage
 

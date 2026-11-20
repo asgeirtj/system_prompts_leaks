@@ -1,0 +1,7 @@
+id: google_health_connect
+title: "Health Connect"
+description: "Read the user's Android-synced Health Connect metrics, raw samples, sleep and workouts, check sync coverage, and delete approved records."
+aliases: [google-health-connect, google_health_connect]
+include_in_prompt: true
+availability:
+  confidential_vm: true

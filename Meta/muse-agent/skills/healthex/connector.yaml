@@ -1,0 +1,10 @@
+id: healthex
+title: "HealthEx"
+description: "Read the user's medical and health records from their healthcare providers, including conditions, medications, allergies, lab results, vitals, immunizations, procedures, visits and clinical notes."
+aliases: [healthex]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+  restricted_regions: disconnect_only
+auth:
+  authorize: "{bin} authorize-url"

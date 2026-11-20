@@ -1,12 +1,19 @@
 version: 1
+metadata:
+  visible_in_settings: false
+auth: none
+cli:
+  binary: health-cli
+  skill: google_health_connect
 connector: google_health_connect
 category: health
 display_name: Health Connect
-hidden: false
+icon: google_health_connect
 description: Read synced Google Health Connect data (daily metrics, sleep, workouts).
 # Connector id MUST equal this skill's `name` ("google_health_connect") so the
-# daemon associates the manifest with the skill and surfaces it in Settings, and
-# so the runtime CLI-subcommand lookup (keyed by skill name) resolves.
+# daemon associates the manifest with the skill and runtime CLI-subcommand
+# lookup (keyed by skill name). This connector intentionally remains omitted
+# from Settings.
 #
 # Valid CLI subcommand paths, consumed by jarvis runtime-event logging to enrich
 # tool-variant telemetry (e.g. `health-cli/query/metrics`). Keep in lockstep
@@ -55,5 +62,17 @@ actions:
     label: Delete Health Connect data
     methods:
       healthconnect.delete:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Delete matching Health Connect records
+# health-cli serves several connectors and selects this one from
+# `--provider healthconnect`; `nutrition` commands authorize elsewhere and are
+# omitted. `delete` is listed here, unlike `cli_subcommands`, because it is
+# authorized against this connector (claim-scoped, inside `delete`).
+commands:
+  "query metrics": healthconnect.query
+  "query samples": healthconnect.query
+  "query sessions": healthconnect.query
+  status: healthconnect.status
+  delete: healthconnect.delete
+  "auth connect": null
+  "auth disconnect": null

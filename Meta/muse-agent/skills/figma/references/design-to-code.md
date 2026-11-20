@@ -1,30 +1,27 @@
 # Design to code
 
-Use this workflow when implementing a Figma screen or component in a codebase.
+- Read the design from Figma with the steps below, then follow [App Creation](/opt/muse/skills/app-creation/SKILL.md) to build it in the user's project.
 
-1. Inspect the target repository before editing. Identify its framework,
-   styling conventions, installed design-system packages, existing components,
-   assets, and tokens.
-2. Call `get_design_context` for the requested node and request a screenshot in
-   the same call when its live schema supports that option. If the response has
-   no screenshot, call `get_screenshot` before editing.
-3. If the context response says it is sparse, do not implement from that
-   summary. Correlate its visible child IDs with the screenshot and request
-   high-fidelity context for those children in one batch.
-4. Treat generated React or Tailwind as a visual specification, not code that
-   must be pasted verbatim. Translate it into the repository's stack, layout
-   primitives, component boundaries, and interaction patterns.
-5. Reuse Code Connect mappings at their mapped nodes. Also reuse suitable local
-   components and tokens; recreate them only when they cannot express the
-   design accurately.
-6. Preserve every visible static asset in its intended slot and geometry.
-   Download provider-supplied assets to durable project paths and remove all
-   temporary Figma URLs. Never substitute the screenshot for implementation
-   assets or redraw an available asset by hand.
-7. Render the requested screen or component and compare it with the Figma
-   screenshot. Fix in-scope layout, typography, color, interaction, and asset
-   mismatches; report pre-existing out-of-scope differences without changing
-   them.
+- Before editing, inspect the project's framework, styling, design-system packages, components, assets and tokens.
 
-Keep API- or prop-provided images dynamic. Avoid absolute positioning when the
-design can be represented with the project's responsive layout system.
+## Read the design
+
+- Call `get_design_context` for the requested node, and ask for a screenshot in the same call when its live schema offers that option. If the response has no screenshot, call `get_screenshot` before editing.
+
+- When the context response says it is sparse, do not implement from that summary. Match its visible child IDs to the screenshot and request detailed context for those children in one batch.
+
+- Treat the generated React or Tailwind code as a visual specification, not code to paste. Translate it into the project's own stack, layout primitives and components, and avoid absolute positioning wherever the project's responsive layout can express the design.
+
+- Reuse a Code Connect mapping wherever a node has one. Elsewhere reuse the project's own components and tokens, and recreate one only when it cannot express the design.
+
+## Bring in the assets
+
+- Download every static asset the design uses to a durable path in the project, and replace each temporary Figma URL before the app uses it.
+
+- Keep each asset in its intended slot and size. Never substitute the screenshot for an asset or redraw an asset that Figma supplies.
+
+## Compare the result
+
+- Render the requested screen or component and compare it with the Figma screenshot.
+
+- Fix differences in layout, typography, color, interaction and assets within the requested scope. Report differences that predate the task without changing them.

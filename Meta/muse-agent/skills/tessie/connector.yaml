@@ -1,0 +1,10 @@
+id: tessie
+title: "Tessie"
+description: "Read the user's Tesla car status, location and battery through Tessie, and send supported vehicle commands."
+aliases: [tessie]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  connect: api_key
+  connected_fields: [token]

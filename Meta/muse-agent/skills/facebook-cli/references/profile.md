@@ -1,39 +1,30 @@
-# Facebook Profile
+# Facebook profiles
 
-Look up a Facebook profile's information by ID.
+- Read profile details for the account or one of its Facebook friends after the person has been identified through Facebook output or a Facebook profile URL that the user shared.
 
-## Command
+## Read profile details
 
-```bash
-facebook-cli profile info --profile-id <profile-id>
+```sh
+/opt/hatch/bin/facebook-cli profile info --profile-id '<profile ID or vanity username>'
 ```
 
-| Flag | Required | Description |
-|------|----------|-------------|
-| `--profile-id` | Yes | Profile ID to look up |
+- Pass a numeric profile ID returned by Facebook, or the vanity username from a Facebook profile URL that the user shared or that earlier Facebook output returned. For example, in `https://www.facebook.com/sarah.example/`, the vanity username is `sarah.example`.
 
-## Response Fields
+- A profile that isn't the user's or a friend's returns a "Profile Not Accessible" error. An identifier that cannot be resolved, or a profile that is missing or otherwise unavailable, returns a not-found error.
 
-- `name`: Display name
-- `profile_picture_url`: Profile picture URL
-- `vanity_url`: Vanity URL (e.g. `facebook.com/username`)
-- `bio`: Text biography / about me
-- `current_city`: Current city (stated)
-- `hometown`: Hometown (stated)
-- `birthdate`: Birthdate (stated)
-- `gender`: Gender (stated)
-- `languages`: Array of languages spoken
-- `work`: Array of work experiences (`employer`, `position`)
-- `education`: Array of education (`school`, `type`, `degree`)
-- `life_events`: Array of life events (`title`, `date`)
-- `hobbies`: Array of hobby names
+- The response returns the canonical numeric `id` even when the input was a vanity username.
 
-## Operating Rules
+- Structured entries have these shapes:
+  - `work` entries contain nullable `employer` and `position`
+  - `education` entries contain nullable `school`, `type`, and `degree`
+  - `life_events` entries contain nullable `title` and `date`
 
-1. Use `profile info` when you already have a profile ID **from an earlier command** and need full directory details. Only pass a `--profile-id` that came from earlier facebook-cli output in this conversation (e.g. `me`, `me friends`, a timeline post's `author_id`/`owner_id`, feed/group post authors, reactors, commenters, saved items). Do **not** accept a raw numeric ID the user typed or pasted directly, and do **not** guess or construct IDs. If the user gives a bare ID with no context, identify the person first via `me friends --name` and use the ID from that result.
-2. To find someone by name, use `me friends --name` — there is no general profile search endpoint. If the user asks to find someone who is not their friend, explain that `facebook-cli` can only search within the user's friends list. Suggest using `social.search` for broader people discovery.
-3. Always refer to a person by name and include their profile link (`vanity_url`) — never print the raw profile/user ID in your response.
-4. Do not use this to bulk-scrape or enumerate profiles.
-5. For any field not present in the API response (null or empty), explicitly say "not listed" rather than omitting the field silently.
-6. Do not editorialize or infer personality, lifestyle, or character from profile data. Present data neutrally.
-7. When presenting work history or education with multiple entries, show all entries organized chronologically. Say "not listed" for any sub-field that is missing.
+## Present profile details
+
+- Treat `profile info` as the complete profile lookup. On success, answer from the requested fields and include `vanity_url` as the profile link when available. On failure, say the profile details are unavailable and why: a "Profile Not Accessible" error means the person isn't the user's Facebook friend, and a not-found error means the profile doesn't exist or isn't visible. Do not read timelines, other profiles or friend lists to fill in missing details.
+
+- In a successful response, when a requested field is null, empty, or absent, say it is not listed in the returned profile details. Omit unrelated missing fields.
+
+- When entries include dates, present them in chronological order. Otherwise preserve the returned order.
+
+- Treat profile details as stated facts rather than evidence of personality, lifestyle, or character.

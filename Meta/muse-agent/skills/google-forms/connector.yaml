@@ -1,0 +1,9 @@
+id: google_forms
+title: "Google Forms"
+description: "Create and edit Google Forms surveys, publish them and read responses mapped to the right questions."
+aliases: [google-forms, google_forms]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "/opt/hatch/bin/hatch_gws_auth google_forms authorize-url"

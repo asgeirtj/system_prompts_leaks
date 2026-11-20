@@ -1038,10 +1038,10 @@ def diff_pair(reqA, reqB, mint_models=None, compaction_requests=None):
                 "%s can read blocks produced by %s (a drop shows as reason=model_binding_mismatch, not prefix_binding_mismatch)."
                 % (model_a, model_b, replayed, "MATCH" if not sections else "MISMATCH", model_b, model_a))
             if sections:
-                model_note += (" If %s cannot read blocks produced by %s (a switch to an older model), the model check drops them as "
+                model_note += (" If %s cannot read blocks produced by %s, the model check drops them as "
                                "model_binding_mismatch before the prefix check sees them, so this edit goes unreported on this request and "
-                               "surfaces on the next request that runs on a model that can read them; if it can read them (a switch to a "
-                               "newer model), the prefix check applies now." % (model_b, model_a))
+                               "surfaces on the next request that runs on a model that can read them; if it can read them, the prefix "
+                               "check applies now." % (model_b, model_a))
         else:
             model_note = "model switch: %s -> %s (no replayed thinking block, so nothing for the model check to read)" % (model_a, model_b)
     else:

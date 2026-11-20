@@ -130,10 +130,12 @@ export async function resolveStorybook(ctx) {
   // never uploaded.
   if (!sbStatic && sbDir) {
     sbStatic = resolve(OUT, '.sb-static');
-    console.error(`  running: npx storybook build -c ${sbDir} -o ${sbStatic}`);
+    console.error(`  running: npx --no-install storybook build -c ${sbDir} -o ${sbStatic}`);
     const { spawnSync } = await import('node:child_process');
     const r = spawnSync(
-      'npx', ['storybook', 'build', '-c', sbDir, '-o', sbStatic, '--quiet'],
+      // --no-install: npx runs a storybook that is already installed, or fails. Without it, and with no terminal to ask
+      // on, it downloads whatever the registry serves under that name and runs it.
+      'npx', ['--no-install', 'storybook', 'build', '-c', sbDir, '-o', sbStatic, '--quiet'],
       { cwd: dirname(sbDir), stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 600_000, shell: process.platform === 'win32' },
     );
     if (r.error || r.signal || r.status !== 0 || !existsSync(join(sbStatic, 'index.json'))) {

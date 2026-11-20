@@ -1,0 +1,7 @@
+name: trip_planning
+title: "Trip Planning"
+description: "Plan a feasible trip in one living itinerary, coordinating flights, stays, transport, dining and activities while keeping ideas, choices and bookings distinct. Also covers a narrow airport, entry, transit, transfer or fast-track question about an active trip."
+category: "Travel and local plans"
+include_in_prompt: true
+availability:
+  confidential_vm: true

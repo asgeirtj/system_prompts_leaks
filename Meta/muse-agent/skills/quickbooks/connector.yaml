@@ -1,0 +1,9 @@
+id: quickbooks
+title: "QuickBooks"
+description: "Read QuickBooks accounting reports, including profit and loss, receivables, payables and industry benchmarks, and payroll information, including employees, payslips, readiness and tax setup. Manage customers, products, invoices, estimates, payment links, sales settings and approved employee or contract changes."
+aliases: [quickbooks]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

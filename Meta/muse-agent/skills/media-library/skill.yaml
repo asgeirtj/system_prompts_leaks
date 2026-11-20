@@ -1,0 +1,7 @@
+name: media_library
+title: "Media Library"
+description: "Search and inspect the user's photo library, including connected device galleries. Use for photo requests and whenever a photo could ground or personalize a response; lookups of uploaded photos are cheap, so check opportunistically and move on if nothing fits."
+category: "Media"
+include_in_prompt: true
+availability:
+  confidential_vm: true

@@ -44,7 +44,7 @@ All resources are under the `beta` namespace. Python and TypeScript share identi
 
 **Agent shorthand:** `agent` on session create accepts three forms - a bare string (`agent="agent_abc123"`, latest version), a pinned reference `{type: "agent", id, version}`, or `{type: "agent_with_overrides", id, version?, model?, system?, tools?, mcp_servers?, skills?}` to override those fields for this session only (see `shared/managed-agents-core.md` -> Override agent configuration for a session).
 
-**Model shorthand:** `model` on agent create accepts either a bare string (`model="claude-opus-5-5"` - uses `standard` speed) or the full config object, which takes `speed`, `effort`, and `inference_geo` alongside `id`: `{id: "claude-opus-5-5", speed: "fast"}`, `{id: "claude-opus-5-5", effort: "high"}`, `{id: "claude-opus-5-5", inference_geo: "us"}`. `effort` accepts a level string (`low`/`medium`/`high`/`xhigh`/`max`) or `{type: "<level>"}`, and in a per-session `model` override it sets the session's effort level (the agent's own `effort` isn't carried over, and a `model` override without `effort` runs at that model's default effort level). `inference_geo` (`"us"` | `"global"`) pins the geography serving the agent's model requests, and is also applied in a per-session `model` override. See `shared/managed-agents-core.md` -> Effort on the agent model / Pinning inference geography. Note: `speed: "fast"` is supported on Claude Opus 5.5, Claude Opus 5, and Opus 4.8 - on the Claude API only, which includes Managed Agents but not Amazon Bedrock, Google Cloud, or Microsoft Foundry. Opus 4.7 fast mode has been removed; `speed: "fast"` on Opus 4.7 returns an error.
+**Model shorthand:** `model` on agent create accepts either a bare string (`model="claude-opus-5-5"` - uses `standard` speed) or the full config object, which takes `speed`, `effort`, and `inference_geo` alongside `id`: `{id: "claude-opus-5-5", speed: "fast"}`, `{id: "claude-opus-5-5", effort: "high"}`, `{id: "claude-opus-5-5", inference_geo: "us"}`. `effort` accepts a level string (`low`/`medium`/`high`/`xhigh`/`max`) or `{type: "<level>"}`, and in a per-session `model` override it sets the session's effort level (the agent's own `effort` isn't carried over, and a `model` override without `effort` runs at that model's default effort level). `inference_geo` (`"us"` | `"global"`) pins the geography serving the agent's model requests, and is also applied in a per-session `model` override. See `shared/managed-agents-core.md` -> Effort on the agent model / Pinning inference geography. Note: in Managed Agents, `speed: "fast"` works only on the Claude API, on Claude Opus 5.5, Claude Opus 5, and Opus 4.8; for Messages API requests and other platforms, see SKILL.md -> Fast Mode. Opus 4.7 fast mode has been removed; `speed: "fast"` on Opus 4.7 returns an error.
 
 ---
 
@@ -132,7 +132,7 @@ Scheduled deployments (`depl_` IDs) run an agent on a recurring cron schedule - 
 
 ## Deployment Runs
 
-Each trigger attempt (scheduled or manual) writes a `deployment_run` record (`drun_` IDs) carrying either the created `session_id` or an `error.type` (`environment_archived`, `agent_archived`, `vault_not_found`, `session_rate_limited`, `service_unavailable`).
+Each trigger attempt (scheduled or manual) writes a `deployment_run` record (`drun_` IDs) carrying either the created `session_id` or an `error.type` (for example `environment_archived_error`, `agent_archived_error`, `vault_not_found_error`, `session_rate_limited_error`).
 
 | Method   | Path                                             | Operation        | Description                              |
 | -------- | ------------------------------------------------ | ---------------- | ---------------------------------------- |
@@ -177,7 +177,7 @@ Workspace-scoped persistent memory that survives across sessions. Attach to a se
 | `GET`    | `/v1/memory_stores/{memory_store_id}`            | GetMemoryStore     | Get store details                        |
 | `POST`   | `/v1/memory_stores/{memory_store_id}`            | UpdateMemoryStore  | Update store                             |
 | `DELETE` | `/v1/memory_stores/{memory_store_id}`            | DeleteMemoryStore  | Delete store                             |
-| `POST`   | `/v1/memory_stores/{memory_store_id}/archive`    | ArchiveMemoryStore | Archive store. Makes it **read-only**; existing sessions continue, new sessions cannot reference it. No unarchive. |
+| `POST`   | `/v1/memory_stores/{memory_store_id}/archive`    | ArchiveMemoryStore | Archive store. An archived store can't be attached to new sessions or written to; API reads, deletes, and redaction still work. No unarchive. See `shared/managed-agents-memory.md`. |
 
 ## Memories
 
@@ -309,12 +309,12 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
 }
 ```
 
-> The `agent` field accepts a string ID, `{type: "agent", id, version}`, or `{type: "agent_with_overrides", id, version?, ...}` for session-local overrides of `model`/`system`/`tools`/`mcp_servers`/`skills`. Outside the overrides form, those fields live on the agent, not here. An `effort` inside a `model` override is applied (the agent's own `effort` isn't carried over, and a `model` override without `effort` runs at that model's default effort level). An `inference_geo` inside a `model` override **is** applied (omitting it clears the agent's pin for this session).  
->  
-> **`budget`** (optional, create-only) is a hard dollar cap on the session's list-priced spend; `amount` is an integer string in minor units (cents - `"2500"` = $25.00), `USD` only. It can be changed or removed later via session update, never added. See `shared/managed-agents-core.md` -> Session budgets.  
->  
-> **`initial_events`** (optional, max 50) sends events at creation and starts the agent loop in the same call. Only `user.message` and `user.define_outcome` are accepted - no `system.message`, and none of the tool-result kinds. Validation is all-or-nothing. See `shared/managed-agents-core.md` -> Seeding a session with `initial_events`.  
->  
+> The `agent` field accepts a string ID, `{type: "agent", id, version}`, or `{type: "agent_with_overrides", id, version?, ...}` for session-local overrides of `model`/`system`/`tools`/`mcp_servers`/`skills`. Outside the overrides form, those fields live on the agent, not here. An `effort` inside a `model` override is applied (the agent's own `effort` isn't carried over, and a `model` override without `effort` runs at that model's default effort level). An `inference_geo` inside a `model` override **is** applied (omitting it clears the agent's pin for this session).
+>
+> **`budget`** (optional, create-only) is a hard dollar cap on the session's list-priced spend; `amount` is an integer string in minor units (cents - `"2500"` = $25.00), `USD` only. It can be changed or removed later via session update, never added. See `shared/managed-agents-core.md` -> Session budgets.
+>
+> **`initial_events`** (optional, max 50) sends events at creation and starts the agent loop in the same call. Only `user.message` and `user.define_outcome` are accepted - no `system.message`, and none of the tool-result kinds. Validation is all-or-nothing. See `shared/managed-agents-core.md` -> Seeding a session with `initial_events`.
+>
 > **`checkout`** accepts `{type: "branch", name: "..."}` or `{type: "commit", sha: "..."}`. Omit for the repo's default branch.
 
 ### CreateEnvironment Request Body
@@ -372,7 +372,7 @@ Immutable per-mutation snapshots (`memver_...`) - the audit and rollback surface
 }
 ```
 
-> `system.message` events (append system-level context for this turn and later ones) use the same envelope with `type: "system.message"` - supported on Claude Fable 5.1, Claude Mythos 5.1, Claude Fable 5, Claude Mythos 5, Claude Opus 5.5, Claude Opus 5, Claude Opus 4.8, Claude Sonnet 5.5, and Claude Haiku 5.5 (not Claude Sonnet 5), checked against the agent's *primary* model only; see `shared/managed-agents-events.md` § Adding system context mid-session.
+> `system.message` events (append system-level context for this turn and later ones) use the same envelope with `type: "system.message"` - supported on Claude Fable 5.2, Claude Mythos 5.2, Claude Fable 5.1, Claude Mythos 5.1, Claude Fable 5, Claude Mythos 5, Claude Opus 5.5, Claude Opus 5, Claude Opus 4.8, Claude Sonnet 5.5, and Claude Haiku 5.5 (not Claude Sonnet 5), checked against the agent's *primary* model only; see `shared/managed-agents-events.md` § Adding system context mid-session.
 
 ### Define Outcome Event
 

@@ -7,7 +7,7 @@ license: Proprietary. LICENSE.txt has complete terms
 
 # Computer use (desktop control)
 
-Computer use lets Claude take screenshots of the person's desktop and control it with mouse clicks, keyboard input, and scrolling, through the Claude desktop app. Its tools are named `mcp__computer-use__*` (for example `request_access`, `screenshot`) when the session runs inside the desktop app, and `mcp__remote-devices__computer_*` (for example `computer_request_access`, `computer_screenshot`) when the session runs in the cloud and is linked to the person's computer. Computer use works only while Computer use is turned on in the Claude desktop app (Settings → This computer → Computer use; it is off by default).
+Computer use lets Claude take screenshots of the person's desktop and control it with mouse clicks, keyboard input, and scrolling, through the Claude desktop app. Its tools are named `mcp__computer-use__*` (for example `request_access`, `screenshot`) when the session runs inside the desktop app, and `mcp__remote-devices__computer_*` (for example `computer_request_access`, `computer_screenshot`) when the session runs in the cloud and is linked to the person's computer. Computer use works only while Computer use is turned on in the Claude desktop app (Settings → System → Computer use, or Settings → Capabilities → Computer use if Settings has no System page; it may start on or off depending on the account).
 
 ## Turning computer use on from a chat
 

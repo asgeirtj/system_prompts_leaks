@@ -1,0 +1,7 @@
+name: social_content_performance
+title: "Social Content Performance"
+description: "Use for any question about how organic content performs on social accounts the user owns or manages, such as Instagram, Facebook, Threads, YouTube, TikTok, LinkedIn or Pinterest, including business Pages and profiles they administer, even quick or general questions: post, reel and story results, reach, views, engagement and how to increase it, follower growth, best time to post, content ideas, writing captions and hashtags for their posts or reels, audits, drops, and what to post next. Not for ads (Meta Business Manager), posting or replying, or simple lookups of a post, bio or follower list. For competitors, other brands or category rankings, find Social Competitor Analysis with muse.skill_search instead."
+category: "Business"
+include_in_prompt: false
+availability:
+  confidential_vm: true

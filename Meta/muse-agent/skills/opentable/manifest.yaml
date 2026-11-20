@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: opentable
+  required: true
+cli:
+  binary: opentable
+  skill: opentable
 connector: opentable
 category: social
 display_name: OpenTable
-description: Explore restaurants and book and manage reservations
+description: Find and book restaurants with OpenTable
+icon: opentable
 actions:
   read:
     default: allow
@@ -31,6 +40,27 @@ actions:
       reservation.slot_lock.release:
         label: Release a temporary reservation hold
         approval_phrase: release a temporary hold on OpenTable
+commands:
+  status: null
+  disconnect: null
+  lookup-rid: restaurant.lookup
+  availability: availability.read
+  search-availability: availability.read
+  list-experiences: availability.read
+  get-payment-quote: availability.read
+  get-deposit-total: availability.read
+  availability-metadata: restaurant.lookup
+  delete-slot-lock: reservation.slot_lock.release
+  book-reservation: reservation.book
+  # Link cleanup uses owner-scoped checkout fences, not reservation write consent.
+  cancel-payment-setup: null
+  cancel-modification-payment-setup: null
+  recover-reservation: availability.read
+  get-reservation: availability.read
+  modify-reservation-with-lock: reservation.modify
+  cancel-reservation: reservation.cancel
+  booking-policies: restaurant.lookup
+  cancellation-policies: restaurant.lookup
 consent_screen:
   bullets:
     - icon: data_types
@@ -42,6 +72,11 @@ consent_screen:
     - icon: caution
       title: "Keep an eye on things"
       text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
   footer_paragraphs:
-    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
-    - "Muse will exchange info with OpenTable. To learn more, view their [terms](https://www.opentable.com/legal/terms-and-conditions) and [privacy policy](https://www.opentable.com/legal/privacy-policy)."
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "OpenTable works by connecting through Meta, which means the info exchanged is visible to Meta. [Learn more](https://muse.ai/privacy)"
+          placement: callout
+    - "Muse will exchange info with OpenTable. By connecting, you agree to OpenTable's [Terms of Use](https://www.opentable.com/legal/terms-and-conditions) and [Privacy Policy](https://www.opentable.com/legal/privacy-policy)."

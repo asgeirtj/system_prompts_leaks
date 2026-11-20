@@ -1,4 +1,12 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  # Lovable provisioned a fixed Muse OAuth client. The identifier is
+  # expected-public; CAGI supplies the secret only for exchange/refresh.
+  client_id: "6216645f5dc542e9b1dbeb4175d1f173"
+  provider: lovable
+  required: true
 connector: lovable
 category: business
 display_name: Lovable

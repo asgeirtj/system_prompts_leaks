@@ -1,103 +1,80 @@
-# Saved
+# Facebook saved items
 
-Read and manage Facebook saved items and collections.
+- `saved` commands let Muse find previously saved items, add or remove saved items, and organize saved items in collections.
 
-## Commands
+## Find saved content
 
-### `saved list`
-
-```
-facebook-cli saved list [--type <category>] [--collection-id <id>] [--limit N] [--after <opaque>]
+```sh
+/opt/hatch/bin/facebook-cli saved list [--type <post, post_with_photo, video, reel, link, page, product, event, or another returned type>] [--collection-id '<id from saved collections list>'] [--limit <up to 20>] [--after '<paging.cursors.after from the previous response>']
 ```
 
-Lists saved items, most recent first.
+- `saved list` returns the user's saved items in `data`, most recently saved first. A page holds at most 20 items.
 
-- `--type` (optional): filter by category. One of `post`, `video`, `link`, `product`, `reel`, `event`, `page`.
-- `--collection-id` (optional): list items from a specific collection.
-- `--limit` (optional): maximum number of items per page (max 20).
-- `--after` (optional): opaque next-page cursor from a previous response's `paging.cursors.after` (`--cursor` accepted as a back-compat alias).
+- `summary.total_count` is how many saved items the query matches across every page, so give it as the total instead of counting the items you read. It is null with `--type`, and with `--collection-id` it counts that collection. It can be a little higher than the items listed, because Facebook leaves out some content it won't show.
 
-**Response shape**:
+- Each item's `collection_ids` lists the collections that hold it, by the IDs `saved collections list` returns. An empty list means the item is in no collection. It lists every collection that holds the item, even when `--collection-id` narrows the read.
 
-```json
-{
-  "data": [
-    {
-      "id": "<save-relationship-id>",
-      "savable_id": "<content-id>",
-      "type": "post",
-      "saved_time": 1719500000,
-      "title": "...",
-      "description": "...",
-      "permalink": "https://www.facebook.com/..."
-    }
-  ],
-  "paging": { "cursors": { "before": "...", "after": "..." } }
-}
+- Read every page when the request covers all of the user's saves, such as sorting everything into collections or finding every item in no collection. For a summary or suggestions, read up to five pages, the newest 100 items. For a narrower request, such as the most recent saves, read the next page only when the user asks for more. Whenever you stop before the last page, say how many of the total you looked at.
+
+```sh
+/opt/hatch/bin/facebook-cli saved collections list [--limit <up to 20>] [--after '<paging.cursors.after from the previous response>']
 ```
 
-To fetch the next page, pass `paging.cursors.after` as `--after`.
+- `saved collections list` returns each saved collection. A page holds at most 20 collections.
+- Read every page of collections before creating a collection or choosing among them. To file into a named collection, stop once it appears.
 
-### `saved add`
+- For both `saved collections list` and `saved list`, to see more results, pass the previous response's `paging.cursors.after` as `--after` with the same query and filters. A missing `paging` means there are no more results.
 
-```
-facebook-cli saved add --savable-id <FBID> [--type <category>] [--collection-id <id>]
-```
+## Read the saved content
 
-Saves an item. A clear user request may proceed without an additional approval.
+- `saved list` already shows each item's title, description and link. To open one in more detail, use the reader for its `type`:
+  - `post`, `post_with_photo`, `video` and `reel`: pass the item's returned `permalink` unchanged to `post read --url`. Its `id` and `savable_id` are not post IDs. For comments or reactions, use `posts[0].post_id` from a successful post read with `post comments read --post-id` or `post reactions read --post-id`.
+  - `page`: pass its `savable_id` to `profile info --profile-id`
+  - `product`: pass its `savable_id` to `marketplace listing details --listing-id`
+  - `event`: pass its `savable_id` to `events details --event-id`
 
-- `--savable-id` (required): Facebook ID of the content (post, page, listing, etc.) — sent as the `id` field.
-- `--type` (optional): defaults to `post` server-side. One of `post`, `video`, `link`, `product`, `reel`, `event`, `page`.
-- `--collection-id` (optional): add the item to a specific collection. Omit to save to the default All Saves bucket.
+## Suggest what to do with saved items
 
-**Response**: `{ "id": "<savable-id>", "saved": true }`
+- When the user asks what to do with their saved items, start with a short summary of their saves before any suggestion: how many items they've saved, how many collections they have, and how many items are in no collection.
 
-### `saved remove`
+- Take the item total from an unfiltered `saved list` and the collection total from `saved collections list`, both from `summary.total_count`. Count the items in no collection, whose `collection_ids` is empty, across the pages you read, and say how many items that count covers when you read fewer than all of them.
 
-```
-facebook-cli saved remove --savable-id <FBID> [--type <category>] [--collection-id <id>]
-```
+- Base each suggestion on saved items you read, and link them.
 
-Removes a previously-saved item. A clear user request may proceed without an additional approval.
+- Leave unsaving out of suggestions unless the user asked to clear out their saves.
 
-- `--savable-id` (required): Facebook ID of the saved content (post, page, listing, etc.) — the `savable_id` from `saved list`, sent as the `id` field.
-- `--type` (optional): defaults to `post` server-side. Pass the item's category to disambiguate.
-- `--collection-id` (optional): remove the item only from this collection. Omit to fully unsave.
+## Save or remove an item
 
-This command only removes the save relationship — it does not delete the underlying post/video/page.
+- A clear request to save an item, file it in or take it out of a collection, or create a collection authorizes the change without another confirmation, because saves are private and easy to undo. Resolve the exact item and collection first. When several saved items match, show each one's title and link and ask which one before changing anything.
 
-**Response**: `{ "id": "<savable-id>", "unsaved": true }`
+- Unsave an item only when the user asked to remove it or to clear out saves like it. When that request covers more than one item, list the items you'd unsave with their links, and run `saved remove` after the user confirms that list. A yes to suggestions that didn't name the items to remove doesn't authorize unsaving.
 
-### `saved collections list`
+- Each item has an `id` for the save itself and a `savable_id` for the content. `add` and `remove` take `savable_id`.
 
-```
-facebook-cli saved collections list
-```
+- For an item that is already saved, copy `savable_id` from its own saved list entry, because the IDs don't follow the order of the list. Both assume `post` when `--type` is omitted, so for anything else pass the item's returned `type` unchanged.
 
-Lists collections.
-
-**Response shape**:
-
-```json
-{
-  "data": [
-    { "id": "<collection-id>", "name": "...", "item_count": 5 }
-  ]
-}
+```sh
+/opt/hatch/bin/facebook-cli saved add --savable-id '<savable_id from saved list or another read>' [--type <post (the default), post_with_photo, video, reel, link, page, product, event, or another returned type>] [--collection-id '<id from saved collections list>']
 ```
 
-### `saved collections create`
+- `saved add` saves an item. Without a collection, it saves to 'All Saves'.
 
+```sh
+/opt/hatch/bin/facebook-cli saved remove --savable-id '<savable_id from saved list>' [--type <post (the default), post_with_photo, video, reel, link, page, product, event, or another returned type>] [--collection-id '<collection to remove it from; omit to unsave completely>']
 ```
-facebook-cli saved collections create --name "My Collection"
+
+- `saved remove` removes a saved item. With a collection passed in, it removes only that membership. Without a collection, it fully unsaves the item.
+
+- To move an item to another collection, add it to the new collection first, unless its `collection_ids` already include that collection. Once the item is in the new collection, run `saved remove --collection-id` for each collection it leaves; if the add failed, leave the item where it was. A move the user asked for authorizes both steps.
+
+- A successful `add` returns `saved: true` and `remove` returns `unsaved: true`. Confirm the change from that result instead of listing again.
+
+- Tell the user a change is done only when its command returned that result, and describe it by the item whose `savable_id` the command used. When a command failed or never ran, say which changes are still undone.
+
+- Before filing an item, check its `collection_ids` from `saved list`. When it is already in that collection, skip the add and report it as already there, not as added.
+
+```sh
+/opt/hatch/bin/facebook-cli saved collections create --name '<collection name>'
 ```
 
-Creates an empty collection. A clear user request may proceed without an additional approval.
-
-**Response**: `{ "collection_id": "<id>", "name": "<name>" }`
-
-## Operating notes
-
-- Pagination: `saved list` returns `paging.cursors.after`; pass it as `--after` to fetch the next page. Do not auto-paginate without user direction.
-- Saved item IDs — use `savable_id` for unsave and chaining: every item from `saved list` has two IDs. `id` is the save-relationship entry; `savable_id` is the underlying content. `saved remove` identifies the item by content, so pass the `savable_id` to `saved remove --savable-id <savable_id>` (add `--type <type>` to disambiguate; default is POST). Omitting `--collection-id` fully unsaves the item; passing it removes the item only from that collection. `saved remove` never deletes the post/video/page itself. When chaining to other commands (e.g. `post comments read`, `timeline fetch`), also use `savable_id`.
-- Saved-item writes are auto-allowed by default. Resolve the exact item or collection before changing it.
+- `saved collections create` creates a new saved collection.

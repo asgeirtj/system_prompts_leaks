@@ -1,8 +1,15 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "138594053405-4jj6o9fpkfk3giv969pcs6h6ihq44ej1.apps.googleusercontent.com"
+  provider: google_contacts
+  required: true
 connector: google_contacts
 category: productivity
 display_name: Google Contacts
 description: Search and manage your contacts and address book
+icon: google_contacts
 request_quota:
   mode: enforce
   workers:
@@ -27,8 +34,14 @@ actions:
     methods:
       people.update_contact:
         label: Edit contacts
+        approval_phrase: create or edit contacts, or manage contact groups, in Google Contacts
       people.delete_contact:
         label: Delete contacts
+        approval_buttons:
+          allow_once: "Delete"
+          allow_always: "Always allow deleting contacts"
+          deny: "Don't delete"
+          deny.task: "Don't delete"
 commands:
   status: null
   disconnect: null

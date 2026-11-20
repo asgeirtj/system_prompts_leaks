@@ -1,8 +1,17 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: messenger_companion
+  required: true
+cli:
+  binary: hatch_messenger_cli
+  skill: messenger_read
 connector: messenger_read
 category: social
 display_name: Messenger
 description: Remember past conversations, keep track of plans and stay on top of the chats that matter most
+icon: messenger
 request_quota:
   mode: enforce
   workers:
@@ -11,6 +20,8 @@ request_quota:
 # tool-variant telemetry (e.g. `messenger-cli/messages/send`). Validated by the
 # subcommand_paths_match_manifest test in hatch-messenger-cli.
 cli_subcommands:
+  - "admins add"
+  - "admins remove"
   - "call-logs"
   - "check"
   - "contacts"
@@ -21,6 +32,10 @@ cli_subcommands:
   - "logout"
   - "marketplace initiate"
   - "messages"
+  - "participants add"
+  - "participants remove"
+  - "poll create"
+  - "poll vote"
   - "react"
   - "repair"
   - "search"
@@ -29,6 +44,7 @@ cli_subcommands:
   - "sync contacts"
   - "sync messages"
   - "sync threads"
+  - "thread-create"
   - "threads"
   - "unlock"
   - "unsend"
@@ -51,13 +67,49 @@ actions:
     label: Write and delete permissions
     methods:
       messages.compose:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Send messages
         approval_phrase: send this message in Messenger
+        approval_button_variants:
+          send:
+            allow_once: Send
+            deny: "Don't send"
+            deny.task: "Don't send"
       messages.edit:
-        require_fresh_approval: true
+        approval_policy: fresh_consent_only
         label: Edit or remove messages
         approval_phrase: edit or remove this message in Messenger
+      participants.manage:
+        approval_policy: fresh_consent_only
+        label: Add or remove group members
+        approval_phrase: add or remove people in this group chat
+      thread_admins.manage:
+        approval_policy: fresh_consent_only
+        label: Add or remove group admins
+        approval_phrase: add or remove admins in this group chat
+commands:
+  # Connection lifecycle and local key-state plumbing; not policy-gated.
+  check: null
+  logout: null
+  connect-url: null
+  disconnect-url: null
+  disconnect: null
+  repair: null
+  call-logs: calls.read
+  contacts: contacts.read
+  "sync contacts": contacts.read
+  threads: messages.read
+  messages: messages.read
+  search: messages.read
+  "sync threads": messages.read
+  "sync messages": messages.read
+  "sync both": messages.read
+  send: messages.compose
+  "marketplace initiate": messages.compose
+  # Reactions share the send-message permission.
+  react: messages.compose
+  unsend: messages.edit
+  edit: messages.edit
 
 consent_screen:
   bullets:
@@ -70,6 +122,11 @@ consent_screen:
     - icon: caution
       title: "Keep an eye on things"
       text: "Muse may take unexpected actions. Monitor it carefully."
+  callout_title: "Non-confidential connector"
   footer_paragraphs:
-    - "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+    - text: "The info used for your tasks is part of your interactions with Muse, which we may use to improve AI at Meta. You can manage this in Settings. [Learn more](https://muse.ai/privacy)"
+      variants:
+        confidential_vm:
+          text: "Messenger is from Meta, so some of the info exchanged will be visible to Meta. Your end-to-end encrypted chats stay private, and Meta can't read them. [Learn more](https://muse.ai/privacy)"
+          placement: callout
     - "Muse will exchange info with Messenger. To learn more, view Meta's [terms](https://www.facebook.com/terms/) and [privacy policy](https://www.facebook.com/privacy/policy/)."

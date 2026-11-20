@@ -1,0 +1,9 @@
+id: figma
+title: "Figma"
+description: "Inspect Figma designs and FigJam boards with their components, variables, libraries and assets, turn designs into code, edit designs, generate FigJam diagrams and flowcharts, and map components with Code Connect."
+aliases: [figma, figjam]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: "{bin} authorize-url"

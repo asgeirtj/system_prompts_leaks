@@ -1,0 +1,9 @@
+id: outlook_contacts
+title: "Outlook Contacts"
+description: "Search Outlook and Microsoft 365 contacts and create, update or delete names, email addresses, phone numbers and work details."
+aliases: [outlook-contacts, outlook_contacts]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

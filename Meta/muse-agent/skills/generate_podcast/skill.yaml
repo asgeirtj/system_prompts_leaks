@@ -1,0 +1,8 @@
+name: generate_podcast
+title: "Podcast Production"
+description: "Research, script and produce a podcast episode, briefing or narrated summary with one or more voices, then deliver, publish or schedule it within the scope the user authorized."
+category: "Media"
+include_in_prompt: true
+availability:
+  confidential_vm: true
+  needs_speech: true

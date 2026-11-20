@@ -85,7 +85,8 @@ Show one proposal before writing anything: the tier, the file tree, each agent's
 
 - [ ] **Networking** is `limited`: `allow_mcp_servers: true` if there are MCP servers, `allow_package_managers: true` if it installs packages, plus the exact `allowed_hosts` the job calls. No wildcards and no `unrestricted` anywhere a host or domain is listed: the environment, a credential, a tool. **With `limited` networking, `allowed_hosts` also applies to `web_search` / `web_fetch`** (they run on Anthropic's servers, and return nothing from a host that `allowed_hosts` does not match): disable them unless the job needs them, and then list the sites in `allowed_hosts`, which also opens them to the sandbox, and set `allowed_domains` on the tool; the entries of both get the vendor check below like any other host.
 - [ ] **Tools** are the ones the job uses. On an MCP toolset: `default_config: {enabled: false}` plus named tools. Tool names come from the server's own docs; a wrong name silently disables the tool, so where the vendor publishes none, say the names are unconfirmed and check them in the smoke test. Prefer a vendor's read-only endpoint when it has one.
-- [ ] **Every enabled MCP tool has a stated policy** - the default is `always_ask`, which idles an unattended run on `requires_action`. `always_allow` for read-only tools, `auto` for anything that writes, posts or changes state, `bash` with a credential in reach included. `auto` can still pause a run when the server can't decide; a stall shows in `ant beta:deployment-runs list`, then `ant beta:sessions connect`.
+- [ ] **The built-in toolset (`agent_toolset_20260401`) is on `auto`, which is what the Console sets, or stricter.** Where the entry has no policy (which means `always_allow`) or says `always_allow`, set `permission_policy: {type: auto}` in its `default_config`, beside what is already there (an `enabled: false` stays), and change any `configs` entry of that toolset that says `always_allow` to `auto`, since a tool's own policy overrides the toolset's. An `always_ask` the page or the user put on the toolset or on one of its tools stays, and so does an `always_allow` the user asks for, on the toolset or tool by tool. Say in the proposal, in one line, that this is the Console's policy and that the user can ask for `always_allow` instead. `auto` can still pause a run when the server can't decide; §6 says how to find and answer a paused call. If the API refuses `auto`, say so and ask which policy to use instead.
+- [ ] **Every enabled MCP tool has a stated policy** - the default there is `always_ask`, which idles an unattended run on `requires_action`. `auto` on each, read-only or not, even where the page says `always_allow`; the proposal's one line on the policy (previous item) covers these tools too, and an `always_allow` the user asks for stays (next item).
 - [ ] **Write paths are listed** apart from the config: every tool that can change the outside world, `bash` with a credential included, and what limits where it can write. `always_allow` on one is the user's call, tool by tool.
 - [ ] **Credential table**, apart from the config, one row per credential and per MCP server: **secret -> exact host that receives it -> which step needs it -> narrowest scope**. Tell the user to mint a token for this agent rather than reuse one. Ask for a yes on this table by itself.
 - [ ] **One list of everything the user has to bring**, asked for in this turn, not piecemeal over the next ten: each account or app to create, each token (which kind, which scopes, where in the vendor's UI it is minted), each ID the files need and where to find it (most APIs want an ID where people know a name: a channel ID, a member ID, a project key), each repo or data source, and the schedule with its timezone. Where the vendor offers a faster path - an app manifest, a one-click install link from its own docs - point at it. (The bundled-quickstart flow keeps its own rule: the agent finds repo, channel, team and project names itself.)
@@ -131,6 +132,7 @@ name: daily-brief
 model: claude-opus-5-5
 tools:
   - type: agent_toolset_20260401
+    default_config: {permission_policy: {type: auto}}
     configs:
       - {name: web_search, enabled: false}
       - {name: web_fetch, enabled: false}
@@ -138,7 +140,7 @@ tools:
     mcp_server_name: linear
     default_config: {enabled: false}
     configs:
-      - {name: list_issues, enabled: true, permission_policy: {type: always_allow}}
+      - {name: list_issues, enabled: true, permission_policy: {type: auto}}
 mcp_servers:
   - type: url
     name: linear
@@ -233,7 +235,7 @@ jq -n -f /dev/stdin <<'JQ' | ant beta:vaults:credentials create --vault-id "$VAU
     secret_name: "ACME_API_KEY",
     secret_value: (env.CMA_ACME_API_KEY // error("CMA_ACME_API_KEY is not set")),
     networking: {type: "limited", allowed_hosts: ["api.acme.com"]},
-    injection_location: {header: true}
+    injection_location: {header: true, body: false}
   }
 }
 JQ
@@ -310,9 +312,10 @@ In a body piped to `ant` or a structured flag value, a string that starts with `
 - **How the pieces fit, in a few lines the user can keep** - most of the confusion in a first setup is about what lives where:
   - The files under `agents/` are definitions. `ant apply` turns them into resources on Anthropic's side (agent, environment, vault, memory stores, deployment) and records their IDs in `claude-lock.json`.
   - `ant apply` manages the containers, not what goes in them. The secrets in the vault and the contents of the memory stores are added separately and never live in the files.
-  - Secrets never enter the sandbox. An MCP credential is added by Anthropic's proxy to calls to its MCP server, and the agent sees nothing; an environment-variable credential shows the agent a placeholder, swapped for the real value on the way out, only to its allowed hosts.
+  - Secrets are kept out of the sandbox. An MCP credential is added by Anthropic's proxy to calls to its MCP server, and the agent sees nothing; an environment-variable credential shows the agent a placeholder, swapped for the real value on the way out, only to its allowed hosts. Only a service that sends the secret back, such as an endpoint that echoes request headers, could show it to the agent, so keep such hosts off the credential's allowed hosts.
   - The deployment ties it together: which agent version runs, in which environment, with which vault and memory, on what schedule. Each time it fires, or on a manual run, it starts a fresh session.
-  - Memory the agent can't edit (preferences) is how the user steers it; memory it can edit (state) is how one run carries on from the last.
+  - The memory store is how the user steers the agent (what they seed there) and how one run carries on from the last (what the agent writes there). A store attached without `access` is `read_write`, so the agent can also rewrite what was seeded; attach it `read_only`, as `- {path: ./memory_store-<name>.yaml, access: read_only}` under `resources`, unless the agent must write to it (`shared/managed-agents-memory.md`).
+- **With a deployment, nobody watches a scheduled run.** A call that pauses for approval (a call `auto` can't decide, or any `always_ask` call) makes that run wait until someone answers it. After the first scheduled runs, have the user take each run's session ID from `ant beta:deployment-runs list --deployment-id <id>` and open it with `ant beta:sessions connect <session-id>`, which shows a waiting call and lets them answer it. If their app can receive webhooks, they can register an endpoint for `session.status_idled` in the Console and have the app answer paused calls, denying any call they have no rule for (`shared/managed-agents-webhooks.md`).
 - The tree you wrote, the source URL and its tier. Offer a short `agents/<agent-name>/README.md` recording them (no frontmatter, so a walk ignores it).
 - **Commit `agents/` and `claude-lock.json` together.** Without the lockfile the next `ant apply` creates duplicates.
 - **To change anything:** edit the file, run `ant apply` (no arguments reconciles everything the lockfile tracks). An edited agent gets a new version, and what references its file moves to it in the same run.

@@ -1,0 +1,7 @@
+name: custom_connector_setup
+title: "Custom Connectors and MCPs"
+description: "Connect a service Muse does not bundle through its API or MCP server, keep its credential in Muse's secure connection flow, and save the connector doc and any reusable skill."
+category: "Learning and customization"
+include_in_prompt: true
+availability:
+  confidential_vm: true

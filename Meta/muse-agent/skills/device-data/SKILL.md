@@ -1,10 +1,3 @@
----
-name: "device_data"
-title: "Device Data"
-description: "Read cached contacts and calendar events from Muse storage. Delete Muse's local copy of either source without modifying paired devices."
-metadata: { "includeInPrompt": true }
----
-
 # Device Data
 
 ## Purpose
@@ -27,12 +20,17 @@ device-data contacts search --match-mode ranked \
                             [--device <node_id>] [--limit <n>] [--offset <n>]
 device-data calendar search [--query <text>] [--device <node_id>] \
                             [--start-date <YYYY-MM-DD>] \
-                            [--end-date <YYYY-MM-DD>]
+                            [--end-date <YYYY-MM-DD>] [--limit <n>] \
+                            [--cursor <next_cursor>]
 device-data calendar --delete-all
 ```
 
 Both searches default to every eligible paired device. Use `--device` to scope
 to one and omit `--query` to list.
+
+For calendar results, pass `next_cursor` unchanged as `--cursor` to continue,
+keeping the same device, query and dates. An absent cursor ends pagination;
+check `cache.coverage` separately to understand whether the cache is complete.
 
 Contact search combines literal display-name, phone, and email substring
 matches with token-level exact, locale-aware personal-name nickname, and
@@ -76,8 +74,8 @@ English nickname, fuzzy, and spoken-emoji default. Queries containing Chinese,
 Japanese, or Korean characters retain the bounded whole-name edit-distance
 fallback without requiring locale plumbing. Explicit non-English locales do not
 inherit English spoken-emoji labels. Phone matching ignores formatting
-and country-code differences when the final seven digits agree, but only for a  
-phone-shaped  
+and country-code differences when the final seven digits agree, but only for a
+phone-shaped
 query; digits embedded in names or emails do not activate phone matching.
 Ranked name search is order-independent, treats apostrophes and
 hyphens symmetrically, tolerates repeated or unmatched query words, and reports
@@ -122,12 +120,20 @@ result incomplete.
    target, do not infer the target. Confirm that the user means Muse's locally
    stored copy before deleting anything.
 7. After the user explicitly requests deletion of Muse's locally stored copy,
-   run the command that matches the source:  
-   `device-data contacts --delete-all` or  
-   `device-data calendar --delete-all`.  
+   run the command that matches the source:
+   `device-data contacts --delete-all` or
+   `device-data calendar --delete-all`.
    Do not enumerate record IDs.
 8. Both `--delete-all` commands delete the selected source from Muse storage
    across all devices. They delete cached records, source-ledger payloads,
    upload staging, and sync state. They preserve device pairing and every other
    data source. A later device sync can store new records for the deleted
    source.
+
+## Available connectors
+
+- This skill uses native tools and does not require an account connector.
+
+- Use `muse.connector_search` to find other connectors and `muse.skill_search` to find related skills.
+
+- If nothing here fits, look on the web for a maintained API or MCP server and set it up with [Custom Connectors and MCPs](/opt/muse/skills/custom-connector-setup/SKILL.md), or build a custom connector.

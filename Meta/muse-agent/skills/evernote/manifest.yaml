@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: evernote
+  required: true
 connector: evernote
 category: productivity
 display_name: Evernote
@@ -18,33 +23,38 @@ actions:
     default: allow
     label: Read permissions
     methods:
-      library.read:
-        label: Read notebooks and tags
-        approval_phrase: read notebooks and tags in Evernote
-      notes.read:
-        label: Search and read notes
-        approval_phrase: search and read notes in Evernote
+      content.read:
+        label: Search and read Evernote content
+        approval_phrase: search and read notes, notebooks, Spaces, tags and tasks in Evernote
+      attachments.download:
+        label: Download attachments
+        approval_phrase: download an attachment from Evernote
+        # Binary transfers stay inside the trusted worker; preserve this boundary.
+        response_guard: disabled
   write:
     default: ask
     label: Write permissions
     methods:
-      notes.create:
-        label: Create notes
-        approval_phrase: create notes in Evernote
+      content.manage:
+        label: Manage Evernote content
+        approval_phrase: create or update notes, notebooks, Spaces, tags, tasks and attachments in Evernote
+      content.delete:
+        label: Trash notes and delete tasks
+        approval_phrase: trash notes or delete tasks in Evernote
 commands:
   status: null
   authorize-url: null
   exchange-code: null
   refresh: null
   disconnect: null
-  list-tools: library.read
+  list-tools: content.read
   # Each reviewed provider tool selects its own method at runtime.
   call-tool: null
 consent_screen:
   bullets:
     - icon: data_types
       title: "Level up with Evernote"
-      text: "Muse will access things like notes, notebooks, tags and attachments."
+      text: "Muse will access things like notes, notebooks, Spaces, tags, tasks and attachments."
     - icon: info
       title: "You choose what Muse can do"
       text: "By default, Muse will ask before taking actions it thinks need review. Disconnect at any time in Settings."

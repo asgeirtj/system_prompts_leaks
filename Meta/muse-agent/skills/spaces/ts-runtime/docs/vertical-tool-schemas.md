@@ -87,9 +87,9 @@ Upstream `vertical_data` arrives with measures as `{ value, unit }` objects
 `humidity`, `uv_index`, `air_quality_index` are bare numbers;
 `air_quality_description`, `sunrise`, `sunset` are strings.
 
-> Landed via the KES weather thrift + NLQ + MSL/WWW decoder work  
-> (D107777759, D107957780, D107729843, D108000766); live-verified against  
-> P2371491675. (The earlier "`feels_like` / precipitation are future KES work"  
+> Landed via the KES weather thrift + NLQ + MSL/WWW decoder work
+> (D107777759, D107957780, D107729843, D108000766); live-verified against
+> P2371491675. (The earlier "`feels_like` / precipitation are future KES work"
 > caveat no longer applies — they landed.)
 
 ---
@@ -109,7 +109,7 @@ export interface ToolFinanceOptions extends ToolSearchOptions {
 ### Result (`TOOL_FINANCE_RESULT_SCHEMA`)
 
 Per `instruments[]` entry: `name`, `symbol`, `summary`, `price`, `currency`,
-`change`, `change_percent`, `market_status`, `as_of`, `url`, and an opt-in  
+`change`, `change_percent`, `market_status`, `as_of`, `url`, and an opt-in
 `history`.
 
 **Supported (landed) fields:**
@@ -117,8 +117,8 @@ Per `instruments[]` entry: `name`, `symbol`, `summary`, `price`, `currency`,
 - `change` ← `entity.attributes.change`; `change_percent` ←
   `entity.attributes.percentChange`; `as_of` ←
   `entity.attributes.lastUpdatedAt` (epoch seconds → ISO).
-- `history` (present only when an `interval` is requested):  
-  `{ interval, since, until, points: [{ date, open?, high?, low?, close, volume? }] }`,  
+- `history` (present only when an `interval` is requested):
+  `{ interval, since, until, points: [{ date, open?, high?, low?, close, volume? }] }`,
   sorted oldest first, capped at 400. For intraday intervals (`1m` and `30m`)
   each point's `date` is a full ISO timestamp so same-day bars stay distinct;
   `1d`/`1w`/`1mo` use `YYYY-MM-DD`.
@@ -138,10 +138,10 @@ Per `instruments[]` entry: `name`, `symbol`, `summary`, `price`, `currency`,
 `30m` is not derived from `1m`. For current-day/current-session charts choose
 `1m`; choose `30m` for coarser multi-day intraday charts.
 
-> `market_status` is not surfaced by the integration yet, so it maps to `null`.  
-> **Monthly candles are upstream-gated (empty today)**, so `history` for  
-> `interval: "1mo"` returns empty `points` until that lands. Landed via the  
-> finance NLQ + WWW decoder work (D107985840, D108000766); monthly tracked in  
+> `market_status` is not surfaced by the integration yet, so it maps to `null`.
+> **Monthly candles are upstream-gated (empty today)**, so `history` for
+> `interval: "1mo"` returns empty `points` until that lands. Landed via the
+> finance NLQ + WWW decoder work (D107985840, D108000766); monthly tracked in
 > D107789956.
 
 ---
@@ -211,7 +211,7 @@ Mapping notes (`worker/src/web_search.ts`):
   payloads and is otherwise null.
 - `player_statistics`/`team_statistics` arrive as **text** the WWW decoder
   passes through, parsed into the flexible `stats` records here. Both use the
-  same block layout (confirmed against live prod):  
+  same block layout (confirmed against live prod):
   ```
   Statistics - <label>:
     key: value
@@ -220,15 +220,15 @@ Mapping notes (`worker/src/web_search.ts`):
   - **player** — the label nests the team + qualifier, e.g.
     `"Ariel Hukporti (New York Knicks (Away))"` → `player` + `team`.
   - **team** — the label is `"<Team> (<Qualifier>)"`, e.g.
-    `"New York Knicks (Away)"` → `team` + `qualifier`.  
-  Values are numbers or quoted strings (e.g. `minutes: "1:52"`). The feed  
-  (SportRadar) does not always populate them, so the fields are omitted when  
+    `"New York Knicks (Away)"` → `team` + `qualifier`.
+  Values are numbers or quoted strings (e.g. `minutes: "1:52"`). The feed
+  (SportRadar) does not always populate them, so the fields are omitted when
   empty. Confirmed against live NBA prod traffic; revisit if other sports diverge.
 
-> **Payload trim (D108695383):** the decoder no longer emits the verbatim  
-> per-event `summary` (a ~24 KB blob) or the raw `event.attributes` map; the  
-> consumer reads only the small parsed fields. The item `summary` is retained but  
-> now sources the short `excerpt` body (the giant blob is gone); the redundant  
+> **Payload trim (D108695383):** the decoder no longer emits the verbatim
+> per-event `summary` (a ~24 KB blob) or the raw `event.attributes` map; the
+> consumer reads only the small parsed fields. The item `summary` is retained but
+> now sources the short `excerpt` body (the giant blob is gone); the redundant
 > `player_statistics_text` raw fallback is dropped.
 
 **Deferred (not in this change):** a sport-discriminated `games` union (per-sport
@@ -270,8 +270,8 @@ The result's `vertical` field is `""` (web_search pins no vertical).
 `web_search` runs in the action — the same search the agent's browser search
 runs — and is the path for any web query on any subject. Summarize results
 with `ctx.inference.complete` when you need a narrative. For a stock
-quote/price/history use `finance_ticker`; for scores/schedules/stats use  
-`sports_data`.  
+quote/price/history use `finance_ticker`; for scores/schedules/stats use
+`sports_data`.
 Don't spawn a Space task just to search — `spawnTask` runs this same search.
 Reserve a task for what the agent loop adds *beyond* search: opening and reading
 full pages (`browser.open`), browsing across several sites, multi-step research,

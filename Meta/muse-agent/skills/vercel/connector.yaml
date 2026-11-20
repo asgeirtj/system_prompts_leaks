@@ -1,0 +1,9 @@
+id: vercel
+title: "Vercel"
+description: "Deploy websites and web apps to Vercel, inspect projects, deployments and logs, change settings, environment variables, domains and DNS, and buy domains or upgrades with approval."
+aliases: [vercel]
+include_in_prompt: false
+availability:
+  confidential_vm: true
+auth:
+  authorize: cli

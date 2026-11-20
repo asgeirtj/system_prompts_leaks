@@ -1,0 +1,7 @@
+name: device_data
+title: "Device Data"
+description: "Read cached contacts and calendar events from Muse storage. Delete Muse's local copy of either source without modifying paired devices."
+category: "Personal planning"
+include_in_prompt: true
+availability:
+  confidential_vm: true

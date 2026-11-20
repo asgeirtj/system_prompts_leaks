@@ -58,7 +58,7 @@ Look at the rendered pages, not only the text. Assume there are formatting probl
 - **Numbering:** a list item that lost its marker, or (a) (b) that restarted as (1) (2).
 - **Tables:** columns that changed width, or cells that wrap where they didn't before.
 - **Formatting that runs on:** bold or italic that continues past where it should stop.
-- **Spacing:** double blank lines, a paragraph pressed against the one above it, uneven indents.
+- **Spacing:** double blank lines, a paragraph pressed against the one above it, uneven indents. In a doc that started blank, blocks added with Docs edit requests touch unless you set the space between them; the "Add space between blocks" recipe says how.
 - **Suggestions:** insertions and deletions that render garbled or overlap the normal text.
 - **Page breaks:** a heading alone at the bottom of a page, a blank page, a section that used to fit on one page and now splits.
 
@@ -248,6 +248,15 @@ For several paragraphs, do the highest one first. When only some words in the pa
 **Append to the end.** Insert at the body end index minus 1 that `outline` prints. Start the text with a newline to begin a new paragraph. The new paragraph takes the named style of the one it splits from, so after a heading, set it to `NORMAL_TEXT` with `updateParagraphStyle`.
 
 **Insert new paragraphs with styles.** Insert the text, then style ranges you compute from the insert point and the text length (in UTF-16 units). Headings use `updateParagraphStyle` with `namedStyleType` `HEADING_1` to `HEADING_6`, `TITLE`, or `NORMAL_TEXT` and `fields: "namedStyleType"`. Lists use `createParagraphBullets` over the range with a `bulletPreset` such as `BULLET_DISC_CIRCLE_SQUARE` or `NUMBERED_DECIMAL_ALPHA_ROMAN`. Typing "- " or "1. " makes text, not a list, and `createParagraphBullets` over typed markers keeps them as text, so delete them first. For nesting, put one leading tab per nesting level at the start of each nested line, before the first `createParagraphBullets`. It turns the tabs into levels and removes them, which shifts every later index by the number of tabs. Bulleting a paragraph directly after a list, with the same preset, adds it to that list. Inserted text takes the style of the text before it, or at the start of a paragraph the style of that paragraph's first character, so reset bold and italic on new body text with `updateTextStyle` (`fields: "bold,italic"`, empty `textStyle`). Don't reset headings, because that removes their bold.
+
+**Add space between blocks.** In a doc that had content before you started, set space only on the paragraphs you add, and match how its own paragraphs are spaced, unless the user asks otherwise. By default, a new blank doc's Normal text has no space above or below it, so the paragraphs, lists, tables and code blocks you add to one with `update_doc` run together. Set the space with `updateParagraphStyle`, last, after the text, named styles and bullets: `spaceBelow` of about 8pt on each body paragraph, on the last item of each list and on the last line of an unshaded code block, and the same `spaceAbove` on body text right after a table or a shaded block. Headings bring their own space. Name only what you set in `fields`, never `*`: a field named there but missing from `paragraphStyle` is reset.
+
+```json
+{"updateParagraphStyle": {"range": {"startIndex": 120, "endIndex": 184},
+  "paragraphStyle": {"spaceBelow": {"magnitude": 8, "unit": "PT"}}, "fields": "spaceBelow"}}
+```
+
+Set space last because a `NORMAL_TEXT` request on a paragraph that is already Normal text can clear it, and a paragraph split from a spaced one copies it. The empty paragraph Google adds after a table is already a blank line: leave it with no extra space, or put the next text in it and set `spaceAbove` there. Keep the lines of a code block tight: `updateParagraphStyle` styles every paragraph its range overlaps, table cells included, so don't use one range over the whole doc. Docs draws the space above and below a shaded paragraph, such as a line of a shaded code block, in the shading's color, so space set there makes no white gap. In a new blank doc, don't add empty paragraphs as spacers: one added after a list item or a heading can come out as an empty list item or heading.
 
 **Add a table with content.** One call, with no second read. Place the table after a paragraph, at that paragraph's `endIndex - 1`: for a table under a heading, that is the last paragraph of the section, or the heading itself if the section is empty. Never use the start of a heading: that leaves an empty heading above the table, the heading's font in its cells, and, with `new-table`, the heading itself turned into body text. Write the rows to a JSON file and run:
 

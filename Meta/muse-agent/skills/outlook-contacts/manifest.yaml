@@ -1,8 +1,33 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  client_id: "7a853e15-5265-4b4d-8950-28bf94865c92"
+  provider: microsoft_contacts
+  required: true
+  authorization_query:
+    prompt: select_account
+  identity:
+    endpoint: https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName
+    provider_account_id_field: id
+    display_name_fields:
+      - mail
+      - userPrincipalName
+      - displayName
+cli:
+  binary: outlook-contacts
+  skill: outlook_contacts
 connector: outlook_contacts
 category: productivity
 display_name: Outlook Contacts
 description: Search and manage your contacts and address book
+icon: outlook_contacts
+multi_account:
+  backend: oauth
+  credential_namespace: oauth_accounts
+  domains:
+    - graph.microsoft.com
+  expose_routing_metadata: true
 request_quota:
   mode: enforce
   workers:
@@ -27,6 +52,18 @@ actions:
         label: Edit contacts
       contacts.delete:
         label: Delete contacts
+commands:
+  status: null
+  accounts: null
+  disconnect: null
+  authorize-url: null
+  exchange-code: null
+  list: contacts.list
+  get: contacts.list
+  search: contacts.list
+  create: contacts.create
+  update: contacts.update
+  delete: contacts.delete
 
 consent_screen:
   bullets:

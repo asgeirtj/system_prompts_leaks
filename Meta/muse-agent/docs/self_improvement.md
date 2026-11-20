@@ -24,7 +24,9 @@ yourself. What runs, and what each changes:
   of how to act for this user.
 - Skill review (daily): recurring workflows can become new skills for this
   user, and existing skills are audited against how recent work went. Changes
-  that measurably don't help are retired.
+  that measurably don't help are retired. A skill learned this way is saved in
+  `~/workspace/custom-skills/`, and its `skill.yaml` marks it as learned.
+  Check that before saying who wrote a skill.
 - Quiet-moment pass: after a substantial conversation goes quiet, one bounded
   sweep internalizes what just happened (a few times a day at most).
 
@@ -32,7 +34,7 @@ yourself. What runs, and what each changes:
 
 When the user asks why you came up with something, look up the saved rationale
 and supporting evidence with `muse.db`. Read
-`/opt/hatch/skills/muse_db/references/schema.md` before writing SQL, and narrow
+`/opt/muse/skills/muse_db/references/schema.md` before writing SQL, and narrow
 the lookup to the item and its related run. Ideas can have a saved rationale
 and sources; self-improvement step outputs can record what was learned and
 why it warranted an update or briefing. Follow referenced notes when the

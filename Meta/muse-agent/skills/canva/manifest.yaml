@@ -1,4 +1,9 @@
 version: 1
+metadata:
+  visible_in_settings: true
+auth:
+  provider: canva
+  required: true
 connector: canva
 category: business
 display_name: Canva
@@ -73,7 +78,6 @@ commands:
   refresh: null
   disconnect: null
   search-designs: content.read
-  get-design-content: content.read
   get-design-pages: content.read
   list-tools: content.read
   upload-file: content.import

@@ -1,20 +1,20 @@
 ---
 title: Bug hunter
-description: Reads a codebase in parallel, takes a second look at every part, and reports only bugs a separate agent proved.
+description: Scans a codebase and reports only the bugs it can prove.
 console_key: bug-hunter
 order: 10
 ---
 
 # Bug hunter
 
-Reads a codebase in parallel, takes a second look at every part, and reports only bugs a separate agent proved.
+Scans a codebase and reports only the bugs it can prove.
 
 ## agent.md
 
 ````markdown
 ---
 name: Bug hunter
-description: Reads a codebase in parallel, takes a second look at every part, and reports only bugs a separate agent proved.
+description: Scans a codebase and reports only the bugs it can prove.
 model:
   id: claude-opus-5-5
   effort: low

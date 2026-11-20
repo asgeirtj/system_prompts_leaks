@@ -343,7 +343,7 @@ Used as the definitive source in:
 | Pi (Inflection) | [Pi system prompt](Pi/instructions.md) |
 | Proton Lumo AI | [Proton Lumo AI system prompt](Misc/proton-lumo-ai.md) |
 | Raycast AI | [Raycast AI system prompt](Misc/raycast-ai.md) |
-| Sesame AI Maya | [Sesame AI Maya system prompt](Misc/sesame-ai-maya.md) |
+| Sesame AI Maya & Miles | [Sesame AI Maya and Miles system prompts](Misc/sesame-ai-maya-miles.md) |
 | Stack Overflow AI Assist | [Stack Overflow AI Assist system prompt](Misc/stack-overflow-ai-assist.md) |
 | t3.chat | [t3.chat system prompt](Misc/t3.chat.md) |
 | t3 Code | [t3 Code system prompt](Misc/t3-code.md) |

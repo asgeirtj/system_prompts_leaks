@@ -667,6 +667,14 @@ If a hook isn't running:
             "type": "string"
           }
         },
+        "workingDirectoriesExclude": {
+          "description": "For the program that starts Claude Code: read only from --settings and from settings that program sends while the session runs; ignored in user, project, local and managed settings. Absolute paths, each a folder with all below it or one file, that blockReadsOutsideWorkingDirectories, blockFileToolReadsOutsideWorkingDirectories and blockWritesOutsideWorkingDirectories count as outside every working directory that holds them. A path is refused if it, or where its links lead, lies in a listed path, in any letter case, or above one that no Read deny rule covers (a Grep or Glob rooted there would walk into it; a deny rule keeps those two out, unless a "!" rule is also in force); for a search the path judged is its root, not each file found below it. Still let through: a working directory, or for reads a path of blockReadsExemptPaths, that is the listed path or lies inside it, and the files that Claude Code keeps for the session. It allows nothing, binds what those three settings bind, and does nothing with all of them off. Each path counts as written: a link in it is not followed, so list every spelling. Once listed, a path stays listed for the life of the process. Ignored: a relative path, and one that starts with ~, has a ".." segment or has white space at either end. Does not change what sandboxed commands may read or write.",
+          "type": "array",
+          "items": {
+            "default": "",
+            "type": "string"
+          }
+        },
         "disableAutoMode": {
           "description": "Disable auto mode",
           "type": "string",
@@ -866,6 +874,10 @@ If a hook isn't running:
       "description": "Disable the skills and workflows that ship with Claude Code: bundled skills and workflows are removed entirely; built-in slash commands stay typable but are hidden from the model. Plugins, .claude/skills/, and .claude/commands/ are unaffected. Equivalent to CLAUDE_CODE_DISABLE_BUNDLED_SKILLS=1.",
       "type": "boolean"
     },
+    "disableDirectMcpSkills": {
+      "description": "When true in managed settings, Claude Code lists and loads no skill of an MCP server that it connects to directly, reads no listed file of a loaded one, and lists no directory of the server. On the Team and Enterprise plans these skills are off unless an administrator sets it to false. Connectors that Claude Code reaches through Anthropic keep their skills, and each server keeps its tools. In a user, project or local settings file it has no effect.",
+      "type": "boolean"
+    },
     "managedMcpServers": {
       "description": "MCP servers the organization provides to every user, keyed by server name, each with the .mcp.json entry shape; only "http" and "sse" servers are accepted (nothing that names a program to run, no ${VAR} references). Honored from managed settings only; users cannot remove them, deniedMcpServers still applies, and they need no allowedMcpServers entry. Not read in Claude Desktop's Code tab on a third-party deployment or in Cowork sessions, where Claude Desktop supplies and locks the session's MCP servers itself.",
       "type": "object",
@@ -926,7 +938,7 @@ If a hook isn't running:
             }
           },
           "serverUrl": {
-            "description": "URL pattern with wildcard support (e.g., "https://*.example.com/*") for blocked remote MCP servers",
+            "description": "URL pattern with wildcard support (e.g., "https://*.example.com/*") for blocked remote MCP servers. A pattern with no query also blocks the URL with any query, or with a trailing slash added or, if its path has no wildcard, removed.",
             "type": "string"
           }
         }
@@ -1409,6 +1421,10 @@ If a hook isn't running:
     "allowManagedMcpServersOnly": {
       "description": "When true (and set in managed settings), allowedMcpServers is only read from managed settings. deniedMcpServers still merges from all sources, so users can deny servers for themselves, in user settings for a server the organization provides. Users can still add their own MCP servers, but only the admin-defined allowlist applies.",
       "type": "boolean"
+    },
+    "desktopMcpServersListScope": {
+      "description": "Claude desktop app only. Where your allow list and deny list apply to MCP servers added in the Claude desktop app. "code" (default): Your allow list also governs MCP servers added in the Claude desktop app, in Code tab sessions and the Artifact pane. "all": Your allow list and your deny list also govern MCP servers added in the Claude desktop app, in every tab (including Chat and Cowork). "off": Your allow list doesn't govern MCP servers added in the Claude desktop app. Read only from managed settings. Any other value counts as `all`. Where sources are merged or mixed, `off` counts as `all`. Leave the key out, or set it only in the managed source that holds your list. `deniedMcpServers` applies in Code tab sessions and the Artifact pane with every value, and in every tab with `all`. MCP servers sent to SSH hosts are not governed by these lists in this release. The Claude Code CLI reads nothing from this key, but written alone in a higher managed source it makes that source lead, and Claude Code skips the managed sources beneath it. Write it only beside the list it scopes.",
+      "type": "string"
     },
     "allowAllClaudeAiMcps": {
       "description": "When true (and set in managed settings), claude.ai cloud MCP connectors load alongside managed-mcp.json instead of being suppressed by its exclusive-control lockdown. Default off preserves the lockdown. Read from managed settings only.",
@@ -4646,7 +4662,7 @@ If a hook isn't running:
                     }
                   },
                   "injectHosts": {
-                    "description": "Optional narrowing of where the proxy substitutes this credential. Only meaningful when mode is `mask`; accepted but ignored for `deny`. If unset, defaults to `network.allowedDomains` — the credential is injected at every reachable host. Each entry must be reachable via `network.allowedDomains` (sandbox-runtime validates this).",
+                    "description": "Optional narrowing of where the proxy substitutes this credential. Only meaningful when mode is `mask`; accepted but ignored for `deny`. If unset, defaults to `network.allowedDomains` — the credential is injected at every reachable host. A masked AWS secret key that signs requests is the exception: with no list it is never injected. Each entry must be reachable via `network.allowedDomains` (sandbox-runtime validates this).",
                     "type": "array",
                     "items": {
                       "type": "string"

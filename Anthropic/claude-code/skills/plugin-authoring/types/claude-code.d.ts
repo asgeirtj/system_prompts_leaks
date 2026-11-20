@@ -1,4 +1,4 @@
-// Written by Claude Code 2.1.328.
+// Written by Claude Code 2.1.330.
 // Claude Code function hooks: the plugin API's TypeScript declarations.
 //
 // EARLY ACCESS: this surface may change between releases without notice.
@@ -447,6 +447,87 @@ declare module 'claude-code' {
   export type AgentOfferResult = {
       isOffered: boolean;
   };
+
+  /**
+   * The input of `agent.report`: one report of an agent, before it reaches
+   * the loop that waits for it.
+   *
+   * `text` is the hook's to rewrite; the rest is pinned.
+   */
+  export type AgentReportInput = {
+      /**
+       * The agent whose report this is, as `agent.spawn` answered it.
+       */
+      agentId: string;
+      /**
+       * The agent the report is for; absent when it is for the main conversation.
+       */
+      parentAgentId?: string;
+      /**
+       * The agent's type (`Explore`, `fork`, a plugin's agent).
+       */
+      subagentType: string;
+      /**
+       * Who provides this agent, as `agent.spawn`'s `provider` says; for a forked
+       * skill or command, who provides that.
+       */
+      provider: Origin;
+      /**
+       * How the run ended; a report handed back by the tool is `completed`.
+       */
+      status: 'completed' | 'failed' | 'stopped';
+      /**
+       * The report: the run's final text or the hand-back tool's message, and
+       * of a run that failed or was stopped what it had written so far.
+       *
+       * Empty where the parent is told only of the error or the stop. Where an
+       * agent owed a hand-back and made none, the engine's note saying so.
+       */
+      text: string;
+  };
+
+  /**
+   * What an `agent.report` hook returns and what `next(e)` resolves to: the
+   * text to deliver with the report's review, or `{ consumed: reason }`.
+   *
+   * `next(e)` delivers nothing: the engine delivers what the outermost hook
+   * returns.
+   */
+  export type AgentReportResult = {
+      /**
+       * The report to deliver; from core, `e.text` exactly as passed.
+       */
+      text: string;
+      /**
+       * The review of the report as the agent wrote it, whatever `text` is now.
+       * Core's alone: absent where a hook beneath answered without `next`.
+       */
+      review?: AgentReportReview;
+      /**
+       * What the parent reads above the report where `review` is `flagged`,
+       * `refused` or `unavailable`. Core's alone.
+       */
+      warning?: string;
+      consumed?: undefined;
+  } | {
+      /**
+       * Takes the report, before or after `next`: the parent gets no notice
+       * and waits no longer. The reason is logged, the plugin named.
+       */
+      consumed: string;
+      text?: undefined;
+      review?: undefined;
+      warning?: undefined;
+  };
+
+  /**
+   * What auto mode's hand-off review made of a report.
+   *
+   * `cleared`, `flagged`: its verdict. `refused`, `unavailable`: it gave none,
+   * refused or out of reach. `none`: auto mode, and it had no review to give.
+   * `off`: the mode runs no such review.
+   */
+  export type AgentReportReview = 'cleared' | 'flagged' | 'refused' | 'unavailable' | 'none' | 'off';
 
   /**
    * One request of an agent's loop (a `turn.step`'s) as it went out, past caps,
@@ -1160,7 +1241,8 @@ declare module 'claude-code' {
   export type BoxHoverProps = {
       /**
        * Names a hover group of this plugin's: every element it draws with the
-       * same `scope`, in any site, lights while any is hovered, reveals included.
+       * same `scope`, in any site but a `Backdrop`, lights while any is hovered,
+       * reveals included.
        *
        * A Pane row and a mark on a transcript message can share one. Another
        * plugin's elements under the same string are a different group. One to
@@ -1469,12 +1551,13 @@ declare module 'claude-code' {
        * `ui.press` chain. The host holds only a handle, for the drawing's life.
        *
        * Run with the `ui.press` argument as the chain above left it: `e.surface`
-       * names the surface the press came from, which a copy passes on.
+       * names the surface the press came from, which a copy passes on. Where it
+       * does async work, returning the promise is best: the press waits for it.
        *
        * @example
        * onPress: press => $.ui.copy({ text: url, surface: press.surface })
        */
-      onPress: (e: UiPressArgument) => void;
+      onPress: ((e: UiPressArgument) => void) | ((e: UiPressArgument) => Promise<unknown>);
   };
 
   /**
@@ -1671,6 +1754,8 @@ declare module 'claude-code' {
        * it): the worktree the hook created, absolute or relative to its cwd.
        *
        * Left unset, the session creates its git worktree as it would unhooked.
+       *
+       * @deprecated from a module, answer `vcs.isolate` instead; this still works
        */
       worktreePath?: string;
   };
@@ -2846,6 +2931,9 @@ declare module 'claude-code' {
            * @remarks Below that it waits undrawn (`$.ui.panes()`: `isPlaced` false)
            *   for their open or a wider terminal; with no surface attached, for one.
            *   A pane another plugin holds is refused: the open rejects, naming it.
+           *   So is a `focus` open from a hook holding a tool call (`tool.call`,
+           *   `tool.judge`, `tool.run`, `classic.PreToolUse`) while no surface has
+           *   attached, which nobody could answer: ask with `$.ui.ask` there.
            * @param pane `id` (1-64 of letters, digits, `_`, `-`), `title`, `focus`,
            *   `closeOnEscape` and `holdToasts` (a dialog), `backgroundColor` (what
            *   is painted under its body), `rows` / `columns` wanted, `placement` (the
@@ -2995,12 +3083,16 @@ declare module 'claude-code' {
            * as SVG.
            * `colors` is a theme for a surface to paint itself with, where it reads
            * one. With no scene, no `ui.render` hook is asked to draw.
+           * `sound` is what the desktop app plays once the person turns it on.
+           * `style` is how the desktop app draws messages and tool calls' rows.
            * Display only: `--resume` brings none back and a plugin that unloads
            * takes its own with it, so set it at `session.start`.
            *
            * @param attributes `backdrop`: a scene, `scene` and `glass` (`blur`, `tint`,
            *   `opacity`) or `false`, or a still ground, see `ThemeGround`;
-           *   `overrideColorScheme` (`light` or `dark`); `colors`: a whole palette
+           *   `overrideColorScheme` (`light` or `dark`); `colors`: a whole palette;
+           *   `sound`: an ambience and cues, see `ThemeSound`; `style`: a rule for
+           *   each part of the conversation, see `ThemeStyle`
            * @returns `{ isDrawn: true, requestId }`, or `isDrawn: false` and why
            * @example
            * await $.theme.set({ backdrop: { scene: "lagoon", glass: { blur: 14, opacity: 0.55 } } })
@@ -3272,8 +3364,10 @@ declare module 'claude-code' {
            */
           id: () => Promise<string>;
           /**
-           * Returns the git repository the session runs in, read from the working
-           * copy on each call; null when the directory is not inside one.
+           * Returns the repository the session runs in; null when the directory is
+           * not inside one.
+           *
+           * Its root and remote are `vcs.detect`'s: hook that to change them.
            *
            * @example
            * const repo = await $.session.repo(); const publicRepo = !repo?.internal
@@ -3359,8 +3453,10 @@ declare module 'claude-code' {
            * yarn, pnpm, bun, deno and node are on the PATH.
            *
            * Read inside the engine with no program run. The two lists are the ones
-           * the engine's own analytics rows carry; on the server (not the CLI), where
-           * tools run in another container, they are empty, the names the server's.
+           * the engine's own analytics rows carry. On the server (not the CLI), where
+           * tools run in another container, that container answers an installed mod,
+           * or the call rejects; a built-in's own call gets the server's names and
+           * empty lists.
            *
            * @returns `sysname`, `release` and `machine` in uname's words (on Windows
            *          `Windows_NT` and the NT version; 64-bit ARM as `arm64` or
@@ -4345,6 +4441,111 @@ declare module 'claude-code' {
           set: (name: string, value: string | undefined) => Promise<EnvSetResult>;
       };
       /**
+       * Version control, whichever system keeps the folder. Each call rejects in
+       * a session with no disk.
+       *
+       * Experimental: may change.
+       */
+      vcs: {
+          /**
+           * Returns the working copy a folder is in, the event `vcs.detect`; null
+           * when it is in none.
+           *
+           * Experimental: may change.
+           *
+           * Asked anew at each call, through the other hooks, the calling one
+           * skipped. A relative `path` is under the working directory. Rejects
+           * where the session's files are on another machine.
+           *
+           * @example
+           * const copy = await $.vcs.detect({ path: "." }); const at = copy?.revision
+           */
+          detect: EventCalls['vcs']['detect'];
+          /**
+           * Returns what changed in a working copy, the event `vcs.diff`; `unknown`
+           * where no hook can say.
+           *
+           * Experimental: may change.
+           *
+           * Takes a folder. Asked anew at each call, and refused where `detect` is.
+           *
+           * @example
+           * const { files } = await $.vcs.diff({ path: ".", vcs: "acme", base: "head" })
+           */
+          diff: EventCalls['vcs']['diff'];
+          /**
+           * Asks the hooks to isolate a folder: the event `vcs.isolate`. Nothing
+           * moves into the copy.
+           *
+           * Beneath the hooks the engine makes a Git worktree, and answers the same
+           * one when this mod asks again under the name. It answers `{ deny }`
+           * outside Git, before workspace trust is accepted, where a managed rule
+           * would refuse this mod's own run of `git worktree add` or `git fetch`,
+           * where Git fails, and for a name that is taken, has the form of an
+           * agent's, or begins a part with `-`. A `from` that a managed rule keeps
+           * this mod from listing is denied ahead of the hooks, and the engine
+           * makes no copy that it could not list.
+           *
+           * Experimental: may change.
+           *
+           * @example
+           * const { path, deny } = await $.vcs.isolate({ name: "try-1", from,
+           *   for: "agent", base: "head" })
+           */
+          isolate: EventCalls['vcs']['isolate'];
+          /**
+           * Lists the working copies of the repository holding `path`: the event
+           * `vcs.list`. The engine answers Git's worktrees for the repository the
+           * session is in, once the person trusted it, and none for any other.
+           *
+           * Experimental: may change.
+           *
+           * Takes a folder, and is refused where `detect` is. The engine raises
+           * `process.run` of `git worktree list` as the caller, with no output, and
+           * `fs.list` on `path` and on each worktree: it answers none where the
+           * first is refused, and names only what the second read.
+           *
+           * @example
+           * const copies = await $.vcs.list({ path: "." })
+           */
+          list: EventCalls['vcs']['list'];
+          /**
+           * Asks what a working copy holds: the event `vcs.status`. The engine
+           * answers for the trusted workspace's Git repository, its worktrees and
+           * this mod's own copies; for any other folder, `{ unknown }`.
+           *
+           * It reads the whole copy, paths from its top, and writes nothing.
+           * `unpublished` counts from where a copy the engine made began, else from
+           * `since`, else the commits no remote-tracking branch holds. Where a
+           * managed rule would refuse this mod's own run of `git status`, or its
+           * `$.fs.list` of a changed path or, ahead of the hooks, of the folder,
+           * the answer is `{ unknown }`.
+           *
+           * Experimental: may change.
+           *
+           * @example
+           * const { changes, unknown } = await $.vcs.status({ path, name: "try-1" })
+           */
+          status: EventCalls['vcs']['status'];
+          /**
+           * Asks the hooks to take a working copy away: the event `vcs.release`.
+           *
+           * The engine removes only a worktree it made on this mod's own `isolate`
+           * in this process, with its branch, and answers `{ kept }` for any other
+           * folder, one in use, and, without `isDiscard`, one that holds work. It
+           * answers the same where a managed rule would refuse this mod's own run
+           * of `git worktree remove --force` or `git branch -D` or, ahead of the
+           * hooks, its `$.fs.list` of the folder.
+           *
+           * Experimental: may change.
+           *
+           * @example
+           * await $.vcs.release({ path, name: "try-1", vcs, isDiscard: false,
+           *   reason: "the try is over" })
+           */
+          release: EventCalls['vcs']['release'];
+      };
+      /**
        * WebAssembly, run in the module's own environment, where its hooks run.
        *
        * A module that calls `compile` has a `WebAssembly` global, the standard API
@@ -4987,6 +5188,36 @@ declare module 'claude-code' {
        */
       'agent.spawn': AgentSpawnInput;
       /**
+       * Fires before an agent's report reaches its parent, for each run that ends
+       * or is stopped. `next(e)` answers auto mode's review and delivers nothing.
+       *
+       * What the outermost hook returns is delivered: `{ text }`, under the review's
+       * warning if it gave one. `{ consumed: reason }` takes it: the parent gets no
+       * notice and waits no longer, and a call that waited answers the reason.
+       *
+       * @remarks What the agent wrote is reviewed once, as with no hook, and with
+       *   no `next` all the same; a hook's text is not. A `review` or `warning` a
+       *   hook writes is dropped. A warning goes with whatever text is delivered;
+       *   of a consumed report, with the agent's next one in this process.
+       * @remarks A hook that throws is skipped as on any event: before its `next`
+       *   the report goes on without it, after it what `next` answered is delivered.
+       * @remarks Final text is seen before it is reviewed; the hand-back tool's
+       *   message after the call's own verdict, which `next` answers. A run that
+       *   failed or was stopped in the background has no review: `none`.
+       * @remarks Each report is asked about anew, a first run's or a resumed one's.
+       *   A run that only waits on agents of its own reports once they have; left
+       *   none by a consume, it ends as its last turn left it, with no further one.
+       * @remarks The engine stops naming a consumed report's output file. A model's
+       *   own Read of that file, a script's read of the transcript, the agent itself
+       *   when resumed and SubagentStop hooks still see it.
+       * @remarks Not raised for a workflow's `agent()`, a teammate (see
+       *   `session.receive`), a remote agent, an observer, or a run with hooks off.
+       * @example
+       * on("agent.report", { subagentType: "lab:runner" }, async ($, e, next) =>
+       *   (await $.store.set(e.agentId, await next(e)), { consumed: "kept" }))
+       */
+      'agent.report': AgentReportInput;
+      /**
        * Fires when a prompt is submitted, before the turn starts. `next(e)` runs
        * the hooks beneath and the UserPromptSubmit settings hooks, then it enters.
        *
@@ -5156,12 +5387,13 @@ declare module 'claude-code' {
        *   passes the tool through. A command that sends the conversation ahead of
        *   a turn (`/compact`, `/btw`) asks first, as the loop.
        * @remarks The hand-back tool is asked at each run; not offered, the agent's
-       *   final text is its report. Where the server decides auto mode's checks it
-       *   is not asked, and stays offered. StructuredOutput and EndConversation
-       *   are never asked, nor is a list for the loops the engine runs for itself
-       *   (an agent hook's, a compaction's). A Batch tool follows the tool it
-       *   batches. ToolSearch, not offered, is left out while no offered tool is
-       *   deferred, and is there to load one that is; it finds no hidden tool.
+       *   final text is its report. Where the server decides auto mode's checks and
+       *   cannot be handed that text, it is not asked, and stays offered.
+       *   StructuredOutput and EndConversation are never asked, nor is a list for
+       *   the loops the engine runs for itself (an agent hook's, a compaction's). A
+       *   Batch tool follows the tool it batches. ToolSearch, not offered, is left
+       *   out while no offered tool is deferred, and is there to load one that is;
+       *   it finds no hidden tool.
        * @example
        * on("tool.offer", { tool: "Agent" }, ($, e) => ({ isOffered: !e.agentId }))
        */
@@ -5264,6 +5496,295 @@ declare module 'claude-code' {
        * on("attribution.text", { kind: "commit" }, () => ({ text: "" }))
        */
       'attribution.text': AttributionTextInput;
+      /**
+       * Fires when the engine asks which version control system a folder uses;
+       * `next(e)` resolves to the working copy (VcsWorkingCopy) or null.
+       *
+       * Experimental: may change.
+       *
+       * Asked for a conversation's first request, after a compaction and when the
+       * loop's own folder changes. Core answers Git. Copies nest: answer where
+       * yours is as near as the one beneath or nearer, else return that one.
+       *
+       * `detect` of the `root` it answered names the same `root`.
+       *
+       * Every copy of one repository answers the same `mainRoot`.
+       *
+       * Hooks written so resolve nested copies nearest first, in any load order.
+       *
+       * `$.vcs.detect` takes any file's path; a hook hears the folder holding it.
+       *
+       * The parent of `root` gives the enclosing system, the calling hook skipped.
+       *
+       * On a managed login a person's hook is asked only where nothing else claims the folder.
+       *
+       * Another system's answer names it and its branch in the environment block
+       * and drops the Git status block and, for the session, the shell tools'
+       * commit and pull-request steps; Git's safety cautions stay. Add your own
+       * with `prompt.context` and `tool.describe`. `$.session.repo()` reads it
+       * too. Trust, settings, memory, permissions and the sandbox never do. A
+       * hook that fails passes it through. Not raised where the session's files
+       * are on another machine.
+       *
+       * Grep and file suggestions honor `.ignore` and `.rgignore` without Git.
+       *
+       * @example
+       * on("vcs.detect", async ($, e, next) => {
+       *   const below = await next(e)
+       *   const found = await $.process.run(["acme", "root"], { cwd: e.path })
+       *   const root = found.stdout.trim()
+       *   const isAsNearOrNearer = root.length >= (below?.root.length ?? 0)
+       *   if (found.exitCode !== 0 || !isAsNearOrNearer) return below
+       *   return {
+       *     vcs: "acme", root, mainRoot: root, revision: "1234", branch: null,
+       *     defaultBranch: null, remote: "ssl:acme:1666",
+       *   }
+       * })
+       * on("prompt.context", async ($, e, next) => {
+       *   const result = await next(e)
+       *   const copy = await $.vcs.detect({ path: "." })
+       *   const block = { name: "acmeStatus", text: `At change ${copy?.revision}.` }
+       *   return copy?.vcs === "acme"
+       *     ? { ...result, blocks: [...result.blocks, block] }
+       *     : result
+       * })
+       */
+      'vcs.detect': VcsDetectInput;
+      /**
+       * Fires when a mod asks what changed in a working copy, as `/diff` does
+       * where `vcs.detect` names a system other than Git; match it on `vcs`.
+       *
+       * Experimental: may change.
+       *
+       * Core answers `{ unknown: null }`, and `/diff` then looks for Git; a hook's
+       * own reason shows instead. An answer may cost a server call. A hook that
+       * fails passes it through. Not raised where the session's files are on
+       * another machine.
+       *
+       * Git isn't served here yet: `/diff` reads it itself.
+       *
+       * On a managed login a person's hook is asked only where no other answers.
+       *
+       * A diff over two sets of paths is the union of each.
+       *
+       * Stat-only is the same files without patches.
+       *
+       * @example
+       * on("vcs.diff", { vcs: "acme" }, async ($, e) => {
+       *   if (e.base === "default") return { unknown: "acme has no mainline" }
+       *   const kept = e.paths?.map(path => `--only=${path}`) ?? ["--all"]
+       *   const argv = ["acme", "changes", "--json", ...kept]
+       *   const found = await $.process.run(argv, { cwd: e.path })
+       *   if (found.exitCode !== 0) return { unknown: "acme did not answer" }
+       *   const files = JSON.parse(found.stdout).map(one => ({
+       *     path: one.path, renamedFrom: null, added: one.plus, removed: one.minus,
+       *     isBinary: false, isUntracked: one.isNew,
+       *     ...(!e.isStatOnly && { patch: one.hunks }),
+       *   }))
+       *   return { base: "change 1234", files }
+       * })
+       */
+      'vcs.diff': VcsDiffInput;
+      /**
+       * Fires when a working copy is needed, before anything is made: for a
+       * subagent run with `isolation: "worktree"` (the Agent tool, a workflow's
+       * `agent()`), or for a session: by EnterWorktree, the `--worktree` flag, a
+       * Remote Control spawn in a worktree, or an app that is about to open one.
+       * A review reference (`--worktree "#123"`, a URL) stays Git's, as does a
+       * sub-folder picked over Remote Control: no hook hears it. No `vcs.*` hook
+       * hears a `name` with a part that starts with a dash.
+       *
+       * At launch and at a spawn no session is bound. `$.process`, `$.fs`, `$.settings`
+       * and `$.store` work, and `$.model.fork` answers `nothing-to-fork`. These reject:
+       * `$.tool`, `$.command`, `$.config`, `$.mcp`, `$.agent` but for `limits`,
+       * `$.ui.ask`, `$.prompt.compose`, and `$.session.messages` and `send`.
+       * `session.start` follows the move, for the mods that the copy enables.
+       *
+       * `next(e)` makes it as the engine would unhooked: a WorktreeCreate hook
+       * where one is set, a host's callback among them, else a Git worktree.
+       * Answer `{ path, vcs }` in its place and the copy is this mod's: the engine
+       * vets the folder, runs no version control there, and asks `vcs.status` and
+       * `vcs.release` about it. `{ deny }` refuses. A hook that fails is skipped.
+       * On a mod's own `$.vcs.isolate`, `next(e)` makes a Git worktree for that
+       * mod, in a trusted workspace only, and runs no WorktreeCreate hook.
+       *
+       * Systems can sit side by side or nest: claim only when yours is the nearest
+       * one holding `from`, else pass on with `next`. On `vcs.status` and
+       * `vcs.release`, a matcher on `vcs` hears only your own copies.
+       *
+       * Where a second folder costs too much, answer `path: e.from` and the agent
+       * is isolated in place: it runs in its parent's folder under the parent's
+       * fences and guards, reads that it shares the folder, and `vcs.status` and
+       * `vcs.release` are asked about `name`, so answer for that work alone. It
+       * gives no file isolation: claims and conflicts are the mod's, at `tool.run`
+       * by `agentId` (a workflow's agent that is run again is asked about again,
+       * under its new one). The engine removes, locks and sweeps nothing there.
+       * The agent is not told `branch`: a mod that wants it told appends it with
+       * `$.session.append` under the agent's `agentId`, at `turn.start`.
+       *
+       * It may be asked again for a name it already made: by `--worktree <name>`,
+       * and by a resume, for a copy that is missing or empty or a subagent's after
+       * a restart. On a resume's ask `next(e)` makes nothing and denies, any folder
+       * but the recorded one is left unused, and nothing is isolated in place. The
+       * engine relies on:
+       * - `isolate` twice with one name is the same copy.
+       * - A fresh copy's `status` is empty and answers the same `revision`: where
+       *   a clone carries local changes, report against creation or reset them.
+       * - `release` right after `isolate` changes nothing `from` can observe.
+       * - Releasing a copy already gone is released.
+       *
+       * Experimental: may change.
+       *
+       * @example
+       * on("vcs.isolate", async ($, e, next) => {
+       *   if (!(await $.fs.exists(`${e.from}/.acme`))) return next(e)
+       *   const argv = ["acme", "copy", "--name", e.name, "--base", e.base]
+       *   const made = await $.process.run(argv, { cwd: e.from })
+       *   if (made.exitCode !== 0) return { deny: made.stderr }
+       *   const [path, revision] = made.stdout.trim().split("\n")
+       *   return { path, vcs: "acme", revision }
+       * })
+       * @example
+       * // in place: a changelist, shelved first so that a late edit is not lost
+       * on("vcs.isolate", { for: "agent" }, async ($, e, next) => {
+       *   if (!(await $.fs.exists(`${e.from}/.acme`))) return next(e)
+       *   const argv = ["acme", "changelist", "open", e.name]
+       *   const made = await $.process.run(argv, { cwd: e.from })
+       *   if (made.exitCode !== 0) return { deny: made.stderr }
+       *   return { path: e.from, vcs: "acme", branch: made.stdout.trim() }
+       * })
+       * on("vcs.status", { vcs: "acme" }, async ($, e) => {
+       *   const argv = ["acme", "changelist", "files", e.name ?? "default"]
+       *   const ran = await $.process.run(argv, { cwd: e.path })
+       *   if (ran.exitCode !== 0) return { unknown: ran.stderr }
+       *   const paths = ran.stdout.split("\n").filter(Boolean)
+       *   return { changes: paths.map(path => ({ path, state: "modified" })),
+       *     unpublished: 0 }
+       * })
+       * on("vcs.release", { vcs: "acme" }, async ($, e) => {
+       *   for (const verb of ["shelve", "revert"]) {
+       *     const argv = ["acme", "changelist", verb, e.name]
+       *     const ran = await $.process.run(argv, { cwd: e.path })
+       *     if (ran.exitCode !== 0) return { kept: ran.stderr }
+       *   }
+       *   return { isReleased: true }
+       * })
+       * @example
+       * // the model picks each command; it meets the permission check as the asker's
+       * // the mod picks the folder: what a command prints can steer the model
+       * on("vcs.isolate", async ($, e) => {
+       *   const path = `${await $.env.get("HOME")}/acme-copies/${e.name}`
+       *   let prompt = `Make an acme copy of ${e.from} at ${path}. Reply with ` +
+       *     "one shell command, or DONE once it is made."
+       *   for (let step = 0; step < 8; step++) {
+       *     const reply = await $.model.fork({ prompt })
+       *     if (!reply.isAnswered) return { deny: reply.reason }
+       *     const command = reply.text.trim()
+       *     if (command === "DONE") return { path, vcs: "acme" }
+       *     const ran = await $.agent.call({ tool: "Bash", input: { command },
+       *       agentId: e.parentAgentId })
+       *     prompt += `\n$ ${command}\n${ran.deny ?? ran.text}`
+       *   }
+       *   return { deny: "no acme copy after 8 steps" }
+       * })
+       */
+      'vcs.isolate': VcsIsolateInput;
+      /**
+       * Fires when the working copies of the repository holding `path` are asked
+       * for: EnterWorktree is to enter one by its path, a mod calls `$.vcs.list`,
+       * or a session recorded in a mod's copy is resumed after a restart.
+       *
+       * `next(e)` answers Git's worktrees, the main one among them, or none. On a
+       * mod's own call it answers only what `$.vcs.list` says it does, and none
+       * where a mod called EnterWorktree. Where the folder is not your system's,
+       * pass on with `next`; where systems share it, add your copies to what
+       * `next` answers. A hook that fails is skipped.
+       *
+       * EnterWorktree asks about the folder it is called from and refuses a path
+       * that is not on the list. A copy only a hook lists is entered, by its
+       * listed or its real path, once the person approves and the folder passes
+       * the vet of a `vcs.isolate` answer. Past that vet the engine runs no
+       * version control there and never asks `vcs.release` to take it away, until
+       * `vcs.isolate` answers it anew. A Git worktree, or a folder under
+       * `.claude/worktrees` of a Git checkout, is entered as it is unhooked.
+       *
+       * A session's resume asks about the folder Claude Code was started in, which
+       * may be the copy itself, and may ask before a session is bound (see
+       * `vcs.isolate`).
+       * A listed copy is entered again unprompted, and kept at every exit.
+       * That holds only where `vcs.detect` of it answers it as `root`, with a `mainRoot` elsewhere.
+       *
+       * Experimental: may change.
+       *
+       * @example
+       * on("vcs.list", async ($, e, next) => {
+       *   const { exitCode, stdout } = await $.process.run(
+       *     ["acme", "copies"], { cwd: e.path })
+       *   if (exitCode !== 0) return next(e)
+       *   return stdout.split("\n").filter(Boolean).map(path => ({ path, vcs: "acme" }))
+       * })
+       */
+      'vcs.list': VcsListInput;
+      /**
+       * Fires when the engine asks what changed in a working copy and what
+       * removing it would lose: the subagent or the Remote Control session that
+       * worked there ended, ExitWorktree is to remove the session's, or the session
+       * is exiting inside it.
+       *
+       * `next(e)` answers for a copy the engine made, `{ unknown }` for any
+       * other. An agent's or a Remote Control session's copy is kept, and the
+       * person is asked about their own session's, where the answer lists a
+       * change, counts an unpublished revision, names a `revision` other than
+       * `since`, or is unknown. A hook can keep a worktree the engine made and
+       * reads but not call it clean: where the engine finds work there, its answer
+       * stands. Nor can it call clean the session's worktree, unless a mod made it.
+       * A mod's copy reads as unknown while an agent isolated in place inside it is
+       * not released. At exit an answer that takes too long reads as unknown. No
+       * hook is asked about a resumed session's worktree, or at the delete of a
+       * background session (`claude rm`), and a mod's copy is then kept. Resumed
+       * with `--worktree`, the hook is asked, and a mod's clean copy reads as
+       * unknown.
+       *
+       * A law the engine relies on: for a copy with its own folder, report
+       * everything removing that folder would lose, work kept there under other
+       * names included.
+       *
+       * On a mod's own `$.vcs.status`, `next(e)` also answers for the trusted
+       * workspace's Git repository and its worktrees, and is `{ unknown }` where
+       * that mod may not run Git or list a change.
+       *
+       * Experimental: may change.
+       *
+       * @example
+       * on("vcs.status", { vcs: "acme" }, async ($, e) => {
+       *   const { exitCode, stdout, stderr } = await $.process.run(
+       *     ["acme", "status", "--json"], { cwd: e.path })
+       *   return exitCode === 0 ? JSON.parse(stdout) : { unknown: stderr }
+       * })
+       */
+      'vcs.status': VcsStatusInput;
+      /**
+       * Fires when the engine would take a working copy away: it read clean with
+       * nothing unpublished, or what it holds is to be discarded (`isDiscard`).
+       * Raised at the end of a subagent or a Remote Control session, by
+       * ExitWorktree and by the exit dialog. The session may still stand in its
+       * copy then: give a process another `cwd`.
+       *
+       * `next(e)` removes a copy the engine made and answers `{ kept }` for any
+       * other: a copy a mod made goes only by a hook's own hand, and is kept where
+       * no mod hooks this. On a mod's own `$.vcs.release`, `next(e)` removes only
+       * a worktree made on that mod's own `$.vcs.isolate`, clean or to be discarded.
+       *
+       * Experimental: may change.
+       *
+       * @example
+       * on("vcs.release", { vcs: "acme" }, async ($, e) => {
+       *   const { exitCode, stderr } = await $.process.run(
+       *     ["acme", "drop", e.name, ...(e.isDiscard ? ["--force"] : [])])
+       *   return exitCode === 0 ? { isReleased: true } : { kept: stderr }
+       * })
+       */
+      'vcs.release': VcsReleaseInput;
       /**
        * Fires once per process for each loaded plugin, before the first prompt,
        * then once per fresh load of one (never `/clear`); `next(e)` is `{ cwd }`.
@@ -5549,6 +6070,10 @@ declare module 'claude-code' {
        */
       'agent.spawn': AgentSpawnResult;
       /**
+       * `{ text, review, warning? }` (the report to deliver) or `{ consumed }`.
+       */
+      'agent.report': AgentReportResult;
+      /**
        * `{ text, context? }` or `{ drop }`.
        */
       'prompt.submit': PromptSubmitResult;
@@ -5633,6 +6158,30 @@ declare module 'claude-code' {
        * `{ text }`.
        */
       'attribution.text': AttributionTextResult;
+      /**
+       * The working copy the folder is in, or null.
+       */
+      'vcs.detect': VcsDetectResult;
+      /**
+       * `{ base, files }`, or `{ unknown }` with the reason, null from core.
+       */
+      'vcs.diff': VcsDiffResult;
+      /**
+       * `{ path, vcs, branch?, revision? }`, or `{ deny }`.
+       */
+      'vcs.isolate': VcsIsolateResult;
+      /**
+       * A list of `{ path, vcs, branch? }`, possibly empty.
+       */
+      'vcs.list': VcsListResult;
+      /**
+       * `{ changes, unpublished, revision? }`, or `{ unknown }`.
+       */
+      'vcs.status': VcsStatusResult;
+      /**
+       * `{ isReleased: true, note? }`, or `{ kept }`.
+       */
+      'vcs.release': VcsReleaseResult;
       /**
        * `{ cwd }`.
        */
@@ -5758,9 +6307,18 @@ declare module 'claude-code' {
       attribution: {
           text: (input: AttributionTextInput) => Promise<AttributionTextResult>;
       };
+      vcs: {
+          detect: (input: VcsDetectInput) => Promise<VcsDetectResult>;
+          diff: (input: VcsDiffInput) => Promise<VcsDiffResult>;
+          isolate: (input: VcsIsolateInput) => Promise<VcsIsolateResult>;
+          list: (input: VcsListInput) => Promise<VcsListResult>;
+          status: (input: VcsStatusInput) => Promise<VcsStatusResult>;
+          release: (input: VcsReleaseInput) => Promise<VcsReleaseResult>;
+      };
       agent: {
           offer: (input: AgentOfferInput) => Promise<AgentOfferResult>;
           spawn: (input: AgentSpawnArgs) => Promise<AgentSpawnResult>;
+          report: (input: AgentReportInput) => Promise<AgentReportResult>;
       };
       session: {
           start: (input: SessionStartInput) => Promise<SessionStartResult>;
@@ -6169,7 +6727,11 @@ declare module 'claude-code' {
    * slow chain beneath or a minute-long `$.model.complete` costs it nothing.
    * On `tool.list` and `ui.render` a hook's `$` calls hold it for 30 seconds in all,
    * then fail it; on `plugin.register` for 10 seconds, `$.ui.ask` aside: a person
-   * answers in their own time.
+   * answers in their own time. On `tool.call`, `tool.check`, `tool.judge`,
+   * `tool.run` and `classic.PreToolUse` for 20 minutes, a stream's reads included,
+   * not counted while `next(e)`, `$.ui.ask`, `$.tool.call`, `$.agent.call`,
+   * `$.agent.spawn` or `$.mcp.call` is in flight, and not at all for a `tool.call`
+   * or `tool.run` hook on a tool its own plugin registered: it is that tool's body.
    *
    * @example
    * await $.model.complete(ask) // a minute; next.budget.remainingMs unmoved
@@ -6862,8 +7424,9 @@ declare module 'claude-code' {
        * A press is a plain single click where the surface reports clicks (the
        * fullscreen terminal): it opens nothing and lands once no double-click
        * followed; a ctrl, alt or terminal-kept cmd click opens it as before.
+       * Where it does async work, returning the promise is best, as for `onPress`.
        */
-      onLinkPress?: (link: PressedLink, e: UiPressArgument) => void;
+      onLinkPress?: ((link: PressedLink, e: UiPressArgument) => void) | ((link: PressedLink, e: UiPressArgument) => Promise<unknown>);
       /**
        * Which links in `text` a press belongs to, by `href` as the markdown
        * writes it; absent, every link drawn. Only with `onLinkPress`.
@@ -11052,20 +11615,21 @@ declare module 'claude-code' {
    */
   export type PromptFilled = {
       /**
-       * True once the box holds the text; false where no box could take it or a
-       * hook kept it out (PromptFillResult).
+       * True once the box holds the text; false where no box could take it, a
+       * hook kept it out or no app answered (PromptFillResult).
        */
       isFilled: boolean;
       /**
        * Why the box did not take the text, when the engine itself refused
        * (PromptFillResult): `no_composer` where the session binds no box,
-       * `dialog` while one holds the keys. A hook's refusal carries none, so
-       * a caller choosing a fallback treats an absent cause as unknown and
-       * does not act as if no box existed.
+       * `dialog` while one holds the keys, `unanswered` where an app was asked
+       * and none answered, so the text may have landed. A hook's refusal carries
+       * none, so a caller choosing a fallback treats an absent cause as unknown
+       * and does not act as if no box existed.
        */
-      refusal?: 'no_composer' | 'dialog';
+      refusal?: 'no_composer' | 'dialog' | 'unanswered';
       /**
-       * The draft after the fill; unchanged when `isFilled` is false; `''` where
+       * The draft after the fill; unchanged when the fill was refused; `''` where
        * no box is drawn or the caller may not read it (see above).
        */
       text: string;
@@ -11163,24 +11727,25 @@ declare module 'claude-code' {
   export type PromptFillResult = {
       /**
        * True once the box holds the text; false where no box can take it (a
-       * dialog holds the keys, a headless session has none).
+       * dialog holds the keys, a headless session has none) or no app answered.
        *
        * A hook answering `{ isFilled: false }` without `next` keeps the text
        * out.
        */
       isFilled: boolean;
       /**
-       * Why the box did not take the text, on the two refusals the engine
-       * itself answers: the session binds no prompt box (`no_composer`:
-       * headless, or a surface that draws its own composer), or a dialog holds
-       * the keys (`dialog`), so the write would land under it, unseen. A hook's
-       * own refusal carries none: the site strips a cause a hook writes itself,
-       * keeping only one its `next` gave it, passed up as it was. A caller
+       * Why `isFilled` is false, on the three causes the engine itself
+       * answers: the session binds no prompt box (`no_composer`: headless, or a
+       * surface that draws its own composer), a dialog holds the keys
+       * (`dialog`), so the write would land under it, unseen, or an app was
+       * asked and none answered (`unanswered`), so the text may have landed. A
+       * hook's own refusal carries none: the site strips a cause a hook writes
+       * itself, keeping only one its `next` gave it, passed up as it was. A caller
        * branching on the cause treats an absent one as unknown and takes its
        * refusing arm; `no_composer` is the only value that says no box exists
        * to protect.
        */
-      refusal?: 'no_composer' | 'dialog';
+      refusal?: 'no_composer' | 'dialog' | 'unanswered';
   };
 
   /**
@@ -12986,7 +13551,7 @@ declare module 'claude-code' {
        * click, ctrl+x tab): an Input types, a Button arms the hotkeys, a tree
        * taller than it scrolls.
        *
-       * Raised on the terminal, desktop and mobile surfaces only.
+       * Raised on every attached surface.
        */
       AbovePrompt: {
           /**
@@ -13056,7 +13621,7 @@ declare module 'claude-code' {
        * either is told as `ui.render (AbovePromptList) refused:`, whatever that
        * line's ending says.
        *
-       * Raised on the terminal, desktop and mobile surfaces only.
+       * Raised on every attached surface.
        */
       AbovePromptList: {
           /**
@@ -14316,8 +14881,9 @@ declare module 'claude-code' {
    *
    * The tool lists are the ones the engine's own analytics rows carry, found in
    * the engine with no program run. On the server (not the CLI), where a
-   * session's tools run in another container, they are empty and the three
-   * names are the server's own.
+   * session's tools run in another container, an installed mod is answered by
+   * that container, and the call rejects where it gives no answer; a built-in
+   * mod's own call gets the server's three names and empty lists.
    */
   export type SessionMachine = {
       /**
@@ -14788,16 +15354,17 @@ declare module 'claude-code' {
 
   /**
    * What `$.session.repo()` answers: the repository's root and its origin remote,
-   * when the session is in one.
+   * when the session is in one. A `vcs.detect` hook changes those two.
    */
   export type SessionRepo = {
       /**
-       * The repository's root, absolute: the main working tree's for a worktree.
+       * The repository's root, absolute: the main working tree's for a worktree
+       * (`vcs.detect`'s `mainRoot`, else its `root`).
        */
       root: string;
       /**
        * The `origin` remote's URL as git has it (push URL preferred), or null when
-       * the repository has none.
+       * the repository has none. Another system's may be no URL.
        */
       remote: string | null;
       /**
@@ -16169,7 +16736,7 @@ declare module 'claude-code' {
   export type TextHoverProps = {
       /**
        * Names a hover group of this plugin's: every element it draws with the
-       * same `scope`, in any site on the surface, lights while any is hovered.
+       * same `scope`, in any site but a `Backdrop`, lights while any is hovered.
        *
        * Another plugin's elements under the same string are a different group.
        * One to 64 characters, no control characters; no keyed Box needed. On the
@@ -16274,6 +16841,17 @@ declare module 'claude-code' {
   };
 
   /**
+   * What plays on behind the session: 1 to 8 layers.
+   */
+  export type ThemeAmbience = {
+      layers: readonly (ThemeToneDrone | ThemeNoiseDrone | ThemeToneScatter | ThemeNoiseScatter)[];
+      /**
+       * How much room it rings in: 0 to 1. Absent, none.
+       */
+      reverb?: number;
+  };
+
+  /**
    * The `backdrop` attribute of `$.theme.set`: what is behind the conversation.
    * `scene` makes a live scene, and `color`, `gradient` or `vector` make a still
    * ground. All of them are pure vector, with no embedded pictures or fonts.
@@ -16304,6 +16882,48 @@ declare module 'claude-code' {
   };
 
   /**
+   * How the box around a part looks. Lengths are numbers of points.
+   */
+  interface ThemeBoxRule {
+      /**
+       * The flat color behind the words. Give it beside a `fill` too: it tells the
+       * app what the words sit on, and a sliced drawing can get it under its words.
+       */
+      backgroundColor?: ThemeStyleColor;
+      fill?: ThemeFill;
+      /**
+       * 0 to 64: one for every corner, or top left, top right, bottom right and
+       * bottom left.
+       */
+      radius?: number | readonly [number, number, number, number];
+      borderColor?: ThemeStyleColor;
+      /**
+       * 0 to 8. Absent beside a `borderColor`, 1.
+       */
+      borderWidth?: number;
+      /**
+       * `x` and `y` from -16 to 16, and `blur` from 0 to 32. Each is 0 when absent.
+       * A shadow that reaches the next row draws fainter.
+       */
+      shadow?: {
+          x?: number;
+          y?: number;
+          blur?: number;
+          color: ThemeStyleColor;
+      } | 'none';
+      /**
+       * 0 to 48, as every padding is. A side beats its axis, which beats this.
+       */
+      padding?: number;
+      paddingX?: number;
+      paddingY?: number;
+      paddingTop?: number;
+      paddingRight?: number;
+      paddingBottom?: number;
+      paddingLeft?: number;
+  }
+
+  /**
    * A color in a still `backdrop`. A surface uses a raw color as it is, works out a
    * name from the look's `colors` in the look's mode, or from the app's own colors where
    * the look gives none, and refuses the ground over anything else. Annotate a color kept
@@ -16326,6 +16946,11 @@ declare module 'claude-code' {
    * the leading `#` alone.
    *
    * The names are the design system's, so the type lists none. A surface keeps its own color for a token that is left out.
+   *
+   * The desktop app reads four more names, which color messages with no `style`:
+   * `bg-user-message` and `text-user-message` for the person's, and
+   * `bg-assistant-message` and `text-assistant-message` for Claude's. A message's
+   * own rule in `ThemeStyle` wins over them, and any rule may name them.
    */
   export type ThemeColorInputs = {
       [token: string]: `#${string}`;
@@ -16390,6 +17015,78 @@ declare module 'claude-code' {
   };
 
   /**
+   * A short sound: 1 to 8 layers that start together.
+   */
+  export type ThemeCue = {
+      layers: readonly (ThemeToneLayer | ThemeNoiseLayer)[];
+      /**
+       * How much room it rings in: 0 to 1. Absent, none.
+       */
+      reverb?: number;
+  };
+
+  /**
+   * A background that isn't one flat color.
+   */
+  type ThemeFill = {
+      gradient: ThemeFillGradient;
+      vector?: never;
+  } | {
+      vector: ThemeFillVector;
+      gradient?: never;
+  };
+
+  /**
+   * Colors that run across a part's box, as in a still `backdrop`.
+   */
+  interface ThemeFillGradient extends Omit<ThemeGradient, 'stops'> {
+      /**
+       * Two to 16 colors, evenly spaced, or `{ at, color }` with `at` from 0 to 1,
+       * in order.
+       */
+      stops: readonly (ThemeStyleColor | {
+          at: number;
+          color: ThemeStyleColor;
+      })[];
+  }
+
+  /**
+   * A drawing behind a part's words, as in a still `backdrop`.
+   */
+  interface ThemeFillVector extends Omit<ThemeVector, 'paths' | 'color'> {
+      /**
+       * 1 to 64 paths, filled unless `strokeWidth`, 0.1 to 64, strokes one. Each `d`
+       * is whole path data of at most 16,384 characters.
+       */
+      paths: readonly (string | {
+          d: string;
+          strokeWidth?: number;
+          color?: ThemeStyleColor;
+      })[];
+      /**
+       * Each path's color, where it names none of its own: a path with neither is
+       * refused.
+       */
+      color?: ThemeStyleColor;
+      /**
+       * Cuts the drawing in nine, so it frames a box of any size: the corners draw
+       * once, and the edges and middle stretch, or tile with `repeat`. One inset for
+       * every side, or top, right, bottom and left, in `viewBox` units: a point each
+       * unless `size` scales them, and 48 points at most. The drawing is then the
+       * box's whole shape, so `shadow` follows it, and `radius` and the border
+       * aren't painted. `backgroundColor` is painted only when the words are under
+       * 3:1 on a color of the drawing or on what lies behind it: then it goes over
+       * the drawing, under the words alone.
+       */
+      slice?: number | readonly [number, number, number, number];
+  }
+
+  /**
+   * A font every device has. `code` is the app's own font for code.
+   */
+  type ThemeGenericFont = 'sans' | 'serif' | 'mono' | 'code' | 'cursive';
+
+  /**
    * Colors that run across their box.
    */
   interface ThemeGradient extends ThemeTiling {
@@ -16452,6 +17149,97 @@ declare module 'claude-code' {
    * holds resolves too, typed as any string is (Color).
    */
   export type ThemeKey = 'text' | 'inverseText' | 'inactive' | 'subtle' | 'suggestion' | 'remember' | 'success' | 'error' | 'warning' | 'merged' | 'claude' | 'permission' | 'planMode' | 'autoAccept' | 'promptBorder' | 'bashBorder' | 'ide' | 'diffAdded' | 'diffRemoved' | 'diffAddedDimmed' | 'diffRemovedDimmed' | 'diffAddedWord' | 'diffRemovedWord';
+
+  /**
+   * How one hit starts and dies away.
+   */
+  type ThemeLayerEnvelope = {
+      /**
+       * Seconds to rise: 0.002 to 2. Absent, 0.005.
+       */
+      attack?: number;
+      /**
+       * Seconds to die away: 0.01 to 4. Absent, 0.4.
+       */
+      release?: number;
+  };
+
+  /**
+   * What every layer may say about how it sounds.
+   */
+  type ThemeLayerMix = {
+      /**
+       * How loud, beside the other layers: 0 to 1. Absent, 0.5. The app turns a
+       * loud sound down and never turns one up.
+       */
+      gain?: number;
+      /**
+       * Left (-1) to right (1). Absent, the middle.
+       */
+      pan?: number;
+      /**
+       * Shapes the tone at `hz`, 20 to 10,000. With `to`, it moves there over each
+       * note, or there and back over 16 seconds on a drone.
+       */
+      filter?: {
+          type: 'lowpass' | 'highpass' | 'bandpass';
+          hz: number;
+          to?: number;
+      };
+      /**
+       * Swells and fades `hz` times a second, 0.05 to 30, by `depth`, 0 to 1.
+       */
+      tremolo?: {
+          hz: number;
+          depth: number;
+      };
+  };
+
+  /**
+   * How a message looks. What it says of the words beats `Text`.
+   */
+  export interface ThemeMessageRule extends ThemeTypeRule, ThemeBoxRule {
+      /**
+       * Tilts the box clockwise: -3 to 3 degrees. A large box tilts less, and one
+       * in a view laid out as a chat feed doesn't tilt.
+       */
+      rotate?: number;
+  }
+
+  /**
+   * Noise without a break.
+   */
+  interface ThemeNoiseDrone extends ThemeLayerMix {
+      wave: ThemeNoiseWave;
+      drone: true;
+  }
+
+  /**
+   * A layer that is one burst of noise.
+   */
+  interface ThemeNoiseLayer extends ThemeLayerMix, ThemeLayerEnvelope {
+      wave: ThemeNoiseWave;
+  }
+
+  /**
+   * Bursts of noise that fall at random, `scatter` times a second on average: 0.02
+   * to 10.
+   */
+  interface ThemeNoiseScatter extends ThemeNoiseLayer {
+      scatter: number;
+  }
+
+  /**
+   * Hiss to rumble, brightest first, and `crackle`: the ticks of rain on leaves,
+   * a fire or gravel.
+   */
+  type ThemeNoiseWave = 'white' | 'pink' | 'brown' | 'crackle';
+
+  /**
+   * A pitch: a note name such as `C5`, `F#3` or `Bb2`, a number of hertz from 20 to
+   * 10,000, or 0 for a rest.
+   */
+  type ThemeNote = string | number;
 
   /**
    * What `$.theme.set` and `$.theme.clear` resolve to, and what a `theme.set` or
@@ -16549,7 +17337,141 @@ declare module 'claude-code' {
        * nothing.
        */
       colors?: ThemeColors;
+      /**
+       * An ambience and short cues, which the desktop app plays once the person turns
+       * the theme's sound on. Absent, the theme is silent.
+       */
+      sound?: ThemeSound;
+      /**
+       * How the desktop app draws the conversation's own rows: the type of messages,
+       * and the boxes around messages and tool calls. Absent, the app's own.
+       */
+      style?: ThemeStyle;
   };
+
+  /**
+   * The `sound` attribute of `$.theme.set`: what the desktop app plays, on the
+   * person's own device, once they turn the theme's sound on.
+   *
+   * It's numbers, never a recording: the app makes the sound from them. A sound
+   * out of range, or too much to work out, is refused with what to change: long
+   * releases, many notes and reverb cost the most. To change the mood, set the
+   * theme again: a new ambience fades in over the old.
+   * The mod is never told whether the sound played. A build that doesn't take
+   * `sound`, such as an older one, refuses the whole set, so catch that and set
+   * the theme again without it.
+   *
+   * @example
+   * await $.theme.set({
+   *   backdrop: { scene: "pond" },
+   *   sound: {
+   *     ambience: { layers: [{ wave: "pink", drone: true, gain: 0.3 }] },
+   *     cues: {
+   *       done: { layers: [{ wave: "bell", notes: ["E5", "G5", "C6"], step: 0.1 }] },
+   *     },
+   *   },
+   * })
+   */
+  export type ThemeSound = {
+      /**
+       * Plays while the person is using the session's window. It stops while a
+       * permission prompt or a question waits, and during dictation, a voice call or
+       * a reply read aloud. Where the theme has cues too, the person can turn the
+       * ambience off and keep them.
+       */
+      ambience?: ThemeAmbience;
+      /**
+       * What the app plays by itself at each of these moments.
+       */
+      cues?: {
+          /**
+           * The person sent a message.
+           */
+          send?: ThemeCue;
+          /**
+           * Claude began a tool call. It can come often, so keep it short and soft.
+           */
+          tool?: ThemeCue;
+          /**
+           * The conversation was compacted.
+           */
+          compact?: ThemeCue;
+          /**
+           * Claude finished its turn.
+           */
+          done?: ThemeCue;
+          /**
+           * A permission prompt or a question appeared.
+           */
+          ask?: ThemeCue;
+          /**
+           * The turn ended in an error.
+           */
+          error?: ThemeCue;
+          /**
+           * The person clicked the backdrop where no part of the app covers it. Each
+           * layer plays one of its notes, the first at the left edge and the last at
+           * the right, so it takes no `step`.
+           */
+          click?: ThemeCue;
+      };
+  };
+
+  /**
+   * The `style` attribute of `$.theme.set`: how the desktop app draws the
+   * conversation's own rows.
+   *
+   * The words stay the app's text, so selecting, copying, finding and screen
+   * readers work as they do with no theme. A permission prompt, a question and a
+   * code block keep the app's look. A value out of range is refused with what to
+   * change, as is a style of over 1,500 values or 65,536 characters. A rule whose
+   * words are under 3:1 on what lies behind them, in the mode showing, draws in
+   * the app's own colors, and the other rules still draw. Every color of a `fill`
+   * counts as behind them. Over a backdrop any color can be behind them, so a
+   * text color needs an opaque enough fill under it. The mod is never told
+   * whether the style drew. A build that doesn't take `style`, such as an older
+   * one, refuses the whole set, so catch that and set the theme again without it.
+   *
+   * @example
+   * await $.theme.set({
+   *   style: {
+   *     Text: { fontFamily: ["cursive"], fontSize: 18 },
+   *     UserMessage: { color: "#223", backgroundColor: "#fde68a", rotate: -1 },
+   *   },
+   * })
+   */
+  export type ThemeStyle = {
+      /**
+       * The words of both kinds of message.
+       */
+      Text?: ThemeTypeRule;
+      /**
+       * Headings in a message, every level alike.
+       */
+      Heading?: ThemeTypeRule;
+      /**
+       * The person's message. With a list of up to 4 rules, each message takes one
+       * of them and keeps it.
+       */
+      UserMessage?: ThemeMessageRule | readonly ThemeMessageRule[];
+      /**
+       * Each run of words in Claude's reply, which has no box until a rule gives it
+       * one. It takes a list as `UserMessage` does.
+       */
+      AssistantMessage?: ThemeMessageRule | readonly ThemeMessageRule[];
+      /**
+       * A tool call's row.
+       */
+      ToolUse?: ThemeToolRule;
+  };
+
+  /**
+   * A color in `style`: any `ThemeColor`, or one of the four message colors that
+   * `colors.inputs` may give for each mode (`ThemeColorInputs`). Where the mode
+   * gives none, a `bg-` name draws as `surface-2` and a `text-` name as
+   * `text-primary`.
+   */
+  type ThemeStyleColor = ThemeColor | 'bg-user-message' | 'text-user-message' | 'bg-assistant-message' | 'text-assistant-message';
 
   /**
    * How a drawing or a gradient lies in its box.
@@ -16566,6 +17488,93 @@ declare module 'claude-code' {
        * Absent, a drawing or a gradient stretches to the box.
        */
       repeat?: boolean;
+  }
+
+  /**
+   * Notes held together without a break.
+   */
+  interface ThemeToneDrone extends ThemeLayerMix {
+      wave: ThemeToneWave;
+      /**
+       * 1 to 16.
+       */
+      notes: readonly ThemeNote[];
+      drone: true;
+  }
+
+  /**
+   * A layer that plays its notes and ends, within 4 seconds.
+   */
+  interface ThemeToneLayer extends ThemeLayerMix, ThemeLayerEnvelope {
+      wave: ThemeToneWave;
+      /**
+       * 1 to 16.
+       */
+      notes: readonly ThemeNote[];
+      /**
+       * Seconds from one note to the next: 0 to 2. Absent, a cue plays the notes
+       * together, and a scatter picks one for each hit.
+       */
+      step?: number;
+      /**
+       * Semitones each note slides by over its life: -24 to 24.
+       */
+      glide?: number;
+  }
+
+  /**
+   * Notes that fall at random, `scatter` times a second on average: 0.02 to 10.
+   */
+  interface ThemeToneScatter extends ThemeToneLayer {
+      scatter: number;
+  }
+
+  /**
+   * What a note is played on.
+   */
+  type ThemeToneWave = 'sine' | 'triangle' | 'square' | 'saw' | 'bell';
+
+  /**
+   * How a tool call's row looks: its box, and the color and generic font of its
+   * words.
+   */
+  export interface ThemeToolRule extends ThemeBoxRule {
+      /**
+       * Over a backdrop, this draws only on an opaque enough fill.
+       */
+      color?: ThemeStyleColor;
+      fontFamily?: readonly [ThemeGenericFont];
+  }
+
+  /**
+   * How a part's words look. Lengths are numbers of points, and a property left
+   * out keeps the app's own value.
+   */
+  export interface ThemeTypeRule {
+      /**
+       * Over a backdrop, this draws only on an opaque enough fill.
+       */
+      color?: ThemeStyleColor;
+      /**
+       * A list of one generic font, such as `["serif"]`. The person's accessibility
+       * settings win (a font, higher contrast), and the app tells them so.
+       */
+      fontFamily?: readonly [ThemeGenericFont];
+      /**
+       * 11 to 28.
+       */
+      fontSize?: number;
+      fontWeight?: 'regular' | 'medium' | 'semibold' | 'bold';
+      italic?: boolean;
+      /**
+       * -1 to 4.
+       */
+      letterSpacing?: number;
+      /**
+       * 12 to 48, and no less than `fontSize`. It's points, not a multiple: `24`,
+       * never `1.5`.
+       */
+      lineHeight?: number;
   }
 
   /**
@@ -16924,7 +17933,8 @@ declare module 'claude-code' {
        * The most permissive verdict the organization lets the model's call of an
        * MCP tool reach: `ask`, or `deny` where an administrator blocked the tool.
        * On a plugin's or a settings hook's own call of any tool, also `deny` where
-       * a managed deny rule covers this input as it would the model's.
+       * a managed deny rule covers this input as it would the model's, or covers
+       * the line it types at Claude Desktop's Terminal as it would in `Bash`.
        *
        * `deny` is a block on the tool or its connector for the organization or
        * the member's role, a host's `always_deny`, or a managed deny rule; not a
@@ -16932,8 +17942,8 @@ declare module 'claude-code' {
        * launcher for Claude Desktop, or where `--managed-settings` cannot be read,
        * any deny sent as `--settings` or `--disallowedTools` counts as managed,
        * the person's switch included; at Desktop's other starts, the second on a
-       * plugin's own call. The engine holds no plugin's or settings hook's own
-       * call to it: a hook here may.
+       * plugin's own call and on any such line. The engine holds no plugin's or
+       * settings hook's own call to it: a hook here may.
        *
        * Set by the engine, never by a query, and pinned. A hook's own `ceiling`,
        * on its answer, is dropped. Absent where none is set.
@@ -18159,22 +19169,24 @@ declare module 'claude-code' {
       isCopied: true;
   } | {
       /**
-       * False: nothing was copied.
+       * False: nothing was copied, or with `unanswered` nothing says it was.
        */
       isCopied: false;
       /**
-       * Why not, a closed set: `no-surface`, `no-clipboard` or `refused`; a
-       * hook above answering without copying says `refused`.
+       * Why not, a closed set: `no-surface`, `no-clipboard`, `unanswered` or
+       * `refused`; a hook above answering without copying says `refused`.
        *
        * `no-surface`: nothing draws (a `-p` run, the SDK), or the named
        * surface is not attached. `no-clipboard`: it draws but nothing was
        * written (no clipboard tool ran and OSC 52 was past its bound or left
-       * out, as for VTE before 0.53; a remote app declined or was silent).
+       * out, as for VTE before 0.53; a remote app declined or was not asked).
+       * `unanswered`: a remote app was asked and none answered, so the copy
+       * may have landed. A hook's `{ value }` passes up as the hook wrote it.
        *
        * @example
        * on('ui.copy', { surface: 'mobile' }, () => ({ value: REFUSED }))
        */
-      reason: 'no-surface' | 'no-clipboard' | 'refused';
+      reason: 'no-surface' | 'no-clipboard' | 'unanswered' | 'refused';
   };
 
   /**
@@ -19231,6 +20243,383 @@ declare module 'claude-code' {
   } | {
       deny: string;
       value?: undefined;
+  };
+
+  /**
+   * One uncommitted change in a working copy.
+   */
+  export type VcsChange = {
+      /**
+       * Relative to the copy's folder, its parts joined by `/`.
+       */
+      path: string;
+      /**
+       * A rename is `deleted` plus `added`; a file opened but unchanged, or a
+       * property change, is `modified`; a missing file is `deleted`.
+       */
+      state: 'modified' | 'added' | 'deleted' | 'untracked' | 'conflict';
+  };
+
+  /**
+   * The input of `vcs.detect`: the folder asked about.
+   */
+  export type VcsDetectInput = {
+      /**
+       * The folder, absolute; pinned, so no hook passes another down.
+       */
+      path: string;
+  };
+
+  /**
+   * What a `vcs.detect` hook returns: the working copy the folder is in, or
+   * null when it is in none.
+   */
+  export type VcsDetectResult = VcsWorkingCopy | null;
+
+  /**
+   * One changed file of a `vcs.diff` answer. Its names are data to show, each
+   * of at most 4096 characters.
+   */
+  export type VcsDiffFile = {
+      /**
+       * The file, relative to the copy's `root`, with `/`; listed once.
+       */
+      path: string;
+      /**
+       * Its name at the base where it was renamed, else null.
+       */
+      renamedFrom: string | null;
+      /**
+       * The lines added; 0 where they are not counted.
+       */
+      added: number;
+      /**
+       * The lines removed; 0 where they are not counted.
+       */
+      removed: number;
+      isBinary: boolean;
+      /**
+       * On disk, and neither known to the system nor ignored by it.
+       */
+      isUntracked: boolean;
+      /**
+       * Unified hunks from the first `@@`, with no system's file headers; absent
+       * where there are none to give.
+       */
+      patch?: string;
+  };
+
+  /**
+   * The input of `vcs.diff`; every key is pinned, so no hook passes another down.
+   */
+  export type VcsDiffInput = {
+      /**
+       * A folder of the working copy, absolute.
+       */
+      path: string;
+      /**
+       * The system `vcs.detect` names there.
+       */
+      vcs: string;
+      /**
+       * What the files on disk are compared with: `head` is what is checked out,
+       * `default` is where this work left the mainline.
+       */
+      base: 'head' | 'default';
+      /**
+       * The files or folders to keep, relative to the copy's `root`, with `/`;
+       * either name keeps a renamed file. Absent, the whole copy; empty, none.
+       */
+      paths?: readonly string[];
+      /**
+       * True leaves every `patch` out.
+       */
+      isStatOnly?: boolean;
+  };
+
+  /**
+   * What a `vcs.diff` hook returns: the changed files and `base`, a label to
+   * show for what they were compared with, or why they are `unknown`. A null
+   * `unknown` is core's: no hook answered.
+   */
+  export type VcsDiffResult = {
+      base: string;
+      files: readonly VcsDiffFile[];
+      unknown?: undefined;
+  } | {
+      unknown: string | null;
+      base?: undefined;
+      files?: undefined;
+  };
+
+  /**
+   * The input of `vcs.isolate`: who needs a working copy of its own, and what
+   * to make it from. Every field is pinned.
+   */
+  export type VcsIsolateInput = {
+      /**
+       * What the copy is known by, here and at `vcs.status` and `vcs.release`:
+       * letters, digits, `.`, `_` and `-`, in parts joined by `/`.
+       */
+      name: string;
+      /**
+       * The folder the copy is made from, absolute: the asking loop's current
+       * folder, a shell `cd` included (a subagent's shell keeps none).
+       */
+      from: string;
+      /**
+       * Who will work in it: a subagent, or the session itself.
+       */
+      for: 'agent' | 'session';
+      /**
+       * The agent about to run in the copy, not started yet; absent for a session.
+       */
+      agentId?: string;
+      /**
+       * The loop that asks, absent from the main conversation: what a hook
+       * passes to `$.agent.call` to run a tool as that loop.
+       */
+      parentAgentId?: string;
+      /**
+       * What the copy starts from (the setting `worktree.baseRef`): `fresh` is
+       * the latest mainline, `head` is what `from` has now.
+       */
+      base: 'fresh' | 'head';
+  };
+
+  /**
+   * What a `vcs.isolate` hook returns and what `next(e)` resolves to: the
+   * copy, or `{ deny: reason }`, the spawn's or the tool's error.
+   *
+   * Once a `next(e)` answered with a copy, another `path` or a deny fails the
+   * hook and that copy stands, in place or not: a hook may do its own step and
+   * hand it up. After one that denied, a hook may make its own.
+   */
+  export type VcsIsolateResult = {
+      /**
+       * The copy's folder: absolute, already there, no `.` or `..` part, no
+       * link itself, on no network share, and no folder that holds `from`.
+       * `--worktree <name> --resume` may run in the copy.
+       *
+       * One with no `.git` is refused inside a Git checkout: make it outside.
+       * `from` itself (links resolved) isolates in place, for an agent only:
+       * on a share too, spelled the same, where an agent's spawn asks.
+       */
+      path: string;
+      /**
+       * A short lowercase slug naming the system that made it (`git` for
+       * core's Git worktree). A label, handed back later: it grants nothing.
+       */
+      vcs: string;
+      /**
+       * Any label the work is found under (a branch, a bookmark, a stream, a
+       * changelist), often absent. Only ever shown, and only where it is one
+       * token of 1 to 100 ASCII letters, digits and `._/@#:+-`. An agent
+       * resumed after a restart is reported without it.
+       */
+      branch?: string;
+      /**
+       * Where the copy starts, in the system's own words. Opaque to the
+       * engine, which hands it back as `since` and compares it as it came.
+       */
+      revision?: string;
+      deny?: undefined;
+  } | {
+      deny: string;
+      path?: undefined;
+      vcs?: undefined;
+      branch?: undefined;
+      revision?: undefined;
+  };
+
+  /**
+   * One working copy on this machine, as `vcs.list` answers it.
+   */
+  export type VcsListedCopy = {
+      /**
+       * The copy's folder, absolute. A copy whose path holds `<`, `>` or a
+       * character that does not print is left off the list its asker gets.
+       */
+      path: string;
+      /**
+       * A short lowercase slug naming the system that keeps it (`git` for core's
+       * rows). A label: it grants nothing.
+       */
+      vcs: string;
+      /**
+       * Any label the work is found under (a branch, a bookmark, a stream, a
+       * changelist). Only ever shown, and left out unless it is one token of 1 to
+       * 100 ASCII letters, digits and `._/@#:+-`.
+       */
+      branch?: string;
+  };
+
+  /**
+   * The input of `vcs.list`: a folder of the repository asked about.
+   */
+  export type VcsListInput = {
+      /**
+       * The folder, absolute; pinned, so no hook passes another down.
+       */
+      path: string;
+  };
+
+  /**
+   * What a `vcs.list` hook returns and what `next(e)` resolves to: the working
+   * copies of the repository holding `path`, possibly none.
+   */
+  export type VcsListResult = readonly VcsListedCopy[];
+
+  /**
+   * The input of `vcs.release`: the working copy to take away, and why. Every
+   * field is pinned.
+   */
+  export type VcsReleaseInput = {
+      /**
+       * The copy's folder, absolute. From the engine its links are resolved, so
+       * it may be spelled unlike the `path` answered: know a copy by `name`.
+       */
+      path: string;
+      /**
+       * The name it was isolated under.
+       */
+      name: string;
+      /**
+       * The `vcs` its `vcs.isolate` answered.
+       */
+      vcs: string;
+      /**
+       * The agent it was made for; absent for a session's.
+       */
+      agentId?: string;
+      /**
+       * True where the person chose to lose what the copy holds. False, it read
+       * clean a moment ago: keep it if that no longer holds.
+       */
+      isDiscard: boolean;
+      /**
+       * What asks for the release, in plain words ("the subagent ended").
+       */
+      reason: string;
+  };
+
+  /**
+   * What a `vcs.release` hook returns and what `next(e)` resolves to:
+   * `{ isReleased: true, note? }`, or `{ kept: reason }`, the copy left as it is.
+   *
+   * `note` is one short line on how to get discarded work back ("shelved as
+   * 1234"), shown in ExitWorktree's result and in the exit message.
+   *
+   * A hook's `isReleased` counts only where the folder is gone or empty, or
+   * this process isolated that `name` in place there; the engine deletes nothing
+   * for it. A `kept` after a `next(e)` that released fails the hook.
+   */
+  export type VcsReleaseResult = {
+      isReleased: true;
+      note?: string;
+      kept?: undefined;
+  } | {
+      kept: string;
+      isReleased?: undefined;
+      note?: undefined;
+  };
+
+  /**
+   * The input of `vcs.status`: the working copy asked about. Every field is
+   * pinned.
+   */
+  export type VcsStatusInput = {
+      /**
+       * The copy's folder, absolute. From the engine its links are resolved, so
+       * it may be spelled unlike the `path` answered: know a copy by `name`.
+       */
+      path: string;
+      /**
+       * The name it was isolated under; absent, the whole working copy at `path`.
+       */
+      name?: string;
+      /**
+       * The `vcs` its `vcs.isolate` answered.
+       */
+      vcs?: string;
+      /**
+       * The `revision` its `vcs.isolate` answered, as it came.
+       */
+      since?: string;
+      /**
+       * The agent it was made for; absent for a session's.
+       */
+      agentId?: string;
+  };
+
+  /**
+   * What a `vcs.status` hook returns and what `next(e)` resolves to: what the
+   * copy holds, or `{ unknown: reason }`, which keeps it.
+   */
+  export type VcsStatusResult = {
+      changes: readonly VcsChange[];
+      /**
+       * How many revisions removing the copy would lose: a whole number.
+       */
+      unpublished: number;
+      /**
+       * Where the copy stands now. One that differs from `since` says work
+       * was made here and is safe elsewhere.
+       */
+      revision?: string;
+      unknown?: undefined;
+  } | {
+      unknown: string;
+      changes?: undefined;
+      unpublished?: undefined;
+      revision?: undefined;
+  };
+
+  /**
+   * One working copy, as `vcs.detect` answers it: which system keeps it, where
+   * it lies, and where it stands now.
+   *
+   * `revision`, `branch`, `defaultBranch` and `remote` are the system's own
+   * words, one line each but `branch`: handed on as given, never run or parsed
+   * as another system's.
+   */
+  export type VcsWorkingCopy = {
+      /**
+       * The system, a short lowercase slug (`acme`); core says `git`.
+       *
+       * Any slug but `git` and core's own for the folder drops the Git status
+       * block and commit steps. It carries no other privilege.
+       */
+      vcs: string;
+      /**
+       * The working copy's root, absolute: `path` or a folder above it, as
+       * spelled or once its links are followed.
+       */
+      root: string;
+      /**
+       * The repository's main copy, absolute; `root` where it has no other. Null
+       * where it is not known: readers then take `root`.
+       */
+      mainRoot: string | null;
+      /**
+       * What is checked out (a number, a range, a change id), or null.
+       */
+      revision: string | null;
+      /**
+       * The line of work the copy is on, or null where it is on none. The model
+       * is told it beside the system only where it is one token of 1 to 100
+       * ASCII letters, digits and `._/@#:+-`.
+       */
+      branch: string | null;
+      /**
+       * The line of work changes land on, or null where none is known.
+       */
+      defaultBranch: string | null;
+      /**
+       * Where the repository is served from, a URL or not (`ssl:host:1666`), or
+       * null. The engine takes off whatever may be a credential.
+       */
+      remote: string | null;
   };
 
   /**
@@ -20904,6 +22293,12 @@ declare module 'claude-code/shader' {
   /** Where in its point a pixel is, 0 to 1 (`draw: 'points'` only). */
   export const coord: vec2
 
+  /**
+   * A press comes as a new pointer, after the others. `down` 1 with `age` 0 is
+   * its first frame, on the bare backdrop or over the app. A pointer that lifted
+   * stays up to a second with `gone` above 0. Check every pointer: an index
+   * doesn't keep naming the same one.
+   */
   export type Pointer = {
     /** x, y and the last frame's x, y, each 0 to 1. */
     readonly where: vec4
@@ -20913,9 +22308,9 @@ declare module 'claude-code/shader' {
     readonly at: vec2
     /** Where it was last frame, in points. */
     readonly was: vec2
-    /** Seconds since it came. */
+    /** Seconds since it came: 0 on its first frame only. */
     readonly age: number
-    /** 1 when pressed, else 0. */
+    /** 1 for a press, else 0. It stays 1 after the press lifts. */
     readonly down: number
     /** 1 over part of the app, 0 over the bare backdrop. */
     readonly over: number
@@ -21197,7 +22592,7 @@ declare module 'claude-code' {
       url?: string
       /** reply: id of the comment thread to reply into. resolve: the thread to mark resolved. read: read just this one thread (the size cap can still elide a very long thread). Thread ids come from action "read" and from comment notifications. */
       thread_id?: string
-      /** reply only: the reply text. Plain text, at most 4096 bytes of UTF-8. */
+      /** reply only: the reply text, at most 4096 bytes of UTF-8. Use few Markdown marks: the claude.ai comment card renders light Markdown, some other views show marks as typed, and links, tables and HTML always show as typed. */
       text?: string
       /** read only: continue a listing that ended with a "more threads not listed" line — pass the cursor value that line names to render the threads it could not fit. */
       cursor?: string
@@ -21309,7 +22704,7 @@ declare module 'claude-code' {
       cron: string
       /** The prompt to enqueue at each fire time. */
       prompt: string
-      /** true (default) = fire on every cron match until deleted or auto-expired after 7 days. false = fire once at the next match, then auto-delete. Use false for "remind me at X" one-shot requests with pinned minute/hour/dom/month. */
+      /** true (default) = fire on every cron match until deleted or auto-expired after 30 days. false = fire once at the next match, then auto-delete. Use false for "remind me at X" one-shot requests with pinned minute/hour/dom/month. */
       recurring?: boolean
       /** Has no effect — durable persistence is not available. All jobs are session-only (in-memory, gone when this Claude session ends). */
       durable?: boolean
@@ -22048,6 +23443,11 @@ declare module 'claude-code' {
       prompt: string
       worktreePath?: string
       worktreeBranch?: string
+      /** @internal Where a mod isolated the agent in its parent's own folder and its work was kept: the labels it is found under. No worktreePath comes with it */
+      inPlace?: {
+        vcs: string
+        branch?: string
+      }
       /** @internal False when the calling agent cannot continue this agent with a follow-up message (it holds no messaging tool); absent means it can. */
       canContinueAgent?: boolean
       /** @internal The subagent's TaskCreate and TaskUpdate calls that succeeded, in order: each call's tool, its input as the model wrote it, and its result text. The subagent writes the session's task list, and no other row of the main transcript shows these calls. A missing member does not mean that no call ran. A host may read it, so a later build only adds keys to a call: see "For another program that reads a sub-agent's task calls" in docs/task-list-across-compaction.md */
@@ -22153,6 +23553,7 @@ declare module 'claude-code' {
       instructions_chars?: number
       instructions_clipped?: boolean
       instructions_unavailable?: string
+      viewer_note?: string
       init_references?: {
         docs: {
           path: string
@@ -22323,6 +23724,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
       }[]
       query?: string
       more?: boolean
@@ -22335,6 +23737,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
         release?: string
         files: string[]
         files_omitted?: number
@@ -22343,6 +23746,7 @@ declare module 'claude-code' {
         instructions_chars?: number
         instructions_clipped?: boolean
         instructions_unavailable?: string
+        viewer_note?: string
         capabilities: string[]
         creatable?: boolean
       }
@@ -22391,6 +23795,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         match_of?: number
         ask_first?: boolean
@@ -22399,6 +23804,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }[]
         types_more?: boolean
         dashboard_type?: {
@@ -22406,18 +23812,21 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         motion_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         whiteboard_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         types_unavailable?: boolean
         types_ruled?: boolean
@@ -23039,6 +24448,7 @@ declare module 'claude-code' {
       instructions_chars?: number
       instructions_clipped?: boolean
       instructions_unavailable?: string
+      viewer_note?: string
       init_references?: {
         docs: {
           path: string
@@ -23209,6 +24619,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
       }[]
       query?: string
       more?: boolean
@@ -23221,6 +24632,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
         release?: string
         files: string[]
         files_omitted?: number
@@ -23229,6 +24641,7 @@ declare module 'claude-code' {
         instructions_chars?: number
         instructions_clipped?: boolean
         instructions_unavailable?: string
+        viewer_note?: string
         capabilities: string[]
         creatable?: boolean
       }
@@ -23277,6 +24690,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         match_of?: number
         ask_first?: boolean
@@ -23285,6 +24699,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }[]
         types_more?: boolean
         dashboard_type?: {
@@ -23292,18 +24707,21 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         motion_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         whiteboard_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         types_unavailable?: boolean
         types_ruled?: boolean
@@ -23925,6 +25343,7 @@ declare module 'claude-code' {
       instructions_chars?: number
       instructions_clipped?: boolean
       instructions_unavailable?: string
+      viewer_note?: string
       init_references?: {
         docs: {
           path: string
@@ -24095,6 +25514,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
       }[]
       query?: string
       more?: boolean
@@ -24107,6 +25527,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
         release?: string
         files: string[]
         files_omitted?: number
@@ -24115,6 +25536,7 @@ declare module 'claude-code' {
         instructions_chars?: number
         instructions_clipped?: boolean
         instructions_unavailable?: string
+        viewer_note?: string
         capabilities: string[]
         creatable?: boolean
       }
@@ -24163,6 +25585,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         match_of?: number
         ask_first?: boolean
@@ -24171,6 +25594,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }[]
         types_more?: boolean
         dashboard_type?: {
@@ -24178,18 +25602,21 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         motion_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         whiteboard_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         types_unavailable?: boolean
         types_ruled?: boolean
@@ -24811,6 +26238,7 @@ declare module 'claude-code' {
       instructions_chars?: number
       instructions_clipped?: boolean
       instructions_unavailable?: string
+      viewer_note?: string
       init_references?: {
         docs: {
           path: string
@@ -24981,6 +26409,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
       }[]
       query?: string
       more?: boolean
@@ -24993,6 +26422,7 @@ declare module 'claude-code' {
         type_url: string
         description?: string
         tier?: string
+        third_party?: boolean
         release?: string
         files: string[]
         files_omitted?: number
@@ -25001,6 +26431,7 @@ declare module 'claude-code' {
         instructions_chars?: number
         instructions_clipped?: boolean
         instructions_unavailable?: string
+        viewer_note?: string
         capabilities: string[]
         creatable?: boolean
       }
@@ -25049,6 +26480,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         match_of?: number
         ask_first?: boolean
@@ -25057,6 +26489,7 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }[]
         types_more?: boolean
         dashboard_type?: {
@@ -25064,18 +26497,21 @@ declare module 'claude-code' {
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         motion_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         whiteboard_type?: {
           title: string
           type_url: string
           description?: string
           tier?: string
+          third_party?: boolean
         }
         types_unavailable?: boolean
         types_ruled?: boolean
@@ -25816,6 +27252,14 @@ declare module 'claude-code' {
       durable?: boolean
       /** Epoch ms of the job's next run, the scheduler's per-job offset included */
       nextFireAt?: number
+      /** Age at which a recurring job ends; 0 = never */
+      maxAgeMs?: number
+      /** Other session-only one-shot tasks that have yet to fire */
+      otherOneShots?: {
+        id: string
+        humanSchedule: string
+        prompt: string
+      }[]
     }
     CronDelete: {
       id: string
@@ -25853,6 +27297,8 @@ declare module 'claude-code' {
       isOwned?: boolean
       canEdit?: boolean
       moveState?: "moving" | "moved"
+      movedTo?: string
+      movedToHeldBy?: "you" | "owner" | "someone_else"
     } | {
       method: "list_files"
       notice?: string
@@ -25984,6 +27430,8 @@ declare module 'claude-code' {
       /** @internal originalCwd was gone (or a network path the session will not touch), so restoredCwd is a fallback directory. */
       originalCwdMissing?: boolean
       message: string
+      /** @internal What the mod that removed the worktree said of getting the work back. */
+      releaseNote?: string
       /** @internal Told to the model and shown to the person where the sandbox stays on only through this move, or where commands are refused after it. */
       sandboxNote?: string
     }
@@ -26245,6 +27693,7 @@ declare module 'claude-code' {
         at: string
         fields: {}
       } | null>
+      rows?: Array<string | null>
     }
     Projects: {
       method: "project_info"
@@ -26565,6 +28014,7 @@ declare module 'claude-code' {
         presents_as?: string | null
         installation_preference?: string | null
       }>
+      note?: string
     }
     SearchSkills: {
       results: Array<{
@@ -26576,6 +28026,7 @@ declare module 'claude-code' {
         presents_as?: string | null
         installation_preference?: string | null
       }>
+      note?: string
     }
     SendFeedback: {
       success: boolean
@@ -26996,6 +28447,7 @@ declare module 'claude-code' {
         at: string
         fields: {}
       } | null>
+      rows?: Array<string | null>
     }
   }
 }

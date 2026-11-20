@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url';
 
 // Without a charset, chromium decodes pages and the scripts they load as
 // windows-1252, so raw UTF-8 in a bundle turns into a SyntaxError.
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml' };
 
 // Browsers send the host name from the address bar as Host. A site that points its own
 // domain at 127.0.0.1 (DNS rebinding) still sends its own domain, so only these names pass.

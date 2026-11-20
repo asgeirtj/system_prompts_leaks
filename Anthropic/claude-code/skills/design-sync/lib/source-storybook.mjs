@@ -7,7 +7,7 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { delimiter, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { IIFE_IMPORT_META_DEFINE, titleParts } from './common.mjs';
 import { findStorybookDirs } from './detect.mjs';
 import { storybookStubPlugin } from './story-imports.mjs';
@@ -41,6 +41,26 @@ function pickStorybookDir({ INPUTS, PKG, SB_CONFIG_DIR }) {
     return ranked[0].d;
   }
   return found[0] ?? (existsSync(join(INPUTS, '.storybook')) ? join(INPUTS, '.storybook') : undefined);
+}
+
+const realOf = (p) => { try { return realpathSync(p); } catch { return p; } };
+
+// The storybook installed for a config folder: the nearest node_modules/storybook
+// on the way up, where Node itself would find it. Returns its program. Undefined
+// where there is none, as in a Yarn PnP repo, or where its package.json names no
+// program.
+function installedStorybook(from) {
+  for (let dir = from; ; dir = dirname(dir)) {
+    const manifest = join(dir, 'node_modules', 'storybook', 'package.json');
+    try {
+      const { bin } = JSON.parse(readFileSync(manifest, 'utf8'));
+      const program = typeof bin === 'string' ? bin : (bin?.storybook ?? bin?.sb);
+      return typeof program === 'string' ? join(dirname(manifest), program) : undefined;
+    } catch (error) {
+      if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') return undefined;
+    }
+    if (dirname(dir) === dir) return undefined;
+  }
 }
 
 // Storybook derives a story's display name from its export key (startCase);
@@ -129,18 +149,36 @@ export async function resolveStorybook(ctx) {
   // self-contained from the bundle. Built into a dot-prefixed dir so it's
   // never uploaded.
   if (!sbStatic && sbDir) {
-    sbStatic = resolve(OUT, '.sb-static');
-    console.error(`  running: npx --no-install storybook build -c ${sbDir} -o ${sbStatic}`);
-    const { spawnSync } = await import('node:child_process');
-    const r = spawnSync(
-      // --no-install: npx runs a storybook that is already installed, or fails. Without it, and with no terminal to ask
-      // on, it downloads whatever the registry serves under that name and runs it.
-      'npx', ['--no-install', 'storybook', 'build', '-c', sbDir, '-o', sbStatic, '--quiet'],
-      { cwd: dirname(sbDir), stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 600_000, shell: process.platform === 'win32' },
-    );
-    if (r.error || r.signal || r.status !== 0 || !existsSync(join(sbStatic, 'index.json'))) {
-      console.error(`[SB_BUILD_FAIL] storybook build exited ${r.status ?? r.signal ?? r.error?.code}:\n${(r.stderr || r.stdout || '').slice(-2000)}`);
-      sbStatic = null;
+    // Absolute: the child starts in the config folder's parent, and would read a relative path from there.
+    const configDir = resolve(sbDir);
+    const program = installedStorybook(dirname(configDir));
+    if (!program) {
+      console.error(
+        `[SB_BUILD_FAIL] no storybook that can be started is installed for ${JSON.stringify(configDir)} (no usable node_modules/storybook in its parent folder or any folder above that). ` +
+          `Install the repo's dependencies with its own package manager, or build the reference storybook as the setup steps in SKILL.md say and pass --storybook-static <dir>.`,
+      );
+    } else {
+      sbStatic = resolve(OUT, '.sb-static');
+      console.error(`  running: node ${JSON.stringify(program)} build -c ${JSON.stringify(configDir)} -o ${JSON.stringify(sbStatic)}`);
+      const { spawnSync } = await import('node:child_process');
+      // pnpm's own launcher puts its hoisted packages on NODE_PATH, which some storybook configs lean on. Those packages are in
+      // node_modules/.pnpm/node_modules at the workspace's root, found from the program's real path, since the link may sit in a
+      // sub-package. A bin that names a missing file has no real path, and the start below reports it.
+      const store = /^(.*[\\/]node_modules[\\/]\.pnpm)[\\/]/.exec(realOf(program))?.[1];
+      const env = store
+        ? { ...process.env, NODE_PATH: [join(store, 'node_modules'), process.env.NODE_PATH].filter(Boolean).join(delimiter) }
+        : process.env;
+      // The installed program, started by node itself. Not npx, which with no terminal to ask on downloads whatever the
+      // registry serves under the name and runs it. And no shell, on Windows either: these paths come from the repo, and
+      // cmd.exe would act on an "&" or a "%" in them.
+      const r = spawnSync(
+        process.execPath, [program, 'build', '-c', configDir, '-o', sbStatic, '--quiet'],
+        { cwd: dirname(configDir), env, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 600_000 },
+      );
+      if (r.error || r.signal || r.status !== 0 || !existsSync(join(sbStatic, 'index.json'))) {
+        console.error(`[SB_BUILD_FAIL] storybook build exited ${r.status ?? r.signal ?? r.error?.code}:\n${(r.stderr || r.stdout || '').slice(-2000)}`);
+        sbStatic = null;
+      }
     }
   }
   const csfComponents = [];
@@ -154,7 +192,6 @@ export async function resolveStorybook(ctx) {
     // startsWith is case-sensitive (win32 drive-letter casing makes it
     // silently inert) and raw resolve() misses pnpm-style symlinked package
     // dirs. A wrong isOwn lets a sibling package's same-named stories win.
-    const realOf = (p) => { try { return realpathSync(p); } catch { return p; } };
     const pkgReal = realOf(resolve(PKG_DIR));
     // Memoized per importPath: the sort comparator below calls isOwn
     // O(n log n) times, and a comparator's view of an entry must not
@@ -189,7 +226,7 @@ export async function resolveStorybook(ctx) {
       `  storybook-static: ${Object.keys(idx.entries ?? {}).length} entries \u2192 ${csfComponents.length} components`,
     );
     await resolveStorySources(csfComponents, sbDir, sbStatic);
-  } else {
+  } else if (!sbDir) {
     console.error(`[SB_BUILD_FAIL] no storybook-static and no .storybook/ dir found \u2014 pass --storybook-static <dir> or run from a repo with .storybook/.`);
   }
   return { shape: 'storybook', entry, components: csfComponents, sbStatic, sbDir };

@@ -6,8 +6,14 @@ more than avoiding false positives. Err on the side of surfacing.
 
 ## Phase 0 — Gather the diff
 
-Run `git diff @{upstream}...HEAD` (or `git diff main...HEAD` / `git diff HEAD~1`
-if there's no upstream) to get the unified diff under review. If there are
+Unless a review target is named above, run `git diff origin/HEAD...HEAD` by
+itself, exactly as written, to get the unified diff under review: the whole branch
+against the default branch. Only if that fails, or it and `git diff HEAD` both
+print nothing, run `git diff main...HEAD`, with the default branch's name in place
+of `main` if it has another (`git branch -a` lists the branches), or
+`git diff HEAD~1` if you can't tell the base. Three forms need permission, so
+never write them: `@{upstream}` or `@{u}` next to `..` or `...`, commands
+grouped in parentheses, and shell variables such as `$?`. If there are
 uncommitted changes, or the range diff is empty, also run `git diff HEAD` and
 include the working-tree changes in scope — the review often runs before the
 commit. If a PR number, branch name, or file path was passed as an argument,
@@ -44,11 +50,14 @@ does a parallel change in the same PR make a call unsafe?
 
 ### Conventions (CLAUDE.md)
 
-Find the CLAUDE.md files that govern the changed code: the user-level
-`~/.claude/CLAUDE.md`, the repo-root CLAUDE.md, plus any CLAUDE.md or
-CLAUDE.local.md in a directory that is an ancestor of a changed file (a
-directory's CLAUDE.md only applies to files at or below it). Read each one
-that exists, then check the diff for clear violations of the rules they state.
+Find the CLAUDE.md files that govern the changed code: the repo-root CLAUDE.md,
+plus any CLAUDE.md or CLAUDE.local.md in a directory that is an ancestor of a
+changed file (a directory's CLAUDE.md only applies to files at or below it).
+Search for them in a command of its own, not on the `git diff` line, with every
+pattern quoted. Read each one that exists. The user-level `~/.claude/CLAUDE.md`
+governs too, but take it only from your context, where the session puts it if it
+exists: if it isn't shown there, skip it, and never search for it, list it or
+read it. Then check the diff for clear violations of the rules these files state.
 
 Only flag a violation when you can quote the exact rule and the exact line
 that breaks it — no style preferences, no vague "spirit of the doc"

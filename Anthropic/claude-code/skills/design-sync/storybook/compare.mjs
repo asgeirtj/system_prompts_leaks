@@ -115,7 +115,7 @@ if (!comps.length) {
 let pw;
 try { pw = await import('playwright'); }
 catch {
-  console.error('[NO_CHROMIUM] compare requires playwright \u2014 npm i playwright && npx playwright install chromium');
+  console.error('[NO_CHROMIUM] compare requires playwright \u2014 install playwright and chromium in .ds-sync as the setup steps in SKILL.md say');
   process.exit(2);
 }
 

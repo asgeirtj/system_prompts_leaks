@@ -80,6 +80,9 @@ if (local.bundleSha12 !== liveBundleSha) {
   process.exit(1);
 }
 
+// A fetched record's value, as a message shows it: quoted, on one line and cut short.
+const theirs = (value) => JSON.stringify(String(value).slice(0, 120)).replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu, ' ');
+
 let remote = null;
 // anchorReason travels into .sync-diff.json so downstream consumers (the
 // resync driver's verdict, CI) can tell "verified against the last upload"
@@ -89,13 +92,13 @@ const remotePath = flag('remote');
 if (remotePath) {
   anchorReason = 'unreadable';
   try { remote = JSON.parse(readFileSync(remotePath, 'utf8')); }
-  catch (e) { console.error(`! remote sidecar unreadable (${e.message}) \u2014 treating as no anchor`); }
+  catch (e) { console.error(`! remote sidecar unreadable (${theirs(e.message)}) \u2014 treating as no anchor`); }
   if (remote && !validSidecar(remote)) {
     console.error('! remote sidecar malformed \u2014 treating as no anchor');
     remote = null;
     anchorReason = 'malformed';
   } else if (remote && remote.shape !== local.shape) {
-    console.error(`! source shape changed (${remote.shape} \u2192 ${local.shape}) \u2014 hashes are not comparable across recipes; full re-verification`);
+    console.error(`! source shape changed (${theirs(remote.shape)} \u2192 ${local.shape}) \u2014 hashes are not comparable across recipes; full re-verification`);
     remote = null;
     anchorReason = 'shape_changed';
   } else if (remote) {
@@ -138,7 +141,7 @@ if (!remote) {
   const useSourceKeys = keysOk(local) && keysOk(remote) &&
     local.keyRecipe !== undefined && remote.keyRecipe === local.keyRecipe;
   if (keysOk(remote) && keysOk(local) && !useSourceKeys) {
-    console.error(`! source-key recipe changed (remote keyRecipe ${remote.keyRecipe} \u2192 local ${local.keyRecipe}) \u2014 falling back to the render-hash partition (full re-verification of changed artifacts)`);
+    console.error(`! source-key recipe changed (remote keyRecipe ${theirs(remote.keyRecipe)} \u2192 local ${local.keyRecipe}) \u2014 falling back to the render-hash partition (full re-verification of changed artifacts)`);
   }
   out.keyedBy = useSourceKeys ? 'sourceKeys' : 'renderHashes';
   out.styleChanged = remote.styleSha !== local.styleSha;
@@ -201,7 +204,7 @@ if (!remote) {
   // has no derivable paths - its deletes can't be computed. Loud, not silent.
   for (const n of Object.keys(remote.renderHashes)) {
     if (!(n in local.renderHashes) && !remoteBy.has(n)) {
-      console.error(`! removed component "${n}" has no sourceHashes coverage in the remote sidecar \u2014 its remote files can't be derived for deletion; list_files and clean up by hand once`);
+      console.error(`! removed component ${theirs(n)} has no sourceHashes coverage in the remote sidecar \u2014 its remote files can't be derived for deletion; list_files and clean up by hand once`);
     }
   }
   out.upload.bundle = remote.bundleSha12 !== local.bundleSha12;

@@ -2,7 +2,7 @@
 
 ## Turn 1 — read
 
-One tool call: read the unified diff (`git diff @{upstream}...HEAD; git diff HEAD`
+One tool call: read the unified diff (`git diff origin/HEAD...HEAD; git diff HEAD`
 to cover both committed and uncommitted changes, or `git diff main...HEAD` /
 the target passed as an argument). Skip test/fixture
 hunks (`test/`, `spec/`, `__tests__/`, `*_test.*`, `*.test.*`,

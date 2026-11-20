@@ -36,7 +36,7 @@ export function resolveDistEntry({ pkgDir, pkgJson, override, pkgName, soft = fa
   if (soft) return null;
   console.error(
     `[NO_DIST] ${pkgName} has no built entry (tried ${cand.join(', ')} under ${pkgDir}). ` +
-      `Run the DS's build script, or use 'npm install ${pkgName}@latest' in a scratch dir and pass --node-modules.`,
+      `Build it with its build script, or ask the user about the published-dist alternative in the skill's instructions.`,
   );
   process.exit(1);
 }
@@ -234,7 +234,7 @@ export async function bundleToIife({ entry, globalName, nodePaths, out, tsconfig
     if (siblings.length) {
       console.error(
         `[WORKSPACE_SIBLING] ${siblings.join(', ')} exist in node_modules but aren't built (no dist entry). ` +
-          `Run their build, or npm install the published versions.`,
+          `Build them, or ask the user about the published-dist alternative in the skill's instructions.`,
       );
     } else if (unresolved.length) {
       console.error(`[UNRESOLVED_IMPORT] ${unresolved.join(', ')} \u2014 missing from node_modules.`);

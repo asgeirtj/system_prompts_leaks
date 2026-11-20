@@ -409,7 +409,7 @@ if (!pw) {
   if (NO_RENDER_CHECK) {
     warn('[RENDER_SKIPPED] render check did not run (--no-render-check) \u2014 previews are NOT visually verified');
   } else {
-    fail('[RENDER_SKIPPED] playwright not importable \u2014 the render check did NOT run. `npm i -D playwright && npx playwright install chromium`, then re-run validate (or pass --no-render-check to accept an unverified bundle).');
+    fail('[RENDER_SKIPPED] playwright not importable \u2014 the render check did NOT run. Install playwright and chromium in .ds-sync as the setup steps in SKILL.md say, then re-run validate (or pass --no-render-check to accept an unverified bundle).');
   }
 } else {
   const htmls = [];
@@ -533,7 +533,7 @@ if (!pw) {
           const texts = [], htmls = [], hollow = [];
           for (const r of roots) {
             const t = r.textContent ?? '';
-            if (t.startsWith('\u26A0')) { caught++; firstCaught ??= t.slice(2, 150); continue; }
+            if (t.startsWith('\u26A0')) { caught++; firstCaught ??= t.slice(2, 150).replace(/\s+/g, ' '); continue; }
             texts.push(t.trim());
             htmls.push(r.innerHTML);
             hollow.push(!t.trim() && !paints(r));
@@ -793,7 +793,7 @@ if (!pw) {
   } catch (e) {
     // A broken chromium must fail like a missing playwright does - a silent
     // skip would mint an anchor that vouches for renders nobody checked.
-    fail(`[RENDER_SKIPPED] render check did not run (${String(e).split('\n')[0]}) \u2014 \`npx playwright install chromium\` and re-run, or pass --no-render-check to accept an unverified bundle`);
+    fail(`[RENDER_SKIPPED] render check did not run (${String(e).split('\n')[0]}) \u2014 install chromium as the setup steps in SKILL.md say and re-run, or pass --no-render-check to accept an unverified bundle`);
   } finally {
     await browser?.close();
     srv.close();
@@ -801,5 +801,5 @@ if (!pw) {
 }
 
 const warnNote = warnings ? ` (${warnings} warning(s) \u2014 review above, non-blocking)` : '';
-console.error(errors ? `\n${errors} error(s) \u2014 open a <Name>.html in a browser via \`npx serve ${OUT}\` to inspect.` : `\n\u2713 bundle is complete${warnNote}`);
+console.error(errors ? `\n${errors} error(s) \u2014 to inspect, run \`node .ds-sync/storybook/http-serve.mjs "${OUT}"\` (it stays running) and open .review.html at the address it prints.` : `\n\u2713 bundle is complete${warnNote}`);
 process.exit(errors ? 1 : 0);

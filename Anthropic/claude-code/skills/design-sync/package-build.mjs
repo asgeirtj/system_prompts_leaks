@@ -52,6 +52,12 @@ if (forkedLibs.has('sync-hashes.mjs')) {
 if (forkedLibs.has('preview-gen-package.mjs')) {
   console.error('[OVERRIDE_DEAD] .design-sync/overrides/preview-gen-package.mjs is never loaded \u2014 the package-shape generated-preview tier is gone. Author .design-sync/previews/<Name>.tsx instead; delete the fork (and its cfg.libOverrides entry). NOTE: any fork add/delete moves the grade contract for every component \u2014 pair the deletion with a full build and expect a one-time full re-verify on the next sync.');
 }
+// A fork made from an older copy keeps that copy's build step. Warned, not refused: a fork is the repo's own code, and
+// with a reference storybook already built it never reaches that step. Matches the word only at the start of a string, as a
+// spawn or an exec names it, so the mention in today's copy, in a comment, doesn't trigger it.
+if (forkedLibs.has('source-storybook.mjs') && /['"`]npx(?:\.cmd)?['"`\s]/.test(readFileSync(join(REPO_LIB, 'source-storybook.mjs'), 'utf8'))) {
+  console.error('[OVERRIDE_NPX] .design-sync/overrides/source-storybook.mjs runs npx. If it builds the reference storybook that way, copy installedStorybook() and the build step of resolveStorybook() into it from .ds-sync/lib/source-storybook.mjs.');
+}
 // Repo-local fork (.design-sync/overrides/<name>.mjs) wins, else the bundled copy.
 async function loadLib(name) {
   if (forkedLibs.has(`${name}.mjs`)) {

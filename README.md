@@ -82,6 +82,7 @@ Used as the definitive source in:
 | Opus 4.8 Claude Code | [Claude Code system prompt (Opus 4.8)](Anthropic/claude-code/claude-code-opus-4.8.md) |
 | Sonnet 5 Claude Code | [Claude Code system prompt (Sonnet 5)](Anthropic/claude-code/claude-code-sonnet-5.md) |
 | Claude Code (older models) | [Opus 4.7](Anthropic/claude-code/claude-code-opus-4.7.md) · [Opus 4.6](Anthropic/claude-code/claude-code-opus-4.6.md) · [Sonnet 4.6](Anthropic/claude-code/claude-code-sonnet-4.6.md) · [Haiku 4.5](Anthropic/claude-code/claude-code-haiku-4.5.md) |
+| Claude Code for VS Code | [VS Code extension context prompt](Anthropic/claude-code/claude-code-for-vs-code.md) |
 | Subagents | [Claude Code subagent system prompts](Anthropic/claude-code/agents) |
 | Advisor tool | [Advisor tool prompts (both sides)](Anthropic/claude-code/prompts/advisor-tool.md) |
 | Auto mode classifier | [Auto mode safety classifier prompt](Anthropic/claude-code/prompts/auto-mode-classifier.md) |

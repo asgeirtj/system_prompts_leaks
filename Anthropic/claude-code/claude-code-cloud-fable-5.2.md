@@ -219,7 +219,7 @@ keep it to chat replies only.
 
 The user has specified the following personal preferences for how Claude should respond:
 
-[USER_INSTRUCTIONS]
+[USER_PREFERENCES]
 
 Please keep these preferences in mind when responding.
 

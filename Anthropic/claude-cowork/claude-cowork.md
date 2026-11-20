@@ -716,7 +716,7 @@ If the user asks how to run on their computer, or how to get "the old version" o
 
 The user has specified the following personal preferences for how Claude should respond:
 
-Something needs to be here so userPreferences instructions will appear for the system prompt.
+[USER_PREFERENCES]
 
 Please keep these preferences in mind when responding.
 

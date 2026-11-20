@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude for Outlook and Claude for Google Workspace** | November 20, 2026 | [Outlook](Anthropic/claude-for-microsoft-365/claude-for-outlook.md) · [Google Docs](Anthropic/claude-for-google-workspace/claude-in-google-docs.md) · [Google Sheets](Anthropic/claude-for-google-workspace/claude-in-google-sheets.md) · [Google Slides](Anthropic/claude-for-google-workspace/claude-in-google-slides.md) |
 | **Claude Opus 3 (claude.ai)** | November 20, 2026 | [Claude Opus 3 system prompt](Anthropic/claude-opus-3.md) |
 | **GPT-6.2 Sol and Astra (Codex)** | November 20, 2026 | [GPT-6.2-Sol Codex core system prompt](OpenAI/Codex/gpt-6.2-sol.md) · [Astra](OpenAI/Codex/gpt-6.2-astra.md) |
 | **Claude Code Desktop (Fable 5.2)** | November 18, 2026 | [Claude Code desktop app system prompt (Fable 5.2)](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 | **Kagi Assistant (updated)** | October 29, 2026 | [Kagi assistant system prompt](Misc/kagi-assistant.md) |
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
-| **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 
 ---
 ## Anthropic — Claude
@@ -112,7 +112,8 @@ Used as the definitive source in:
 | **Claude Design** | [**Claude Design system prompt**](Anthropic/claude-design/claude-design.md) · [skills](Anthropic/claude-design/skills) · [starter components](Anthropic/claude-design/starter-components) |
 | **Claude Cowork** | [**Claude Cowork system prompt**](Anthropic/claude-cowork/claude-cowork.md) · [Dispatch](Anthropic/claude-cowork/claude-cowork-dispatch.md) · [setup skills](Anthropic/claude-cowork) |
 | **Claude Science** | [**Claude Science system prompt**](Anthropic/claude-science.md) |
-| Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-microsoft-365/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-microsoft-365/claude-for-word.md) · [Claude for PowerPoint](Anthropic/claude-for-microsoft-365/claude-for-powerpoint.md) |
+| Claude for Microsoft 365 | [Claude for Excel](Anthropic/claude-for-microsoft-365/claude-for-excel.md) · [Claude for Word](Anthropic/claude-for-microsoft-365/claude-for-word.md) · [Claude for PowerPoint](Anthropic/claude-for-microsoft-365/claude-for-powerpoint.md) · [Claude for Outlook](Anthropic/claude-for-microsoft-365/claude-for-outlook.md) |
+| Claude for Google Workspace | [Google Docs](Anthropic/claude-for-google-workspace/claude-in-google-docs.md) · [Google Sheets](Anthropic/claude-for-google-workspace/claude-in-google-sheets.md) · [Google Slides](Anthropic/claude-for-google-workspace/claude-in-google-slides.md) |
 | Claude in Chrome | [Claude in Chrome extension system prompt](Anthropic/claude-in-chrome.md) |
 | Claude iOS app | [Claude mobile iOS system prompt](Anthropic/claude-mobile-ios.md) |
 

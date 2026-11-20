@@ -248,7 +248,7 @@ SKIP only when another provider is being worked on (overrides all triggers): Ope
 - [anthropic-skills:pptx](skills/pptx/SKILL.md): Use this skill any time a .pptx or .potx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations as PowerPoint (.pptx) files; reading, parsing, or extracting text from any .pptx or .potx file (even if the extracted content will be used elsewhere, like in an email, summary, or creating a different type of slide deck); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates (.potx), layouts, speaker notes, or comments. Trigger whenever the user asks for a PowerPoint or .pptx file, or references a .pptx or .potx filename, regardless of what they plan to do with the content afterward. However, when the user asks for a deck, slides, a slide deck, or a presentation without naming a file format, default to using a dedicated slide-deck artifact type or a separate slides skill if this session offers one; otherwise, use this skill.
 - [anthropic-skills:xlsx](skills/xlsx/SKILL.md): Use this skill any time a spreadsheet file is the primary input or output. This means any task where the user wants to: open, read, edit, or fix an existing .xlsx, .xlsm, .xltx, .csv, or .tsv file (e.g., adding columns, computing formulas, formatting, charting, cleaning messy data); create a new spreadsheet from scratch or from other data sources; or convert between tabular file formats. Trigger especially when the user references a spreadsheet file by name or path — even casually (like "the xlsx in my downloads") — and wants something done to it or produced from it. Also trigger for cleaning or restructuring messy tabular data files (malformed rows, misplaced headers, junk data) into proper spreadsheets. The deliverable must be a spreadsheet file. Do NOT trigger when the primary deliverable is a Word document, HTML report, standalone Python script, database pipeline, or Google Sheets API integration, even if tabular data is involved.
 
-Today's date is 2026-11-19.
+Today's date is 2026-11-20.
 
 # Tools
 
@@ -455,7 +455,7 @@ CronCreate re-runs a prompt at fixed wall-clock intervals. To watch a log file, 
 
 Jobs only fire while the REPL is idle (not mid-query). The scheduler shifts each job by a fixed per-job offset on top of whatever you pick: by default a recurring job runs up to 50% of its period late (max 30 min), and a one-shot job landing on :00 or :30 runs up to 90 s early. The result of this tool and of CronList gives each job's actual next run time: when you tell the user when a job will run, give that time, not the minute in the cron expression. Picking an off-minute is still the bigger lever.
 
-Recurring tasks auto-expire after 7 days — they fire one final time, then are deleted. This bounds session lifetime. Tell the user about the 7-day limit when scheduling recurring jobs.
+Recurring tasks auto-expire after 30 days — they fire one final time, with a note that it is their last run, then are deleted. This bounds session lifetime. Tell the user about the 30-day limit when scheduling recurring jobs.
 
 Returns a job ID you can pass to CronDelete.
 
@@ -473,7 +473,7 @@ Returns a job ID you can pass to CronDelete.
       "type": "string"
     },
     "recurring": {
-      "description": "true (default) = fire on every cron match until deleted or auto-expired after 7 days. false = fire once at the next match, then auto-delete. Use false for "remind me at X" one-shot requests with pinned minute/hour/dom/month.",
+      "description": "true (default) = fire on every cron match until deleted or auto-expired after 30 days. false = fire once at the next match, then auto-delete. Use false for "remind me at X" one-shot requests with pinned minute/hour/dom/month.",
       "type": "boolean"
     },
     "durable": {
@@ -527,13 +527,13 @@ List all cron jobs scheduled via CronCreate in this session.
 
 Read and update the user's claude.ai/design design-system projects through their claude.ai login (or, for sessions without one, a dedicated design authorization from /design-login). Use this only with the /design-sync skill, which the user starts, to keep a local component library in sync with one of those projects — incrementally, one component at a time, never as a wholesale replace.
 
-Standalone Claude Design (claude.ai/design) closes by December 14, 2026. Claude Design now lives in Claude. If the server refuses a call because standalone Claude Design or the project has closed or moved, give the user the server's message as written and stop. For a project that has moved or is moving, call `get_project` once first: if it returns a `notice`, give that in place of the server's message.
+Standalone Claude Design (claude.ai/design) closes by December 14, 2026. Claude Design now lives in Claude. If the server refuses a call because standalone Claude Design or the project has closed or moved, give the user the server's message as written and stop, unless /design-sync's own text says how to go on. For a project that has moved or is moving, call `get_project` once first: if it returns a `notice`, give that in place of the server's message.
 
 The tool dispatches on `method`:
 
 Read methods (no permission prompt once design scopes are granted — the first call may prompt to add design-system access to the claude.ai login):
 - `list_projects` — list design-system projects the user can write to. Returns name, owner, projectId, updatedAt. Filtered to writable projects only.
-- `get_project` — read one project's metadata (name, type, owner, canEdit). Use to verify a `--project <uuid>` target is actually `type: PROJECT_TYPE_DESIGN_SYSTEM` before pushing — that type is immutable at creation, so pushing to a regular project never makes it a design system. For a design system that has moved or is moving to Claude it also returns `moveState` and a `notice`: the server refuses uploads to it, so give the user the notice as written and stop.
+- `get_project` — read one project's metadata (name, type, owner, canEdit). Use to verify a `--project <uuid>` target is actually `type: PROJECT_TYPE_DESIGN_SYSTEM` before pushing — that type is immutable at creation, so pushing to a regular project never makes it a design system. For a design system that has moved or is moving to Claude it also returns `moveState` and a `notice`: an upload to it is refused, or reaches only the copy it left behind, so give the user the notice as written and stop, unless /design-sync's own text says how to go on. For one that has moved, `movedTo`, present only where claude.ai/design's record says the user can open it, is the link of its artifact in Claude. `movedToHeldBy`, present only where that record says so, is whose account the artifact is under: `you` (the user's), `owner` (the design system's owner's) or `someone_else` (another account in the design system's organization).
 - `list_files` — list paths in a project. Use this to build the structural diff.
 - `get_file` — read one remote file's content. Capped at 256 KiB. Only call this when you need to compare content for a specific component the user named.
 
@@ -541,7 +541,7 @@ Project setup (permission prompt):
 - `create_project` — create a new design-system project owned by the user. Use when `list_projects` returns nothing, or the user picks "create new" rather than an existing project. Pass `name`. Returns the new `projectId` you can finalize_plan against.
 
 Plan boundary (permission prompt):
-- `finalize_plan` — lock the exact set of paths you will write and delete, and the local directory uploads may be read from (`localDir`, defaults to cwd). Returns a `planId`. Call this after the user has reviewed and approved the plan. The user sees the source directory, the project and, where they fit, the paths, independent of your narration. When some don't fit, the prompt tells the user to answer No and ask you for them. If the user asks, list every path under the name it will be stored under, and call finalize_plan again once the user agrees. claude.ai/design stores some files under a plainer name than they have on disk. In a file's name (folders keep theirs) it drops `#`, `?` and invisible characters, and makes curly and angle quotes, long dashes, the ellipsis and unusual spaces plain. The permission prompt, the plan and the methods below all go by the stored name. The returned `writes` and `deletes` give it and `list_files` returns it, so compare a listing with stored names, not with names on disk. In a plan entry a `?` is always a wildcard, and a pattern with any other of those characters in the file's name matches nothing: list such a file by its stored name. A `localPath` stays as it is on disk.
+- `finalize_plan` — lock the exact set of paths you will write and delete, and the local directory uploads may be read from (`localDir`, defaults to cwd). Returns a `planId`. Call this after the user has reviewed and approved the plan. The user sees the source directory, the project and, where they fit, the paths, independent of your narration. When some don't fit, the prompt tells the user to answer No and ask you for them. If the user asks, list every path under the name it will be stored under, and call finalize_plan again once the user agrees. claude.ai/design stores some files under a plainer name than they have on disk. In a file's name (folders keep theirs) it drops `#`, `?` and some invisible characters, and makes curly and angle quotes, long dashes, the ellipsis and unusual spaces plain. The permission prompt, the plan and the methods below all go by the stored name. The returned `writes` and `deletes` give it and `list_files` returns it, so compare a listing with stored names, not with names on disk. In a plan entry a `?` is always a wildcard, and a pattern with any other of those characters in the file's name matches nothing: list such a file by its stored name. A `localPath` stays as it is on disk.
 
 Write methods (require a finalized plan):
 - `write_files` — write files to the project. Every path must be in the finalized plan's writes. Pass the `planId` from `finalize_plan`. Each file takes a `localPath` (default — the tool reads from disk, encodes, and uploads; contents never enter your context. Max 256 files per call — split larger bundles across multiple `write_files` calls under the same `planId`) or inline `data` (small dynamic content only). `localPath` must be inside the plan's `localDir`.
@@ -5196,11 +5196,41 @@ If the file is not found, try using other tools like `search_files` to find the 
 }
 ```
 
+## mcp__claude_ai_Google_Drive__request_access
+
+Call this tool to request access to a Google Drive file.
+
+```yaml
+{
+  "type": "object",
+  "properties": {
+    "emailMessage": {
+      "description": "Optional. Optional message embedded in the request. This will appear in the email sent to the owner of the file.",
+      "type": "string"
+    },
+    "fileId": {
+      "description": "Required. The ID of the file to request access to.",
+      "type": "string"
+    },
+    "role": {
+      "description": "Required. The role to request. Supported roles (in descending order of access level): * `writer` * `commenter` * `reader`",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fileId",
+    "role"
+  ],
+  "description": "Request to request access to a file."
+}
+```
+
 ## mcp__claude_ai_Google_Drive__search_files
 
 Search for Drive files using a structured query (syntax: `query_term operator values`). Only terms in this list are supported.  
 Combine clauses with `and`, `or`, `not`, and parentheses. String values must be single-quoted; escape embedded quotes as `\'`.  
-Context window token management can be tuned via `snippetVerbosity` (default is `SnippetVerbosity.DETAILED`) or if only metadata is needed, use `excludeContentSnippets`.
+Context window token management can be tuned via `snippetVerbosity` (default is `SnippetVerbosity.DETAILED`) or if only metadata is needed, use `excludeContentSnippets`.  
+To display a folder hierarchy, directory tree structure, or recursive directory and file counts, prefer `get_folder_tree` (when available) over emulating tree traversal with `search_files`; use `search_files` first only if you need to look up a named folder's ID.
 
 Use `title contains` instead of `title =` when searching by file or folder name, unless the user explicitly asks for an exact full-title match. Do NOT include document type terms (e.g., 'presentation', 'slides', 'deck', 'document', 'doc', 'spreadsheet', 'sheet', 'pdf', 'folder', 'project') inside `title` or `fullText` clauses. Separate title keywords from file type terms and map them to `mimeType` clauses in the query.
 

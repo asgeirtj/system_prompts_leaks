@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **GPT-6.2 Sol and Astra (Codex)** | November 20, 2026 | [GPT-6.2-Sol Codex core system prompt](OpenAI/Codex/gpt-6.2-sol.md) · [Astra](OpenAI/Codex/gpt-6.2-astra.md) |
 | **Claude Code Desktop (Fable 5.2)** | November 18, 2026 | [Claude Code desktop app system prompt (Fable 5.2)](Anthropic/claude-code/claude-code-desktop-fable-5.2.md) |
 | **Claude Docs connector** | November 14, 2026 | [Claude Docs connector guide and tools](Anthropic/claude-docs) |
 | **Claude Sheets** | November 14, 2026 | [Sheets type skill](Anthropic/artifact-types/sheets/SKILL.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Perplexity Computer (updated) + Model Council** | October 29, 2026 | [Perplexity Computer system prompt](Perplexity/perplexity-computer.md) · [Model Council skill](Perplexity/skills/model-council/SKILL.md) |
 | **MiniMax M3 (Mavis / MiniMax Agent)** | October 29, 2026 | [MiniMax Agent system prompt and tools](MiniMax/minimax-m3-mavis.md) |
 | **LM Studio Bionic** | October 29, 2026 | [LM Studio Bionic system prompt and tools](Misc/lm-studio-bionic.md) |
-| **GPT-Live-1.1 voice** | October 29, 2026 | [ChatGPT and Codex voice system prompts (frontend, backend, task coordinator)](OpenAI/gpt-live-1.1.md) |
 
 ---
 ## Anthropic — Claude
@@ -138,6 +138,7 @@ Used as the definitive source in:
 
 | Model | Prompt |
 |-------|--------|
+| **GPT-6.2 Sol** | [**GPT-6.2-Sol Codex core system prompt**](OpenAI/Codex/gpt-6.2-sol.md) · [Astra](OpenAI/Codex/gpt-6.2-astra.md) |
 | **GPT-6.1 Sol** | [**GPT-6.1-Sol Codex system prompt**](OpenAI/Codex/gpt-6.1-sol.md) · [Terra](OpenAI/Codex/gpt-6.1-terra.md) · [ChatGPT Work local](OpenAI/Codex/gpt-6.1-sol-chatgpt-work-local.md) |
 | **GPT-6 Astra** | [**GPT-6-Astra Codex system prompt**](OpenAI/Codex/gpt-6-astra.md) · [Sol](OpenAI/Codex/gpt-6-sol.md) · [Luna](OpenAI/Codex/gpt-6-luna.md) |
 | GPT-5.6 Codex | [Codex GPT-5.6 system prompt (Terra/Luna)](OpenAI/Codex/gpt-5.6.md) |

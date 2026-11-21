@@ -167,7 +167,7 @@ Used as the definitive source in:
 | GPT-5 personalities | [Listener](OpenAI/gpt-5-listener-personality.md) · [Nerdy](OpenAI/gpt-5-nerdy-personality.md) · [Robot](OpenAI/gpt-5-robot-personality.md) |
 | GPT-5.1 personalities | [Efficient](OpenAI/gpt-5.1-efficient.md) · [Professional](OpenAI/gpt-5.1-professional.md) · [Nerdy](OpenAI/gpt-5.1-nerdy.md) |
 | ChatGPT Atlas | [ChatGPT Atlas system prompt](OpenAI/chatgpt-atlas.md) |
-| Deprecated features | [Deep research tool](OpenAI/tool-deep-research.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
+| Deprecated features | [Deep research tool](OpenAI/tool-deep-research.md) · [Deep Research connector context (2025, redacted)](OpenAI/tool-deep-research-connectors-2025.md) · [Study and learn](OpenAI/Old/study-and-learn.md) · [All](OpenAI/Old/) |
 
 </details>
 

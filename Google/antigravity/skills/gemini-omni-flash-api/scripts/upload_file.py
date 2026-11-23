@@ -298,6 +298,21 @@ def main():
         print(f"Error: File '{args.file}' not found.", file=sys.stderr)
         sys.exit(1)
 
+    # Restrict uploads to media files within the current workspace directory.
+    # This skill is intended for video/image/audio uploads only, and must not
+    # be usable as a generic filesystem exfiltration primitive.
+    allowed_exts = {".png", ".jpg", ".jpeg", ".webp", ".mp4", ".mp3", ".wav"}
+    ext = os.path.splitext(args.file)[1].lower()
+    if ext not in allowed_exts:
+        print(f"Error: File type '{ext}' is not supported. Allowed types: {', '.join(sorted(allowed_exts))}", file=sys.stderr)
+        sys.exit(1)
+
+    workspace_dir = os.path.realpath(os.getcwd())
+    resolved_path = os.path.realpath(args.file)
+    if os.path.commonpath([workspace_dir, resolved_path]) != workspace_dir:
+        print(f"Error: File '{args.file}' is outside the allowed workspace directory.", file=sys.stderr)
+        sys.exit(1)
+
     try:
         file_meta = upload_file(args.file, args.name)
         file_name = file_meta.get("name")

@@ -115,7 +115,7 @@ handlers in a group with a `matcher` regex:
 *   `"matcher": "run_command\|view_file"`: Matches either tool.
 *   `"matcher": "browser_.*"`: Matches any tool starting with `browser_`.
 
-Tool names are derived by lowercasing the step type and removing the  
+Tool names are derived by lowercasing the step type and removing the
 `CORTEX_STEP_TYPE_` prefix.
 
 --------------------------------------------------------------------------------
@@ -126,11 +126,18 @@ Each individual hook handler object supports:
 
 *   **`type`** (string, optional): Defaults to `"command"`. Only `"command"`
     (shell execution) is currently supported.
-*   **`command`** (string, required): The shell command to execute (run via `sh  
-    -c` on Unix, `cmd /c` on Windows). `~` is expanded to the home directory.  
+*   **`command`** (string, required): The shell command to execute (run via `sh
+    -c` on Unix, `cmd /c` on Windows). `~` is expanded to the home directory.
     The working directory is set to the directory containing `hooks.json`.
 *   **`timeout`** (int, optional): Execution timeout in seconds. Defaults to  
     `30`.
+
+Command hooks that ship with a plugin also get `PLUGIN_ROOT` (the plugin
+directory) and, for installed plugins, `PLUGIN_DATA` (the plugin's persistent
+data directory) as environment variables, the same paths the plugin's MCP
+servers get. They are not substituted into `command`: hooks run in the plugin
+folder, so refer to bundled files with a relative path, and use the variables
+for the rest, e.g. `"command": "./hooks/check.sh --cache \"$PLUGIN_DATA\""`.
 
 --------------------------------------------------------------------------------
 
@@ -153,16 +160,22 @@ Every hook payload sent to `stdin` includes these common system metadata fields:
   "transcriptPath": "/path/to/workspace/.gemini/antigravity/transcript.jsonl",
   "artifactDirectoryPath": "/path/to/workspace/.gemini/antigravity/artifacts",
   "modelName": "auto",
-  "lastUserInput": "Fix the failing unit test"
+  "lastUserInput": "Fix the failing unit test",
+  "hookEventName": "PreToolUse",
+  "cwd": "/path/to/workspace"
 }
 ```
+
+`hookEventName` is the event being run, as written in `hooks.json`. `cwd` is the
+agent's working directory, where its commands run by default; it is not the hook
+process's working directory.
 
 > [!NOTE]  
 > The `transcriptPath` and `artifactDirectoryPath` are product-specific. The  
 > example above uses `antigravity` (for Antigravity 2.0). Depending on the  
-> interface you are using, the directory name will differ:  
-> *   **CLI**: `antigravity-cli/`  
-> *   **Antigravity 2.0**: `antigravity/`  
+> interface you are using, the directory name will differ:
+> *   **CLI**: `antigravity-cli/`
+> *   **Antigravity 2.0**: `antigravity/`
 > *   **IDE**: `antigravity-ide/`
 
 --------------------------------------------------------------------------------
@@ -176,6 +189,7 @@ Use to gate, block, or audit tool executions.
     ```yaml
     {
       "toolCall": {
+        "id": "toolu_01",
         "name": "run_command",
         "args": {
           "CommandLine": "npm test"
@@ -236,6 +250,7 @@ Use for post-execution cleanup, auto-fixes, or analysis.
     ```yaml
     {
       "toolCall": {
+        "id": "toolu_01", // Same id as in PreToolUse for this call
         "name": "run_command",
         "args": {
           "CommandLine": "npm test"
@@ -258,6 +273,7 @@ the beginning of a new conversation session.
 
 *   **Input (stdin)**: Common system metadata fields (`conversationId`,
     `workspacePaths`, `transcriptPath`, `artifactDirectoryPath`, `modelName`).
+
 *   **Output (stdout)**:
 
     ```json
@@ -280,7 +296,8 @@ the beginning of a new conversation session.
 
 ### 4. `PreInvocation` Contract
 
-Use to inject context or instructions before the model runs.
+Use to gate user prompts or inject context or instructions before the model
+runs.
 
 *   **Input (stdin)**:
 
@@ -298,9 +315,12 @@ Use to inject context or instructions before the model runs.
     {
       "injectSteps": [
         {
-          "ephemeralMessage": "Remember to check for lint errors before proposing changes."
+          "systemMessage": {
+            "systemMessage": "Remember to check for lint errors before proposing changes."
+          }
         }
-      ]
+      ],
+      "terminationBehavior": ""
     }
     ```
 
@@ -314,8 +334,18 @@ Use to inject context or instructions before the model runs.
             collapsible "System Message" row, and the model sees only the  
             `systemMessage` text (leave it `""` to send the model nothing).
         *   `{"userMessage": "..."}` (plain string)
-        *   `{"ephemeralMessage": "..."}` (plain string; transient message  
-            dropped after the current turn)
+        *   `{"ephemeralMessage": "..."}` *(deprecated — use `systemMessage`  
+            instead; converted to a hidden system message)*
+        *   `{"errorMessage": {"userMessage": "..."}}` (shows an error message  
+            to the user without sending it to the model. Marks the turn as  
+            errored with a non-zero exit code in non-interactive `-p` mode, and  
+            does not stop execution on its own unless paired with  
+            `"terminationBehavior": "terminate"`).
+    *   **`terminationBehavior`** (string, optional):
+        *   `"terminate"`: Stops execution immediately before calling the model  
+            (pair with an injected `errorMessage` to show a block message to the  
+            user).
+        *   `""` (or omitted): Proceeds to the model call (default).
 
 --------------------------------------------------------------------------------
 
@@ -337,7 +367,8 @@ Use to inspect model outputs and potentially force continuation.
         step types as `PreInvocation`).
     *   **`terminationBehavior`** (string, optional):
         *   `"force_continue"`: Forces the execution loop to continue.
-        *   `"terminate"`: Forces the loop to stop.
+        *   `"terminate"`: Forces the loop to stop (pair with an injected  
+            `errorMessage` to show a block message to the user).
         *   `""` (or omitted): Default behavior.
 
 --------------------------------------------------------------------------------
@@ -354,9 +385,14 @@ Use to prevent the agent from stopping if goals are not met.
       "terminationReason": "NO_TOOL_CALL", // e.g., "NO_TOOL_CALL", "MAX_INVOCATIONS", "ERROR", "USER_CANCELED", "TERMINAL_STEP_TYPE"
       "error": "", // Present if stopped due to error
       "fullyIdle": true, // true if all background tasks are done
+      "continuationActive": true, // true after a Stop hook kept the agent going this turn (executionNum > 0)
       ... (common fields)
     }
     ```
+    *   **`continuationActive`** (boolean): `true` while the agent is doing  
+        work that a `Stop` hook asked for in this turn; `false` again once a  
+        new user message starts a turn. Check it so a hook that asks the agent  
+        to continue doesn't ask again in a loop.
     *   **`terminationReason`** (string): The `ExecutorTerminationReason` enum  
         name with the `EXECUTOR_TERMINATION_REASON_` prefix stripped:
         *   `"NO_TOOL_CALL"`: Normal turn completion (model finished without  
@@ -367,8 +403,8 @@ Use to prevent the agent from stopping if goals are not met.
         *   `"ERROR"`: Execution terminated due to an error.
         *   `"USER_CANCELED"`: Canceled by the user.
         *   `"TERMINAL_STEP_TYPE"`: Stopped on a terminal step type.
-        *   `"TERMINAL_CUSTOM_HOOK"`: Terminated by a custom `PostInvocation`  
-            hook.
+        *   `"TERMINAL_CUSTOM_HOOK"`: Terminated by a custom `PreInvocation` or  
+            `PostInvocation` hook.
         *   `"INJECTED_RESPONSE"`: Terminated after an injected response.
 *   **Output (stdout)**:
 

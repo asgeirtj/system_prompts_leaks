@@ -20,20 +20,20 @@ skill does not restate that material.
 
 ## Quick Start
 
-After writing `/tmp/lsrpc.sh` in **Step 0**, prefix every `lsrpc` call with
-`source /tmp/lsrpc.sh &&` and key every mutation on `<dir>` (the install
-directory name `(.path | split("/") | last)` from Step 0, never `plugin.json`'s  
-`name`):
+After writing `/tmp/lsrpc.sh` in **Step 0**, prefix `lsrpc GetAllPlugins` with
+`source /tmp/lsrpc.sh &&` and key every `customization://<dir>` link on `<dir>`
+(the install directory name `(.path | split("/") | last)` from Step 0, never
+`plugin.json`'s `name`):
 
-<!-- mdformat off -->
+`<!-- mdformat off -->`
 | Operation | Command / Action | Key Guardrail |
 | :--- | :--- | :--- |
-| **Inventory installed plugins** (Step 0) | `source /tmp/lsrpc.sh && lsrpc GetAllPlugins '{"workspaceUris":["file:///path/to/workspace"]}' \| jq '[.plugins[] \| {name, dir: (.path \| split("/") \| last), disabled: (.disabled // false), isGlobal, skills: [.skills[]?.name], agents: [.agents[]?.name], rules: [.rules[]?.absolutePath], hooks: ((.hooksJson // "") \| length > 0), mcp: [.mcpServers[]?.name]}]'` | Never read `GetAllPlugins` unfiltered (inlines full `SKILL.md` text); always pipe through `jq` and use `dir` for mutations (`'{}'` if no workspace is active). |
-| **Enable / Disable plugin** (Step 2A) | `source /tmp/lsrpc.sh && lsrpc JetboxWriteState '{"userConfig":{"plugins":{"<dir>":{"enabled":true}}}}'` (`false` to disable) | Takes effect live (no restart). Never hand-edit `~/.gemini/config/config.json`. |
-| **Uninstall user plugin** (Step 2A) | `source /tmp/lsrpc.sh && lsrpc DeletePlugin '{"pluginId":"<dir>"}'` | Refuse if `.path` contains `/builtin/plugins/` (offer to disable instead). If currently disabled, set `"enabled":true` via `JetboxWriteState` before deleting. |
-| **Install Marketplace plugin** (Step 2A) | `source /tmp/lsrpc.sh && lsrpc InstallCustomization '{"id":"<marketplace-id>"}'` | Use `<marketplace-id>` from the Customizations page or user (never guess from `name`; only Marketplace plugins can be installed). Requires a restart. |
-| **Author / consolidate plugin** (Steps 2B–4) | Create `~/.gemini/config/plugins/<name>/plugin.json` (or in source repo if published) + used subdirectories (`skills/`, `agents/`, `rules/AGENTS.md`, `mcp_config.json`, `hooks.json`, `assets/logo.svg`) | Check Step 0 inventory for `name` collisions first; re-run Step 0 inventory, tell the user to restart, and link as `[<name>](customization://<dir>)` (never `plugin://`). |
-<!-- mdformat on -->
+| **Inventory installed plugins** (Step 0) | `source /tmp/lsrpc.sh && lsrpc GetAllPlugins '{"workspaceUris":["file:///path/to/workspace"]}' \| jq '[.plugins[] \| {name, dir: (.path \| split("/") \| last), disabled: (.disabled // false), isGlobal, skills: [.skills[]?.name], agents: [.agents[]?.name], rules: [.rules[]?.absolutePath], hooks: ((.hooksJson // "") \| length > 0), mcp: [.mcpServers[]?.name]}]'` | Never read `GetAllPlugins` unfiltered (inlines full `SKILL.md` text); always pipe through `jq` and use `dir` for links (`'{}'` if no workspace is active). |
+| **Enable / Disable plugin** (Step 2A) | Give the user `[<name>](customization://<dir>)` so they can toggle it on the Customizations page | Takes effect live (no restart). Never call `JetboxWriteState` (restricted in `run_command`) or hand-edit `~/.gemini/config/config.json`. |
+| **Uninstall user plugin** (Step 2A) | Give the user `[<name>](customization://<dir>)` so they can uninstall it on the Customizations page | If `.path` contains `/builtin/plugins/`, explain that built-in plugins cannot be uninstalled and can only be disabled on that page. Never call `DeletePlugin` (restricted in `run_command`). |
+| **Install Marketplace plugin** (Step 2A) | Call `search_marketplace` (if the ID is unknown) and emit `<plugin-card catalog-id="<marketplace-id>"></plugin-card>` on its own line | Never call `InstallCustomization` (restricted in `run_command`) or guess `<marketplace-id>` from `name`. Tell the user they can install it from the card. |
+| **Author / consolidate plugin** (Steps 2B–4) | Create `~/.gemini/config/plugins/<name>/plugin.json` (or in source repo if published) + used subdirectories (`skills/`, `agents/`, `rules/AGENTS.md`, `mcp_config.json`, `hooks.json`, `assets/logo.svg`) | Check Step 0 inventory for `name` collisions first; re-run Step 0 inventory and link as `[<name>](customization://<dir>)` (never `plugin://`). |
+`<!-- mdformat on -->`
 
 ## Step 0: Preflight and inventory
 
@@ -75,7 +75,7 @@ source /tmp/lsrpc.sh && lsrpc GetAllPlugins '{"workspaceUris":["file:///path/to/
   disabled: (.disabled // false),
   isGlobal,
   skills: [.skills[]?.name],
-  agents: [.agents[]?.name],
+  agents: [.agents[]?.agent.name],
   rules: [.rules[]?.absolutePath],
   hooks: ((.hooksJson // "") | length > 0),
   mcp: [.mcpServers[]?.name]
@@ -87,12 +87,12 @@ source /tmp/lsrpc.sh && lsrpc GetAllPlugins '{"workspaceUris":["file:///path/to/
 > populated config will flood your context. Always pipe it through `jq`.
 
 **`dir` is the identifier that matters.** It is the install directory name — the
-last path segment — and it is what every mutation below is keyed on. It is
-frequently **not** the same as `name` from `plugin.json`: a plugin installed
-from the Marketplace lands in a directory named after a signed 64-bit hash, so a
-plugin displayed as `data-tools` may live in a directory called
-`-1870732469773246571`. Using `name` where `dir` is expected fails silently or
-builds a garbage path.
+last path segment — and it is what every `customization://<dir>` link is keyed
+on. It can differ from `name` in `plugin.json`: a plugin written by hand can
+sit in a directory of any name, and a Marketplace plugin installed by an older
+release sits in a directory named after its numeric catalog ID, such as
+`-1870732469773246571`. Using `name` where `dir` is expected builds a broken
+link or path.
 
 ## Step 1: Decide the kind
 
@@ -104,65 +104,47 @@ builds a garbage path.
 
 ## Step 2A: Lifecycle operations
 
-Resolve the target to its `dir` from the Step 0 inventory first. If the user's
-words match several plugins, ask which one rather than guessing.
+Language Server state-mutation RPCs (`JetboxWriteState`, `DeletePlugin`, and
+`InstallCustomization`) are restricted from `run_command` subprocesses. Always
+guide the user through the UI link or Marketplace card below rather than calling
+those RPCs from `run_command` or editing `~/.gemini/config/config.json`.
 
-**Enable or disable.** This is the same write the Customizations page performs,
-and it takes effect live — no restart.
+**Enable, disable, or uninstall an installed plugin.** Resolve the target to its
+`dir` from the Step 0 inventory first. If the user's words match several
+plugins, ask which one rather than guessing.
 
-```bash
-# Enable:
-source /tmp/lsrpc.sh && lsrpc JetboxWriteState '{"userConfig":{"plugins":{"<dir>":{"enabled":true}}}}'
+-   **Enable or disable:** Give the user a direct link to the plugin's page in
+    Customizations — `[<name>](customization://<dir>)` — where they can toggle
+    it on or off (takes effect live, no restart required). Never hand-edit
+    `~/.gemini/config/config.json`: writes that bypass the language server miss
+    the live reload and risk clobbering concurrent `userSettings` or permission
+    grants.
+-   **Uninstall:** Check whether `.path` contains `/builtin/plugins/`:
+    -   **Built-in plugins (`/builtin/plugins/`) cannot be uninstalled** because  
+        they ship with the product. Explain this to the user and give them  
+        `[<name>](customization://<dir>)` so they can disable it instead.
+    -   **User or Marketplace plugins:** Give the user  
+        `[<name>](customization://<dir>)` so they can uninstall it from the  
+        plugin's page in Customizations.
 
-# Disable:
-source /tmp/lsrpc.sh && lsrpc JetboxWriteState '{"userConfig":{"plugins":{"<dir>":{"enabled":false}}}}'
-```
+**Install a Marketplace plugin.** For a plugin published to the Agent  
+Marketplace:
 
-The write deep-merges, so send only the one plugin. Never hand-edit
-`~/.gemini/config/config.json` to do this: writes that bypass the language
-server miss the live reload and are only picked up by a slow backstop poll.
+1.  If you do not already have the catalog ID, look it up with the
+    `search_marketplace` tool (never guess `<marketplace-id>` from the plugin's
+    `name`).
+2.  Render the Marketplace card on its own line so the user can install it with
+    one click:
 
-**Uninstall.**
+    ```markdown
+    <plugin-card catalog-id="<marketplace-id>"></plugin-card>
+    ```
 
-```bash
-source /tmp/lsrpc.sh && lsrpc DeletePlugin '{"pluginId":"<dir>"}'
-```
+3.  Tell the user they can install the plugin directly from the card. If the
+    plugin is not in the Marketplace catalog, tell the user it isn't available
+    to install.
 
-**Check both of these before you run it:**
-
--   **Built-in plugins cannot be uninstalled.** A plugin whose path contains
-    `/builtin/plugins/` ships with the product. Refuse, and offer to disable it
-    instead.
--   **Uninstall leaves the enablement entry behind.** Nothing clears
-    `plugins.<dir>` from `config.json`. If the plugin was disabled and is later
-    reinstalled into the same directory name, it comes back **disabled** for no
-    visible reason. Before deleting a disabled plugin, set it back to enabled so
-    the stale entry is harmless, and tell the user you did.
-
-**Install.** For a plugin published to the Agent Marketplace:
-
-```bash
-source /tmp/lsrpc.sh && lsrpc InstallCustomization '{"id":"<marketplace-id>"}'
-```
-
-You cannot derive this ID from the plugin's name. Take it from the Marketplace
-tab of the Customizations page, or ask the user for it. If all you have is a
-name, say so rather than guessing an ID.
-
-A `source not found` error means one of two things: the ID is wrong, or the
-Marketplace catalog isn't launched for this user. The catalog case has a tell —
-the ID comes back empty, so the message reads `source for customization not
-found` with nothing between the words. Re-check the ID first.
-
-Only install plugins that have a Marketplace entry. If the plugin has none, or
-the catalog isn't launched for this user, do not try to install it another way;
-tell the user it isn't available to install.
-
-A newly installed plugin **directory** is only discovered on startup. Tell the
-user to restart before expecting its skills to appear.
-
-Lifecycle operations end here. Skip Step 3, which covers authoring only, and go
-to Step 4.
+Lifecycle operations end here; you do not need Steps 3 or 4.
 
 ## Step 2B: Decide where the functionality belongs
 
@@ -294,26 +276,28 @@ Re-run the Step 0 inventory and confirm the plugin appears with the components
 you expect. Then tell the user:
 
 -   What changed, and which plugin now owns it.
--   Whether a **restart** is required. Creating or installing a new plugin
-    directory needs one; enabling, disabling and uninstalling do not.
 -   Where to manage it, as a link: `[<name>](customization://<dir>)` opens the
     plugin's own page, which lists what it provides and can turn it on and off.
 
-`<dir>` is the install directory from Step 0, never the manifest `name`. A
-plugin directory created in this session is not discovered until a restart, and
-until then its page reports nothing installed under that id, so give the link
-and the restart together.
+`<dir>` is the install directory from Step 0, never the manifest `name`.
+
+If the user asks how the plugin takes effect, tell them that it loads by itself,
+and its skills are available from the agent's next turn.
 
 Do not emit `plugin://` or `plugins://` links; they are not handled and render
 as dead text.
 
 ## Constraints & Tips
 
--   **Key every mutation on the install directory name, never `plugin.json`'s
-    `name`.** This is the single most common way to break a plugin operation.
--   **Prefer the language server RPCs over editing files.** `config.json` is
-    written atomically at mode 0600 and holds sibling state — `userSettings`,
-    permission grants. A careless rewrite clobbers them.
+-   **Key every `customization://<dir>` link on the install directory name,
+    never `plugin.json`'s `name`.** This is the single most common way to break
+    a plugin link.
+-   **Never hand-edit `config.json` or call mutation RPCs from `run_command`.**
+    `config.json` is written atomically at mode 0600 and holds sibling state —
+    `userSettings`, permission grants — that a manual rewrite can clobber, and
+    `JetboxWriteState`, `DeletePlugin`, and `InstallCustomization` are blocked
+    for `run_command` subprocesses. Use `customization://<dir>` links and
+    `<plugin-card>` instead.
 -   **One coherent purpose per plugin.** Bundling unrelated capabilities forces
     the user into an all-or-nothing toggle. If a request does not fit the
     plugin's description, that is the signal to create a new one.

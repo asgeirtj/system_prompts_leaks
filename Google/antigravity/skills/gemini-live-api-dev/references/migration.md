@@ -3,9 +3,9 @@
 Step-by-step checklists and protocol deltas for migrating legacy Live API models (Gemini 2.0, 2.5, and 3.1 Live) to **Gemini 3.8 Live** (`gemini-3.8-live`) and **Gemini 3.8 Live Extended Thinking** (`gemini-3.8-live-extended-thinking`).
 
 For full hosted documentation, fetch:
-- [Gemini 3.8 Live Model Card & Migration Guide](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live.md.txt) (`#migrating`)
-- [Gemini 3.8 Live Extended Thinking Model Card & Upgrading Guide](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live-extended-thinking.md.txt) (`#upgrading`)
-- [Thinking in the Live API Guide](https://ai.google.dev/gemini-api/docs/live-api/thinking.md.txt)
+- [Gemini 3.8 Live Model Card & Migration Guide](https://aistudio.google.com/docs/models/gemini-3.8-live.md) (`#migrating`)
+- [Gemini 3.8 Live Extended Thinking Model Card & Upgrading Guide](https://aistudio.google.com/docs/models/gemini-3.8-live-extended-thinking.md) (`#upgrading`)
+- [Thinking in the Live API Guide](https://aistudio.google.com/docs/live-api/thinking.md)
 
 ---
 

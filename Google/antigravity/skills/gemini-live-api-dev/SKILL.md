@@ -222,13 +222,13 @@ Key requirements:
   - `"IN_PROGRESS"`: Server is reasoning, speaking conversational fillers, or waiting for async tool responses.
   - `"IDLE"`: Server has completed all background reasoning and tool calls; session is ready for user input.
 
-See [`references/migration.md`](references/migration.md) and the [Thinking in Live API Guide](https://ai.google.dev/gemini-api/docs/live-api/thinking.md.txt) for complete Python and JavaScript implementation examples.
+See [`references/migration.md`](references/migration.md) and the [Thinking in Live API Guide](https://aistudio.google.com/docs/live-api/thinking.md) for complete Python and JavaScript implementation examples.
 
 ---
 
 ## Live Translation (Gemini Live Translate)
 
-The Live API supports real-time, low-latency streaming translation of speech (audio) across 70+ languages. For full details on options and capabilities, see the [Live Translate Guide](https://ai.google.dev/gemini-api/docs/live-api/live-translate.md.txt).
+The Live API supports real-time, low-latency streaming translation of speech (audio) across 70+ languages. For full details on options and capabilities, see the [Live Translate Guide](https://aistudio.google.com/docs/live-api/live-translate.md).
 
 ### Model
 - `gemini-3.5-live-translate-preview` — The recommended translation model for all Live Translate use cases.
@@ -269,7 +269,7 @@ To enable translation, specify a `TranslationConfig` object inside your live ses
 
 ## Live Streaming Transcription (Gemini Live Transcribe)
 
-The Live API supports real-time streaming speech-to-text over WebSockets with low-latency interim hypotheses, finalized transcripts, and Hybrid VAD. For full details, see the [Live Transcription Guide](https://ai.google.dev/gemini-api/docs/live-api/live-transcribe.md.txt) and [Colab Cookbook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Get_started_transcribe.ipynb).
+The Live API supports real-time streaming speech-to-text over WebSockets with low-latency interim hypotheses, finalized transcripts, and Hybrid VAD. For full details, see the [Live Transcription Guide](https://aistudio.google.com/docs/live-api/live-transcribe.md) and [Colab Cookbook](https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Get_started_transcribe.ipynb).
 
 ### Model
 - `gemini-3.5-transcribe-live`
@@ -378,29 +378,29 @@ If the **`gemini_search_docs`** tool (or **`search_docs`**) is available, use it
 
 If no MCP documentation tools are available, fetch from the official docs index:
 
-**llms.txt URL**: `https://ai.google.dev/gemini-api/docs/llms.txt`
+**llms.txt URL**: `https://aistudio.google.com/llms.txt`
 
-This index contains links to all documentation pages in `.md.txt` format. Use web fetch tools to:
+This index contains links to all documentation pages in `.md` format. Use web fetch tools to:
 
 1. Fetch `llms.txt` to discover available documentation pages
-2. Fetch specific pages (e.g., `https://ai.google.dev/gemini-api/docs/live-session.md.txt`)
+2. Fetch specific pages (e.g., `https://aistudio.google.com/docs/live-api/session-management.md`)
 
 ### Key Documentation Pages
 
 > [!IMPORTANT]  
 > Those are not all the documentation pages. Use the `llms.txt` index to discover available documentation pages
 
-- [Live API Overview](https://ai.google.dev/gemini-api/docs/live.md.txt) — getting started, raw WebSocket usage
-- [Thinking in Live API](https://ai.google.dev/gemini-api/docs/live-api/thinking.md.txt) — background reasoning, conversational fillers, interaction_status, non-blocking tools
-- [Model Card: Gemini 3.8 Live](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live) — default low-latency voice agent model & migration guide
-- [Model Card: Gemini 3.8 Live Extended Thinking](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live-extended-thinking) — high-reasoning voice model & upgrading guide
-- [Live Transcription](https://ai.google.dev/gemini-api/docs/live-api/live-transcribe.md.txt) — real-time speech-to-text, interim hypotheses, smart formatting, and Hybrid VAD
-- [Live Translate](https://ai.google.dev/gemini-api/docs/live-api/live-translate.md.txt) — configuration options and capabilities for translation
-- [Live API Capabilities Guide](https://ai.google.dev/gemini-api/docs/live-guide.md.txt) — voice config, transcription config, VAD configuration, media resolution
-- [Live API Tool Use](https://ai.google.dev/gemini-api/docs/live-tools.md.txt) — function calling (sync and async), Google Search grounding
-- [Session Management](https://ai.google.dev/gemini-api/docs/live-session.md.txt) — context window compression, session resumption, GoAway signals
-- [Ephemeral Tokens](https://ai.google.dev/gemini-api/docs/ephemeral-tokens.md.txt) — secure client-side authentication for browser/mobile
-- [WebSockets API Reference](https://ai.google.dev/api/live.md.txt) — raw WebSocket protocol details
+- [Live API Overview](https://aistudio.google.com/docs/live-api.md) — getting started, raw WebSocket usage
+- [Thinking in Live API](https://aistudio.google.com/docs/live-api/thinking.md) — background reasoning, conversational fillers, interaction_status, non-blocking tools
+- [Model Card: Gemini 3.8 Live](https://aistudio.google.com/docs/models/gemini-3.8-live.md) — default low-latency voice agent model & migration guide
+- [Model Card: Gemini 3.8 Live Extended Thinking](https://aistudio.google.com/docs/models/gemini-3.8-live-extended-thinking.md) — high-reasoning voice model & upgrading guide
+- [Live Transcription](https://aistudio.google.com/docs/live-api/live-transcribe.md) — real-time speech-to-text, interim hypotheses, smart formatting, and Hybrid VAD
+- [Live Translate](https://aistudio.google.com/docs/live-api/live-translate.md) — configuration options and capabilities for translation
+- [Live API Capabilities Guide](https://aistudio.google.com/docs/live-api/capabilities.md) — voice config, transcription config, VAD configuration, media resolution
+- [Live API Tool Use](https://aistudio.google.com/docs/live-api/tools.md) — function calling (sync and async), Google Search grounding
+- [Session Management](https://aistudio.google.com/docs/live-api/session-management.md) — context window compression, session resumption, GoAway signals
+- [Ephemeral Tokens](https://aistudio.google.com/docs/live-api/ephemeral-tokens.md) — secure client-side authentication for browser/mobile
+- [WebSockets API Reference](https://aistudio.google.com/api-reference/live.md) — raw WebSocket protocol details
 - [Migration & Upgrading Guide](references/migration.md) — step-by-step checklists and code examples for Gemini 3.8 Live and Extended Thinking
 
 ## Supported Languages

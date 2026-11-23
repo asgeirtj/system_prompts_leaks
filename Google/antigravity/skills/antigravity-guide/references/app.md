@@ -58,8 +58,6 @@ These settings apply across all projects and conversations:
     permitted or always blocked.
 -   **Browser Allowlist**: Restrict which domains the agent's browser tools can
     navigate to.
--   **Artifact Review Mode**: Controls when the agent asks for artifact review
-    (`always-proceed`, `agent-decides`, `asks-for-review`).
 -   **Notifications**: Enable system notifications on task completion.
 -   **Appearance**: Theme mode and conversation width.
 -   **App Settings**: Keep computer awake, run in background, and auto-check
@@ -77,11 +75,11 @@ take priority over their global counterparts when a project is active:
 -   **Sandbox Mode**: Enable or disable terminal sandboxing per project.
 -   **Auto-Execution Policy**: Override the tool execution policy for this
     project.
--   **Artifact Review Mode**: Override artifact review behavior per project.
 -   **Permission Grants**: Define project-scoped permission grants that apply
     only within the project's workspace.
 
 ## 3. Further Reading
 
-For all other questions, search the live documentation at  
-`https://antigravity.google/docs`.
+For all other questions, search the live documentation at
+`https://antigravity.google/llms.txt` (an index of every docs page; append  
+`.md` to a docs page URL to fetch its Markdown version).

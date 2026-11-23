@@ -4,9 +4,11 @@ The Antigravity CLI (`agy`) is a lightweight, terminal-based interface for fast
 agent interaction. For full details, always consult the live public  
 documentation:
 
--   **CLI Features & Subagents**: `https://antigravity.google/docs/cli/features`
--   **CLI Best Practices**: `https://antigravity.google/docs/cli/best-practices`
--   **CLI Reference**: `https://antigravity.google/docs/cli/reference`
+-   **CLI Features & Subagents**: `https://antigravity.google/docs/features.md`
+    (see the `### Antigravity CLI` subsections)
+-   **CLI Best Practices**:  
+    `https://antigravity.google/docs/cli/best-practices.md`
+-   **CLI Reference**: `https://antigravity.google/docs/cli/reference.md`
 
 When the user asks about CLI specifics, **fetch the relevant page above** for
 authoritative, up-to-date information.
@@ -17,7 +19,7 @@ authoritative, up-to-date information.
 
 -   **Launch**: Run `agy` to start the CLI.
 -   **Authentication**: On first run, follow the on-screen prompts to
-    authenticate. See `https://antigravity.google/docs/cli/reference` for
+    authenticate. See `https://antigravity.google/docs/cli/reference.md` for
     details.
 -   **Exit**: `Ctrl+D Ctrl+D` (or `/exit` or `/quit`).
 
@@ -29,8 +31,9 @@ authoritative, up-to-date information.
     and subcommands.
 -   **Slash commands** (inside the TUI): Launch `agy` and run `/help` to see all
     available slash commands.
--   **Full reference**: Fetch `https://antigravity.google/docs/cli/reference`
-    for the authoritative list of all slash commands and CLI options.
+-   **Full reference**: Fetch
+    `https://antigravity.google/docs/cli/reference.md` for the authoritative
+    list of all slash commands and CLI options.
 
 --------------------------------------------------------------------------------
 
@@ -38,4 +41,4 @@ authoritative, up-to-date information.
 
 The CLI is configured via **`~/.gemini/antigravity-cli/settings.json`**. For the
 full list of settings keys, types, and defaults, fetch the live docs:  
-`https://antigravity.google/docs/cli/reference`
+`https://antigravity.google/docs/cli/reference.md`

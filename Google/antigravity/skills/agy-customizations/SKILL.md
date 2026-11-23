@@ -45,10 +45,13 @@ config names the ones it mounts.
         version control (VCS).
     *   The agent walks from your current working directory up to the repository  
         root (e.g., the folder containing `.git`) to find these directories.
-2.  **Directory & Project Rules** (Hierarchical):
-    *   Paths: `GEMINI.md`, `AGENTS.md`, `.agents/rules/*.md`
-    *   As you open or edit files, the agent walks up from the file's directory  
-        to the repository root, loading all rules it finds.
+2.  **Directory & Project Rules & Skills** (Hierarchical):
+    *   Paths: `GEMINI.md`, `AGENTS.md`, `.agents/rules/*.md`,  
+        `.agents/rules.json`, `.agents/skills/*/SKILL.md`,  
+        `.agents/skills.json`
+    *   The agent walks up from your current working directory to the repository  
+        root, loading rules and skills from each ancestor directory along that  
+        path.
 3.  **Global Configuration** (Machine-Local):
     *   Path: `~/.gemini/config/`
     *   Applies to all projects and workspaces run on your machine.

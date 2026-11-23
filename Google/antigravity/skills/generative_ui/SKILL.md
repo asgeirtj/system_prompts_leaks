@@ -12,12 +12,13 @@ small interactive experiences for the user.
 
 ## Workflow
 
-1.  **Create the HTML Artifact**: Use `write_to_file` to save a self-contained
-    `.html` file (using Tailwind CSS and inline JavaScript) to the artifact
-    directory. Set `UserFacing: true` in `ArtifactMetadata`.
+1.  **Create the HTML Artifact**: Save a self-contained `.html` file (using
+    Tailwind CSS and inline JavaScript) directly in the artifact directory using
+    your native file-creation tool (not shell or Python scripts, which skip
+    `ArtifactMetadata`), with `UserFacing: true` and `RequestFeedback: false` in  
+    `ArtifactMetadata`.
 2.  **Embed Inline (optional)**: Include the `<agent-embed>` tag in your chat
-    response, if you decide this html artifact should be rendered inline in the  
-    conversation:
+    response if the HTML artifact should render inline in the conversation:
 
     ```
     <agent-embed src="file:///<artifact_path>/widget.html"></agent-embed>
@@ -34,24 +35,26 @@ small interactive experiences for the user.
     <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
     ```
 
-*   **Use Provided Theme Variables**: The iframe injects the app's semantic
-    design-system tokens, so widgets automatically match the host theme and the
-    user's custom colors. Surfaces (`--background`, `--content`, `--card`,
-    `--sidebar`), borders (`--border`), text (`--foreground`,
-    `--muted-foreground`, `--placeholder`), and accents
+*   **Provided Container Defaults & Theme Variables**: The iframe container
+    already sets `margin: 0`, `padding: 0`, a transparent background,
+    `--foreground` text, and `14px` body typography, so you do not need to set a
+    `font-family`. Semantic tokens are injected for surfaces (`--background`,
+    `--content`, `--card`, `--sidebar`), borders (`--card-border`, `--border`),
+    text (`--foreground`, `--muted-foreground`, `--placeholder`,
+    `--code-foreground`), accents and status
     (`--primary`/`--primary-foreground`, `--secondary`/`--secondary-foreground`,
-    `--accent`) are all available. Typography is applied for you on the document
-    body — you do not need to set a font, and never use sub-12px micro-text
-    (`text-[10px]`, `text-[11px]`, or CSS `font-size` below `12px`; keep
-    `text-xs` / `12px` as the minimum floor unless the user asks).
-*   **Text & Surface Colors**: Use semantic variables (`bg-[var(--card)]`,
-    `text-[var(--foreground)]`, `text-[var(--muted-foreground)]`)
-    instead of hardcoded dark/light utility classes (e.g., `bg-slate-900`,
-    `text-white`) to ensure high contrast across both light and dark themes.
-*   **Do Not Declare Local Fallbacks on `:root`**: Never define local color
-    fallbacks on `:root` in a `<style>` block; the host environment manages
-    theme variables dynamically.
-*   **HTML Boilerplate Template**: Recommended base template:
+    `--accent`, `--link`, `--success`, `--warning`, `--error`), and chart series
+    (`--chart-1` through `--chart-6`). Keep `12px` (`text-xs`) as the minimum
+    text size unless the user asks otherwise.
+
+*   **Text, Surface & `:root` Rules**: Use semantic variables
+    (`bg-[var(--card)]`, `text-[var(--foreground)]`,
+    `text-[var(--muted-foreground)]`) instead of hardcoded dark/light utility
+    classes (e.g., `bg-slate-900`, `text-white`) for high contrast across both
+    light and dark themes. Never declare local color fallbacks on `:root` or
+    reference host-internal `var(--vscode-*)` or `var(--app-*)` tokens.
+
+*   **HTML Boilerplate Template**: Recommended flush inline template:
 
     ```html
     <!DOCTYPE html>
@@ -59,56 +62,63 @@ small interactive experiences for the user.
     <head>
       <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
     </head>
-    <body class="bg-transparent text-[var(--foreground)] antialiased p-5">
-      <div class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-xl p-5 shadow-sm">
-        <h2 class="text-[var(--foreground)] font-semibold text-lg">Title</h2>
-        <p class="text-[var(--muted-foreground)] text-sm">Description</p>
-        <!-- Interactive content goes here -->
+    <body class="bg-transparent text-[var(--foreground)] antialiased p-0 m-0">
+      <div class="py-2 space-y-3">
+        <div class="flex items-center justify-between gap-4 pb-2 border-b border-[var(--card-border)] text-xs">
+          <label class="text-[var(--muted-foreground)] flex items-center gap-2">
+            Concurrency
+            <input id="workers" type="range" min="1" max="32" value="8" class="accent-[var(--primary)]" />
+          </label>
+          <span id="readout" class="font-mono tabular-nums text-[var(--foreground)]">8 workers</span>
+        </div>
+        <div id="chart" class="w-full"></div>
       </div>
     </body>
     </html>
     ```
 
-*   **General styling**: Aim for a clean, premium aesthetic. For `<canvas>`,
-    check `document.documentElement.classList.contains('light')` to adapt
-    colors.
+*   **Canvas & Live Theme Sync**: For `<canvas>`, adapt colors for both light
+    and dark themes via `document.documentElement.classList.contains('light')`
+    or `getComputedStyle(document.documentElement)`, and redraw on
+    `window.addEventListener('themechange', draw)` so live theme switches update
+    canvas colors without resetting state.
 
 ## Deciding on Placement (Inline vs. Standalone)
 
-**Default to artifact only** — reference the HTML artifact in your response and
-let the user open it in the side pane. Consider inlining when the widget is
-compact (comfortably under 500px tall) and directly illustrates the surrounding
-explanation (e.g., a small educational widget, plot, or diagram). Larger, more
-complex content (data dashboards, simulations, app prototypes) should stay
-artifact-only. Always follow the user's explicit preference if stated.
+Embed **inline** (`<= 450px` tall) whenever a compact interactive visualization
+clarifies the answer better than static prose or Mermaid. Deliver as a  
+**standalone** side-pane artifact (`> 450px` tall, no `<agent-embed>`,
+referencing the artifact link in your response) when full-page space is needed,
+such as multi-tab dashboards, wide tables, or full-screen explorers. Always
+follow the user's explicit preference if stated.
 
-## Designing Inline Widgets (Cards & Transparency)
+## Designing Inline Widgets
 
-When embedding inline in chat (`<agent-embed>`), style widgets as native chat  
-components:
-
-*   **Transparent Root Background**: Always set `<body class="bg-transparent  
-    ...">` so the widget blends seamlessly into the chat container.
-*   **Card-Based Layouts**: Wrap inline content and controls in a card container
-    (as shown in the Boilerplate Template above) to provide elevation and
-    prevent loose text in light mode.
-*   **Standalone Artifacts**: For full-page side-pane artifacts (like
-    dashboards), use a solid background (e.g., `bg-[var(--background)]`).
+*   **Flush Inline Layout (No Outer Card)**: Keep `<body class="bg-transparent
+    ... p-0 m-0">` so the widget blends directly into the chat column. Separate
+    sections with `border-[var(--card-border)]` dividers instead of wrapping the
+    entire widget in an outer `bg-[var(--card)]` card box, and avoid duplicating
+    the surrounding chat prose inside the widget.
+*   **Standalone Artifacts**: For full-page side-pane artifacts (such as
+    dashboards), use a solid page background (e.g., `bg-[var(--background)]`)
+    and group panels inside `bg-[var(--card)] border border-[var(--border)]`
+    cards.
 
 ## Sizing Inline Embeds
 
 For inline embeds, it is important to think **small and compact**.
 
-Inline embeds only have a **500px** height viewport. Past that the widget
-scrolls inside a small box and the user sees only a fragment of what you built,
+Inline embeds have an **800px** maximum height viewport (target under **450px**
+so the widget fits comfortably in chat without scrolling). Past the cap, the
+widget scrolls inside a box and the user sees only a fragment of what you built,
 so don't build inlined widgets that are too tall.
 
 *   **Do not set a `height` attribute on `<agent-embed>`.** It is ignored.
-*   **Think compact** Think carefully about designing something that is compact
+*   **Think compact**: Think carefully about designing something that is compact
     and fits nicely inline in the chat height budget.
 *   **If the idea genuinely needs more room, make it a standalone artifact.** A
-    scrolling inline widget is usually wrong — full-height in the side pane
-    beats cropped in the chat.
+    scrolling inline widget is usually wrong: full-height in the side pane beats
+    cropped in the chat.
 
 After generating the artifact, consider whether it is sufficiently compact to be
 useful inline and adjust if needed.

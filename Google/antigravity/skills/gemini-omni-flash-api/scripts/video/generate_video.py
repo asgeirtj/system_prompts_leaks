@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Generates, extends, and edits videos using the Gemini Omni 1.1 Flash model via the google-genai Interactions API.
+Generates, extends, and edits videos using the Gemini Omni 1.2 Flash model via the google-genai Interactions API.
 Can automatically upload local media references using the Files API.
-Supports first frame and first+last frame transitions, video extensions (up to 40s),
-video references (<VIDEO_REF_0>, etc.), image references, and parallel batch execution.
+Supports first frame and first+last frame transitions, video extensions (3s-10s per turn, up to 30s total),
+video references, image references, and parallel batch execution.
 Uses the official google-genai SDK.
 """
 
@@ -28,7 +28,13 @@ if hasattr(sys.stdout, "reconfigure"):
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from upload_file import upload_file, wait_for_active
 
-DEFAULT_MODEL = "gemini-omni-1.1-flash"
+DEFAULT_MODEL = "gemini-omni-1.2-flash"
+MIN_DURATION_SECONDS = 3
+MAX_DURATION_SECONDS = 15
+MAX_INTERPOLATION_OR_EXTEND_SECONDS = 10
+MAX_REFERENCE_IMAGES = 6
+MAX_REFERENCE_VIDEOS_SHORT = 3
+MAX_REFERENCE_VIDEOS_LONG = 1
 
 def get_api_key():
     """Retrieves API key strictly from GEMINI_API_KEY environment variable."""
@@ -125,7 +131,7 @@ def slugify(text):
     return text.strip('_')[:50]
 
 def parse_and_validate_duration(value):
-    """Parses and formats a duration integer between 3 and 10 with optional 's' suffix."""
+    """Parses and formats a duration integer between 3 and 15 with optional 's' suffix."""
     if value is None:
         return None
     if isinstance(value, (int, float)):
@@ -139,16 +145,77 @@ def parse_and_validate_duration(value):
         try:
             val = float(clean_value)
         except ValueError:
-            raise ValueError(f"Invalid duration value: '{value}'. Must be an integer (e.g., 5, 10).")
+            raise ValueError(f"Invalid duration value: '{value}'. Must be an integer (e.g., 5, 10, 15).")
             
     if not val.is_integer():
         raise ValueError(f"Duration must be an integer, not a float (e.g., got {value}).")
         
     val_int = int(val)
-    if val_int < 3 or val_int > 10:
-        raise ValueError(f"Duration must be between 3 (inclusive) and 10 (inclusive) seconds. Got {val_int}.")
+    if val_int < MIN_DURATION_SECONDS or val_int > MAX_DURATION_SECONDS:
+        raise ValueError(
+            f"Duration must be between {MIN_DURATION_SECONDS} (inclusive) and {MAX_DURATION_SECONDS} (inclusive) seconds. Got {val_int}."
+        )
         
     return f"{val_int}s"
+
+def _as_list(val):
+    """Normalizes an optional scalar or list argument into a flat list."""
+    if not val:
+        return []
+    return list(val) if isinstance(val, list) else [val]
+
+def validate_generation_constraints(
+    duration=None,
+    first_frame=None,
+    last_frame=None,
+    image_path=None,
+    image_reference=None,
+    video_path=None,
+    extend_video=None,
+    video_reference=None,
+    task=None,
+    previous_interaction_id=None,
+):
+    """Validates model parameter combinations before performing any file preprocessing or uploads."""
+    if last_frame and not first_frame:
+        raise ValueError("--last-frame must be used with --first-frame (the model requires a starting frame when specifying a final frame).")
+
+    normalized_duration = parse_and_validate_duration(duration)
+    duration_sec = int(normalized_duration[:-1]) if normalized_duration else None
+
+    if duration_sec is not None and duration_sec > MAX_INTERPOLATION_OR_EXTEND_SECONDS:
+        if first_frame and last_frame:
+            raise ValueError(
+                f"First-and-last-frame transitions support {MIN_DURATION_SECONDS} to {MAX_INTERPOLATION_OR_EXTEND_SECONDS} seconds maximum (got {normalized_duration})."
+            )
+        if extend_video or task == "extend":
+            raise ValueError(
+                f"Video extensions support {MIN_DURATION_SECONDS} to {MAX_INTERPOLATION_OR_EXTEND_SECONDS} seconds per turn maximum (got {normalized_duration})."
+            )
+
+    ref_images = _as_list(image_path) + _as_list(image_reference)
+    if len(ref_images) > MAX_REFERENCE_IMAGES:
+        raise ValueError(
+            f"Up to {MAX_REFERENCE_IMAGES} reference images are supported (got {len(ref_images)})."
+        )
+
+    ref_videos = _as_list(video_reference)
+    if ref_videos:
+        if extend_video or video_path or previous_interaction_id or task in ("edit", "extend"):
+            raise ValueError(
+                "Reference videos (--video-reference) are only supported when generating a new video, not during video editing, extension, or previous_interaction_id turns."
+            )
+        max_ref_vids = (
+            MAX_REFERENCE_VIDEOS_LONG
+            if (duration_sec is not None and duration_sec > MAX_INTERPOLATION_OR_EXTEND_SECONDS)
+            else MAX_REFERENCE_VIDEOS_SHORT
+        )
+        if len(ref_videos) > max_ref_vids:
+            raise ValueError(
+                f"Up to {max_ref_vids} reference video(s) supported for {normalized_duration or 'default (10s)'} generation (got {len(ref_videos)})."
+            )
+
+    return normalized_duration, ref_images, ref_videos
 
 def argparse_duration_type(value):
     """argparse type converter for validating duration."""
@@ -302,39 +369,23 @@ def generate_video(
     timeout=600
 ):
     """Creates an interaction with the video model and downloads the resulting video using the official google-genai SDK."""
+    duration, ref_images, ref_videos = validate_generation_constraints(
+        duration=duration,
+        first_frame=first_frame,
+        last_frame=last_frame,
+        image_path=image_path,
+        image_reference=image_reference,
+        video_path=video_path,
+        extend_video=extend_video,
+        video_reference=video_reference,
+        task=task,
+        previous_interaction_id=previous_interaction_id,
+    )
+
     if not get_api_key():
         raise RuntimeError("Error: GEMINI_API_KEY environment variable is not set.")
 
-    # Validation: last_frame requires first_frame
-    if last_frame and not first_frame:
-        raise ValueError("--last-frame must be used with --first-frame (the model requires a starting frame when specifying a final frame).")
-
-    duration = parse_and_validate_duration(duration)
     input_parts = []
-
-    # Collect reference images (supporting image_path and image_reference aliases)
-    ref_images = []
-    if image_path:
-        if isinstance(image_path, list):
-            ref_images.extend(image_path)
-        else:
-            ref_images.append(image_path)
-    if image_reference:
-        if isinstance(image_reference, list):
-            ref_images.extend(image_reference)
-        else:
-            ref_images.append(image_reference)
-
-    # Collect reference videos
-    ref_videos = []
-    if video_reference:
-        if isinstance(video_reference, list):
-            ref_videos.extend(video_reference)
-        else:
-            ref_videos.append(video_reference)
-
-    if len(ref_videos) > 3:
-        print(f"Note: {len(ref_videos)} reference videos provided. The ideal number of reference videos is up to 3 (though more are supported).")
 
     # 1. Resolve and add first frame image
     f1_uri = None
@@ -364,7 +415,7 @@ def generate_video(
                 "mime_type": f2_mime
             })
 
-    # 3. Resolve and add general reference image inputs (<IMAGE_REF_0>, ...)
+    # 3. Resolve and add general reference image inputs
     for img in ref_images:
         img_uri, img_mime = resolve_or_upload_asset(img, "image/png")
         input_parts.append({
@@ -399,7 +450,7 @@ def generate_video(
                 "mime_type": vid_mime
             })
 
-    # 5. Resolve and add reference videos (<VIDEO_REF_0>, <VIDEO_REF_1>, ...)
+    # 5. Resolve and add reference videos
     for ref_vid in ref_videos:
         rv_uri, rv_mime = resolve_or_upload_asset(ref_vid, "video/mp4", strip_audio=strip_audio)
         input_parts.append({
@@ -408,35 +459,31 @@ def generate_video(
             "mime_type": rv_mime
         })
 
-    # 6. Format and add text prompt with appropriate role tags if not explicitly declared
-    prompt_text = prompt
+    # 6. Format and add text prompt using natural-language role hints when needed
+    prompt_text = (prompt or "").strip()
 
-    if "[# Sources" not in prompt and "[# References" not in prompt:
-        if extend_video:
-            sources_part = "[# Sources <VIDEO_0>@Video1]"
-            ref_parts = []
-            img_start_num = (2 if last_frame and last_frame != first_frame else 1) if first_frame else 0
-            for idx, _ in enumerate(ref_images):
-                ref_parts.append(f"<IMAGE_REF_{idx}>@Image{img_start_num + idx + 1}")
-            vid_start_num = 1
-            if video_path:
-                if isinstance(video_path, list):
-                    vid_start_num += len(video_path)
-                else:
-                    vid_start_num += 1
-            for idx, _ in enumerate(ref_videos):
-                ref_parts.append(f"<VIDEO_REF_{idx}>@Video{vid_start_num + idx + 1}")
-            
-            if ref_parts:
-                prompt_text = f"{sources_part} [# References {' '.join(ref_parts)}] {prompt_text}"
-            else:
-                prompt_text = f"{sources_part} {prompt_text}"
-        elif first_frame and last_frame:
-            if "<FIRST_FRAME>" not in prompt and "<LAST_FRAME>" not in prompt:
-                prompt_text = f"<FIRST_FRAME> <LAST_FRAME> {prompt_text}"
-        elif first_frame:
-            if "<FIRST_FRAME>" not in prompt:
-                prompt_text = f"<FIRST_FRAME> {prompt_text}"
+    def _append_role_hint(text, hint):
+        if not text:
+            return hint
+        sep = "" if text[-1] in ".!?" else "."
+        return f"{text}{sep} {hint}"
+
+    if extend_video:
+        lower_prompt = prompt_text.lower()
+        if not any(tok in lower_prompt for tok in ("extend", "continue", "continuation", "keep going")):
+            prompt_text = f"Extend this video. {prompt_text}".strip()
+    elif first_frame and last_frame:
+        if first_frame == last_frame:
+            if "starting frame" not in prompt_text.lower() and "first frame" not in prompt_text.lower():
+                first_ref = "the first image" if ref_images else "this image"
+                prompt_text = _append_role_hint(prompt_text, f"Use {first_ref} as both the starting frame and the final frame.")
+        else:
+            if "starting frame" not in prompt_text.lower() and "first frame" not in prompt_text.lower():
+                prompt_text = _append_role_hint(prompt_text, "Use the first image as the starting frame and the second image as the final frame.")
+    elif first_frame:
+        if "starting frame" not in prompt_text.lower() and "first frame" not in prompt_text.lower():
+            first_ref = "the first image" if ref_images else "this image"
+            prompt_text = _append_role_hint(prompt_text, f"Use {first_ref} as the starting frame.")
 
     input_parts.append({
         "type": "text",
@@ -586,23 +633,23 @@ class SanitizedArgumentParser(argparse.ArgumentParser):
         self.exit(2, f"{self.prog}: error: {sanitized_msg}\n")
 
 def main():
-    parser = SanitizedArgumentParser(description="Generate, extend, and edit videos using Gemini Omni 1.1 Flash model via google-genai SDK (supports parallel batch execution).")
+    parser = SanitizedArgumentParser(description="Generate, extend, and edit videos using Gemini Omni 1.2 Flash model via google-genai SDK (supports parallel batch execution).")
     parser.add_argument("prompt", nargs="?", help="Text prompt / instruction for a single video generation")
-    parser.add_argument("--first-frame", "-f", help="Local image path or File API URI for starting frame (<FIRST_FRAME>)")
-    parser.add_argument("--last-frame", "-l", help="Local image path or File API URI for final transition frame (<LAST_FRAME>). Must be used with --first-frame.")
-    parser.add_argument("--image", "--image-reference", "--ref-image", "-i", action="append", dest="image", help="Optional local image path or File API URI for referencing / image-to-video (can be specified multiple times)")
+    parser.add_argument("--first-frame", "-f", help="Local image path or File API URI for starting frame")
+    parser.add_argument("--last-frame", "-l", help="Local image path or File API URI for final transition frame (3s-10s max). Must be used with --first-frame.")
+    parser.add_argument("--image", "--image-reference", "--ref-image", "-i", action="append", dest="image", help="Optional local image path or File API URI for referencing / image-to-video (up to 6 images, can be specified multiple times)")
     parser.add_argument("--video", "-v", action="append", help="Optional local video path or File API URI for editing / source video (can be specified multiple times)")
-    parser.add_argument("--extend", "-e", help="Optional local video path or File API URI to extend (by up to 10s per turn, up to 40s total)")
-    parser.add_argument("--video-reference", "--ref-video", "-vr", action="append", dest="video_reference", help="Optional local video path or File API URI for reference video(s) (<VIDEO_REF_0>, <VIDEO_REF_1>, ...). Ideal duration is ~3s (up to 3 recommended). Can be specified multiple times.")
-    parser.add_argument("--task", choices=["text_to_video", "image_to_video", "reference_to_video", "edit", "extend"], default=None, help="Explicit video task mode. Note: omitting task allows combining extensions with reference images and videos.")
+    parser.add_argument("--extend", "-e", help="Optional local video path or File API URI to extend (by 3s-10s per turn, up to 30s total)")
+    parser.add_argument("--video-reference", "--ref-video", "-vr", action="append", dest="video_reference", help="Optional local video path or File API URI for reference video(s) on new generation (~3s each; up to 3 for 3s-10s clips, max 1 for 11s-15s clips). Can be specified multiple times.")
+    parser.add_argument("--task", choices=["text_to_video", "image_to_video", "reference_to_video", "edit", "extend"], default=None, help="Explicit video task mode (optional fallback; omitting task allows combining extensions with reference images).")
     parser.add_argument("--aspect-ratio", default="16:9", choices=["16:9", "9:16"], help="Aspect ratio (default: 16:9, omitted automatically if explicit task='extend' is set)")
-    parser.add_argument("--duration", type=argparse_duration_type, default=None, help="Video duration as an integer between 3 and 10 seconds (e.g., 5, 10). Default: None (API/Model decides, typically 10s or matches source)")
+    parser.add_argument("--duration", type=argparse_duration_type, default=None, help="Video duration as an integer between 3 and 15 seconds (e.g., 5, 10, 15; 3 to 10s for two-frame interpolation and extension). Default: None (10s default)")
     parser.add_argument("--resolution", "-res", type=argparse_resolution_type, default=None, help="Video output resolution: 360p, 720p, 1080p, or 4k (default: 720p). Note: 4k requests take longer to generate.")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Gemini Omni Flash video model ID (default: {DEFAULT_MODEL})")
     parser.add_argument("--output", "-o", help="Local output file path for single generation (default: media/output.mp4)")
     parser.add_argument("--strip-audio", "-a", action="store_true", help="Completely strip/disable audio stream from the input video(s) before uploading so Gemini Omni Flash can regenerate new audio from scratch")
     parser.add_argument("--previous-interaction-id", help="Optional Interaction ID of a previous generation for turn-by-turn editing or extending")
-    parser.add_argument("--timeout", type=int, default=600, help="Per-request HTTP timeout in seconds (default: 600). Recommend 900+ for multi-turn 4K extensions up to 40s.")
+    parser.add_argument("--timeout", type=int, default=600, help="Per-request HTTP timeout in seconds (default: 600). Recommend 900+ for 15s 4K clips or multi-turn extensions up to 30s.")
     
     # Parallel batch configuration options
     parser.add_argument("--batch", help="Path to a JSON file containing an array of generation jobs")
@@ -611,8 +658,21 @@ def main():
 
     args = parser.parse_args()
 
-    if args.last_frame and not args.first_frame:
-        parser.error("--last-frame must be used with --first-frame (the model requires a starting frame when specifying a final frame).")
+    if not args.batch:
+        try:
+            validate_generation_constraints(
+                duration=args.duration,
+                first_frame=args.first_frame,
+                last_frame=args.last_frame,
+                image_path=args.image,
+                video_path=args.video,
+                extend_video=args.extend,
+                video_reference=args.video_reference,
+                task=args.task,
+                previous_interaction_id=args.previous_interaction_id,
+            )
+        except ValueError as e:
+            parser.error(str(e))
 
     if not get_api_key():
         print("Error: GEMINI_API_KEY environment variable is not set.", file=sys.stderr)

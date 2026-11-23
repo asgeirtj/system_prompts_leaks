@@ -36,7 +36,6 @@ UI plugin panes are backed by sidecars, which live under these directories (each
 in its own `<sidecar-id>/` folder containing a `sidecar.json`):
 
 -   `~/.gemini/config/sidecars/<sidecar-id>/`
--   `~/.gemini/<app-name>/builtin/sidecars/<sidecar-id>/`
 -   `~/.gemini/config/plugins/<plugin>/sidecars/<sidecar-id>/` (or external
     sidecar folders referenced by  
     `~/.gemini/config/plugins/<plugin>/sidecars.json`)

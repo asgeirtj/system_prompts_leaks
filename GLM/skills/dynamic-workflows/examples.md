@@ -16,7 +16,7 @@ Two subagents with opposed jobs, looping until the verifier cannot break the imp
 The shape generalizes to anything with an author and a skeptic: code and property test, proof
 and counter-example, schema and fuzzer.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface ImplUpdate {
   /** Files this round changed. */
@@ -166,7 +166,7 @@ and a card for a file the user would open in the editor anyway says nothing new.
 Scan, then plan a fix under critique, then judge each finding independently. Three
 topologies in one script, each chosen for a different reason.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Finding {
   /** Test identifier as the runner reports it. */
@@ -381,7 +381,7 @@ restates it would be noise.
 Discover, transform in parallel, then verify. The transforming subagents write files, so this is
 the one shape where isolation and verification really matter.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Migration {
   /** Whether this file needed changing at all. */
@@ -539,7 +539,7 @@ executes the actual proof checker, and the loop advances on its exit code, not o
 claim. Compare example 1, where the skeptic is another subagent — right when breaking the work
 takes creativity. When a command can render the verdict, the command should.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface FixNotes {
   /** What changed this round, one line. */
@@ -669,7 +669,7 @@ Review every changed file, triage its findings on one scale, confirm each kept f
 independently, and hand back a report. Everything a file needs happens as soon as its own
 review lands; the only join is the cross-file deduplication that needs every finding.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Finding {
   /** Workspace-relative path, with a line when it applies: "src/a.ts:42". */
@@ -810,7 +810,7 @@ from research to verification is a channel, so the first verifier starts while f
 researchers are still reading; the writer sits after the one join, because it needs every
 verified fact.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Fact {
   /** Stable id built from the angle and a sequence number: "tests-3". */
@@ -956,7 +956,7 @@ published guide, none of which the seed script named. (`SKILL.md` §15.)
 
 The seed script, submitted with `CreateWorkflow`:
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Dir {
   /** Workspace-relative path of a top-level entry. */
@@ -1036,7 +1036,7 @@ return guide;
 After both fills the run's draft holds the effective script — the seed with each body spliced
 in as the last argument of its hole — which is what a resume replays and an amend revises:
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Dir {
   /** Workspace-relative path of a top-level entry. */

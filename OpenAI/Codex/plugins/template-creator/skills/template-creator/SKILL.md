@@ -164,7 +164,7 @@ For a Google Workspace template, pass its exact kind, resolved `docs.google.com`
 
 After verification, replace the placeholders with the script result and respond with only the applicable content between the comment markers below. The markers delimit the response template; do not emit them. For templates other than Sites, also include the card directive:
 
-<!-- TEMPLATE CREATOR RESPONSE START -->
+`<!-- TEMPLATE CREATOR RESPONSE START -->`
 
 Here's your {displayName} template.
 
@@ -178,7 +178,7 @@ Tag ${skillName} and describe what you want to build.
 
 ::artifact-template{skill_name="{skillName}" skill_directory="{skillPath}" display_name="{displayName}" artifact_kind="{kind}"}
 
-<!-- TEMPLATE CREATOR RESPONSE END -->
+`<!-- TEMPLATE CREATOR RESPONSE END -->`
 
 Formatting rules:
 

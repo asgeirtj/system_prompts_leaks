@@ -201,7 +201,7 @@ same link across rounds.
 skills/_shared/content-design.md by scripts/inline-shared.ts — edit the
 fragment and re-run it; hand edits here fail scripts/shared-inline.test.ts. -->
 
-<!-- shared:content-design -->
+`<!-- shared:content-design -->`
 These rules are about the CONTENT authored into the appifact — the
 deck, the artboards, the dashboard, the seeded cards and rows — as
 opposed to its chrome (the kit, the toolbar, the document machinery).
@@ -258,4 +258,4 @@ top), and none of them changes a kit rule.
   account email-domain signal, so this rests on what the user tells you
   about where they work — ask when it's unclear.)
 
-<!-- /shared:content-design -->
+`<!-- /shared:content-design -->`

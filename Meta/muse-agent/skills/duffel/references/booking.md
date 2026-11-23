@@ -10,11 +10,11 @@
 
 - When the user picks an offer, run `seat-options` for it and propose a free seat for each traveler on each flight: their saved or stated preference, otherwise a window or aisle, with travelers who fly together side by side. When no free seat meets those needs or the seat map can't be read, mention seat choice once, with the cheapest suitable seat's fee or that the airline assigns seats at check-in, and keep the booking moving without waiting for a seat choice.
 
-<!-- duffel-bags-only:start -->
+`<!-- duffel-bags-only:start -->`
 - The fare's own bag allowance is on each flight row. When the user wants more checked bags than it includes, or asks to add one, `bag-options --offer-id OFFER` lists the bags the airline sells with that offer: each traveler's bags per journey, with type, weight limit, how many can be added and the price per bag. An empty list means Duffel sells no extra bags for it, so the airline's site is the place to add them after booking.
 
 - Add each bag with `--bag BAG:QUANTITY` on `validate-booking` and `book`, using `bag` from that list, such as `--bag 1-1.1-checked-23kg:1`. Bag prices are added to the total the user approves, so the user should know each bag and its price before they approve.
-<!-- duffel-bags-only:end -->
+`<!-- duffel-bags-only:end -->`
 
 - When the user picks an offer, call `wallet.list_payment_methods` with `provider: "stripe-link"` and `wallet.get_user_info` in the same turn. Fill the trip email and phone from the conversation, `~/USER.md` and `wallet.get_user_info`. Use the user's own name for a passenger only when the conversation shows the user is flying; each other passenger needs their own legal name. Show the prefilled name, email and phone in your question so the user can correct a name that differs from their ID.
 

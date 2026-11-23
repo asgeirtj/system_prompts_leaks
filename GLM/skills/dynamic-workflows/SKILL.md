@@ -403,7 +403,7 @@ confirmation dialog is drawn one node per phase, and thirty step cards is a dial
 reads. Cover the whole script — every stage gets a `phase("...")` marker at its head; the
 arrows between phases are inferred:
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Attempt {
   /** One sentence: the optimization this round is trying. */
@@ -548,7 +548,7 @@ end: the array is what you lose. Items are recorded, so a resumed run never show
 in the order below; what the user themselves keep is the artifact of the next section.
 Return this shape (copy the interfaces; they compile as-is) rather than a bare array:
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface Finding {
   /** Workspace-relative path, with a line when it applies: "src/a.ts:42". */
@@ -623,7 +623,7 @@ reject catchably — the file is missing, the path escaped the workspace, the by
 cap — and the honest response is to hand the gap back to a subagent and publish again, rather
 than let a run end with nothing the user can open:
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 interface RoundOutcome {
   /** 1-based round number. */
@@ -1100,7 +1100,7 @@ the compiler is fed, so what you read here is what typechecks. The block uses `d
 because it is the host's ambient API description — do not imitate it; your script defines
 plain interfaces and never uses `declare`.
 
-<!-- facade-dts:start -->
+`<!-- facade-dts:start -->`
 ```ts
 /** The pending result of one ask. Await it, or pass it to Promise.all with others. */
 declare interface Node<T> extends PromiseLike<T> {}
@@ -1394,7 +1394,7 @@ declare function channel<T>(name?: string): Channel<T>;
  */
 declare function future<T>(body: () => Promise<T>): Promise<T>;
 ```
-<!-- facade-dts:end -->
+`<!-- facade-dts:end -->`
 
 ### 16.3 Rules the compiler and the analyzer enforce
 

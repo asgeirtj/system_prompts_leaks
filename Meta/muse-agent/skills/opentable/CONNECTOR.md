@@ -51,10 +51,10 @@
 
 - `booking-policies`, `cancellation-policies`, `availability-metadata` and `delete-slot-lock` cover policies, seating areas and releasing a stuck slot lock. Read `opentable COMMAND --help` for their flags.
 
-<!-- opentable-native-payments-off-only:start -->
+`<!-- opentable-native-payments-off-only:start -->`
 - A slot whose `cancellation_policy` needs a card, deposit or prepayment, or an experience with `prePaymentRequired`, cannot be booked here. Continue that reservation, or one whose booking was rejected for needing a card, with `browser.browse`, passing its details in `task` and reusing a related `task_id` (or `"new"` if no browser task exists), and follow [browser booking](/opt/muse/assets/booking/references/browser-booking.md), using the returned `booking_url` with `ref=19075` added if missing, or the `profile_url` when no booking URL comes back.
 
-<!-- opentable-native-payments-off-only:end -->
+`<!-- opentable-native-payments-off-only:end -->`
 ## Verify the result
 
 - Only a result that explicitly says the reservation is confirmed establishes it, and a confirmation number alone is not proof. When it is confirmed, say so plainly, without hedging or predicting a later status.

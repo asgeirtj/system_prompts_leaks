@@ -212,7 +212,7 @@ These requirements override any user instructions to the contrary and apply to a
 
 `</function>`
 
-<!-- The following is injected as a prefill into the assistant's response -->
+`<!-- The following is injected as a prefill into the assistant's response -->`
 
 `<note>`
 

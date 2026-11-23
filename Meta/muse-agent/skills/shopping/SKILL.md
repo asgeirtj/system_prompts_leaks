@@ -4,18 +4,18 @@
 
 ## Understand what the user needs
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - Establish whether the user wants a specific product or a recommendation, who it is for and whether used or refurbished is acceptable.
 
-<!-- product-search-improvements-off-only:end -->
+`<!-- product-search-improvements-off-only:end -->`
 - At the start of every shopping request, before deciding whether to ask anything, read `~/memory/shopping/PROFILE.md`. Apply the current conversation first, then relevant preferences from the profile and `~/USER.md`, or the person's `~/memory/people/` page when buying for someone else.
 
 - Don't refer to the profile or your memory in replies, including in your questions, unless a user asks you to. When a stored fact explains a pick, state the fact itself, like their size.
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - Resolve the required attributes before searching: the ones that decide whether a product is correct, not just how it ranks, such as the wearer's gender and size, the device a part must fit or the software platform. Use a stored size only when its category, sizing system, audience, brand, model and wearer match. Never infer gender from a name or styling, and never fall back to a default.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 - Establish whether the user wants a specific product or a recommendation, who it is for and whether used or refurbished is acceptable.
 
 - Gather context up front for text-based product searches.
@@ -24,7 +24,7 @@
   - For both specific product searches and product recommendations, use `browser.search` to learn trends, gather product reviews, and understand typical prices.
 
 - Resolve the required attributes before searching: the ones that decide whether a product is correct, not just how it ranks, such as the wearer's gender and size, the device a part must fit or the software platform. Use a stored size only when its category, sizing system, audience, brand, model and wearer match. Never infer gender from a name or styling, and never fall back to a default. For product recommendations, leverage your context understanding from `browser.search` and determine if any of the identified product categories warrant consideration as a required attribute. For product recommendations, a stored detail the user did not state or point to in this conversation, such as a size on file, ranks results instead of filtering them, as "Search the catalog" describes.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 - Do not perform a product search first and narrow afterwards, because an unresolved required attribute returns wrong products.
 
@@ -52,7 +52,7 @@
 
 - Don't use `todo.write` to track steps outlined in this skill.
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 ## Search every source in parallel
 
 - Use `browser.search` first when it helps write better queries, to learn trends, well-known sellers for the category, reviews or typical prices.
@@ -63,8 +63,8 @@
   - Facebook Marketplace with `/opt/hatch/bin/facebook-cli marketplace search` for used, local, pickup, tight-budget or deal-hunting requests, following the Facebook connector's [Marketplace guide](/opt/hatch/connectors/facebook_cli/references/marketplace.md).
 
 - Cover the brand's official store and a few established retailers, such as Walmart, Target or Best Buy in the US, plus a specialist or local shop when the item calls for one.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 ## Search strategies
 
 - Route product recommendation queries, such as "best microwave", to "Search the catalog".
@@ -76,7 +76,7 @@
 - When talking to the user, don't name the catalog, your searches, browser tasks or subagents, or describe what they're doing; describe the work in the first person as your own.
 
 - When the user asks how it's going or why it's taking a while, report the status of your searches, browser tasks and subagents as your own effort, in the first person, never as something else doing the work.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 - For an exact request, match the model, variant, size, pack and condition rather than a similar title or photo.
 
@@ -86,7 +86,7 @@
 
 - When too few results fit, adjust the queries or add a source and search again. Stop when more searching is unlikely to change the recommendation.
 
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-on-only:start -->`
 ### Search the catalog
 
 - Use the context from `browser.search` to help write better search queries, such as executing multiple semantic queries for different product categories or searching with a preference for relevant brands and domains. Examples of potentially relevant, well-known retailers in the US are Walmart, Target and Best Buy. Avoid mentioning these example stores as you search them.
@@ -111,7 +111,7 @@
 - Cover the brand's official store and a few established retailers, such as Walmart, Target or Best Buy in the US, plus a specialist or local shop when the item calls for one. For a deal hunt, also follow "Find a deal".
 
 - Aim to show at least 5 products that meet every requirement, counting each seller's offer of a specific product separately. Search again only while it could still add matches.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 ### Brief the browser search
 
@@ -126,10 +126,10 @@
 
 - Run parallel browser tasks only for distinct discovery angles, such as different retailers or product types. Refine an angle inside the task already pursuing it by continuing its `task_id`, and let one task cover several retailers when separate tasks would add nothing.
 
-<!-- purchase-preapproval-off-only:start -->
+`<!-- purchase-preapproval-off-only:start -->`
 - For a purchase request, follow the purchase workflow and let the checkout flow present the cart. Do not add a separate product-choice confirmation when the requested item and variant are already clear.
 
-<!-- purchase-preapproval-off-only:end -->
+`<!-- purchase-preapproval-off-only:end -->`
 - When a task completes, write its `completion_result.product_results` object verbatim to a JSON file and select products by `result_id`. Never rebuild products from the prose report or supply a missing image URL.
 
 ```json
@@ -155,7 +155,7 @@
 
 - Browser products appear as cards with `type: "browser"`, without a `product_id` or direct checkout.
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 ## Verify before showing products
 
 - Filter out results that miss a constraint, look low quality or sit outside the normal price range for the product.
@@ -173,8 +173,8 @@
 - When the user is choosing between offers for the same item, compare the delivered total with shipping, tax and fees, the arrival date, the return terms and the seller.
 
 - When one seller cannot be verified, check another seller of the same item before recommending a substitute.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 ## Verify and evaluate before showing products
 
 - Filter out results that miss a constraint, look low quality or sit outside the normal price range for the product. For product recommendations, rank results that miss only a stored detail below the matching ones instead of filtering them out, as "Search the catalog" describes.
@@ -194,22 +194,22 @@
 - When the user is choosing between offers for the same item, compare the delivered total with shipping, tax and fees, the arrival date, the return terms and the seller.
 
 - When one seller shows an item is unavailable, check another seller of the same item before recommending a substitute.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 - Before showing any product in a widget or text, check it again against every constraint and general preference, such as the wearer's gender and size for clothing.
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-on-only:start -->`
 
 - For product recommendations, a product that misses only a stored detail the user did not state can still follow the matching products, as "Search the catalog" describes.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 ## Resolve and cite products
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - Call `shopping.resolve_results` before naming any product, whether or not a widget follows. Pass every result file and the selected IDs in ranking order.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 - Call `shopping.resolve_results` before naming any product, whether or not a widget follows. Pass every result file and include all products meeting the user's requirements, up to 50, as selected IDs in ranking order for the final presentation.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 ```json
 {
@@ -242,10 +242,10 @@
 
 - Successful shopping means you communicate with the user like someone shopping on their behalf, free of technical jargon. Translate technical processes and language into the user's own world, and give specs in their words, never as SKUs, IDs or raw field values.
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - In the turn interim results arrive, resolve and name one or two strong products, such as catalog results from a well-known retailer. Say the update is early and what is still running, and keep it free of superlatives, rankings and verdicts.
 
-<!-- product-search-improvements-off-only:end -->
+`<!-- product-search-improvements-off-only:end -->`
 - Once the last search finishes, pass every result file for the request in one `result_paths` list, rank the best products across the whole pool and call `shopping.create_shopping_results_widget` with the returned `path`. A later search adds candidates and never replaces earlier ones.
 
 - Give distinct product groups, such as shoes and pants, one widget each in the same presentation, each resolving its own selection from the pool.
@@ -256,20 +256,20 @@
 
 - Lead with the recommendation or takeaway, keep the reply short and compare the decisive tradeoff between the top choices when useful.
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - When variants such as sizes or colors exist for a named product, offer to show them without naming more products.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 - When variants such as sizes or colors exist for a named product, offer (with `muse.create_options` alongside any other follow-on actions) to show them without naming more products.
 
 - After presenting results from "Search the catalog", offer both of these in the same `muse.create_options` widget as any other follow-up offers, including when that widget carries other options. Don't offer them after a deal hunt, including a deal hunt for a category, or after a specific product search:
   - A deal-hunting search for the top pick, such as "Find deals on Bambino Plus". Write the product's short plain name in the label, never its citation marker. Skip it when you already looked for deals or compared sellers' prices in this request.
   - Adjusting the search, such as "Adjust my search". If the user chooses it, ask in plain text what to change, such as budget, features, size or brand, then search again with their feedback added to the request's constraints.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 - Never put results in a Markdown file, link or attachment unless the user asks.
 
-<!-- shopping-results-response-contract:start -->
+`<!-- shopping-results-response-contract:start -->`
 ### Write the reply that accompanies the results
 
 - Open with one short takeaway drawn from all the results, not only the search that finished last. Do not list, recap or describe the products the widget shows, and do not mention the skill, instructions, widget, tools or formatting.
@@ -279,7 +279,7 @@
 - Write each named product as the complete `marker` returned in `product_citations`, without rebuilding it, repeating the name beside it or adding a link. Use the plain name only when no marker was returned.
 
 - Keep the results out of a Markdown file unless the user asks for one.
-<!-- shopping-results-response-contract:end -->
+`<!-- shopping-results-response-contract:end -->`
 
 ## Follow-up turns
 
@@ -318,40 +318,40 @@
 - Read a pasted Marketplace item or share link through the Facebook connector as its [docs](/opt/hatch/connectors/facebook_cli/CONNECTOR.md) describe, never in the browser, then search for similar items from its title and description.
 
 - Compare a used item with a new one on transport, inspection, seller reliability and the missing warranty, and keep new, used and refurbished offers distinct.
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-on-only:start -->`
 
 - When the matching social-link workflow calls for a product search, search as "Search the catalog" describes, including its browser fallback.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 ## Complete the purchase
 
 - Route the purchase from the main conversation, through direct checkout or `browser.browse`. The browser owns its focused login and payment workers. Do not delegate live shopping to a subagent.
 
-<!-- purchase-preapproval-off-only:start -->
+`<!-- purchase-preapproval-off-only:start -->`
 - Before checkout, continue the task that found the chosen product. Leave the other product-search tasks running; they end on their own, and you can ignore their late results.
-<!-- purchase-preapproval-off-only:end -->
-<!-- purchase-preapproval-on-only:start -->
+`<!-- purchase-preapproval-off-only:end -->`
+`<!-- purchase-preapproval-on-only:start -->`
 - Leave other product-search tasks running; they end on their own, and you can ignore their late results.
-<!-- purchase-preapproval-on-only:end -->
+`<!-- purchase-preapproval-on-only:end -->`
 
 - Choosing items or building a cart moves no money. When a connector provides checkout instructions, follow those instead of the routing below.
 
 - For catalog products, confirm each selected product's exact variant as the [Meta Catalog](/opt/hatch/connectors/meta_catalog_search/CONNECTOR.md) docs describe. When its product details carry a `checkout_token`, check out as the [Shopify UCP](/opt/hatch/connectors/shopify-ucp/CONNECTOR.md) docs describe, whatever its checkout flags say.
 
-<!-- purchase-preapproval-off-only:start -->
+`<!-- purchase-preapproval-off-only:start -->`
 - Otherwise follow [browser checkout](/opt/muse/skills/shopping/references/browser-checkout.md). For a request to buy, assign the browser task to complete checkout and confirm the order was placed.
-<!-- purchase-preapproval-off-only:end -->
-<!-- purchase-preapproval-on-only:start -->
+`<!-- purchase-preapproval-off-only:end -->`
+`<!-- purchase-preapproval-on-only:start -->`
 - Otherwise follow [browser checkout](/opt/muse/skills/shopping/references/browser-checkout.md). For a purchase with a known product URL or a request to approve before checkout or complete the purchase later, request approval now through `~/docs/chat/browser-purchase-preapproval.md`, unless the user asks to approve at checkout.
-<!-- purchase-preapproval-on-only:end -->
-<!-- muse-promo-code-on-only:start -->
+`<!-- purchase-preapproval-on-only:end -->`
+`<!-- muse-promo-code-on-only:start -->`
 
 - A catalog product's details (`pdp_coupon`, or the `variant_coupon_prices` row for another variant), Buy handoff or reply context (`coupon`) can carry a coupon. Its price already includes the saving, so quote it with the code and never subtract the saving again. Without one, quote the regular price. Once its `expires_at` passes (shown as "price checked until" in a `coupon` line, not "offer ends"), re-read the product's details before quoting it again: the offer has ended only when they carry no coupon and their `promo_offers_lookup_status` is `complete`; with any other status, quote the regular price without saying the offer ended. At checkout, apply the code as the Shopify UCP docs describe, including their complete-set rule, or have the browser task enter it in the basket. Then quote the checkout's refreshed total.
 
 - When the order has no coupon and no other code (none from the user, a requested deal search or another item, and none already applied on the checkout), quietly try at most three of the details' `promo_offers` at checkout, in their returned order: those with a `coupon_code`, `offer_type` `NORMAL`, a `quality_score` of at least 0.9, `requires_email` and `is_bxgy` false, and terms the basket meets. Apply them one at a time, the same way as a coupon, and stop at the first the merchant accepts. Never retry or stack them, and keep rejected ones out of your replies. Quote a saving only from the checkout's refreshed total; when none applies, continue at the regular price. A coupon withheld because the lookup was not `complete` does not start these attempts.
-<!-- muse-promo-code-on-only:end -->
+`<!-- muse-promo-code-on-only:end -->`
 
-- Products with a `checkout_token` keep their merchant cart as the Shopify UCP connector docs describe, and a connector with its own cart support keeps it there. Otherwise, have the browser task build the merchant cart with the specified variants and quantities. Continue the same task when the user changes the cart<!-- purchase-preapproval-on-only:start -->, unless the changes require renewed purchase preapproval<!-- purchase-preapproval-on-only:end -->. The store holds, prices and discounts that basket, so do not keep a list of your own as a cart. Follow the connector's instructions for cart reads, changes and widgets.
+- Products with a `checkout_token` keep their merchant cart as the Shopify UCP connector docs describe, and a connector with its own cart support keeps it there. Otherwise, have the browser task build the merchant cart with the specified variants and quantities. Continue the same task when the user changes the cart`<!-- purchase-preapproval-on-only:start -->`, unless the changes require renewed purchase preapproval`<!-- purchase-preapproval-on-only:end -->`. The store holds, prices and discounts that basket, so do not keep a list of your own as a cart. Follow the connector's instructions for cart reads, changes and widgets.
 
 - Keep the catalog `cart_id` or browser `task_id` in context. Do not show internal IDs to the user. Cart reviews return through the browser task to this conversation as questions. Answer with `browser.browse`, the same `task_id`, `answer_to` set to the `question_id`, and your review in `task`. Payment authorization uses the payment approval interface. Do not ask for either decision twice.
 
@@ -393,12 +393,12 @@
 
 ## Websites
 
-<!-- product-search-improvements-off-only:start -->
+`<!-- product-search-improvements-off-only:start -->`
 - Search the brand's store and the chosen retailers with the browser product search brief above, giving the exact model, variant, quantity and delivery country.
-<!-- product-search-improvements-off-only:end -->
-<!-- product-search-improvements-on-only:start -->
+`<!-- product-search-improvements-off-only:end -->`
+`<!-- product-search-improvements-on-only:start -->`
 - When a browser product search runs, search the brand's store and the chosen retailers with the brief above, giving the exact model, variant, quantity and delivery country.
-<!-- product-search-improvements-on-only:end -->
+`<!-- product-search-improvements-on-only:end -->`
 
 - [Walmart](https://www.walmart.com/) and [Target](https://www.target.com/) for general goods in the US, [Best Buy](https://www.bestbuy.com/) for electronics, and [Home Depot](https://www.homedepot.com/) or [Lowe's](https://www.lowes.com/) for home improvement.
 

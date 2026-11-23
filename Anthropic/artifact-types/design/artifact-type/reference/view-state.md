@@ -8,7 +8,7 @@ canvas.
 <!-- Generated from skills/_shared/view-context.md by
 scripts/inline-shared.ts — edit the fragment, never this block. -->
 
-<!-- shared:view-context -->  
+`<!-- shared:view-context -->`  
 While a viewer has the artifact open beside their conversation with
 you, each message they send may start with a tagged data block
 (`<artifact-view-context artifact="…">`) carrying one JSON object: that viewer's live room
@@ -56,7 +56,7 @@ below, each in the shape described there; ignore keys you do not know,
 and if a listed field has another shape (prose where an id belongs,
 deeper nesting) discard the record and ask. Use only ids that match content you hold (content.json /
 source files, or state read back from the artifact).
-<!-- /shared:view-context -->
+`<!-- /shared:view-context -->`
 
 Design publishes `{ mode, page, pageName, visibleArtboards, selectedArtboards,
 erroredArtboards, firstError, dirty, shaders, selected, selection }` (plus `edits`, above). Artboards are named by their .dc.html file with the

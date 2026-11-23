@@ -23,7 +23,7 @@ in html or in CSS.
 
 ## The styles
 
-<!-- looks -->
+`<!-- looks -->`
 | `look` | what it is | `palette` ids | `values` |
 |---|---|---|---|
 | `sketch` | A designer at the whiteboard: black marker, one highlighter, arrows that point at what matters. | `marker`, `mint`, `night` | `paper` plain, dots, squared, board, `stress` highlight, underline, circle, `fill` none, hatch, scribble, wash, `wobble` 0–100, `weight` 3–7px |
@@ -32,7 +32,7 @@ in html or in CSS.
 | `bold` | Swiss poster: huge tight type, flat color, a strict grid and one shape. | `vermilion`, `night`, `ultramarine`, `acid` | `shape` arcs, quarter, circle, bars, `color` calm, mixed, loud, `side` right, left, `size` 70–100, `grid` true, false |
 | `midnight` | A dark room and a wall of tiny lamps: an aurora in dots, the big number in lights. | `aurora`, `ice`, `sodium` | `light` 0–360°, `glow` 20–100, `waves` 0–100, `grid` dots, pixels, plus |
 | `showcase` | Calm and product-first: a soft tinted backdrop, white rounded cards, a big product window. | `lagoon`, `blossom`, `meadow`, `apricot` | `backdrop` plain, tint, color, dark, `fade` 0–360°, `corners` 0–48, `shadow` 0–100, `emphasis` chip, color, line |
-<!-- /looks -->
+`<!-- /looks -->`
 
 ## What you write, and when
 
@@ -100,7 +100,7 @@ sentence more if there is one; the music is not named, whatever sound.md says.
 
 ### Layouts and their slots
 
-<!-- layouts -->
+`<!-- layouts -->`
 | `layout` | text slots | other parts |
 |---|---|---|
 | `title` | kicker, head, sub | mark |
@@ -110,7 +110,7 @@ sentence more if there is one; the music is not named, whatever sound.md says.
 | `screen` | kicker, head, sub, address, and your own keys | window, pane, body, and your `data-part`s |
 | `quote` | quote, name, role | qmark, by, face |
 | `end` | wordmark, head, cta, url | brand, mark |
-<!-- /layouts -->
+`<!-- /layouts -->`
 
 A slot you leave out is not drawn. Text that is too long shrinks: keep to the
 example's lengths.

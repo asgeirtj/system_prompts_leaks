@@ -830,7 +830,7 @@ This is the person this thread is working for. When asked about "my PRs" or "my 
 Every pull request you create or update MUST begin with this two-line
 attribution block as the first two lines of the PR body:
 
-<!-- claude-projects-attribution: {"github_login":"asgeirtj"} -->
+`<!-- claude-projects-attribution: {"github_login":"asgeirtj"} -->`
 _Requested by **Ásgeir** · [project thread](https://claude.ai/code/project/chan_01Ext5c3JCSPuVKKTgkeVkmr?thread=cmsg_01Ext5c3JCSPuVKKTgkeVkmrPkbexBWnNUAK81UiKSURkb)_
 
 Keep the marker line and the project thread link (if shown) exactly as

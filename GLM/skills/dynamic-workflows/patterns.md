@@ -636,7 +636,7 @@ can tell which requests need the strong model. A router on the light model answe
 typed key; code maps the key to a model the script declared. The router never writes a model
 name, so it can only pick among models the user approved in the window.
 
-<!-- compile -->
+`<!-- compile -->`
 ```ts
 // Every model the run can use, declared once; names come from ListModels.
 const MODELS = {

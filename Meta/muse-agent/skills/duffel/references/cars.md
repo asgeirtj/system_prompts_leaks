@@ -2,7 +2,7 @@
 
 - These commands apply to rental cars only; the flight sections of Duffel's `CONNECTOR.md` do not. [Trip Transport](/opt/muse/skills/trip-transport/SKILL.md) covers gathering inputs, airport pickups and comparing sources. Use the commands as written here rather than running `--help`.
 
-<!-- duffel-rental-cars-only:start -->
+`<!-- duffel-rental-cars-only:start -->`
 ## Search
 
 - Resolve each place to verified coordinates with `map.geocode` (load the `map` namespace with `tool_search.load_tool_namespace` first) or another map source, and pass the primary driver's age on the pickup date and two-letter residence country. Times are local to each location.
@@ -92,7 +92,7 @@
 - `ok: false` with `code: duffel_unavailable` means new rental-car searches and reservations are unavailable right now; continue on the rental company's official site with `browser.browse`. Existing reservations stay readable and cancellable.
 
 - When Duffel finds no matching inventory, say only that this source had none for the search, which does not show that no cars exist.
-<!-- duffel-rental-cars-only:end -->
+`<!-- duffel-rental-cars-only:end -->`
 
 ## Check or cancel a reservation
 

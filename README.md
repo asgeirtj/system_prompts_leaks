@@ -175,7 +175,8 @@ Used as the definitive source in:
 
 | Model | Prompt |
 |-------|--------|
-| **Gemini 4 Argon** | [**Antigravity IDE system prompt**](Google/antigravity/antigravity-ide.md) · [Antigravity CLI](Google/antigravity/antigravity-cli.md) · [skills](Google/antigravity/skills/) · [slash commands](Google/antigravity/slash-commands/) · [API (AI Studio)](Google/gemini-4-argon-api-ai-studio.md) |
+| **Antigravity** | [**Antigravity IDE system prompt**](Google/antigravity/antigravity-ide.md) · [Antigravity CLI](Google/antigravity/antigravity-cli.md) · [skills](Google/antigravity/skills/) · [slash commands](Google/antigravity/slash-commands/) |
+| **Gemini 4 Argon** | [**Gemini 4 Argon system prompt (AI Studio)**](Google/gemini-4-argon-api-ai-studio.md) |
 | **Gemini 3.8 Flash** | [**Gemini 3.8 Flash system prompt**](Google/gemini-3.8-flash.md) |
 | **Gemini 3.1 Pro** | [**Gemini 3.1 Pro system prompt**](Google/gemini-3.1-pro.md) · [API](Google/gemini-3.1-pro-api.md) |
 | Gemini 3.7 Flash | [Gemini 3.7 Flash system prompt](Google/gemini-3.7-flash.md) |

@@ -19,7 +19,7 @@ Found the prompt you were looking for? **Leave a ⭐**
 
 Used as the definitive source in:
 
-- **The Washington Post**: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.today/pYtPk) (May 11, 2026)
+- **The Washington Post**: [See the hidden rules behind AI. Then use them to rewrite this article.](https://archive.ph/pYtPk) (May 11, 2026)
 - **CEPS' AI World**: [System prompts and what they tell us about the chat before the chat](https://aiworld.eu/story/system-prompts-and-what-they-tell-us-about-the-chat-before-the-chat) (July 10, 2026)
 - **Simon Willison**: "the most thorough leaked system prompt collection I know of" in [ChatGPT search now uses the site:operator at scale](https://simonwillison.net/2026/Aug/20/chatgpt-search-now-uses-the-siteoperator-at-scale/) (August 20, 2026)
 - **23 academic papers**, among them IEEE S&P 2026, ICLR 2026, CHI 2026 and EMNLP 2025 (November 18, 2026)

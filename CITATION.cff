@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+title: "System Prompts Leaks"
+type: dataset
+authors:
+  - family-names: "Johnson"
+    given-names: "Ásgeir Thor"
+    alias: "asgeirtj"
+    email: "asgeirtj@gmail.com"
+    website: "https://github.com/asgeirtj"
+abstract: "Leaked system prompts of ChatGPT, Claude, Gemini and more: the hidden system prompt of every popular chatbot, in full, every version since May 2025."
+keywords:
+  - system prompts
+  - large language models
+  - ChatGPT
+  - Claude
+  - Gemini
+repository-code: "https://github.com/asgeirtj/system_prompts_leaks"
+url: "https://github.com/asgeirtj/system_prompts_leaks"
+license: CC0-1.0
+date-released: "2025-05-03"

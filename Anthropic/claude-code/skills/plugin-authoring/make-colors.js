@@ -1,7 +1,7 @@
 // make-colors.js: copy this file into your mod's hooks folder, and leave it as it is.
 // Generated from the design system's theme code. Don't edit it.
-// sources-sha256: 069a128edad2b7fbcabe040847e2936566ff2e55317e28dfeca8e17fecdf2043
-// body-sha256: a88496287626e8a53279406589b8688d60045d6cf03f82155a2ed0909fde278a
+// sources-sha256: 60b9bbac46ce87b22085f1e0eda3cda8f295065f5d3a43cbc70491276fba6328
+// body-sha256: 6b014a1438a68c18eb3fa4fe0ace804c129ca89f222b7a44d811fad01288b926
 var THEME_GRAPH = {
   border: "alpha-2",
   "alpha-2": "@neutral-900/10",
@@ -35,9 +35,9 @@ var THEME_GRAPH = {
   "focus-shadow": ["inset 0 0 0 1px {page-bg}, 0 0 0 1px {fill-accent}, 0 0 6px 1px {bg-accent}", "inset 0 0 0 1px {page-bg}, 0 0 0 1px {fill-accent}, 0 0 6px 1px {@role-accent-600/60}"],
   "page-bg": "surface-0",
   "surface-0": ["gray-20", "gray-900"],
-  "bg-accent": ["role-accent-100", "role-accent-800"],
+  "bg-accent": "@role-accent-450/12",
   "focus-shadow-danger": ["inset 0 0 0 1px {page-bg}, 0 0 0 1px {fill-danger}, 0 0 6px 1px {bg-danger}", "inset 0 0 0 1px {page-bg}, 0 0 0 1px {fill-danger}, 0 0 6px 1px {@role-danger-600/60}"],
-  "bg-danger": ["role-danger-100", "role-danger-800"],
+  "bg-danger": ["@role-danger-450/12", "@role-danger-450/20"],
   "pictogram-highlight-default": ["gray-80", "gray-650"],
   "neutral-0": ["gray-0", "gray-900"],
   "neutral-10": ["gray-10", "gray-890"],
@@ -97,8 +97,8 @@ var THEME_GRAPH = {
   "fill-git-removed": "text-git-removed",
   "fill-primary": "neutral-900",
   "fill-primary-hover": ["neutral-750", "gray-100"],
-  "fill-secondary": ["'hsl(0 0% 100% / 0.1)", "alpha-2"],
-  "fill-secondary-hover": ["alpha-1", "@neutral-900/14"],
+  "fill-secondary": ["alpha-1", "alpha-2"],
+  "fill-secondary-hover": ["@neutral-900/7.4", "@neutral-900/14"],
   "fill-secondary-ring": ["border", "'transparent"],
   "fill-secondary-pressed-ring": "border",
   "fill-field": ["'hsl(0 0% 100% / 0.5)", "alpha-1"],
@@ -109,9 +109,17 @@ var THEME_GRAPH = {
   "fill-control": "alpha-2",
   "fill-control-hover": "alpha-3",
   "bg-accent-muted": "color-mix(in srgb, {fill-accent} 10%, transparent)",
-  "bg-success": ["role-success-100", "role-success-800"],
-  "bg-warning": ["role-warning-100", "role-warning-800"],
-  "bg-pro": ["role-pro-100", "role-pro-800"],
+  "bg-success": ["@role-success-450/14", "@role-success-450/12"],
+  "bg-warning": ["@role-warning-200/12", "@role-warning-200/8"],
+  "bg-pro": "@role-pro-450/12",
+  "bg-tint-red-opaque": "^surface-1/220,60,61/12",
+  "bg-tint-orange-opaque": ["^surface-1/210,95,37/14", "^surface-1/210,95,37/12"],
+  "bg-tint-yellow-opaque": ["^surface-1/251,179,21/12", "^surface-1/251,179,21/8"],
+  "bg-tint-green-opaque": ["^surface-1/16,161,34/14", "^surface-1/16,161,34/12"],
+  "bg-tint-aqua-opaque": ["^surface-1/1,156,127/14", "^surface-1/1,156,127/12"],
+  "bg-tint-blue-opaque": "^surface-1/37,125,224/12",
+  "bg-tint-violet-opaque": "^surface-1/120,94,232/12",
+  "bg-tint-magenta-opaque": "^surface-1/206,68,125/12",
   "bg-git-added": "color-mix(in srgb, {text-git-added} 20%, transparent)",
   "bg-git-removed": "color-mix(in srgb, {text-git-removed} 20%, transparent)",
   "bg-git-modified": "color-mix(in srgb, {text-git-modified} 20%, transparent)",
@@ -131,8 +139,8 @@ var THEME_GRAPH = {
   "bg-neutral-hover": "alpha-2",
   "bg-user-message": "bg-neutral",
   "text-accent": ["role-accent-600", "role-accent-300"],
-  "text-danger": ["role-danger-600", "role-danger-300"],
-  "text-success": ["role-success-600", "role-success-400"],
+  "text-danger": ["role-danger-600", "role-danger-250"],
+  "text-success": ["role-success-600", "role-success-250"],
   "text-warning": ["role-warning-600", "role-warning-300"],
   "text-pro": ["role-pro-600", "role-pro-300"],
   "text-primary": ["neutral-900", "gray-50"],
@@ -217,15 +225,15 @@ var THEME_PAIRS = [
   ["text-accent", "surface-2", "AA"],
   ["text-accent", "surface-3", "AA"],
   ["text-accent", "bg-accent", "AA"],
-  ["text-accent", "bg-tint-blue=rgba(118, 178, 251, 0.35)|rgba(0, 36, 81, 0.75)", "AA"],
+  ["text-accent", "bg-tint-blue=rgba(37, 125, 224, 0.12)", "AA"],
   ["text-accent", "tooltip-bg", "AA", 0, 1],
   ["text-danger", "surface-0", "AA"],
   ["text-danger", "surface-1", "AA"],
   ["text-danger", "surface-2", "AA"],
   ["text-danger", "surface-3", "AA"],
   ["text-danger", "bg-danger", "AA"],
-  ["text-danger", "bg-tint-red=rgba(246, 143, 145, 0.35)|rgba(73, 12, 12, 0.75)", "AA"],
-  ["text-danger", "bg-user-message-personal=rgba(118, 178, 251, 0.35)|rgba(0, 36, 81, 0.75)", "AA"],
+  ["text-danger", "bg-tint-red=rgba(220, 60, 61, 0.12)", "AA"],
+  ["text-danger", "bg-tint-blue=rgba(37, 125, 224, 0.12)", "AA"],
   ["text-success", "surface-0", "AA"],
   ["text-success", "surface-1", "AA"],
   ["text-success", "surface-2", "AA"],
@@ -236,22 +244,21 @@ var THEME_PAIRS = [
   ["text-warning", "surface-2", "AA"],
   ["text-warning", "surface-3", "AA"],
   ["text-warning", "bg-warning", "AA"],
-  ["text-warning", "bg-tint-yellow=rgba(243, 161, 2, 0.35)|rgba(58, 28, 0, 0.75)", "AA"],
+  ["text-warning", "bg-tint-yellow=rgba(251, 179, 21, 0.12)|rgba(251, 179, 21, 0.08)", "AA"],
   ["text-pro", "surface-0", "AA"],
   ["text-pro", "surface-1", "AA"],
   ["text-pro", "surface-2", "AA"],
   ["text-pro", "surface-3", "AA"],
   ["text-pro", "bg-pro", "AA"],
-  ["text-pro", "bg-tint-violet=rgba(169, 158, 255, 0.35)|rgba(32, 22, 90, 0.75)", "AA"],
-  ["text-tint-red=#8e2626|#ec7e7e", "bg-tint-red=rgba(246, 143, 145, 0.35)|rgba(73, 12, 12, 0.75)", "AA"],
-  ["text-tint-orange=#863311|#ec835a", "bg-tint-orange=rgba(238, 149, 114, 0.35)|rgba(66, 20, 2, 0.75)", "AA"],
-  ["text-tint-yellow=#734500|#db9300", "bg-tint-yellow=rgba(243, 161, 2, 0.35)|rgba(58, 28, 0, 0.75)", "AA"],
-  ["text-tint-green=#006300|#55bf50", "bg-tint-green=rgba(109, 201, 102, 0.35)|rgba(16, 44, 13, 0.75)", "AA"],
-  ["text-tint-aqua=#065f49|#3bbd8c", "bg-tint-aqua=rgba(78, 203, 160, 0.35)|rgba(0, 45, 36, 0.75)", "AA"],
-  ["text-tint-blue=#184f95|#6da7ec", "bg-tint-blue=rgba(118, 178, 251, 0.35)|rgba(0, 36, 81, 0.75)", "AA"],
-  ["text-tint-violet=#4a3aa7|#a096eb", "bg-tint-violet=rgba(169, 158, 255, 0.35)|rgba(32, 22, 90, 0.75)", "AA"],
-  ["text-tint-magenta=#862a4c|#e87ba4", "bg-tint-magenta=rgba(243, 138, 180, 0.35)|rgba(69, 13, 34, 0.75)", "AA"],
-  ["text-user-message-personal=#184f95|#6da7ec", "bg-user-message-personal=rgba(118, 178, 251, 0.35)|rgba(0, 36, 81, 0.75)", "AA"],
+  ["text-pro", "bg-tint-violet=rgba(120, 94, 232, 0.12)", "AA"],
+  ["text-tint-red=#a42528|#f17778", "bg-tint-red=rgba(220, 60, 61, 0.12)", "AA"],
+  ["text-tint-orange=#90370f|#f18a59", "bg-tint-orange=rgba(210, 95, 37, 0.14)|rgba(210, 95, 37, 0.12)", "AA"],
+  ["text-tint-yellow=#895902|#e49c06", "bg-tint-yellow=rgba(251, 179, 21, 0.12)|rgba(251, 179, 21, 0.08)", "AA"],
+  ["text-tint-green=#006c10|#53c556", "bg-tint-green=rgba(16, 161, 34, 0.14)|rgba(16, 161, 34, 0.12)", "AA"],
+  ["text-tint-aqua=#006458|#2bc6a5", "bg-tint-aqua=rgba(1, 156, 127, 0.14)|rgba(1, 156, 127, 0.12)", "AA"],
+  ["text-tint-blue=#1757ac|#6aabf1", "bg-tint-blue=rgba(37, 125, 224, 0.12)", "AA"],
+  ["text-tint-violet=#5437b8|#a89af0", "bg-tint-violet=rgba(120, 94, 232, 0.12)", "AA"],
+  ["text-tint-magenta=#902552|#ee7fac", "bg-tint-magenta=rgba(206, 68, 125, 0.12)", "AA"],
   ["text-git-added", "surface-1", "AA"],
   ["text-git-added", "bg-git-added", "AA"],
   ["text-git-removed", "surface-1", "AA"],
@@ -279,17 +286,17 @@ var THEME_PAIRS = [
   ["text-primary", "bg-neutral", "AA"],
   ["text-primary", "bg-neutral-hover", "AA"],
   ["text-primary", "bg-user-message", "AA"],
-  ["text-primary", "bg-user-message-personal=rgba(118, 178, 251, 0.35)|rgba(0, 36, 81, 0.75)", "AA"],
+  ["text-primary", "bg-tint-blue=rgba(37, 125, 224, 0.12)", "AA"],
   ["text-primary", "bg-highlight", "AA"],
   ["text-primary", "bg-editor-comment", "AA"],
   ["text-primary", "bg-editor-comment-active", "AA"],
   ["text-primary", "bg-accent-muted", "AA"],
   ["text-primary", "bg-editor-claude-pending=color-mix(in srgb, #d97757 22%, transparent)", "AA"],
   ["text-primary", "bg-editor-highlight-yellow", "AA"],
-  ["text-primary", "bg-editor-highlight-green=color-mix(in srgb, #55bf50 33%, transparent)", "AA"],
-  ["text-primary", "bg-editor-highlight-blue=color-mix(in srgb, #6da7ec 33%, transparent)", "AA"],
-  ["text-primary", "bg-editor-highlight-magenta=color-mix(in srgb, #e87ba4 33%, transparent)", "AA"],
-  ["text-primary", "bg-editor-highlight-violet=color-mix(in srgb, #a096eb 33%, transparent)", "AA"],
+  ["text-primary", "bg-editor-highlight-green=color-mix(in srgb, #53c556 33%, transparent)", "AA"],
+  ["text-primary", "bg-editor-highlight-blue=color-mix(in srgb, #6aabf1 33%, transparent)", "AA"],
+  ["text-primary", "bg-editor-highlight-magenta=color-mix(in srgb, #ee7fac 33%, transparent)", "AA"],
+  ["text-primary", "bg-editor-highlight-violet=color-mix(in srgb, #a89af0 33%, transparent)", "AA"],
   ["text-primary", "bg-editor-highlight-gray", "AA"],
   ["text-primary", "segmented-control-track", "AA"],
   ["text-primary", "segmented-control-thumb", "AA"],
@@ -364,8 +371,8 @@ var THEME_PAIRS = [
   "slider-handle": "gray-0",
   "slider-fill": ["alpha-3", "alpha-4"],
   "switch-knob": "gray-0",
-  "switch-track": ["alpha-3", "alpha-2"],
-  "switch-track-hover": ["alpha-4", "alpha-3"],
+  "switch-track": "alpha-3",
+  "switch-track-hover": "alpha-4",
   "tooltip-fg": ["role-tooltip-fg", "text-primary"]
 };
 
@@ -543,10 +550,14 @@ function evalExpr(expr, literalOf, nameOf) {
     case "ref":
       return literalOf(expr.ref);
     case "alpha":
-      return `rgba(${channelsOf("atAlpha", nameOf(expr.ref), literalOf(expr.ref)).join(", ")}, ${expr.pct / 100})`;
+      return `rgba(${channelsOf("atAlpha", nameOf(expr.ref), literalOf(expr.ref)).join(", ")}, ${+(expr.pct / 100).toFixed(6)})`;
     case "unmix": {
       let a = expr.pct / 100, c = channelsOf("unmix", nameOf(expr.ref), literalOf(expr.ref));
       return `rgba(${RGB.map((i) => Math.round(Math.min(255, Math.max(0, (c[i] - expr.k[i]) / a)))).join(", ")}, ${a})`;
+    }
+    case "over": {
+      let c = channelsOf("over", nameOf(expr.ref), literalOf(expr.ref));
+      return `#${RGB.map((i) => Math.round((expr.top[i] * expr.pct + c[i] * (100 - expr.pct)) / 100).toString(16).padStart(2, "0")).join("")}`;
     }
     case "css": {
       let out = expr.strings[0] ?? "";
@@ -567,11 +578,15 @@ function parseForm(text) {
       let [r = 0, g = 0, bl = 0] = a.split(",").map(Number);
       return { op: "unmix", ref, k: [r, g, bl], pct: Number(b) };
     }
+    if (s.startsWith("^")) {
+      let [r = 0, g = 0, bl = 0] = a.split(",").map(Number);
+      return { op: "over", ref, top: [r, g, bl], pct: Number(b) };
+    }
     return { op: "ref", ref: s };
   };
   if (text.startsWith("'"))
     return { op: "css", strings: [text.slice(1)], parts: [] };
-  if (NAME.test(text) || /^[@~]/.test(text))
+  if (NAME.test(text) || /^[@~^]/.test(text))
     return part(text);
   let pieces = text.split(/\{([^}]*)\}/);
   return {
@@ -604,9 +619,9 @@ var THEME_INPUT_GROUPS = [
   ["fill-git-", "added modified"],
   ["text-git-", "added removed modified merged closed conflicting draft"]
 ], STOCK_THEME_INPUTS = {
-  light: "fffffffcfcfbf9f9f7f6f6f4f3f3f0f0efecedece8eae9e4e7e6e1e4e3dde1e0d9d2d1c7c3c2b7b4b3a8a5a49a97958d8987817b79746d6b675f5e5a52514e4544423838352c2c2a20201f1e1e1d1c1c1b1a1a191818171515151313131111110f0f0f0d0d0d0b0b0be7f1fbcde2fb86b6ef6da7ec3987e52a78d6184f950d366b03204203162c2a78d63987e5fffffffad6d6f09595ec7e7ee34948d03b3b8e26266419193c0e0ed03b3be34948ffffffcaeac773cb6d0ca30c00930000630007450611260f0093000ca30c0b0b0bf9dca4fab219eda100db9300734500512e00311a00fab219eda1000b0b0bdfdbfdb0a7f2a096eb8173e37161e04a3aa73227771d16497161e08173e3ffffff0b0b0bffffff1a86338b751c1e9e3ccd205498801f8e6bd9ff3a30c5621b737373",
-  darkFrom: 92,
-  dark: "32d74bffd01432d74bff2c56ffd014b796ffff6159fa832ea6a6a6"
+  light: "fffffffcfcfbf9f9f7f6f6f4f3f3f0f0efecedece8eae9e4e7e6e1e4e3dde1e0d9d2d1c7c3c2b7b4b3a8a5a49a97958d8987817b79746d6b675f5e5a52514e4544423838352c2c2a20201f1e1e1d1c1c1b1a1a191818171515151313131111110f0f0f0d0d0d0b0b0be7f2fccce3fd84b9f36aabf1338ced257de01757ac0e3d7e02244e021833257de02370cdfffffffbd4d4f49090f17778ec4647dc3c3da42528761a1c470f10c83839b62e30ffffffcaecc872d0710aac2310a122006c100a4d10142a1310a122008a17fffffff9dca4fbb315f2a600e49c06794c02563301331d00fbb315e49c06442800e4deffb8abf7a89af08873e9785ee85437b83a2684221551785ee86a4ce2ffffff0b0b0bffffff1a86338b751c1e9e3ccd205498801f8e6bd9ff3a30c5621b737373",
+  darkFrom: 56,
+  dark: "dc3c3dc83839ffffffcaecc872d0710aac2310a122006c100a4d10142a1310a122008a17fffffff9dca4fbb315f2a600e49c06794c02563301331d00fbb315e49c06442800e4deffb8abf7a89af08873e9785ee85437b83a2684221551785ee86a4ce2ffffff0b0b0bffffff32d74bffd01432d74bff2c56ffd014b796ffff6159fa832ea6a6a6"
 };
 
 var INPUT_ALIASES = {}, RETIRED_INPUTS = [
@@ -687,11 +702,11 @@ function checkTheme(theme) {
 }
 
 var RAMP_STOPS = "0 10 20 30 40 50 60 70 80 90 100 150 200 250 300 350 400 450 500 550 600 650 700 750 800 810 820 830 840 850 860 870 880 890 900", ROLE_DEFAULTS = {
-  accent: { ramp: "fffffffafcfff5f9fef0f7feebf4fce7f1fbe2eefaddebfad7e8fad2e5facde2fbb7d3f69ec5f486b6ef6da7ec5598e73987e52a78d6256abf1c5cab184f951042810d366b062b57032042031e3d021c39021a3602183103162c05142607121f0910180a0d110b0b0b", shade: 450, ink: 0, floor: 4.4 },
-  danger: { ramp: "fffffffffbfbfef7f7fef3f3fdefeffbebebfae7e7fae3e3fadfdffadadafad6d6f7c1c1f4ababf09595ec7e7ee66767e34948d03b3bb93535a32c2c8e2626791e1e6419195112123c0e0e380d0d340c0c310b0b2d0a0a280a0a230b0a1d0b0a170c0b110c0b0b0b0b", shade: 450, ink: 0, floor: 4.5 },
-  success: { ramp: "fffffffafdfaf5fbf4f0f9efebf7e9e5f4e4e0f2dedbf0d8d5eed3d0eccdcaeac7aee0a991d68b73cb6d55bf5035b2310ca30c0093000083000073000063000054000745060f350d11260f10230f10210f101e0f101b0f0f180e0e160e0e130d0d100d0c0e0c0b0b0b", shade: 450, ink: 900, floor: 4.5 },
-  warning: { ramp: "fffffffefcf8fcf8f1fbf5eaf9f2e4f9eedafaebcefae7c2fae3b8f9e0b0f9dca4f9c868fab219eda100db9300c98500b77700a66a00945d00835100734500623900512e00412400311a002e18002b17002715002314021f12041b1106171007130e090f0d0a0b0b0b", shade: 200, ink: 900, floor: 4.5 },
-  pro: { ramp: "fffffffcfbfff8f8fff5f4fff2f1ffefedffebeafee8e6fee5e2fde2dffddfdbfdcfcafbbfb9f5b0a7f2a096eb9085e98173e37161e06250d65645be4a3aa73e318e322777271e601d16491b154419133f17123b151036130f32110e2b0f0e230e0d1b0c0c130b0b0b", shade: 450, ink: 0, floor: 4.5 }
+  accent: { ramp: "fffffffafcfff5f9fef0f7feebf5fde7f2fce2effbddecfbd7e9fbd1e6fbcce3fdb6d5f89dc8f784b9f36aabf1519ced338ced257de02370cd1b64be1757ac0f4a960e3d7e06316702244e022248012043011d3f011b3902183305162c07142309111b0a0e120b0b0b", shade: 450, hover: 1, ink: 0, floor: 4.1 },
+  danger: { ramp: "fffffffffbfbfef6f6fef2f2feeeeefceaeafbe6e6fbe1e1fbddddfbd8d8fbd4d4f9bebef7a7a7f49090f17778eb6263ec4647dc3c3dc83839b62e30a425288d1e21761a1c601314470f10420e0f3d0d0e390b0c340a0b2e0a0b280b0b210c0b1a0d0b120c0b0b0b0b", shade: 500, darkShade: 450, hover: 1, ink: 0, floor: 4.5, darkFloor: 4.4 },
+  success: { ramp: "fffffffafdfaf5fbf4f0f9efebf8e9e5f5e5e0f3dfdbf1d9d5efd4d0edcecaecc8aee2ab90da8e72d07153c55633b93b0aac2310a122008a17007b14006c10015c0d0a4d10123b13142a13132713122512122112121e12111a100f18100f140e0e110e0c0e0c0b0b0b", shade: 450, hover: 1, ink: 0, floor: 3.4 },
+  warning: { ramp: "fffffffefcf8fcf8f1fbf5eaf9f2e4f9eedafaebcefae7c2fae3b8f9e0b0f9dca4f9c967fbb315f2a600e49c06d28e05bf8004ae73039b6503895902794c02673f01563301442800331d00301b002d19002817002416022013041c1206181107130f090f0d0a0b0b0b", shade: 200, hover: 2, ink: 900, hueInk: !0, floor: 4.5 },
+  pro: { ramp: "fffffffdfbfff9f9fff7f5fff4f3fff2efffeeecffebe9ffe9e5ffe6e2ffe4deffd5ceffc6bdfab8abf7a89af09887ef8873e9785ee86a4ce26042cd5437b8472f9d3a26842e1d6b22155120144c1d12461b1142190f3c160e37140e2f110e260f0d1d0d0c140b0b0b", shade: 450, hover: 1, ink: 0, floor: 4.5 }
 }, ANCHOR_STOPS = {
   light: { "surface-0": 20, "surface-1": 10, "surface-2": 0, "surface-3": 0, "text-primary": 900, "text-secondary": 600, "text-muted": 400 },
   dark: { "surface-0": 900, "surface-1": 850, "surface-2": 830, "surface-3": 800, "text-primary": 50, "text-secondary": 200, "text-muted": 400 }
@@ -831,15 +846,15 @@ function deriveWith(data, def) {
       for (let [stop, hex] of Object.entries(fieldsOf(spec.stops)))
         if (typeof hex === "string")
           ramp[Number(stop)] = hex;
-      let shade = Number(spec.fillShade ?? defaults.shade), i = stops.indexOf(shade);
+      let shade = Number(spec.fillShade ?? (mode === "dark" ? defaults.darkShade : void 0) ?? defaults.shade), i = stops.indexOf(shade);
       for (let s of reads)
         out[prefix + s] = pick(ramp, s);
       let fill = pick(ramp, shade);
       out[prefix + "fill"] = fill;
-      let beside = stops[shade >= 300 ? i - 1 : i + 1] ?? shade, handSet = fieldsOf(spec.stops), [, fillChroma, fillHue] = hexToLch(fill);
+      let last = stops.length - 1, beside = stops[i < last ? Math.min(i + defaults.hover, last) : i - defaults.hover] ?? shade, handSet = fieldsOf(spec.stops), [, fillChroma, fillHue] = hexToLch(fill);
       out[prefix + "fill-hover"] = spec.seed === void 0 && Object.hasOwn(handSet, String(shade)) && !Object.hasOwn(handSet, String(beside)) ? lchToHex(hexToLch(pick(ramp, beside))[0], fillChroma, fillHue) : pick(ramp, beside);
-      let floor = fill.toLowerCase() === stock[prefix + "fill"] ? defaults.floor : 4.5;
-      out[prefix + "on"] = inkOn(fill, gray, defaults.ink, floor);
+      let isStockFill = fill.toLowerCase() === stock[prefix + "fill"], stockFloor = (mode === "dark" ? defaults.darkFloor : void 0) ?? defaults.floor;
+      out[prefix + "on"] = isStockFill && defaults.hueInk ? stock[prefix + "on"] ?? "" : inkOn(fill, gray, defaults.ink, isStockFill ? stockFloor : 4.5);
     }
     let git = part(half?.git, `${mode}.git`);
     for (let key of Object.keys(git))

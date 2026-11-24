@@ -5179,6 +5179,10 @@ If a hook isn't running:
       "description": "Maximum Claude Code version allowed to start. If the running version is newer, Claude Code exits at startup with instructions to install an approved version. Only enforced from managed (policy) settings.",
       "type": "string"
     },
+    "downloadsMirrorUrl": {
+      "description": "Anthropic-run mirror from which native installs download Claude Code releases (claude install, claude update, and auto-updates), instead of https://downloads.claude.ai. Must be exactly https://claude.fedstart.com/claude-downloads (Claude for Government). Any other value stops installs and updates with an error. CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC normally turns auto-updates off, but not with this mirror set. Only read from managed (policy) settings.",
+      "type": "string"
+    },
     "plansDirectory": {
       "description": "Custom directory for plan files, relative to project root. If not set, defaults to ~/.claude/plans/",
       "type": "string"
@@ -5437,7 +5441,7 @@ If a hook isn't running:
       "type": "boolean"
     },
     "fileCheckpointingEnabled": {
-      "description": "Snapshot files before edits so /rewind can restore them",
+      "description": "Snapshot files before edits so /rewind can restore them. In a session an SDK starts, only an administrator's false applies",
       "type": "boolean"
     },
     "showTurnDuration": {

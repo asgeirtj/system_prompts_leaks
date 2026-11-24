@@ -30,6 +30,7 @@ Used as the definitive source in:
 
 | What | Date | Link |
 |------|------|------|
+| **Claude Code /ship and /steward** | November 24, 2026 | [/ship](Anthropic/claude-code/skills/ship/SKILL.md) · [/steward](Anthropic/claude-code/skills/steward/SKILL.md) · [wake-up pass](Anthropic/claude-code/skills/steward/pass.md) |
 | **Reasoning effort values** | November 23, 2026 | [Claude](Anthropic/reasoning-effort.md) · [GPT](OpenAI/reasoning-effort.md) · [Gemini](Google/reasoning-effort.md) |
 | **Claude API tools** | November 20, 2026 | [Claude API tool prompts and definitions](Anthropic/tools) |
 | **Claude for Outlook and Claude for Google Workspace** | November 20, 2026 | [Outlook](Anthropic/claude-for-microsoft-365/claude-for-outlook.md) · [Google Docs](Anthropic/claude-for-google-workspace/claude-in-google-docs.md) · [Google Sheets](Anthropic/claude-for-google-workspace/claude-in-google-sheets.md) · [Google Slides](Anthropic/claude-for-google-workspace/claude-in-google-slides.md) |
@@ -41,7 +42,6 @@ Used as the definitive source in:
 | **Claude Whiteboard** | November 14, 2026 | [Whiteboard type skill](Anthropic/artifact-types/whiteboard/SKILL.md) · [references](Anthropic/artifact-types/whiteboard/artifact-type/reference) |
 | **Claude Fable 5.2** | November 9, 2026 | [Claude Fable 5.2 system prompt](Anthropic/claude-fable-5.2.md) · [Claude Code (Fable 5.2)](Anthropic/claude-code/claude-code-fable-5.2.md) |
 | **Claude Tag (Slack)** | November 6, 2026 | [Claude Tag channel-session system prompt](Anthropic/claude-tag.md) |
-| **Claude Code auto mode classifier** | November 3, 2026 | [Auto mode safety classifier prompt (139 KB, as sent to Sonnet 5)](Anthropic/claude-code/prompts/auto-mode-classifier.md) |
 
 ---
 ## Anthropic — Claude
